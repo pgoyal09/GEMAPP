@@ -1,0 +1,14 @@
+---
+description: Show macOS notification when multi-step tasks complete
+alwaysApply: true
+---
+
+# Task Completion Notification
+
+When you have finished a multi-step task, finished applying code changes, or completed a long-running process, run this command to notify the user:
+
+```
+osascript -e 'display notification "I have finished the task! ✅" with title "Cursor Agent" sound name "Glass"'
+```
+
+Always run this command after completing such tasks.

@@ -1,0 +1,606 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9964FF9B2F4E795B00178ED5 /* ORSSerial in Frameworks */ = {isa = PBXBuildFile; productRef = 9964FF9A2F4E795B00178ED5 /* ORSSerial */; };
+		A10000000000000000000001 /* QDI_Gemstone_ERPApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* QDI_Gemstone_ERPApp.swift */; };
+		A10000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* ContentView.swift */; };
+		A10000000000000000000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* Assets.xcassets */; };
+		A10000000000000000000004 /* Gemstone.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* Gemstone.swift */; };
+		A10000000000000000000005 /* Customer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000005 /* Customer.swift */; };
+		A10000000000000000000006 /* Memo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000006 /* Memo.swift */; };
+		A10000000000000000000007 /* DataSeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000007 /* DataSeeder.swift */; };
+		A10000000000000000000008 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000008 /* SidebarView.swift */; };
+		A10000000000000000000009 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000009 /* DashboardView.swift */; };
+		A1000000000000000000000A /* InventoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000A /* InventoryListView.swift */; };
+		A1000000000000000000000B /* MemosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000B /* MemosView.swift */; };
+		A1000000000000000000000C /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000C /* DashboardViewModel.swift */; };
+		A1000000000000000000000D /* InventoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000D /* InventoryViewModel.swift */; };
+		A1000000000000000000000E /* MemosViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000E /* MemosViewModel.swift */; };
+		A1000000000000000000000F /* HistoryEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000F /* HistoryEvent.swift */; };
+		A10000000000000000000010 /* HistoryLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* HistoryLogger.swift */; };
+		A10000000000000000000011 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000011 /* DesignTokens.swift */; };
+		A10000000000000000000012 /* AddGemstoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000012 /* AddGemstoneView.swift */; };
+		A10000000000000000000014 /* GemstoneDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000014 /* GemstoneDetailView.swift */; };
+		A10000000000000000000015 /* CustomerListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000015 /* CustomerListView.swift */; };
+		A10000000000000000000016 /* CustomerDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000016 /* CustomerDetailView.swift */; };
+		A10000000000000000000017 /* CustomersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* CustomersViewModel.swift */; };
+		A10000000000000000000018 /* Invoice.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000018 /* Invoice.swift */; };
+		A10000000000000000000019 /* LineItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000019 /* LineItem.swift */; };
+		A1000000000000000000001A /* TransactionEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000001A /* TransactionEditorView.swift */; };
+		A1000000000000000000001B /* InventorySelectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000001B /* InventorySelectSheet.swift */; };
+		A1000000000000000000001C /* TransactionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000001C /* TransactionViewModel.swift */; };
+		A1000000000000000000001D /* MemoDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000001D /* MemoDetailView.swift */; };
+		A1000000000000000000001E /* AddCustomerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000001E /* AddCustomerSheet.swift */; };
+		A1000000000000000000001F /* InvoiceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000001F /* InvoiceDetailView.swift */; };
+		A10000000000000000000020 /* PDFService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000020 /* PDFService.swift */; };
+		A10000000000000000000021 /* InvoiceListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000021 /* InvoiceListView.swift */; };
+		A10000000000000000000022 /* InvoicesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000022 /* InvoicesViewModel.swift */; };
+		A10000000000000000000023 /* RFIDService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000023 /* RFIDService.swift */; };
+		A10000000000000000000024 /* ScannerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000024 /* ScannerViewModel.swift */; };
+		A10000000000000000000025 /* ScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000025 /* ScannerView.swift */; };
+		A10000000000000000000026 /* ReconcileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000026 /* ReconcileViewModel.swift */; };
+		A10000000000000000000027 /* InventoryReconcileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000027 /* InventoryReconcileView.swift */; };
+		A10000000000000000000028 /* RFIDManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000028 /* RFIDManager.swift */; };
+		A10000000000000000000029 /* DemoDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000029 /* DemoDataManager.swift */; };
+		A1000000000000000000002A /* EditableLineItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002A /* EditableLineItemRow.swift */; };
+		A1000000000000000000002B /* AppShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002B /* AppShellView.swift */; };
+		A1000000000000000000002C /* MemoWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002C /* MemoWindowView.swift */; };
+		A1000000000000000000002D /* InvoiceWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002D /* InvoiceWindowView.swift */; };
+		A1000000000000000000002E /* LineItemColumnLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002E /* LineItemColumnLayout.swift */; };
+		A1000000000000000000002F /* QuickIntakeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002F /* QuickIntakeView.swift */; };
+		A10000000000000000000030 /* ReviewQueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000030 /* ReviewQueueView.swift */; };
+		A10000000000000000000031 /* ReviewEditSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000031 /* ReviewEditSheet.swift */; };
+		A10000000000000000000032 /* SKUGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000032 /* SKUGenerator.swift */; };
+		A10000000000000000000033 /* QuickIntakeEnums.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000033 /* QuickIntakeEnums.swift */; };
+		A10000000000000000000034 /* AutocompleteFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000034 /* AutocompleteFieldView.swift */; };
+		A10000000000000000000035 /* StoneFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000035 /* StoneFormView.swift */; };
+		A10000000000000000000036 /* RFIDCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000036 /* RFIDCoordinator.swift */; };
+		A10000000000000000000037 /* RFIDScanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000037 /* RFIDScanService.swift */; };
+		A10000000000000000000038 /* UnknownTagAssignSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000038 /* UnknownTagAssignSheet.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		9964FF9E2F4E7CEC00178ED5 /* QDI_Gemstone_ERP.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QDI_Gemstone_ERP.entitlements; sourceTree = "<group>"; };
+		A20000000000000000000001 /* QDI_Gemstone_ERPApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QDI_Gemstone_ERPApp.swift; sourceTree = "<group>"; };
+		A20000000000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		A20000000000000000000003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A20000000000000000000004 /* Gemstone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemstone.swift; sourceTree = "<group>"; };
+		A20000000000000000000005 /* Customer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Customer.swift; sourceTree = "<group>"; };
+		A20000000000000000000006 /* Memo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Memo.swift; sourceTree = "<group>"; };
+		A20000000000000000000007 /* DataSeeder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSeeder.swift; sourceTree = "<group>"; };
+		A20000000000000000000008 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		A20000000000000000000009 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		A2000000000000000000000A /* InventoryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryListView.swift; sourceTree = "<group>"; };
+		A2000000000000000000000B /* MemosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemosView.swift; sourceTree = "<group>"; };
+		A2000000000000000000000C /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		A2000000000000000000000D /* InventoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryViewModel.swift; sourceTree = "<group>"; };
+		A2000000000000000000000E /* MemosViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemosViewModel.swift; sourceTree = "<group>"; };
+		A2000000000000000000000F /* HistoryEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryEvent.swift; sourceTree = "<group>"; };
+		A20000000000000000000010 /* HistoryLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryLogger.swift; sourceTree = "<group>"; };
+		A20000000000000000000011 /* DesignTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignTokens.swift; sourceTree = "<group>"; };
+		A20000000000000000000012 /* AddGemstoneView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGemstoneView.swift; sourceTree = "<group>"; };
+		A20000000000000000000014 /* GemstoneDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GemstoneDetailView.swift; sourceTree = "<group>"; };
+		A20000000000000000000015 /* CustomerListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerListView.swift; sourceTree = "<group>"; };
+		A20000000000000000000016 /* CustomerDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerDetailView.swift; sourceTree = "<group>"; };
+		A20000000000000000000017 /* CustomersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomersViewModel.swift; sourceTree = "<group>"; };
+		A20000000000000000000018 /* Invoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Invoice.swift; sourceTree = "<group>"; };
+		A20000000000000000000019 /* LineItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineItem.swift; sourceTree = "<group>"; };
+		A2000000000000000000001A /* TransactionEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionEditorView.swift; sourceTree = "<group>"; };
+		A2000000000000000000001B /* InventorySelectSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventorySelectSheet.swift; sourceTree = "<group>"; };
+		A2000000000000000000001C /* TransactionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionViewModel.swift; sourceTree = "<group>"; };
+		A2000000000000000000001D /* MemoDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoDetailView.swift; sourceTree = "<group>"; };
+		A2000000000000000000001E /* AddCustomerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomerSheet.swift; sourceTree = "<group>"; };
+		A2000000000000000000001F /* InvoiceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceDetailView.swift; sourceTree = "<group>"; };
+		A20000000000000000000020 /* PDFService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFService.swift; sourceTree = "<group>"; };
+		A20000000000000000000021 /* InvoiceListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceListView.swift; sourceTree = "<group>"; };
+		A20000000000000000000022 /* InvoicesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoicesViewModel.swift; sourceTree = "<group>"; };
+		A20000000000000000000023 /* RFIDService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDService.swift; sourceTree = "<group>"; };
+		A20000000000000000000024 /* ScannerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerViewModel.swift; sourceTree = "<group>"; };
+		A20000000000000000000025 /* ScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerView.swift; sourceTree = "<group>"; };
+		A20000000000000000000026 /* ReconcileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReconcileViewModel.swift; sourceTree = "<group>"; };
+		A20000000000000000000027 /* InventoryReconcileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryReconcileView.swift; sourceTree = "<group>"; };
+		A20000000000000000000028 /* RFIDManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDManager.swift; sourceTree = "<group>"; };
+		A20000000000000000000029 /* DemoDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoDataManager.swift; sourceTree = "<group>"; };
+		A2000000000000000000002A /* EditableLineItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableLineItemRow.swift; sourceTree = "<group>"; };
+		A2000000000000000000002B /* AppShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShellView.swift; sourceTree = "<group>"; };
+		A2000000000000000000002C /* MemoWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoWindowView.swift; sourceTree = "<group>"; };
+		A2000000000000000000002D /* InvoiceWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceWindowView.swift; sourceTree = "<group>"; };
+		A2000000000000000000002E /* LineItemColumnLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineItemColumnLayout.swift; sourceTree = "<group>"; };
+		A2000000000000000000002F /* QuickIntakeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickIntakeView.swift; sourceTree = "<group>"; };
+		A20000000000000000000030 /* ReviewQueueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewQueueView.swift; sourceTree = "<group>"; };
+		A20000000000000000000031 /* ReviewEditSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewEditSheet.swift; sourceTree = "<group>"; };
+		A20000000000000000000032 /* SKUGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SKUGenerator.swift; sourceTree = "<group>"; };
+		A20000000000000000000033 /* QuickIntakeEnums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickIntakeEnums.swift; sourceTree = "<group>"; };
+		A20000000000000000000034 /* AutocompleteFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutocompleteFieldView.swift; sourceTree = "<group>"; };
+		A20000000000000000000035 /* StoneFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneFormView.swift; sourceTree = "<group>"; };
+		A20000000000000000000036 /* RFIDCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDCoordinator.swift; sourceTree = "<group>"; };
+		A20000000000000000000037 /* RFIDScanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDScanService.swift; sourceTree = "<group>"; };
+		A20000000000000000000038 /* UnknownTagAssignSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnknownTagAssignSheet.swift; sourceTree = "<group>"; };
+		A30000000000000000000001 /* QDI Gemstone ERP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "QDI Gemstone ERP.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A40000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9964FF9B2F4E795B00178ED5 /* ORSSerial in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A50000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				A50000000000000000000002 /* QDI_Gemstone_ERP */,
+				A50000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A50000000000000000000002 /* QDI_Gemstone_ERP */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000001 /* QDI_Gemstone_ERPApp.swift */,
+				A20000000000000000000002 /* ContentView.swift */,
+				A50000000000000000000004 /* Models */,
+				A50000000000000000000005 /* Views */,
+				A50000000000000000000006 /* ViewModels */,
+				A50000000000000000000007 /* Services */,
+				A50000000000000000000008 /* Utilities */,
+				A20000000000000000000003 /* Assets.xcassets */,
+				9964FF9E2F4E7CEC00178ED5 /* QDI_Gemstone_ERP.entitlements */,
+			);
+			path = QDI_Gemstone_ERP;
+			sourceTree = "<group>";
+		};
+		A50000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A30000000000000000000001 /* QDI Gemstone ERP.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A50000000000000000000004 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000004 /* Gemstone.swift */,
+				A20000000000000000000005 /* Customer.swift */,
+				A20000000000000000000006 /* Memo.swift */,
+				A2000000000000000000000F /* HistoryEvent.swift */,
+				A20000000000000000000018 /* Invoice.swift */,
+				A20000000000000000000019 /* LineItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A50000000000000000000005 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A2000000000000000000002B /* AppShellView.swift */,
+				A20000000000000000000008 /* SidebarView.swift */,
+				A20000000000000000000009 /* DashboardView.swift */,
+				A2000000000000000000000A /* InventoryListView.swift */,
+				A2000000000000000000000B /* MemosView.swift */,
+				A20000000000000000000012 /* AddGemstoneView.swift */,
+				A2000000000000000000001E /* AddCustomerSheet.swift */,
+				A20000000000000000000014 /* GemstoneDetailView.swift */,
+				A20000000000000000000015 /* CustomerListView.swift */,
+				A20000000000000000000016 /* CustomerDetailView.swift */,
+				A2000000000000000000001A /* TransactionEditorView.swift */,
+				A2000000000000000000001D /* MemoDetailView.swift */,
+				A2000000000000000000002A /* EditableLineItemRow.swift */,
+				A2000000000000000000001F /* InvoiceDetailView.swift */,
+				A20000000000000000000021 /* InvoiceListView.swift */,
+				A2000000000000000000002C /* MemoWindowView.swift */,
+				A2000000000000000000002D /* InvoiceWindowView.swift */,
+				A20000000000000000000034 /* AutocompleteFieldView.swift */,
+				A20000000000000000000035 /* StoneFormView.swift */,
+				A2000000000000000000002F /* QuickIntakeView.swift */,
+				A20000000000000000000030 /* ReviewQueueView.swift */,
+				A20000000000000000000031 /* ReviewEditSheet.swift */,
+				A20000000000000000000025 /* ScannerView.swift */,
+				A20000000000000000000027 /* InventoryReconcileView.swift */,
+				A2000000000000000000001B /* InventorySelectSheet.swift */,
+				A20000000000000000000038 /* UnknownTagAssignSheet.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A50000000000000000000006 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				A2000000000000000000000C /* DashboardViewModel.swift */,
+				A2000000000000000000000D /* InventoryViewModel.swift */,
+				A2000000000000000000000E /* MemosViewModel.swift */,
+				A20000000000000000000017 /* CustomersViewModel.swift */,
+				A2000000000000000000001C /* TransactionViewModel.swift */,
+				A20000000000000000000022 /* InvoicesViewModel.swift */,
+				A20000000000000000000024 /* ScannerViewModel.swift */,
+				A20000000000000000000026 /* ReconcileViewModel.swift */,
+				A20000000000000000000036 /* RFIDCoordinator.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		A50000000000000000000007 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000007 /* DataSeeder.swift */,
+				A20000000000000000000029 /* DemoDataManager.swift */,
+				A20000000000000000000010 /* HistoryLogger.swift */,
+				A20000000000000000000020 /* PDFService.swift */,
+				A20000000000000000000023 /* RFIDService.swift */,
+				A20000000000000000000028 /* RFIDManager.swift */,
+				A20000000000000000000037 /* RFIDScanService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A50000000000000000000008 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000011 /* DesignTokens.swift */,
+				A2000000000000000000002E /* LineItemColumnLayout.swift */,
+				A20000000000000000000032 /* SKUGenerator.swift */,
+				A20000000000000000000033 /* QuickIntakeEnums.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A60000000000000000000001 /* QDI Gemstone ERP */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A70000000000000000000003 /* Build configuration list for PBXNativeTarget "QDI Gemstone ERP" */;
+			buildPhases = (
+				A60000000000000000000002 /* Sources */,
+				A40000000000000000000001 /* Frameworks */,
+				A60000000000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "QDI Gemstone ERP";
+			productName = "QDI Gemstone ERP";
+			productReference = A30000000000000000000001 /* QDI Gemstone ERP.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A80000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A60000000000000000000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = A70000000000000000000001 /* Build configuration list for PBXProject "QDI_Gemstone_ERP" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A50000000000000000000001;
+			packageReferences = (
+				9964FF992F4E795B00178ED5 /* XCRemoteSwiftPackageReference "ORSSerialPort" */,
+			);
+			productRefGroup = A50000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A60000000000000000000001 /* QDI Gemstone ERP */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A60000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000003 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A60000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000001 /* QDI_Gemstone_ERPApp.swift in Sources */,
+				A10000000000000000000002 /* ContentView.swift in Sources */,
+				A10000000000000000000004 /* Gemstone.swift in Sources */,
+				A10000000000000000000005 /* Customer.swift in Sources */,
+				A10000000000000000000006 /* Memo.swift in Sources */,
+				A10000000000000000000007 /* DataSeeder.swift in Sources */,
+				A10000000000000000000008 /* SidebarView.swift in Sources */,
+				A10000000000000000000009 /* DashboardView.swift in Sources */,
+				A1000000000000000000000A /* InventoryListView.swift in Sources */,
+				A1000000000000000000000B /* MemosView.swift in Sources */,
+				A1000000000000000000000C /* DashboardViewModel.swift in Sources */,
+				A1000000000000000000000D /* InventoryViewModel.swift in Sources */,
+				A1000000000000000000000E /* MemosViewModel.swift in Sources */,
+				A1000000000000000000000F /* HistoryEvent.swift in Sources */,
+				A10000000000000000000010 /* HistoryLogger.swift in Sources */,
+				A10000000000000000000011 /* DesignTokens.swift in Sources */,
+				A10000000000000000000012 /* AddGemstoneView.swift in Sources */,
+				A10000000000000000000014 /* GemstoneDetailView.swift in Sources */,
+				A10000000000000000000015 /* CustomerListView.swift in Sources */,
+				A10000000000000000000016 /* CustomerDetailView.swift in Sources */,
+				A10000000000000000000017 /* CustomersViewModel.swift in Sources */,
+				A10000000000000000000018 /* Invoice.swift in Sources */,
+				A10000000000000000000019 /* LineItem.swift in Sources */,
+				A1000000000000000000001A /* TransactionEditorView.swift in Sources */,
+				A1000000000000000000001D /* MemoDetailView.swift in Sources */,
+				A1000000000000000000001B /* InventorySelectSheet.swift in Sources */,
+				A1000000000000000000001C /* TransactionViewModel.swift in Sources */,
+				A1000000000000000000001E /* AddCustomerSheet.swift in Sources */,
+				A1000000000000000000001F /* InvoiceDetailView.swift in Sources */,
+				A10000000000000000000020 /* PDFService.swift in Sources */,
+				A10000000000000000000021 /* InvoiceListView.swift in Sources */,
+				A10000000000000000000022 /* InvoicesViewModel.swift in Sources */,
+				A10000000000000000000023 /* RFIDService.swift in Sources */,
+				A10000000000000000000024 /* ScannerViewModel.swift in Sources */,
+				A10000000000000000000025 /* ScannerView.swift in Sources */,
+				A10000000000000000000026 /* ReconcileViewModel.swift in Sources */,
+				A10000000000000000000027 /* InventoryReconcileView.swift in Sources */,
+				A10000000000000000000028 /* RFIDManager.swift in Sources */,
+				A10000000000000000000029 /* DemoDataManager.swift in Sources */,
+				A1000000000000000000002A /* EditableLineItemRow.swift in Sources */,
+				A1000000000000000000002B /* AppShellView.swift in Sources */,
+				A1000000000000000000002C /* MemoWindowView.swift in Sources */,
+				A1000000000000000000002D /* InvoiceWindowView.swift in Sources */,
+				A1000000000000000000002E /* LineItemColumnLayout.swift in Sources */,
+				A1000000000000000000002F /* QuickIntakeView.swift in Sources */,
+				A10000000000000000000030 /* ReviewQueueView.swift in Sources */,
+				A10000000000000000000031 /* ReviewEditSheet.swift in Sources */,
+				A10000000000000000000032 /* SKUGenerator.swift in Sources */,
+				A10000000000000000000033 /* QuickIntakeEnums.swift in Sources */,
+				A10000000000000000000034 /* AutocompleteFieldView.swift in Sources */,
+				A10000000000000000000035 /* StoneFormView.swift in Sources */,
+				A10000000000000000000036 /* RFIDCoordinator.swift in Sources */,
+				A10000000000000000000037 /* RFIDScanService.swift in Sources */,
+				A10000000000000000000038 /* UnknownTagAssignSheet.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A90000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_RESOURCE_ACCESS_USB = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A90000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_RESOURCE_ACCESS_USB = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		A90000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "";
+				"CODE_SIGN_ENTITLEMENTS[sdk=*]" = QDI_Gemstone_ERP/QDI_Gemstone_ERP.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.qualitydiajewels.QDI-Gemstone-ERP";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A90000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "";
+				"CODE_SIGN_ENTITLEMENTS[sdk=*]" = QDI_Gemstone_ERP/QDI_Gemstone_ERP.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.qualitydiajewels.QDI-Gemstone-ERP";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A70000000000000000000001 /* Build configuration list for PBXProject "QDI_Gemstone_ERP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A90000000000000000000001 /* Debug */,
+				A90000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A70000000000000000000003 /* Build configuration list for PBXNativeTarget "QDI Gemstone ERP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A90000000000000000000003 /* Debug */,
+				A90000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9964FF992F4E795B00178ED5 /* XCRemoteSwiftPackageReference "ORSSerialPort" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/armadsen/ORSSerialPort";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9964FF9A2F4E795B00178ED5 /* ORSSerial */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9964FF992F4E795B00178ED5 /* XCRemoteSwiftPackageReference "ORSSerialPort" */;
+			productName = ORSSerial;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = A80000000000000000000001 /* Project object */;
+}
