@@ -50,17 +50,20 @@ struct InventoryListView: View {
                 ScrollView {
                     GemstoneDetailView(stone: stone)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AppColors.background)
             } else {
                 ContentUnavailableView(
                     "Select an Item",
                     systemImage: "diamond",
                     description: Text("Select a gemstone to view details.")
                 )
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AppColors.background)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AppColors.background)
         .sheet(isPresented: $showEditSheet) {
             if let stone = selectedStone {
                 NavigationStack {
@@ -89,8 +92,8 @@ struct InventoryListView: View {
     private var headerRow: some View {
         HStack {
             Text("Inventory")
-                .font(.largeTitle)
-                .fontWeight(.semibold)
+                .font(AppTypography.title)
+                .foregroundStyle(AppColors.ink)
                 #if DEBUG
                 .contextMenu {
                     Button("Check SKU/type mismatches") {
@@ -114,7 +117,7 @@ struct InventoryListView: View {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
             TextField("Search by SKU, type, color, clarity, cert no, origin", text: $viewModel.searchText)
-                .textFieldStyle(.roundedBorder)
+                .appSearchField()
         }
         .padding(.horizontal)
         .padding(.bottom, AppSpacing.s)
@@ -139,9 +142,9 @@ struct InventoryListView: View {
                             .font(.caption)
                             .padding(.horizontal, AppSpacing.s)
                             .padding(.vertical, 4)
-                            .background(viewModel.stoneTypeFilter == type ? AppColors.primary : Color.clear)
-                            .foregroundStyle(viewModel.stoneTypeFilter == type ? .primary : .secondary)
-                            .cornerRadius(6)
+                            .background(viewModel.stoneTypeFilter == type ? AppColors.primary.opacity(0.2) : Color.clear)
+                            .foregroundStyle(viewModel.stoneTypeFilter == type ? AppColors.ink : AppColors.inkMuted)
+                            .clipShape(Capsule(style: .continuous))
                     }
                     .buttonStyle(.plain)
                 }
@@ -219,7 +222,7 @@ struct InventoryListView: View {
                         get: { viewModel.shapeFilter ?? "" },
                         set: { viewModel.shapeFilter = $0.isEmpty ? nil : $0 }
                     ))
-                    .textFieldStyle(.roundedBorder)
+                    .appSearchField()
                 }
 
                 // Certified
@@ -245,7 +248,7 @@ struct InventoryListView: View {
                         get: { viewModel.treatmentFilter ?? "" },
                         set: { viewModel.treatmentFilter = $0.isEmpty ? nil : $0 }
                     ))
-                    .textFieldStyle(.roundedBorder)
+                    .appSearchField()
                 }
 
                 // Single / Pair / Lot
@@ -275,7 +278,7 @@ struct InventoryListView: View {
                         get: { viewModel.caratMin.map { String(format: "%.2f", $0) } ?? "" },
                         set: { viewModel.caratMin = Double($0) }
                     ))
-                    .textFieldStyle(.roundedBorder)
+                    .appSearchField()
                 }
 
                 // Carat max
@@ -287,7 +290,7 @@ struct InventoryListView: View {
                         get: { viewModel.caratMax.map { String(format: "%.2f", $0) } ?? "" },
                         set: { viewModel.caratMax = $0.isEmpty ? nil : Double($0) }
                     ))
-                    .textFieldStyle(.roundedBorder)
+                    .appSearchField()
                 }
 
                 // Sell min
@@ -299,7 +302,7 @@ struct InventoryListView: View {
                         get: { viewModel.sellMin.map { "\($0)" } ?? "" },
                         set: { viewModel.sellMin = Decimal(string: $0) }
                     ))
-                    .textFieldStyle(.roundedBorder)
+                    .appSearchField()
                 }
 
                 // Sell max
@@ -311,7 +314,7 @@ struct InventoryListView: View {
                         get: { viewModel.sellMax.map { "\($0)" } ?? "" },
                         set: { viewModel.sellMax = Decimal(string: $0) }
                     ))
-                    .textFieldStyle(.roundedBorder)
+                    .appSearchField()
                 }
 
                 // Diamond-only: Color
@@ -324,7 +327,7 @@ struct InventoryListView: View {
                             get: { viewModel.colorFilter ?? "" },
                             set: { viewModel.colorFilter = $0.isEmpty ? nil : $0 }
                         ))
-                        .textFieldStyle(.roundedBorder)
+                        .appSearchField()
                     }
                 }
 
@@ -338,7 +341,7 @@ struct InventoryListView: View {
                             get: { viewModel.clarityFilter ?? "" },
                             set: { viewModel.clarityFilter = $0.isEmpty ? nil : $0 }
                         ))
-                        .textFieldStyle(.roundedBorder)
+                        .appSearchField()
                     }
                 }
             }
@@ -360,6 +363,9 @@ struct InventoryListView: View {
         .foregroundStyle(.secondary)
         .padding(.horizontal)
         .padding(.vertical, AppSpacing.s)
+        .background(AppColors.cardBackground.opacity(0.6))
+        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous))
+        .padding(.horizontal)
     }
 
     private func summaryItem(_ label: String, value: String) -> some View {
@@ -379,14 +385,16 @@ struct InventoryListView: View {
                 systemImage: "diamond",
                 description: Text("Add gemstones to see them here.")
             )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+             .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AppColors.background)
         } else if filteredGemstones.isEmpty {
             ContentUnavailableView(
                 "No Results",
                 systemImage: "magnifyingglass",
                 description: Text(viewModel.searchText.isEmpty ? "No stones match the selected filters." : "No stones match \"\(viewModel.searchText)\".")
             )
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+             .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AppColors.background)
         } else {
             inventoryTable
         }
@@ -395,6 +403,7 @@ struct InventoryListView: View {
     @ViewBuilder
     private var inventoryTable: some View {
         if showColorColumn {
+            AppSurfaceCard(padding: AppSpacing.s) {
             Table(filteredGemstones, selection: $selectedStoneID) {
                 TableColumn("SKU") { stone in Text(stone.sku).lineLimit(1).truncationMode(.tail) }
                 TableColumn("Type") { stone in Text(stone.stoneType.rawValue).lineLimit(1).truncationMode(.tail) }
@@ -403,11 +412,13 @@ struct InventoryListView: View {
                 TableColumn("Color") { stone in Text(stone.color).lineLimit(1).truncationMode(.tail) }
                 TableColumn("Sell") { stone in Text(formatCurrency(stone.sellPrice)) }
             }
-            .tableStyle(.bordered(alternatesRowBackgrounds: true))
+            .tableStyle(.inset(alternatesRowBackgrounds: true))
             .contextMenu(forSelectionType: PersistentIdentifier.self) { _ in
                 Button("Edit...") { showEditSheet = true }
             } primaryAction: { _ in showEditSheet = true }
+            }
         } else {
+            AppSurfaceCard(padding: AppSpacing.s) {
             Table(filteredGemstones, selection: $selectedStoneID) {
                 TableColumn("SKU") { stone in Text(stone.sku).lineLimit(1).truncationMode(.tail) }
                 TableColumn("Type") { stone in Text(stone.stoneType.rawValue).lineLimit(1).truncationMode(.tail) }
@@ -415,10 +426,11 @@ struct InventoryListView: View {
                 TableColumn("Carat") { stone in Text(String(format: "%.2f", stone.caratWeight)) }
                 TableColumn("Sell") { stone in Text(formatCurrency(stone.sellPrice)) }
             }
-            .tableStyle(.bordered(alternatesRowBackgrounds: true))
+            .tableStyle(.inset(alternatesRowBackgrounds: true))
             .contextMenu(forSelectionType: PersistentIdentifier.self) { _ in
                 Button("Edit...") { showEditSheet = true }
             } primaryAction: { _ in showEditSheet = true }
+            }
         }
     }
 

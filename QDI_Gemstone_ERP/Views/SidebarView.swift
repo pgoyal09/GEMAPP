@@ -16,38 +16,42 @@ struct SidebarView: View {
     @Binding var selectedItem: NavigationItem
 
     var body: some View {
-        List(selection: $selectedItem) {
-            Section("Get Started") {
-                sidebarRow(.dashboard)
-                sidebarRow(.scanner)
-            }
-            Section("Sales") {
-                sidebarRow(.memos)
-                sidebarRow(.invoices)
-                sidebarRow(.customers)
-            }
-            Section("Inventory") {
-                sidebarRow(.inventory)
-                sidebarRow(.quickIntake)
-                sidebarRow(.reviewQueue)
-                sidebarRow(.reconcile)
-            }
-        }
-        .listStyle(.sidebar)
-        .safeAreaInset(edge: .top, spacing: 0) {
+        VStack(spacing: 0) {
             sidebarHeader
+            List(selection: $selectedItem) {
+                Section("Get Started") {
+                    sidebarRow(.dashboard)
+                    sidebarRow(.scanner)
+                }
+                Section("Sales") {
+                    sidebarRow(.memos)
+                    sidebarRow(.invoices)
+                    sidebarRow(.customers)
+                }
+                Section("Inventory") {
+                    sidebarRow(.inventory)
+                    sidebarRow(.quickIntake)
+                    sidebarRow(.reviewQueue)
+                    sidebarRow(.reconcile)
+                }
+            }
+            .listStyle(.sidebar)
+            .scrollContentBackground(.hidden)
+            .background(AppColors.panelBackground)
         }
+        .background(AppColors.panelBackground)
     }
 
     private var sidebarHeader: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+        AppSurfaceCard(padding: AppSpacing.m, accent: AppColors.primary) {
             Text("QDI Gemstone ERP")
-                .font(.headline)
-                .fontWeight(.semibold)
+                .font(AppTypography.heading)
+                .foregroundStyle(AppColors.ink)
+            Text("RFID Inventory Studio")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkSubtle)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(AppSpacing.m)
-        .background(AppColors.cardBackground)
+        .padding(AppSpacing.s)
     }
 
     private func sidebarRow(_ item: NavigationItem) -> some View {
@@ -55,6 +59,9 @@ struct SidebarView: View {
             selectedItem = item
         } label: {
             Label(item.rawValue, systemImage: iconFor(item))
+                .font(AppTypography.body)
+                .foregroundStyle(selectedItem == item ? AppColors.ink : AppColors.inkMuted)
+                .padding(.vertical, 2)
         }
         .buttonStyle(.plain)
         .tag(item)

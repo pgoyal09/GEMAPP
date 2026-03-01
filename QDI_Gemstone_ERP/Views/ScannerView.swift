@@ -5,88 +5,110 @@ import SwiftData
 struct ScannerView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: ScannerViewModel
-    
+
     init(viewModel: ScannerViewModel) {
         _viewModel = State(initialValue: viewModel)
     }
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            Text("RFID Scanner")
-                .font(.largeTitle)
-                .fontWeight(.semibold)
-            
-            HStack(spacing: 12) {
-                Button(viewModel.isScanning ? "Stop Scanning" : "Start Scanning") {
-                    if viewModel.isScanning {
-                        viewModel.stopScanning()
-                    } else {
-                        viewModel.startScanning()
+        VStack(alignment: .leading, spacing: AppSpacing.l) {
+            AppSurfaceCard(accent: viewModel.isScanning ? AppColors.success : AppColors.warning) {
+                HStack {
+                    VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                        Text("RFID Scanner")
+                            .font(AppTypography.title)
+                            .foregroundStyle(AppColors.ink)
+                        AppStatusBadge(
+                            title: viewModel.isScanning ? "Active scan" : "Paused",
+                            tone: viewModel.isScanning ? .success : .warning
+                        )
                     }
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(viewModel.isScanning ? .red : .blue)
-                
-                if let tagID = viewModel.lastDiscoveredTagID {
-                    Button("Process tag") {
-                        viewModel.processScannedTag(tagID: tagID, modelContext: modelContext)
-                    }
-                }
-                
-                if !viewModel.discoveredTagIDs.isEmpty {
-                    Button("Clear") {
-                        viewModel.clearDiscoveredTags()
+                    Spacer()
+                    HStack(spacing: AppSpacing.s) {
+                        Button(viewModel.isScanning ? "Stop Scanning" : "Start Scanning") {
+                            if viewModel.isScanning {
+                                viewModel.stopScanning()
+                            } else {
+                                viewModel.startScanning()
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(viewModel.isScanning ? AppColors.danger : AppColors.primary)
+
+                        if let tagID = viewModel.lastDiscoveredTagID {
+                            Button("Process Tag") {
+                                viewModel.processScannedTag(tagID: tagID, modelContext: modelContext)
+                            }
+                            .buttonStyle(.bordered)
+                        }
+
+                        if !viewModel.discoveredTagIDs.isEmpty {
+                            Button("Clear") { viewModel.clearDiscoveredTags() }
+                                .buttonStyle(.bordered)
+                        }
                     }
                 }
             }
-            
+
             if let result = viewModel.lastProcessResult {
-                Text(result)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .padding(8)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(white: 0.92))
-                    .cornerRadius(6)
-            }
-            
-            if viewModel.isScanning {
-                Label("Listening for tags…", systemImage: "antenna.radiowaves.left.and.right")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            
-            if let last = viewModel.lastDiscoveredTagID {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Last tag")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(last)
-                        .font(.title2.monospaced())
+                AppSurfaceCard {
+                    Text(result)
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.inkMuted)
                 }
-                .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(white: 0.95))
-                .cornerRadius(8)
             }
-            
-            if !viewModel.discoveredTagIDs.isEmpty {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Discovered (\(viewModel.discoveredTagIDs.count))")
-                        .font(.headline)
-                    List(viewModel.discoveredTagIDs, id: \.self) { tag in
-                        Text(tag)
-                            .font(.system(.body, design: .monospaced))
+
+            AppSurfaceCard {
+                Text("Last scanned EPC")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+                Text(viewModel.lastDiscoveredTagID ?? "Waiting for scan…")
+                    .font(AppTypography.mono)
+                    .foregroundStyle(AppColors.ink)
+                    .textSelection(.enabled)
+                    .lineLimit(2)
+            }
+
+            AppSurfaceCard {
+                HStack {
+                    Text("Scanner Activity")
+                        .font(AppTypography.heading)
+                        .foregroundStyle(AppColors.ink)
+                    Spacer()
+                    AppStatusBadge(title: "\(viewModel.discoveredTagIDs.count) events", tone: .neutral)
+                }
+
+                if viewModel.discoveredTagIDs.isEmpty {
+                    Text("No scans yet. Keep a tag in read range to begin.")
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.inkSubtle)
+                } else {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: AppSpacing.s) {
+                            ForEach(Array(viewModel.discoveredTagIDs.enumerated().reversed()), id: \.offset) { _, tag in
+                                HStack {
+                                    Circle()
+                                        .fill(AppColors.primary.opacity(0.5))
+                                        .frame(width: 8, height: 8)
+                                    Text(tag)
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(AppColors.ink)
+                                        .lineLimit(1)
+                                        .truncationMode(.middle)
+                                }
+                                .padding(.vertical, AppSpacing.xs)
+                            }
+                        }
                     }
-                    .listStyle(.inset)
-                    .frame(maxHeight: 300)
+                    .frame(maxHeight: 260)
                 }
             }
-            
+
             Spacer(minLength: 0)
         }
-        .padding()
+        .padding(AppSpacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(AppColors.background)
         .onAppear { viewModel.attachScanHandler() }
         .onDisappear { viewModel.detachScanHandler() }
     }

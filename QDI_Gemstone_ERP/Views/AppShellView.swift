@@ -15,7 +15,7 @@ struct AppShellView: View {
             // Left: fixed-width sidebar (never resizable)
             SidebarView(selectedItem: $route)
                 .frame(width: 240)
-                .background(AppColors.cardBackground)
+                .background(AppColors.panelBackground)
 
             Divider()
 
@@ -42,8 +42,9 @@ struct AppShellView: View {
                     CustomerListView()
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .background(AppColors.shellGradient)
         .frame(minWidth: 1000, minHeight: 700)
         .environment(\.rfidService, rfidManager)
         .sheet(isPresented: Binding(
@@ -62,13 +63,11 @@ struct AppShellView: View {
             if let msg = rfidCoordinator?.assignSuccessMessage {
                 VStack {
                     Spacer()
-                    Text(msg)
-                        .font(.subheadline)
-                        .foregroundStyle(.white)
+                    AppStatusBadge(title: msg, tone: .success)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 10)
-                        .background(Color.green)
-                        .cornerRadius(8)
+                        .background(AppColors.cardElevated)
+                        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous))
                         .padding(.bottom, 24)
                 }
                 .transition(.move(edge: .bottom))

@@ -49,21 +49,23 @@ struct UnknownTagAssignSheet: View {
             // Header
             VStack(alignment: .leading, spacing: 8) {
                 Text("Unknown tag detected")
-                    .font(.headline)
+                    .font(AppTypography.heading)
+                    .foregroundStyle(AppColors.ink)
                 Text("Assign this tag to a stone in inventory.")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.inkSubtle)
                 HStack(spacing: 8) {
                     Text("Tag EPC:")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     Text(epc)
-                        .font(.system(.body, design: .monospaced))
+                        .font(AppTypography.mono)
+                        .foregroundStyle(AppColors.ink)
                 }
                 .padding(8)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(white: 0.95))
-                .cornerRadius(6)
+                 .background(AppColors.cardElevated)
+                .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous))
             }
             .padding()
 
@@ -72,7 +74,7 @@ struct UnknownTagAssignSheet: View {
             // Search
             HStack {
                 TextField("Search SKU, type, color…", text: $searchText)
-                    .textFieldStyle(.roundedBorder)
+                     .appSearchField()
                     .frame(maxWidth: 200)
             }
             .padding()
@@ -95,7 +97,8 @@ struct UnknownTagAssignSheet: View {
                             .foregroundStyle(selectedStoneID == stone.id ? Color.accentColor : .secondary)
                     }
                     .width(28)
-                    TableColumn("SKU") { Text($0.sku).font(.system(.body, design: .monospaced)) }
+                    TableColumn("SKU") { Text($0.sku).font(AppTypography.mono)
+                        .foregroundStyle(AppColors.ink) }
                     .width(100)
                     TableColumn("Type") { Text($0.stoneType.rawValue) }
                     .width(90)
@@ -106,7 +109,7 @@ struct UnknownTagAssignSheet: View {
                     TableColumn("Shape") { Text($0.shape ?? $0.cut) }
                     .width(90)
                     TableColumn("RFID") { stone in
-                        let hasRfid = (stone.rfidEpc ?? stone.rfidTag) != nil
+                        let hasRfid = stone.effectiveRfidEpc != nil
                         Text(hasRfid ? "Assigned" : "—")
                             .foregroundStyle(hasRfid ? .orange : .secondary)
                     }
@@ -140,8 +143,8 @@ struct UnknownTagAssignSheet: View {
             }
             .padding()
         }
-        .frame(minWidth: 640, minHeight: 480)
-        .background(Color(nsColor: .windowBackgroundColor))
+        .frame(minWidth: 700, minHeight: 520)
+        .background(AppColors.background)
         .alert("Replace existing RFID?", isPresented: $showReplaceConfirm) {
             Button("Cancel", role: .cancel) {
                 pendingStone = nil
@@ -161,7 +164,7 @@ struct UnknownTagAssignSheet: View {
         guard let stone = selectedStone else { return }
         errorMessage = nil
 
-        let hasExisting = (stone.rfidEpc ?? stone.rfidTag) != nil
+        let hasExisting = stone.effectiveRfidEpc != nil
         if hasExisting {
             pendingStone = stone
             showReplaceConfirm = true
