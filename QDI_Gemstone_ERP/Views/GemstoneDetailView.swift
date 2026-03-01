@@ -9,15 +9,41 @@ struct GemstoneDetailView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xl) {
+        VStack(alignment: .leading, spacing: AppSpacing.l) {
+            headerCard
             overviewSection
             characteristicsSection
             pricingSection
+            rfidSection
             certificateSection
             historySection
         }
         .padding(AppSpacing.xl)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .background(AppColors.background)
+    }
+
+    private var headerCard: some View {
+        AppSurfaceCard(accent: AppColors.accent) {
+            Text(stone.sku)
+                .font(.system(size: 24, weight: .semibold, design: .rounded))
+                .foregroundStyle(AppColors.ink)
+            HStack(spacing: AppSpacing.s) {
+                AppStatusBadge(title: stone.effectiveStatus.rawValue, tone: statusTone)
+                AppStatusBadge(title: stone.stoneType.rawValue, tone: .accent)
+                Text("\(String(format: "%.2f", stone.caratWeight)) ct")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+            }
+        }
+    }
+
+    private var statusTone: AppStatusBadge.Tone {
+        switch stone.effectiveStatus {
+        case .available: return .success
+        case .onMemo: return .warning
+        case .sold: return .neutral
+        }
     }
 
     private var overviewSection: some View {
@@ -25,9 +51,8 @@ struct GemstoneDetailView: View {
             VStack(alignment: .leading, spacing: AppSpacing.m) {
                 DetailRow(label: "SKU", value: stone.sku)
                 DetailRow(label: "Type", value: stone.stoneType.rawValue)
-                DetailRow(label: "Status", value: stone.effectiveStatus.rawValue)
                 DetailRow(label: "Location", value: stone.currentLocation)
-                DetailRow(label: "Carat", value: String(format: "%.2f", stone.caratWeight))
+                DetailRow(label: "Origin", value: stone.origin)
             }
         }
     }
@@ -38,7 +63,6 @@ struct GemstoneDetailView: View {
                 DetailRow(label: "Color", value: stone.color)
                 DetailRow(label: "Clarity", value: stone.clarity)
                 DetailRow(label: "Cut", value: stone.cut)
-                DetailRow(label: "Origin", value: stone.origin)
                 if let l = stone.length, let w = stone.width, let h = stone.height {
                     DetailRow(label: "Dimensions", value: "\(formatDim(l)) × \(formatDim(w)) × \(formatDim(h))")
                 }
@@ -51,6 +75,19 @@ struct GemstoneDetailView: View {
             VStack(alignment: .leading, spacing: AppSpacing.m) {
                 DetailRow(label: "Cost", value: formatCurrency(stone.costPrice))
                 DetailRow(label: "Sell", value: formatCurrency(stone.sellPrice))
+            }
+        }
+    }
+
+    private var rfidSection: some View {
+        detailSection(title: "RFID") {
+            VStack(alignment: .leading, spacing: AppSpacing.m) {
+                DetailRow(label: "EPC", value: stone.effectiveRfidEpc ?? "Unassigned")
+                DetailRow(label: "TID", value: stone.rfidTid ?? "—")
+                DetailRow(label: "State", value: stone.rfidStatus ?? "unassigned")
+                if let seen = stone.rfidLastSeenAt {
+                    DetailRow(label: "Last Seen", value: seen.formatted(date: .abbreviated, time: .shortened))
+                }
             }
         }
     }
@@ -72,14 +109,14 @@ struct GemstoneDetailView: View {
     private var historySection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.m) {
             Text("History")
-                .font(.headline)
-                .foregroundStyle(.secondary)
+                .font(AppTypography.heading)
+                .foregroundStyle(AppColors.ink)
             if sortedEvents.isEmpty {
-                Text("No history events")
-                    .font(.subheadline)
-                    .foregroundStyle(.tertiary)
-                    .padding(AppSpacing.m)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                AppSurfaceCard {
+                    Text("No history events")
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.inkSubtle)
+                }
             } else {
                 VStack(alignment: .leading, spacing: AppSpacing.s) {
                     ForEach(sortedEvents, id: \.id) { event in
@@ -91,15 +128,13 @@ struct GemstoneDetailView: View {
     }
 
     private func detailSection<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: AppSpacing.m) {
+        VStack(alignment: .leading, spacing: AppSpacing.s) {
             Text(title)
-                .font(.headline)
-                .foregroundStyle(.secondary)
-            content()
-                .padding(AppSpacing.l)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color(.controlBackgroundColor))
-                .cornerRadius(AppCornerRadius.m)
+                .font(AppTypography.heading)
+                .foregroundStyle(AppColors.ink)
+            AppSurfaceCard {
+                content()
+            }
         }
     }
 
@@ -122,11 +157,12 @@ struct DetailRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: AppSpacing.m) {
             Text(label)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .frame(width: 80, alignment: .leading)
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkSubtle)
+                .frame(width: 86, alignment: .leading)
             Text(value.isEmpty ? "—" : value)
-                .font(.subheadline)
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.ink)
                 .lineLimit(2)
                 .truncationMode(.tail)
         }
@@ -137,25 +173,25 @@ struct HistoryRow: View {
     let event: HistoryEvent
 
     var body: some View {
-        HStack(alignment: .top, spacing: AppSpacing.m) {
-            Circle()
-                .fill(AppColors.primary)
-                .frame(width: 8, height: 8)
-                .padding(.top, 6)
-            VStack(alignment: .leading, spacing: 4) {
-                Text(event.eventDescription)
-                    .font(.subheadline)
-                Text(event.eventType.rawValue)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Text(event.date, style: .date)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+        AppSurfaceCard(padding: AppSpacing.m) {
+            HStack(alignment: .top, spacing: AppSpacing.m) {
+                Circle()
+                    .fill(AppColors.primary)
+                    .frame(width: 8, height: 8)
+                    .padding(.top, 6)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(event.eventDescription)
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.ink)
+                    Text(event.eventType.rawValue)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkSubtle)
+                    Text(event.date, style: .date)
+                        .font(.caption2)
+                        .foregroundStyle(AppColors.inkSubtle.opacity(0.8))
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(AppSpacing.m)
-        .background(Color(.controlBackgroundColor))
-        .cornerRadius(AppCornerRadius.s)
     }
 }

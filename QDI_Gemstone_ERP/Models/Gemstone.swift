@@ -40,6 +40,9 @@ final class Gemstone {
     var status: GemstoneStatus?
     
     var memo: Memo?
+
+    @Relationship(inverse: \RFIDTag.assignedStone)
+    var rfidTags: [RFIDTag] = []
     
     /// Quick Intake / Review Queue: optional extended fields
     var shape: String?
@@ -141,6 +144,55 @@ final class Gemstone {
         case .sold:
             return "Sold"
         }
+    }
+}
+
+
+enum RFIDTagLifecycleStatus: String, Codable, CaseIterable {
+    case unassigned = "unassigned"
+    case pending = "pending"
+    case printRequested = "print_requested"
+    case printed = "printed"
+    case encoded = "encoded"
+    case verified = "verified"
+    case assigned = "assigned"
+    case failed = "failed"
+    case retired = "retired"
+}
+
+@Model
+final class RFIDTag {
+    @Attribute(.unique) var epcCurrent: String
+    var tidLastVerified: String?
+    var status: RFIDTagLifecycleStatus
+    var firstSeenAt: Date?
+    var lastSeenAt: Date?
+    var lastVerifiedAt: Date?
+    var printerJobID: String?
+    var notes: String?
+
+    var assignedStone: Gemstone?
+
+    init(
+        epcCurrent: String,
+        tidLastVerified: String? = nil,
+        assignedStone: Gemstone? = nil,
+        status: RFIDTagLifecycleStatus = .unassigned,
+        firstSeenAt: Date? = nil,
+        lastSeenAt: Date? = nil,
+        lastVerifiedAt: Date? = nil,
+        printerJobID: String? = nil,
+        notes: String? = nil
+    ) {
+        self.epcCurrent = epcCurrent
+        self.tidLastVerified = tidLastVerified
+        self.assignedStone = assignedStone
+        self.status = status
+        self.firstSeenAt = firstSeenAt
+        self.lastSeenAt = lastSeenAt
+        self.lastVerifiedAt = lastVerifiedAt
+        self.printerJobID = printerJobID
+        self.notes = notes
     }
 }
 

@@ -1,5 +1,8 @@
 import Foundation
 import SwiftData
+import os
+
+private let scannerLog = Logger(subsystem: "com.qdi.gemapp", category: "rfid.scanner")
 
 // MARK: - Scanner ViewModel (MVVM: all scanning logic here; view only binds)
 
@@ -128,16 +131,26 @@ final class ScannerViewModel {
         guard let memo = stone.memo else {
             stone.status = .available
             stone.memo = nil
-            try? modelContext.save()
-            lastProcessResult = "Returned to stock (no memo link)"
+            do {
+                try modelContext.save()
+                lastProcessResult = "Returned to stock (no memo link)"
+            } catch {
+                scannerLog.error("Failed to save orphan memo return: \(error.localizedDescription, privacy: .public)")
+                lastProcessResult = "Failed to save return"
+            }
             return
         }
         
         guard let lineItem = memo.lineItems.first(where: { $0.gemstone?.id == stone.id }) else {
             stone.status = .available
             stone.memo = nil
-            try? modelContext.save()
-            lastProcessResult = "Returned to stock"
+            do {
+                try modelContext.save()
+                lastProcessResult = "Returned to stock"
+            } catch {
+                scannerLog.error("Failed to save return transition: \(error.localizedDescription, privacy: .public)")
+                lastProcessResult = "Failed to save return"
+            }
             return
         }
         
