@@ -242,7 +242,6 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
     func resetScanSession() {
         sessionLock.lock()
         seenTagIDsThisSession.removeAll()
-        let count = seenTagIDsThisSession.count
         sessionLock.unlock()
         DispatchQueue.main.async { [weak self] in
             self?.uniqueTagsThisSession = 0

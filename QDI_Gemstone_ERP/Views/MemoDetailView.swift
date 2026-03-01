@@ -8,6 +8,7 @@ struct MemoDetailView: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var selectedLineItemIDs: Set<PersistentIdentifier> = []
+    @State private var totalRefreshID = 0
     @State private var createdInvoice: Invoice?
     @State private var showDeleteConfirm = false
 
@@ -108,6 +109,8 @@ struct MemoDetailView: View {
                                     item: item,
                                     isSelected: selectedLineItemIDs.contains(item.id),
                                     canSelect: item.effectiveStatus == .open,
+                                    persistOnEdit: false,
+                                    onUpdate: { totalRefreshID += 1 },
                                     onTap: { if item.effectiveStatus == .open { toggleSelection(item) } }
                                 )
                                 Divider()
