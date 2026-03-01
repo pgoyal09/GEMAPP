@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(SwiftData)
 import SwiftData
+#endif
 
 enum LineItemStatus: String, Codable, CaseIterable {
     case open = "Open"
@@ -7,7 +9,9 @@ enum LineItemStatus: String, Codable, CaseIterable {
     case sold = "Sold"
 }
 
+#if canImport(SwiftData)
 @Model
+#endif
 final class LineItem {
     var sku: String
     var itemDescription: String

@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(SwiftData)
 import SwiftData
+#endif
 
 enum InvoiceStatus: String, Codable, CaseIterable {
     case draft = "Draft"
@@ -8,7 +10,9 @@ enum InvoiceStatus: String, Codable, CaseIterable {
     case void = "Void"
 }
 
+#if canImport(SwiftData)
 @Model
+#endif
 final class Invoice {
     var invoiceDate: Date
     var dueDate: Date?
@@ -24,7 +28,9 @@ final class Invoice {
     /// When non-nil, this invoice was created from a memo; removing a line restores the stone to that memo (.onMemo).
     var originMemo: Memo?
     
+    #if canImport(SwiftData)
     @Relationship(inverse: \LineItem.invoice)
+    #endif
     var lineItems: [LineItem] = []
     
     init(

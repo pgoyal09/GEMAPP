@@ -1,8 +1,11 @@
 import Foundation
+#if canImport(SwiftData)
 import SwiftData
+#endif
+#if canImport(os)
 import os
-
 private let rfidLog = Logger(subsystem: "com.qdi.gemapp", category: "rfid.scan")
+#endif
 
 // MARK: - EPC Canonical Contract
 
@@ -135,6 +138,7 @@ enum RFIDScanService {
         return nil
     }
 
+    #if canImport(SwiftData)
     /// Transitional migration: copy canonicalized legacy `rfidTag` values into `rfidEpc` if missing.
     static func migrateLegacyFieldsIfNeeded(modelContext: ModelContext) {
         let descriptor = FetchDescriptor<Gemstone>()
@@ -341,6 +345,7 @@ enum RFIDScanService {
             return .conflict(error.localizedDescription)
         }
     }
+    #endif
 }
 
 private extension String {

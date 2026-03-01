@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(SwiftData)
 import SwiftData
+#endif
 
 /// Inventory status for strict control: picker shows only .available; save flows set .onMemo / .sold.
 enum GemstoneStatus: String, Codable, CaseIterable {
@@ -8,7 +10,9 @@ enum GemstoneStatus: String, Codable, CaseIterable {
     case sold = "Sold"
 }
 
+#if canImport(SwiftData)
 @Model
+#endif
 final class Gemstone {
     var sku: String
     var stoneType: StoneType
@@ -41,7 +45,9 @@ final class Gemstone {
     
     var memo: Memo?
 
+    #if canImport(SwiftData)
     @Relationship(inverse: \RFIDTag.assignedStone)
+    #endif
     var rfidTags: [RFIDTag] = []
     
     /// Quick Intake / Review Queue: optional extended fields
@@ -67,7 +73,9 @@ final class Gemstone {
     /// JSON-encoded array of file paths for media assets.
     var mediaPathsJson: String?
     
+    #if canImport(SwiftData)
     @Relationship(inverse: \HistoryEvent.gemstone)
+    #endif
     var events: [HistoryEvent] = []
     
     init(
@@ -187,9 +195,14 @@ enum RFIDTagLifecycleStatus: String, Codable, CaseIterable {
     case retired = "retired"
 }
 
+#if canImport(SwiftData)
 @Model
+#endif
 final class RFIDTag {
-    @Attribute(.unique) var epcCurrent: String
+    #if canImport(SwiftData)
+    @Attribute(.unique)
+    #endif
+    var epcCurrent: String
     var tidLastVerified: String?
     var status: RFIDTagLifecycleStatus
     var firstSeenAt: Date?

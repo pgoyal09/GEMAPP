@@ -1,7 +1,11 @@
 import Foundation
+#if canImport(SwiftData)
 import SwiftData
+#endif
 
+#if canImport(SwiftData)
 @Model
+#endif
 final class Customer {
     /// Legacy single name; use for migration. New records prefer firstName + lastName.
     var name: String?
@@ -16,10 +20,14 @@ final class Customer {
     var zip: String?
     var createdAt: Date
     
+    #if canImport(SwiftData)
     @Relationship(inverse: \Memo.customer)
+    #endif
     var memos: [Memo]?
     
+    #if canImport(SwiftData)
     @Relationship(inverse: \Invoice.customer)
+    #endif
     var invoices: [Invoice]?
     
     init(

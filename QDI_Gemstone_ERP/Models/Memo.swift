@@ -1,7 +1,11 @@
 import Foundation
+#if canImport(SwiftData)
 import SwiftData
+#endif
 
+#if canImport(SwiftData)
 @Model
+#endif
 final class Memo {
     var status: MemoStatus
     var dateAssigned: Date?
@@ -12,7 +16,9 @@ final class Memo {
     
     var customer: Customer?
     
+    #if canImport(SwiftData)
     @Relationship(inverse: \LineItem.memo)
+    #endif
     var lineItems: [LineItem] = []
     
     init(
