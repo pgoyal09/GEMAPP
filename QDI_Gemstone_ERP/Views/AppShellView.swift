@@ -25,7 +25,9 @@ struct AppShellView: View {
                 case .dashboard:
                     DashboardView(selectedNavigationItem: $route)
                 case .inventory:
-                    InventoryListView(selectedNavigationItem: $route)
+                    InventoryListView(selectedNavigationItem: $route, mode: .current)
+                case .soldInventory:
+                    InventoryListView(selectedNavigationItem: $route, mode: .sold)
                 case .quickIntake:
                     QuickIntakeView()
                 case .reviewQueue:

@@ -93,13 +93,6 @@ struct AppSurfaceCard<Content: View>: View {
             }
         )
         .shadow(color: AppShadows.outer.color, radius: AppShadows.outer.radius, x: AppShadows.outer.x, y: AppShadows.outer.y)
-        .overlay(alignment: .topLeading) {
-            Circle()
-                .fill(Color.white.opacity(0.45))
-                .frame(width: 18, height: 18)
-                .offset(x: 10, y: 8)
-                .blur(radius: 0.2)
-        }
     }
 }
 

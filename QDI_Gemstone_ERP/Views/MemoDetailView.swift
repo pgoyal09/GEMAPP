@@ -181,6 +181,8 @@ struct MemoLineItemRow: View {
     let item: LineItem
     let isSelected: Bool
     var canSelect: Bool = true
+    var persistOnEdit: Bool = true
+    var onUpdate: (() -> Void)? = nil
     let onTap: () -> Void
     
     var body: some View {
@@ -201,7 +203,7 @@ struct MemoLineItemRow: View {
             .frame(width: LineItemColumnLayout.check, alignment: .leading)
             .padding(.horizontal, 4)
             
-            EditableLineItemRow(item: item)
+            EditableLineItemRow(item: item, persistOnEdit: persistOnEdit, onUpdate: onUpdate)
             
             Text(item.effectiveStatus.rawValue)
                 .font(.caption)

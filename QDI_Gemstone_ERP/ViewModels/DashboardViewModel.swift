@@ -68,7 +68,7 @@ final class DashboardViewModel {
         guard let memos = try? modelContext.fetch(descriptor) else { return 0 }
 
         return memos.flatMap { memo in
-            memo.lineItems.map { item in
+            memo.openLineItems.map { item in
                 item.gemstone?.sellPrice ?? item.amount
             }
         }.reduce(0, +)

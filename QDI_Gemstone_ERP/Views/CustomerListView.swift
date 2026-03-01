@@ -26,6 +26,12 @@ struct CustomerListView: View {
                     .buttonStyle(.plain)
                 }
                 .padding()
+                if !viewModel.customers.isEmpty {
+                    TextField("Search customers…", text: $viewModel.searchText)
+                        .textFieldStyle(.roundedBorder)
+                        .padding(.horizontal)
+                        .padding(.bottom, 8)
+                }
                 if viewModel.customers.isEmpty {
                     ContentUnavailableView(
                         "No Customers",
@@ -34,7 +40,7 @@ struct CustomerListView: View {
                     )
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    List(viewModel.customers, selection: $selectedCustomer) { customer in
+                    List(viewModel.filteredCustomers, selection: $selectedCustomer) { customer in
                         Text(customer.displayName)
                             .lineLimit(1)
                             .truncationMode(.tail)

@@ -3,6 +3,7 @@ import SwiftData
 
 struct CustomerDetailView: View {
     let customer: Customer
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         ScrollView {
@@ -32,7 +33,12 @@ struct CustomerDetailView: View {
                             .padding()
                     } else {
                         ForEach(customer.activeMemos, id: \.id) { memo in
-                            MemoCard(memo: memo)
+                            Button {
+                                openWindow(id: "memo", value: memo.id)
+                            } label: {
+                                MemoCard(memo: memo)
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                 }
@@ -48,7 +54,12 @@ struct CustomerDetailView: View {
                             .padding()
                     } else {
                         ForEach(pastPurchases, id: \.id) { invoice in
-                            InvoiceCard(invoice: invoice)
+                            Button {
+                                openWindow(id: "invoice", value: invoice.id)
+                            } label: {
+                                InvoiceCard(invoice: invoice)
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                 }

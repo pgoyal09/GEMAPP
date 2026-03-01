@@ -12,6 +12,11 @@ struct InvoiceDetailView: View {
     @State private var isGeneratingPDF = false
     @State private var showInventorySheet = false
     @State private var showAddCustomerSheet = false
+    @State private var showLeaveWithoutSavingAlert = false
+    @State private var totalRefreshID = 0
+    @State private var hasUnsavedEdits = false
+
+    private var isDirty: Bool { modelContext.hasChanges || hasUnsavedEdits }
 
     private var isCreateMode: Bool { invoice.customer == nil }
     private func formatCurrency(_ value: Decimal) -> String {
@@ -47,7 +52,7 @@ struct InvoiceDetailView: View {
                     HStack(spacing: 8) {
                         Picker("", selection: Binding(
                             get: { invoice.customer },
-                            set: { invoice.customer = $0; try? modelContext.save(); onUpdate?() }
+                            set: { invoice.customer = $0; hasUnsavedEdits = true; onUpdate?() }
                         )) {
                             Text("Select customer…").tag(nil as Customer?)
                             ForEach(customers, id: \.id) { c in
@@ -88,7 +93,7 @@ struct InvoiceDetailView: View {
                     if isCreateMode {
                         DatePicker("", selection: Binding(
                             get: { invoice.invoiceDate },
-                            set: { invoice.invoiceDate = $0; try? modelContext.save(); onUpdate?() }
+                            set: { invoice.invoiceDate = $0; hasUnsavedEdits = true; onUpdate?() }
                         ), displayedComponents: .date)
                         .labelsHidden()
                     } else {
@@ -102,7 +107,7 @@ struct InvoiceDetailView: View {
                             .foregroundStyle(.secondary)
                         Picker("", selection: Binding(
                             get: { invoice.terms ?? "Net 30" },
-                            set: { invoice.terms = $0; try? modelContext.save(); onUpdate?() }
+                            set: { invoice.terms = $0; hasUnsavedEdits = true; onUpdate?() }
                         )) {
                             Text("Net 30").tag("Net 30")
                             Text("Net 60").tag("Net 60")
@@ -158,10 +163,10 @@ struct InvoiceDetailView: View {
                         Text("Total")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        let total = invoice.lineItems.reduce(Decimal(0)) { $0 + $1.amount }
-                        Text(formatCurrency(total))
+                        Text(formatCurrency(invoice.lineItems.reduce(Decimal(0)) { $0 + $1.amount }))
                             .font(.title2.bold())
                     }
+                    .id(totalRefreshID)
                 }
                 .padding(AppSpacing.l)
                 
@@ -184,6 +189,29 @@ struct InvoiceDetailView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(white: 0.98))
         .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    if isDirty {
+                        showLeaveWithoutSavingAlert = true
+                    } else {
+                        modelContext.rollback()
+                        NSApp.keyWindow?.close()
+                    }
+                }
+                .keyboardShortcut(.cancelAction)
+            }
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save") {
+                    do {
+                        try modelContext.save()
+                        hasUnsavedEdits = false
+                        onUpdate?()
+                    } catch {
+                        pdfError = error.localizedDescription
+                    }
+                }
+                .keyboardShortcut(.defaultAction)
+            }
             ToolbarItem(placement: .primaryAction) {
                 if invoice.effectiveStatus != .paid && invoice.effectiveStatus != .void {
                     Button("Mark as Paid") {
@@ -212,10 +240,27 @@ struct InvoiceDetailView: View {
             NavigationStack {
                 AddCustomerSheet { newCustomer in
                     invoice.customer = newCustomer
-                    try? modelContext.save()
+                    hasUnsavedEdits = true
                     onUpdate?()
                 }
             }
+        }
+        .onExitCommand {
+            if isDirty {
+                showLeaveWithoutSavingAlert = true
+            } else {
+                modelContext.rollback()
+                NSApp.keyWindow?.close()
+            }
+        }
+        .alert("Leave without saving?", isPresented: $showLeaveWithoutSavingAlert) {
+            Button("Keep Editing", role: .cancel) {}
+            Button("Discard", role: .destructive) {
+                modelContext.rollback()
+                NSApp.keyWindow?.close()
+            }
+        } message: {
+            Text("Your changes will not be saved.")
         }
     }
 
@@ -232,10 +277,12 @@ struct InvoiceDetailView: View {
                     invoiceLineItemsTableHeader
                     Divider()
                     ForEach(invoice.lineItems.sorted(by: { $0.displaySku < $1.displaySku }), id: \.id) { item in
-                        EditableLineItemRow(item: item, onUpdate: onUpdate)
+                        EditableLineItemRow(item: item, persistOnEdit: false, onUpdate: { totalRefreshID += 1; hasUnsavedEdits = true; onUpdate?() })
                             .contextMenu {
                                 Button("Delete", role: .destructive) {
                                     removeLineItem(item)
+                                    totalRefreshID += 1
+                                    hasUnsavedEdits = true
                                 }
                             }
                         Divider()
@@ -247,12 +294,16 @@ struct InvoiceDetailView: View {
                     Button("+ From Inventory") { showInventorySheet = true }
                         .buttonStyle(.borderless)
                     Button("+ Brokered Stone") {
-                        TransactionViewModel.addBrokeredLineToInvoice(invoice, modelContext: modelContext)
+                        TransactionViewModel.addBrokeredLineToInvoice(invoice, modelContext: modelContext, persistImmediately: false)
+                        totalRefreshID += 1
+                        hasUnsavedEdits = true
                         onUpdate?()
                     }
                     .buttonStyle(.borderless)
                     Button("+ Custom Line") {
-                        TransactionViewModel.addServiceLineToInvoice(invoice, modelContext: modelContext)
+                        TransactionViewModel.addServiceLineToInvoice(invoice, modelContext: modelContext, persistImmediately: false)
+                        totalRefreshID += 1
+                        hasUnsavedEdits = true
                         onUpdate?()
                     }
                     .buttonStyle(.borderless)
@@ -267,8 +318,12 @@ struct InvoiceDetailView: View {
         .cornerRadius(AppCornerRadius.l)
         .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
         .sheet(isPresented: $showInventorySheet) {
-            InventorySelectSheet { stone in
-                TransactionViewModel.addStoneToInvoice(stone, invoice: invoice, modelContext: modelContext)
+            InventorySelectSheet { stones in
+                for stone in stones {
+                    TransactionViewModel.addStoneToInvoice(stone, invoice: invoice, modelContext: modelContext, persistImmediately: false)
+                }
+                totalRefreshID += 1
+                hasUnsavedEdits = true
                 onUpdate?()
                 showInventorySheet = false
             }
@@ -288,12 +343,6 @@ struct InvoiceDetailView: View {
                 }
             }
             modelContext.delete(item)
-            do {
-                try modelContext.save()
-                onUpdate?()
-            } catch {
-                pdfError = error.localizedDescription
-            }
         }
     }
     
@@ -323,12 +372,6 @@ struct InvoiceDetailView: View {
     
     private func markAsPaid() {
         invoice.status = .paid
-        do {
-            try modelContext.save()
-            onUpdate?()
-        } catch {
-            pdfError = error.localizedDescription
-        }
     }
 
     private func exportPDF() {

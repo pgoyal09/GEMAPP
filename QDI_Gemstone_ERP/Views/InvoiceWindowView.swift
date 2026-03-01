@@ -1,10 +1,12 @@
 import SwiftUI
 import SwiftData
+import AppKit
 
 /// Document window for an Invoice. Fetches by PersistentIdentifier; shows ContentUnavailableView if not found.
 struct InvoiceWindowView: View {
     let invoiceID: PersistentIdentifier
     @Environment(\.modelContext) private var modelContext
+    @State private var showLeaveWithoutSavingAlert = false
 
     var body: some View {
         Group {
@@ -21,6 +23,28 @@ struct InvoiceWindowView: View {
             }
         }
         .frame(minWidth: 1100, minHeight: 760)
+        .background {
+            Button("") {
+                if modelContext.hasChanges {
+                    showLeaveWithoutSavingAlert = true
+                } else {
+                    modelContext.rollback()
+                    NSApp.keyWindow?.close()
+                }
+            }
+            .keyboardShortcut(.escape, modifiers: [])
+            .frame(width: 0, height: 0)
+            .opacity(0)
+        }
+        .alert("Leave without saving?", isPresented: $showLeaveWithoutSavingAlert) {
+            Button("Keep Editing", role: .cancel) {}
+            Button("Discard", role: .destructive) {
+                modelContext.rollback()
+                NSApp.keyWindow?.close()
+            }
+        } message: {
+            Text("Your changes will not be saved.")
+        }
     }
 
     private func fetchInvoice() -> Invoice? {

@@ -6,12 +6,12 @@ struct InventorySelectSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
-    @State private var selectedStoneID: PersistentIdentifier?
+    @State private var selectedStoneIDs: Set<PersistentIdentifier> = []
     @State private var searchText = ""
     @State private var stoneTypeFilter: StoneType? = nil  // nil = All
     @State private var availableOnly = true
 
-    var onSelect: (Gemstone) -> Void
+    var onSelect: ([Gemstone]) -> Void
 
     /// Base set: all stones, or only available depending on toggle
     private var baseStones: [Gemstone] {
@@ -45,9 +45,12 @@ struct InventorySelectSheet: View {
         return result
     }
 
-    private var selectedStone: Gemstone? {
-        guard let id = selectedStoneID else { return nil }
-        return filteredStones.first { $0.id == id }
+    private var selectedStones: [Gemstone] {
+        filteredStones.filter { selectedStoneIDs.contains($0.id) }
+    }
+
+    private var hasValidSelection: Bool {
+        !selectedStones.isEmpty && selectedStones.allSatisfy { $0.effectiveStatus == .available }
     }
 
     private func shapeDisplay(_ stone: Gemstone) -> String {
@@ -80,13 +83,18 @@ struct InventorySelectSheet: View {
 
             // Title + buttons
             HStack {
-                Text("Select Stone")
+                Text("Select Stone\(selectedStoneIDs.count > 1 ? "s" : "")")
                     .font(.headline)
+                if !selectedStoneIDs.isEmpty {
+                    Text("(\(selectedStoneIDs.count) selected)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
                 Spacer()
-                Button("Select") {
+                Button(selectedStoneIDs.isEmpty ? "Select" : "Add \(selectedStoneIDs.count) Stone\(selectedStoneIDs.count == 1 ? "" : "s")") {
                     confirmSelection()
                 }
-                .disabled(selectedStone == nil || selectedStone?.effectiveStatus != .available)
+                .disabled(!hasValidSelection)
                 .buttonStyle(.borderedProminent)
                 .keyboardShortcut(.defaultAction)
                 Button("Cancel") { dismiss() }
@@ -104,10 +112,10 @@ struct InventorySelectSheet: View {
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                Table(filteredStones, selection: $selectedStoneID) {
+                Table(filteredStones, selection: $selectedStoneIDs) {
                     TableColumn("") { stone in
-                        Image(systemName: selectedStoneID == stone.id ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(selectedStoneID == stone.id ? Color.accentColor : .secondary)
+                        Image(systemName: selectedStoneIDs.contains(stone.id) ? "checkmark.circle.fill" : "circle")
+                            .foregroundStyle(selectedStoneIDs.contains(stone.id) ? Color.accentColor : .secondary)
                     }
                     .width(28)
                     TableColumn("SKU") { stone in
@@ -130,8 +138,8 @@ struct InventorySelectSheet: View {
                     .width(90)
                 }
                 .onTapGesture(count: 2) {
-                    if let stone = selectedStone {
-                        onSelect(stone)
+                    if hasValidSelection {
+                        confirmSelection()
                     }
                 }
             }
@@ -141,8 +149,8 @@ struct InventorySelectSheet: View {
     }
 
     private func confirmSelection() {
-        if let stone = selectedStone {
-            onSelect(stone)
+        if hasValidSelection {
+            onSelect(selectedStones)
         }
     }
 

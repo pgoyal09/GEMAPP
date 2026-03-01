@@ -4,6 +4,8 @@ import SwiftData
 /// Inline-editable row for persisted LineItem. Updates model on change; totals recompute from lineItems.
 struct EditableLineItemRow: View {
     let item: LineItem
+    /// When false, updates stay in memory until explicit Save (draft mode).
+    var persistOnEdit: Bool = true
     @Environment(\.modelContext) private var modelContext
     var onUpdate: (() -> Void)?
     
@@ -118,11 +120,14 @@ struct EditableLineItemRow: View {
     }
     
     private func saveAndNotify() {
-        do {
-            try modelContext.save()
-            onUpdate?()
-        } catch {
-            syncFromItem()
+        if persistOnEdit {
+            do {
+                try modelContext.save()
+            } catch {
+                syncFromItem()
+                return
+            }
         }
+        onUpdate?()
     }
 }

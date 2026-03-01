@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import AppKit
 
 // MARK: - Dashboard View (QuickBooks-inspired 2-column layout)
 
@@ -32,6 +33,9 @@ struct DashboardView: View {
         }
         .onAppear { viewModel.load(modelContext: modelContext) }
         .onChange(of: showAddStoneSheet) { _, _ in viewModel.load(modelContext: modelContext) }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            viewModel.load(modelContext: modelContext)
+        }
         .alert("Reset Demo Data", isPresented: $showResetConfirm) {
             Button("Cancel", role: .cancel) {}
             Button("Reset", role: .destructive) {
@@ -115,10 +119,10 @@ struct DashboardView: View {
         VStack(alignment: .leading, spacing: AppSpacing.m) {
             SectionHeader(title: "Quick Actions")
             LazyVGrid(columns: [
-                GridItem(.adaptive(minimum: 140), spacing: AppSpacing.m),
-                GridItem(.adaptive(minimum: 140), spacing: AppSpacing.m),
-                GridItem(.adaptive(minimum: 140), spacing: AppSpacing.m),
-                GridItem(.adaptive(minimum: 140), spacing: AppSpacing.m),
+                GridItem(.flexible(), spacing: AppSpacing.m),
+                GridItem(.flexible(), spacing: AppSpacing.m),
+                GridItem(.flexible(), spacing: AppSpacing.m),
+                GridItem(.flexible(), spacing: AppSpacing.m),
             ], spacing: AppSpacing.m) {
                 DashboardActionCard(title: "Add Stone", subtitle: "Add new gemstone", icon: "diamond.fill") {
                     selectedPanelItem = .addStone
@@ -205,7 +209,6 @@ struct DashboardView: View {
                 rfidStatusPill
                 oldestOpenMemosSection
                 inventorySnapshotSection
-                quickLinksSection
                 if let memoID = selectedMemoID, let item = viewModel.oldestOpenMemos.first(where: { $0.id == memoID }) {
                     memoDetailSummary(item: item)
                 }
@@ -377,40 +380,6 @@ struct DashboardView: View {
         .cornerRadius(AppCornerRadius.s)
     }
 
-    private var quickLinksSection: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.s) {
-            Text("Quick Links")
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundStyle(.secondary)
-            VStack(spacing: AppSpacing.xs) {
-                Button { selectedNavigationItem = .inventory } label: {
-                    Label("Inventory", systemImage: "square.grid.2x2.fill")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .buttonStyle(.bordered)
-                Button { selectedNavigationItem = .memos } label: {
-                    Label("Memos", systemImage: "doc.text.fill")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .buttonStyle(.bordered)
-                Button { selectedNavigationItem = .invoices } label: {
-                    Label("Invoices", systemImage: "dollarsign.circle.fill")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .buttonStyle(.bordered)
-                Button {
-                    showResetConfirm = true
-                } label: {
-                    Label("Reset Demo Data", systemImage: "arrow.counterclockwise")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .buttonStyle(.bordered)
-                .disabled(isResetting)
-            }
-        }
-    }
-
     private func formatCurrency(_ value: Decimal) -> String {
         let f = NumberFormatter()
         f.numberStyle = .currency
@@ -479,21 +448,27 @@ struct DashboardActionCard: View {
     let icon: String
     let action: () -> Void
 
+    private static let cardHeight: CGFloat = 110
+    private static let internalSpacing: CGFloat = AppSpacing.s
+
     var body: some View {
         Button(action: action) {
             AppSurfaceCard(padding: AppSpacing.m, accent: AppColors.accent) {
-                Image(systemName: icon)
-                    .font(.title3)
-                    .foregroundStyle(AppColors.primary)
-                Text(title)
-                    .font(AppTypography.body.weight(.semibold))
-                    .foregroundStyle(AppColors.ink)
-                Text(subtitle)
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .lineLimit(2)
+                VStack(alignment: .leading, spacing: Self.internalSpacing) {
+                    Image(systemName: icon)
+                        .font(.title3)
+                        .foregroundStyle(AppColors.primary)
+                    Text(title)
+                        .font(AppTypography.body.weight(.semibold))
+                        .foregroundStyle(AppColors.ink)
+                    Text(subtitle)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkSubtle)
+                        .lineLimit(2)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(minHeight: 108)
+            .frame(minHeight: Self.cardHeight)
         }
         .buttonStyle(.plain)
     }

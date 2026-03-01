@@ -4,6 +4,51 @@ import os
 
 private let appTransactionLog = Logger(subsystem: "com.qdi.gemapp", category: "inventory.transaction")
 
+// MARK: - Stone description builder
+
+/// Builds line item descriptions from stone characteristics per spec.
+/// Order: [Certified] [Treatment] [Stone Type] [Shape] [Single/Pair/Lot] [Color if lot] \n [Dimensions] [Cert Lab] [Cert No]
+enum StoneDescriptionBuilder {
+    static func buildDescription(for stone: Gemstone) -> String {
+        var lines: [String] = []
+        var topParts: [String] = []
+        let isCertified = stone.hasCert == true
+        if isCertified { topParts.append("Certified") }
+        if let treatment = stone.treatment, !treatment.trimmingCharacters(in: .whitespaces).isEmpty {
+            topParts.append(treatment.trimmingCharacters(in: .whitespaces))
+        }
+        topParts.append(stone.stoneType.rawValue)
+        if stone.stoneType == .diamond {
+            if !stone.color.isEmpty && stone.color != "-" { topParts.append(stone.color) }
+            if !stone.clarity.isEmpty && stone.clarity != "-" { topParts.append(stone.clarity) }
+            if !stone.cut.isEmpty && stone.cut != "-" { topParts.append(stone.cut) }
+        }
+        let shape = (stone.shape ?? stone.cut).trimmingCharacters(in: .whitespaces)
+        if !shape.isEmpty { topParts.append(shape) }
+        let grouping = (stone.grouping ?? "S").uppercased()
+        switch grouping {
+        case "P": topParts.append("Pair")
+        case "L":
+            topParts.append("Lot")
+            if stone.stoneType != .diamond && !stone.color.isEmpty && stone.color != "-" { topParts.append(stone.color) }
+        default: topParts.append("Single")
+        }
+        if !topParts.isEmpty { lines.append(topParts.joined(separator: " ")) }
+        var bottomParts: [String] = []
+        if let l = stone.length, let w = stone.width, let h = stone.height {
+            bottomParts.append(String(format: "%.2f × %.2f × %.2f", l, w, h))
+        }
+        if let lab = stone.certLab, !lab.trimmingCharacters(in: .whitespaces).isEmpty {
+            bottomParts.append(lab.trimmingCharacters(in: .whitespaces))
+        }
+        if let no = stone.certNo, !no.trimmingCharacters(in: .whitespaces).isEmpty {
+            bottomParts.append(no.trimmingCharacters(in: .whitespaces))
+        }
+        if !bottomParts.isEmpty { lines.append(bottomParts.joined(separator: " ")) }
+        return lines.joined(separator: "\n").trimmingCharacters(in: .whitespaces)
+    }
+}
+
 // MARK: - Draft line (form state; not persisted until save)
 
 /// Draft line item for the transaction form. Same 3 types as LineItem.
@@ -146,9 +191,10 @@ final class TransactionViewModel {
     // MARK: - Add / Remove Line (all logic here)
     
     func addStoneFromInventory(_ stone: Gemstone) {
+        let desc = StoneDescriptionBuilder.buildDescription(for: stone)
         lineItems.append(DraftLineItem(
             sku: stone.sku,
-            description: "\(stone.stoneType.rawValue) \(stone.color) \(stone.clarity) \(stone.cut)",
+            description: desc.isEmpty ? "\(stone.stoneType.rawValue) \(stone.color) \(stone.clarity) \(stone.cut)" : desc,
             carats: stone.caratWeight,
             rate: stone.sellPrice,
             gemstone: stone,
@@ -333,11 +379,13 @@ final class TransactionViewModel {
     }
     
     /// Add a gemstone from inventory to an existing memo.
-    static func addStoneToMemo(_ stone: Gemstone, memo: Memo, modelContext: ModelContext) {
+    /// - Parameter persistImmediately: If false, caller is responsible for saving (draft mode).
+    static func addStoneToMemo(_ stone: Gemstone, memo: Memo, modelContext: ModelContext, persistImmediately: Bool = true) {
         let amount = stone.sellPrice * Decimal(stone.caratWeight)
+        let desc = StoneDescriptionBuilder.buildDescription(for: stone)
         let item = LineItem(
             sku: stone.sku,
-            itemDescription: "\(stone.stoneType.rawValue) \(stone.color) \(stone.clarity) \(stone.cut)",
+            itemDescription: desc.isEmpty ? "\(stone.stoneType.rawValue) \(stone.color) \(stone.clarity) \(stone.cut)" : desc,
             carats: stone.caratWeight,
             rate: stone.sellPrice,
             amount: amount,
@@ -349,15 +397,17 @@ final class TransactionViewModel {
         stone.memo = memo
         stone.status = .onMemo
         logEvent(stone: stone, type: .sentToCustomer, message: "Added to Memo", modelContext: modelContext)
-        do {
-            try modelContext.save()
-        } catch {
-            appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+        if persistImmediately {
+            do {
+                try modelContext.save()
+            } catch {
+                appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+            }
         }
     }
 
     /// Add a brokered (manual) stone line to an existing memo.
-    static func addBrokeredLineToMemo(_ memo: Memo, modelContext: ModelContext) {
+    static func addBrokeredLineToMemo(_ memo: Memo, modelContext: ModelContext, persistImmediately: Bool = true) {
         let item = LineItem(
             sku: "",
             itemDescription: "",
@@ -369,15 +419,17 @@ final class TransactionViewModel {
         )
         modelContext.insert(item)
         item.memo = memo
-        do {
-            try modelContext.save()
-        } catch {
-            appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+        if persistImmediately {
+            do {
+                try modelContext.save()
+            } catch {
+                appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+            }
         }
     }
 
     /// Add a custom/service line to an existing memo.
-    static func addServiceLineToMemo(_ memo: Memo, modelContext: ModelContext) {
+    static func addServiceLineToMemo(_ memo: Memo, modelContext: ModelContext, persistImmediately: Bool = true) {
         let item = LineItem(
             sku: "",
             itemDescription: "Shipping / Service",
@@ -389,19 +441,22 @@ final class TransactionViewModel {
         )
         modelContext.insert(item)
         item.memo = memo
-        do {
-            try modelContext.save()
-        } catch {
-            appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+        if persistImmediately {
+            do {
+                try modelContext.save()
+            } catch {
+                appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+            }
         }
     }
 
     /// Add a gemstone from inventory to an existing invoice.
-    static func addStoneToInvoice(_ stone: Gemstone, invoice: Invoice, modelContext: ModelContext) {
+    static func addStoneToInvoice(_ stone: Gemstone, invoice: Invoice, modelContext: ModelContext, persistImmediately: Bool = true) {
         let amount = stone.sellPrice * Decimal(stone.caratWeight)
+        let desc = StoneDescriptionBuilder.buildDescription(for: stone)
         let item = LineItem(
             sku: stone.sku,
-            itemDescription: "\(stone.stoneType.rawValue) \(stone.color) \(stone.clarity) \(stone.cut)",
+            itemDescription: desc.isEmpty ? "\(stone.stoneType.rawValue) \(stone.color) \(stone.clarity) \(stone.cut)" : desc,
             carats: stone.caratWeight,
             rate: stone.sellPrice,
             amount: amount,
@@ -413,15 +468,17 @@ final class TransactionViewModel {
         stone.memo = nil
         stone.status = .sold
         logEvent(stone: stone, type: .sold, message: "Added to Invoice", modelContext: modelContext)
-        do {
-            try modelContext.save()
-        } catch {
-            appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+        if persistImmediately {
+            do {
+                try modelContext.save()
+            } catch {
+                appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+            }
         }
     }
 
     /// Add a brokered (manual) stone line to an existing invoice.
-    static func addBrokeredLineToInvoice(_ invoice: Invoice, modelContext: ModelContext) {
+    static func addBrokeredLineToInvoice(_ invoice: Invoice, modelContext: ModelContext, persistImmediately: Bool = true) {
         let item = LineItem(
             sku: "",
             itemDescription: "",
@@ -433,15 +490,17 @@ final class TransactionViewModel {
         )
         modelContext.insert(item)
         item.invoice = invoice
-        do {
-            try modelContext.save()
-        } catch {
-            appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+        if persistImmediately {
+            do {
+                try modelContext.save()
+            } catch {
+                appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+            }
         }
     }
 
     /// Add a custom/service line to an existing invoice.
-    static func addServiceLineToInvoice(_ invoice: Invoice, modelContext: ModelContext) {
+    static func addServiceLineToInvoice(_ invoice: Invoice, modelContext: ModelContext, persistImmediately: Bool = true) {
         let item = LineItem(
             sku: "",
             itemDescription: "Shipping / Service",
@@ -453,10 +512,12 @@ final class TransactionViewModel {
         )
         modelContext.insert(item)
         item.invoice = invoice
-        do {
-            try modelContext.save()
-        } catch {
-            appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+        if persistImmediately {
+            do {
+                try modelContext.save()
+            } catch {
+                appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+            }
         }
     }
 

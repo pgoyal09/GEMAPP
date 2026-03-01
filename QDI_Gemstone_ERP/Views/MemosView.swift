@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import AppKit
 
 struct MemosView: View {
     @Environment(\.modelContext) private var modelContext
@@ -161,6 +162,11 @@ struct MemoDocumentView: View {
     @State private var showDeleteConfirm = false
     @State private var showInventorySheet = false
     @State private var showAddCustomerSheet = false
+    @State private var showLeaveWithoutSavingAlert = false
+    @State private var totalRefreshID = 0
+    @State private var hasUnsavedEdits = false
+
+    private var isDirty: Bool { modelContext.hasChanges || hasUnsavedEdits }
 
     private var isCreateMode: Bool { memo.customer == nil }
     private var selectedOpenItems: [LineItem] {
@@ -185,15 +191,41 @@ struct MemoDocumentView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(white: 0.98))
         .toolbar {
-            ToolbarItem {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") {
+                    if isDirty {
+                        showLeaveWithoutSavingAlert = true
+                    } else {
+                        modelContext.rollback()
+                        NSApp.keyWindow?.close()
+                    }
+                }
+                .keyboardShortcut(.cancelAction)
+            }
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save") {
+                    do {
+                        try modelContext.save()
+                        hasUnsavedEdits = false
+                    } catch {
+                        // TODO: show error
+                    }
+                }
+                .keyboardShortcut(.defaultAction)
+            }
+            ToolbarItem(placement: .destructiveAction) {
                 Button(role: .destructive) { showDeleteConfirm = true } label: {
                     Label("Delete", systemImage: "trash")
                 }
             }
         }
         .sheet(isPresented: $showInventorySheet) {
-            InventorySelectSheet { stone in
-                TransactionViewModel.addStoneToMemo(stone, memo: memo, modelContext: modelContext)
+            InventorySelectSheet { stones in
+                for stone in stones {
+                    TransactionViewModel.addStoneToMemo(stone, memo: memo, modelContext: modelContext, persistImmediately: false)
+                }
+                totalRefreshID += 1
+                hasUnsavedEdits = true
                 showInventorySheet = false
             }
         }
@@ -201,7 +233,7 @@ struct MemoDocumentView: View {
             NavigationStack {
                 AddCustomerSheet { newCustomer in
                     memo.customer = newCustomer
-                    try? modelContext.save()
+                    hasUnsavedEdits = true
                 }
             }
         }
@@ -215,6 +247,23 @@ struct MemoDocumentView: View {
         } message: {
             Text("Items will be returned to 'Available' status.")
         }
+        .onExitCommand {
+            if isDirty {
+                showLeaveWithoutSavingAlert = true
+            } else {
+                modelContext.rollback()
+                NSApp.keyWindow?.close()
+            }
+        }
+        .alert("Leave without saving?", isPresented: $showLeaveWithoutSavingAlert) {
+            Button("Keep Editing", role: .cancel) {}
+            Button("Discard", role: .destructive) {
+                modelContext.rollback()
+                NSApp.keyWindow?.close()
+            }
+        } message: {
+            Text("Your changes will not be saved.")
+        }
     }
 
     private var headerSection: some View {
@@ -227,8 +276,8 @@ struct MemoDocumentView: View {
                         .foregroundStyle(.secondary)
                     if isCreateMode {
                         TextField("Memo #", text: Binding(
-                            get: { memo.referenceNumber ?? "" },
-                            set: { memo.referenceNumber = $0.isEmpty ? nil : $0; try? modelContext.save() }
+                        get: { memo.referenceNumber ?? "" },
+                        set: { memo.referenceNumber = $0.isEmpty ? nil : $0; hasUnsavedEdits = true }
                         ))
                         .font(.title)
                         .fontWeight(.bold)
@@ -251,7 +300,7 @@ struct MemoDocumentView: View {
                     HStack(spacing: 8) {
                         Picker("", selection: Binding(
                             get: { memo.customer },
-                            set: { memo.customer = $0; try? modelContext.save() }
+                            set: { memo.customer = $0; hasUnsavedEdits = true }
                         )) {
                             Text("Select customer…").tag(nil as Customer?)
                             ForEach(customers, id: \.id) { c in
@@ -292,7 +341,7 @@ struct MemoDocumentView: View {
                     if isCreateMode {
                         DatePicker("", selection: Binding(
                             get: { memo.dateAssigned ?? Date() },
-                            set: { memo.dateAssigned = $0; try? modelContext.save() }
+                            set: { memo.dateAssigned = $0; hasUnsavedEdits = true }
                         ), displayedComponents: .date)
                         .labelsHidden()
                     } else {
@@ -350,6 +399,8 @@ struct MemoDocumentView: View {
                             item: item,
                             isSelected: selectedLineItemIDs.contains(item.id),
                             canSelect: item.effectiveStatus == .open,
+                            persistOnEdit: false,
+                            onUpdate: { totalRefreshID += 1; hasUnsavedEdits = true },
                             onTap: {
                                 if item.effectiveStatus == .open { toggleSelection(item) }
                             }
@@ -362,11 +413,15 @@ struct MemoDocumentView: View {
                 Button("+ From Inventory") { showInventorySheet = true }
                     .buttonStyle(.borderless)
                 Button("+ Brokered Stone") {
-                    TransactionViewModel.addBrokeredLineToMemo(memo, modelContext: modelContext)
+                    TransactionViewModel.addBrokeredLineToMemo(memo, modelContext: modelContext, persistImmediately: false)
+                    totalRefreshID += 1
+                    hasUnsavedEdits = true
                 }
                 .buttonStyle(.borderless)
                 Button("+ Custom Line") {
-                    TransactionViewModel.addServiceLineToMemo(memo, modelContext: modelContext)
+                    TransactionViewModel.addServiceLineToMemo(memo, modelContext: modelContext, persistImmediately: false)
+                    totalRefreshID += 1
+                    hasUnsavedEdits = true
                 }
                 .buttonStyle(.borderless)
             }
@@ -416,9 +471,10 @@ struct MemoDocumentView: View {
                 Text("Total Value")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Text(memo.totalAmount, format: .currency(code: "USD"))
+                Text(memo.openMemoAmount, format: .currency(code: "USD"))
                     .font(.title2.bold())
             }
+            .id(totalRefreshID)
         }
         .padding(AppSpacing.l)
     }
@@ -448,6 +504,8 @@ struct MemoDocumentView: View {
         if let inv = TransactionViewModel.convertMemoToInvoice(memo: memo, selectedLineItems: selectedOpenItems, modelContext: modelContext) {
             createdInvoice = inv
             selectedLineItemIDs.removeAll()
+            totalRefreshID += 1
+            hasUnsavedEdits = true
         }
     }
 
@@ -455,11 +513,15 @@ struct MemoDocumentView: View {
         guard !selectedOpenItems.isEmpty else { return }
         TransactionViewModel.returnItemsFromMemo(items: selectedOpenItems, modelContext: modelContext)
         selectedLineItemIDs.removeAll()
+        totalRefreshID += 1
+        hasUnsavedEdits = true
     }
 
     private func deleteMemo() {
         TransactionViewModel.returnItemsFromMemo(items: memo.openLineItems, modelContext: modelContext)
         modelContext.delete(memo)
+        try? modelContext.save()
         onDelete?()
+        NSApp.keyWindow?.close()
     }
 }

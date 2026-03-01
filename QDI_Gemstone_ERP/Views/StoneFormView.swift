@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 enum StoneFormMode {
     case intake
@@ -55,6 +56,11 @@ struct StoneFormView: View {
     @State private var costText: String = ""
     @State private var sellText: String = ""
     @State private var statusOverride: GemstoneStatus = .available
+    @State private var certificateImagePath: String = ""
+    @State private var mediaPathsLocal: [String] = []
+    @State private var showCertImagePicker = false
+    @State private var showMediaPicker = false
+    @State private var showLeaveWithoutSavingAlert = false
 
     private var stoneType: StoneType { StoneType(rawValue: stoneTypeText) ?? .diamond }
     private var carats: Double? { Double(caratsText) }
@@ -87,6 +93,32 @@ struct StoneFormView: View {
     private func isMissingDimensions() -> Bool { mode == .review && (lengthVal == nil && widthVal == nil && heightVal == nil) }
     private func isMissingCertDetails() -> Bool { mode == .review && hasCert && (certLab.isEmpty || certNo.isEmpty) }
 
+    private var hasUnsavedChanges: Bool {
+        guard mode == .edit, let g = gemstone else { return false }
+        if statusOverride != g.effectiveStatus { return true }
+        if stoneTypeText != g.stoneType.rawValue { return true }
+        if shapeText != (g.shape ?? "Round") { return true }
+        if grouping != groupingFromCode(g.grouping ?? "S") { return true }
+        if caratsText != String(format: "%.2f", g.caratWeight) { return true }
+        if treatment != (g.treatment ?? g.origin) { return true }
+        if hasCert != (g.hasCert ?? false) { return true }
+        if skuText != g.sku { return true }
+        let colorVal = g.color == "-" ? "" : g.color
+        if color != colorVal { return true }
+        let clarityVal = g.clarity == "-" ? "" : g.clarity
+        if clarity != clarityVal { return true }
+        if certLab != (g.certLab ?? "") { return true }
+        if certNo != (g.certNo ?? "") { return true }
+        if lengthText != (g.length.map { String(format: "%.2f", $0) } ?? "") { return true }
+        if widthText != (g.width.map { String(format: "%.2f", $0) } ?? "") { return true }
+        if heightText != (g.height.map { String(format: "%.2f", $0) } ?? "") { return true }
+        if costText != (g.costPrice != 0 ? "\(g.costPrice)" : "") { return true }
+        if sellText != (g.sellPrice != 0 ? "\(g.sellPrice)" : "") { return true }
+        if certificateImagePath != (g.certificateImagePath ?? "") { return true }
+        if mediaPathsLocal != g.mediaPaths { return true }
+        return false
+    }
+
     var body: some View {
         Group {
             if mode == .edit {
@@ -102,6 +134,14 @@ struct StoneFormView: View {
         .onChange(of: stoneTypeText) { _, _ in refreshSKUIfNeeded() }
         .onChange(of: shapeText) { _, _ in refreshSKUIfNeeded() }
         .onChange(of: grouping) { _, _ in refreshSKUIfNeeded() }
+        .alert("Leave without saving?", isPresented: $showLeaveWithoutSavingAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Leave", role: .destructive) {
+                onDismiss?()
+            }
+        } message: {
+            Text("Your changes will not be saved.")
+        }
         .overlay {
             if showSuccess {
                 Text("Saved")
@@ -144,6 +184,7 @@ struct StoneFormView: View {
                 if stoneType == .diamond {
                     editDiamondSection
                 }
+                editCertificateMediaSection
             }
             .padding(AppSpacing.m)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -189,8 +230,14 @@ struct StoneFormView: View {
             }
             HStack(spacing: AppSpacing.s) {
                 if let onDismiss {
-                    Button("Cancel") { onDismiss() }
-                        .keyboardShortcut(.cancelAction)
+                    Button("Cancel") {
+                        if hasUnsavedChanges {
+                            showLeaveWithoutSavingAlert = true
+                        } else {
+                            onDismiss()
+                        }
+                    }
+                    .keyboardShortcut(.cancelAction)
                 }
                 Button("Save") {
                     if saveCurrent() {
@@ -313,6 +360,89 @@ struct StoneFormView: View {
         editField(label) {
             TextField("", text: binding)
                 .textFieldStyle(.roundedBorder)
+        }
+    }
+
+    private var editCertificateMediaSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.s) {
+            Text("Certificate Image & Media")
+                .font(.subheadline.bold())
+                .foregroundStyle(.secondary)
+            HStack(spacing: AppSpacing.s) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Certificate Image")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    HStack(spacing: AppSpacing.s) {
+                        Text(certificateImagePath.isEmpty ? "No file selected" : (certificateImagePath as NSString).lastPathComponent)
+                            .font(.body)
+                            .foregroundStyle(certificateImagePath.isEmpty ? .secondary : .primary)
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Button("Choose...") { showCertImagePicker = true }
+                            .buttonStyle(.bordered)
+                    }
+                }
+                Spacer()
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Media")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                HStack(spacing: AppSpacing.s) {
+                    Button("Add Media...") { showMediaPicker = true }
+                        .buttonStyle(.bordered)
+                    if !mediaPathsLocal.isEmpty {
+                        Text("\(mediaPathsLocal.count) file(s)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                if !mediaPathsLocal.isEmpty {
+                    ForEach(Array(mediaPathsLocal.enumerated()), id: \.offset) { idx, path in
+                        HStack {
+                            Text((path as NSString).lastPathComponent)
+                                .font(.caption)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                            Spacer()
+                            Button { mediaPathsLocal.remove(at: idx) } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.caption)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(AppSpacing.m)
+        .background(Color(nsColor: .controlBackgroundColor))
+        .cornerRadius(AppCornerRadius.m)
+        .fileImporter(
+            isPresented: $showCertImagePicker,
+            allowedContentTypes: [.image, .pdf],
+            allowsMultipleSelection: false
+        ) { result in
+            guard case .success(let urls) = result, let url = urls.first else { return }
+            _ = url.startAccessingSecurityScopedResource()
+            certificateImagePath = url.path
+        }
+        .fileImporter(
+            isPresented: $showMediaPicker,
+            allowedContentTypes: [.image, .movie, .video, .pdf],
+            allowsMultipleSelection: true
+        ) { result in
+            guard case .success(let urls) = result else { return }
+            for url in urls {
+                _ = url.startAccessingSecurityScopedResource()
+                let path = url.path
+                if !mediaPathsLocal.contains(path) {
+                    mediaPathsLocal.append(path)
+                }
+            }
         }
     }
 
@@ -566,6 +696,8 @@ struct StoneFormView: View {
             heightText = g.height.map { String(format: "%.2f", $0) } ?? ""
             costText = g.costPrice != 0 ? "\(g.costPrice)" : ""
             sellText = g.sellPrice != 0 ? "\(g.sellPrice)" : ""
+            certificateImagePath = g.certificateImagePath ?? ""
+            mediaPathsLocal = g.mediaPaths
         } else {
             stoneTypeText = StoneType(rawValue: lastStoneTypeRaw)?.rawValue ?? "Diamond"
             shapeText = "Round"
@@ -587,6 +719,8 @@ struct StoneFormView: View {
             heightText = ""
             costText = ""
             sellText = ""
+            certificateImagePath = ""
+            mediaPathsLocal = []
         }
     }
 
@@ -715,6 +849,8 @@ struct StoneFormView: View {
             g.polish = polishVal
             g.symmetry = symmetryVal
             g.fluorescence = fluorescenceVal
+            g.certificateImagePath = certificateImagePath.isEmpty ? nil : certificateImagePath
+            g.mediaPaths = mediaPathsLocal
             g.sku = SKUGenerator.resolveSKUForEdit(existingSKU: g.sku, type: stoneType, shape: shapeText, grouping: grouping, modelContext: modelContext)
             logEvent(stone: g, type: .dateAdded, message: "Updated", modelContext: modelContext)
         } else {

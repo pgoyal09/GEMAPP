@@ -58,6 +58,11 @@ final class Gemstone {
     var symmetry: String?
     var fluorescence: String?
     
+    /// Path/URL reference to certificate image file.
+    var certificateImagePath: String?
+    /// JSON-encoded array of file paths for media assets.
+    var mediaPathsJson: String?
+    
     @Relationship(inverse: \HistoryEvent.gemstone)
     var events: [HistoryEvent] = []
     
@@ -133,6 +138,18 @@ final class Gemstone {
     
     /// Effective EPC for lookup: rfidEpc takes precedence; rfidTag used for backward compat.
     var effectiveRfidEpc: String? { rfidEpc ?? rfidTag }
+
+    /// Decoded media file paths from mediaPathsJson.
+    var mediaPaths: [String] {
+        get {
+            guard let data = mediaPathsJson?.data(using: .utf8),
+                  let arr = try? JSONDecoder().decode([String].self, from: data) else { return [] }
+            return arr
+        }
+        set {
+            mediaPathsJson = (try? JSONEncoder().encode(newValue)).flatMap { String(data: $0, encoding: .utf8) }
+        }
+    }
 
     /// "Safe" when available; customer name when on memo; "Sold" when sold. Use in lists and detail.
     var currentLocation: String {

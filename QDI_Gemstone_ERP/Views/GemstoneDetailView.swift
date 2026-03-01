@@ -13,9 +13,11 @@ struct GemstoneDetailView: View {
             headerCard
             overviewSection
             characteristicsSection
+            dimensionsSection
             pricingSection
             rfidSection
             certificateSection
+            mediaSection
             historySection
         }
         .padding(AppSpacing.xl)
@@ -24,7 +26,7 @@ struct GemstoneDetailView: View {
     }
 
     private var headerCard: some View {
-        AppSurfaceCard(accent: AppColors.accent) {
+        AppSurfaceCard(padding: AppSpacing.m, accent: AppColors.accent) {
             Text(stone.sku)
                 .font(.system(size: 24, weight: .semibold, design: .rounded))
                 .foregroundStyle(AppColors.ink)
@@ -63,8 +65,23 @@ struct GemstoneDetailView: View {
                 DetailRow(label: "Color", value: stone.color)
                 DetailRow(label: "Clarity", value: stone.clarity)
                 DetailRow(label: "Cut", value: stone.cut)
-                if let l = stone.length, let w = stone.width, let h = stone.height {
-                    DetailRow(label: "Dimensions", value: "\(formatDim(l)) × \(formatDim(w)) × \(formatDim(h))")
+            }
+        }
+    }
+
+    private var dimensionsSection: some View {
+        Group {
+            if stone.length != nil || stone.width != nil || stone.height != nil {
+                detailSection(title: "Dimensions") {
+                    VStack(alignment: .leading, spacing: AppSpacing.m) {
+                        if let l = stone.length, let w = stone.width, let h = stone.height {
+                            DetailRow(label: "L × W × H", value: "\(formatDim(l)) × \(formatDim(w)) × \(formatDim(h))")
+                        } else {
+                            if let l = stone.length { DetailRow(label: "Length", value: formatDim(l)) }
+                            if let w = stone.width { DetailRow(label: "Width", value: formatDim(w)) }
+                            if let h = stone.height { DetailRow(label: "Height", value: formatDim(h)) }
+                        }
+                    }
                 }
             }
         }
@@ -102,6 +119,23 @@ struct GemstoneDetailView: View {
                 if let no = stone.certNo, !no.isEmpty {
                     DetailRow(label: "Cert No", value: no)
                 }
+                if let path = stone.certificateImagePath, !path.isEmpty {
+                    DetailRow(label: "Certificate Image", value: (path as NSString).lastPathComponent)
+                }
+            }
+        }
+    }
+
+    private var mediaSection: some View {
+        Group {
+            if !stone.mediaPaths.isEmpty {
+                detailSection(title: "Media") {
+                    VStack(alignment: .leading, spacing: AppSpacing.s) {
+                        ForEach(Array(stone.mediaPaths.enumerated()), id: \.offset) { _, path in
+                            DetailRow(label: "File", value: (path as NSString).lastPathComponent)
+                        }
+                    }
+                }
             }
         }
     }
@@ -112,7 +146,7 @@ struct GemstoneDetailView: View {
                 .font(AppTypography.heading)
                 .foregroundStyle(AppColors.ink)
             if sortedEvents.isEmpty {
-                AppSurfaceCard {
+                AppSurfaceCard(padding: AppSpacing.m) {
                     Text("No history events")
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.inkSubtle)
@@ -132,7 +166,7 @@ struct GemstoneDetailView: View {
             Text(title)
                 .font(AppTypography.heading)
                 .foregroundStyle(AppColors.ink)
-            AppSurfaceCard {
+            AppSurfaceCard(padding: AppSpacing.m) {
                 content()
             }
         }

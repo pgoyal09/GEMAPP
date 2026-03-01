@@ -1,8 +1,14 @@
 import SwiftUI
 import SwiftData
 
+enum InventoryListMode {
+    case current   /// Non-sold only (available + on memo)
+    case sold      /// Sold items only
+}
+
 struct InventoryListView: View {
     @Binding var selectedNavigationItem: NavigationItem
+    var mode: InventoryListMode = .current
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Gemstone.sku) private var allGemstones: [Gemstone]
     @State private var viewModel = InventoryViewModel()
@@ -13,18 +19,27 @@ struct InventoryListView: View {
     @State private var skuMismatchAlert: String?
     #endif
 
+    private var baseGemstones: [Gemstone] {
+        switch mode {
+        case .current:
+            return allGemstones.filter { $0.effectiveStatus != .sold }
+        case .sold:
+            return allGemstones.filter { $0.effectiveStatus == .sold }
+        }
+    }
+
     private var filteredGemstones: [Gemstone] {
-        viewModel.filtered(from: allGemstones)
+        viewModel.filtered(from: baseGemstones)
     }
 
     private var selectedStone: Gemstone? {
         guard let id = selectedStoneID else { return nil }
-        return allGemstones.first { $0.id == id }
+        return baseGemstones.first { $0.id == id }
     }
 
-    private var availableCount: Int { allGemstones.filter { $0.effectiveStatus == .available }.count }
-    private var onMemoCount: Int { allGemstones.filter { $0.effectiveStatus == .onMemo }.count }
-    private var soldCount: Int { allGemstones.filter { $0.effectiveStatus == .sold }.count }
+    private var availableCount: Int { baseGemstones.filter { $0.effectiveStatus == .available }.count }
+    private var onMemoCount: Int { baseGemstones.filter { $0.effectiveStatus == .onMemo }.count }
+    private var soldCount: Int { baseGemstones.filter { $0.effectiveStatus == .sold }.count }
 
     var body: some View {
         HStack(spacing: 0) {
@@ -42,7 +57,7 @@ struct InventoryListView: View {
                 summaryStrip
                 tableContent
             }
-            .frame(minWidth: 320, maxWidth: 520)
+            .frame(minWidth: 320, maxWidth: .infinity)
 
             Divider()
 
@@ -50,16 +65,16 @@ struct InventoryListView: View {
                 ScrollView {
                     GemstoneDetailView(stone: stone)
                 }
-                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(AppColors.background)
+                .frame(minWidth: InspectorWidth.ideal, maxWidth: InspectorWidth.ideal, maxHeight: .infinity)
+                .background(AppColors.background)
             } else {
                 ContentUnavailableView(
                     "Select an Item",
                     systemImage: "diamond",
                     description: Text("Select a gemstone to view details.")
                 )
-                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(AppColors.background)
+                .frame(minWidth: InspectorWidth.ideal, maxWidth: InspectorWidth.ideal, maxHeight: .infinity)
+                .background(AppColors.background)
             }
         }
          .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -73,7 +88,7 @@ struct InventoryListView: View {
                         onSave: { showEditSheet = false },
                         onDismiss: { showEditSheet = false }
                     )
-                    .frame(minWidth: 680, minHeight: 480)
+                    .frame(minWidth: 816, minHeight: 480)
                     .navigationTitle("Edit: \(stone.sku)")
                 }
                 .id(stone.id)
@@ -91,7 +106,7 @@ struct InventoryListView: View {
 
     private var headerRow: some View {
         HStack {
-            Text("Inventory")
+            Text(mode == .sold ? "Sold Inventory" : "Current Inventory")
                 .font(AppTypography.title)
                 .foregroundStyle(AppColors.ink)
                 #if DEBUG
@@ -106,8 +121,10 @@ struct InventoryListView: View {
                 }
                 #endif
             Spacer()
-            Button("Quick Intake") { selectedNavigationItem = .quickIntake }
-            Button("Review Queue") { selectedNavigationItem = .reviewQueue }
+            if mode == .current {
+                Button("Quick Intake") { selectedNavigationItem = .quickIntake }
+                Button("Review Queue") { selectedNavigationItem = .reviewQueue }
+            }
         }
         .padding()
     }
@@ -125,13 +142,19 @@ struct InventoryListView: View {
 
     private var statusAndStoneTypeRow: some View {
         VStack(alignment: .leading, spacing: AppSpacing.s) {
-            Picker("Status", selection: $viewModel.statusFilter) {
-                ForEach(InventoryStatusFilter.allCases, id: \.self) { filter in
-                    Text(filter.rawValue).tag(filter)
+            if mode == .current {
+                Picker("Status", selection: $viewModel.statusFilter) {
+                    ForEach([InventoryStatusFilter.all, .available, .onMemo], id: \.self) { filter in
+                        Text(filter.rawValue).tag(filter)
+                    }
                 }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+            } else {
+                Text("Sold items")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
-            .pickerStyle(.segmented)
-            .labelsHidden()
 
             HStack(spacing: AppSpacing.xs) {
                 ForEach(InventoryStoneTypeFilter.allCases, id: \.self) { type in
@@ -353,10 +376,13 @@ struct InventoryListView: View {
 
     private var summaryStrip: some View {
         HStack(spacing: AppSpacing.l) {
-            summaryItem("Total", value: "\(allGemstones.count)")
-            summaryItem("Available", value: "\(availableCount)")
-            summaryItem("On Memo", value: "\(onMemoCount)")
-            summaryItem("Sold", value: "\(soldCount)")
+            summaryItem("Total", value: "\(baseGemstones.count)")
+            if mode == .current {
+                summaryItem("Available", value: "\(availableCount)")
+                summaryItem("On Memo", value: "\(onMemoCount)")
+            } else {
+                summaryItem("Sold", value: "\(soldCount)")
+            }
             Spacer()
         }
         .font(.caption)
@@ -400,10 +426,50 @@ struct InventoryListView: View {
         }
     }
 
+    private func soldToCustomer(for stone: Gemstone) -> String {
+        let sku = stone.sku
+        var descriptor = FetchDescriptor<LineItem>(
+            predicate: #Predicate<LineItem> { item in
+                item.invoice != nil && item.gemstone?.sku == sku
+            }
+        )
+        descriptor.fetchLimit = 1
+        guard let items = try? modelContext.fetch(descriptor),
+              let customer = items.first?.invoice?.customer else { return "—" }
+        return customer.displayName
+    }
+
     @ViewBuilder
     private var inventoryTable: some View {
-        if showColorColumn {
-            AppSurfaceCard(padding: AppSpacing.s) {
+        if mode == .sold {
+            soldInventoryTable
+        } else if showColorColumn {
+            currentInventoryTableWithColor
+        } else {
+            currentInventoryTable
+        }
+    }
+
+    private var soldInventoryTable: some View {
+        AppSurfaceCard(padding: AppSpacing.s) {
+            Table(filteredGemstones, selection: $selectedStoneID) {
+                TableColumn("SKU") { stone in Text(stone.sku).lineLimit(1).truncationMode(.tail) }
+                TableColumn("Type") { stone in Text(stone.stoneType.rawValue).lineLimit(1).truncationMode(.tail) }
+                TableColumn("Status") { stone in Text(stone.effectiveStatus.rawValue).lineLimit(1).truncationMode(.tail) }
+                TableColumn("Sold To") { stone in Text(soldToCustomer(for: stone)).lineLimit(1).truncationMode(.tail) }
+                TableColumn("Carat") { stone in Text(String(format: "%.2f", stone.caratWeight)) }
+                TableColumn("Color") { stone in Text(stone.color).lineLimit(1).truncationMode(.tail) }
+                TableColumn("Sell") { stone in Text(formatCurrency(stone.sellPrice)) }
+            }
+            .tableStyle(.inset(alternatesRowBackgrounds: true))
+            .contextMenu(forSelectionType: PersistentIdentifier.self) { _ in
+                Button("Edit...") { showEditSheet = true }
+            } primaryAction: { _ in showEditSheet = true }
+        }
+    }
+
+    private var currentInventoryTableWithColor: some View {
+        AppSurfaceCard(padding: AppSpacing.s) {
             Table(filteredGemstones, selection: $selectedStoneID) {
                 TableColumn("SKU") { stone in Text(stone.sku).lineLimit(1).truncationMode(.tail) }
                 TableColumn("Type") { stone in Text(stone.stoneType.rawValue).lineLimit(1).truncationMode(.tail) }
@@ -416,9 +482,11 @@ struct InventoryListView: View {
             .contextMenu(forSelectionType: PersistentIdentifier.self) { _ in
                 Button("Edit...") { showEditSheet = true }
             } primaryAction: { _ in showEditSheet = true }
-            }
-        } else {
-            AppSurfaceCard(padding: AppSpacing.s) {
+        }
+    }
+
+    private var currentInventoryTable: some View {
+        AppSurfaceCard(padding: AppSpacing.s) {
             Table(filteredGemstones, selection: $selectedStoneID) {
                 TableColumn("SKU") { stone in Text(stone.sku).lineLimit(1).truncationMode(.tail) }
                 TableColumn("Type") { stone in Text(stone.stoneType.rawValue).lineLimit(1).truncationMode(.tail) }
@@ -430,7 +498,6 @@ struct InventoryListView: View {
             .contextMenu(forSelectionType: PersistentIdentifier.self) { _ in
                 Button("Edit...") { showEditSheet = true }
             } primaryAction: { _ in showEditSheet = true }
-            }
         }
     }
 

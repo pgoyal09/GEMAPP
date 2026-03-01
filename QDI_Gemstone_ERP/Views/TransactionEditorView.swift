@@ -72,8 +72,10 @@ struct TransactionEditorView: View {
         .frame(minWidth: 700, minHeight: 500)
         .background(AppColors.background)
         .sheet(isPresented: $showInventorySheet) {
-            InventorySelectSheet { stone in
-                viewModel.addStoneFromInventory(stone)
+            InventorySelectSheet { stones in
+                for stone in stones {
+                    viewModel.addStoneFromInventory(stone)
+                }
                 showInventorySheet = false
             }
         }

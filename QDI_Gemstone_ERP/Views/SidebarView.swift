@@ -2,7 +2,8 @@ import SwiftUI
 
 enum NavigationItem: String, CaseIterable {
     case dashboard = "Dashboard"
-    case inventory = "Inventory"
+    case inventory = "Current Inventory"
+    case soldInventory = "Sold Inventory"
     case quickIntake = "Quick Intake"
     case reviewQueue = "Review Queue"
     case scanner = "Scanner"
@@ -30,6 +31,7 @@ struct SidebarView: View {
                 }
                 Section("Inventory") {
                     sidebarRow(.inventory)
+                    sidebarRow(.soldInventory)
                     sidebarRow(.quickIntake)
                     sidebarRow(.reviewQueue)
                     sidebarRow(.reconcile)
@@ -71,6 +73,7 @@ struct SidebarView: View {
         switch item {
         case .dashboard: return "chart.bar.fill"
         case .inventory: return "square.grid.2x2.fill"
+        case .soldInventory: return "tag.fill"
         case .quickIntake: return "plus.circle.fill"
         case .reviewQueue: return "list.bullet.clipboard"
         case .scanner: return "antenna.radiowaves.left.and.right"
