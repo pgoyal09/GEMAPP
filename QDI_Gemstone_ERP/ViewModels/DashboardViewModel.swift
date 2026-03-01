@@ -67,11 +67,9 @@ final class DashboardViewModel {
         )
         guard let memos = try? modelContext.fetch(descriptor) else { return 0 }
 
-        return memos.flatMap { memo in
-            memo.lineItems.map { item in
-                item.gemstone?.sellPrice ?? item.amount
-            }
-        }.reduce(0, +)
+        return memos.reduce(Decimal(0)) { partial, memo in
+            partial + memo.openMemoAmount
+        }
     }
 
     private func fetchRecentActivity(modelContext: ModelContext) -> [RecentActivityItem] {

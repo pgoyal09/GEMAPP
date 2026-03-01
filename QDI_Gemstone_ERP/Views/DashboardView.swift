@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import Combine
 
 // MARK: - Dashboard View (QuickBooks-inspired 2-column layout)
 
@@ -7,6 +8,7 @@ struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
     @EnvironmentObject private var rfidManager: RFIDManager
+    @Query(sort: \Memo.createdAt) private var memos: [Memo]
     @Binding var selectedNavigationItem: NavigationItem
     @State private var viewModel = DashboardViewModel()
     @State private var showAddStoneSheet = false
@@ -15,6 +17,10 @@ struct DashboardView: View {
     @State private var showResetConfirm = false
     @State private var resetSuccessMessage: String?
     @State private var isResetting = false
+
+    private var memoOpenTotalSnapshot: Decimal {
+        memos.reduce(Decimal(0)) { $0 + $1.openMemoAmount }
+    }
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -25,13 +31,17 @@ struct DashboardView: View {
 
             infoPanel
         }
-        .background(AppColors.background)
+        .background(AppColors.shellGradient)
         .sheet(isPresented: $showAddStoneSheet) {
             NavigationStack { AddGemstoneView() }
                 .presentationDetents([.medium, .large])
         }
         .onAppear { viewModel.load(modelContext: modelContext) }
         .onChange(of: showAddStoneSheet) { _, _ in viewModel.load(modelContext: modelContext) }
+        .onChange(of: memoOpenTotalSnapshot) { _, _ in viewModel.load(modelContext: modelContext) }
+        .onReceive(NotificationCenter.default.publisher(for: .NSManagedObjectContextDidSave)) { _ in
+            viewModel.load(modelContext: modelContext)
+        }
         .alert("Reset Demo Data", isPresented: $showResetConfirm) {
             Button("Cancel", role: .cancel) {}
             Button("Reset", role: .destructive) {
@@ -49,8 +59,8 @@ struct DashboardView: View {
                         .foregroundStyle(.white)
                         .padding(.horizontal, AppSpacing.l)
                         .padding(.vertical, AppSpacing.m)
-                        .background(Color.green)
-                        .cornerRadius(AppCornerRadius.m)
+                        .background(AppColors.success)
+                        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous))
                         .padding(.bottom, AppSpacing.xl)
                 }
                 .transition(.move(edge: .bottom))
@@ -102,11 +112,11 @@ struct DashboardView: View {
     private var headerRow: some View {
         HStack {
             Text("Dashboard")
-                .font(.largeTitle)
-                .fontWeight(.semibold)
+                .font(AppTypography.title)
+                .foregroundStyle(AppColors.ink)
             Spacer()
             TextField("Search…", text: .constant(""))
-                .textFieldStyle(.roundedBorder)
+                .appSearchField()
                 .frame(maxWidth: 200)
         }
     }
@@ -213,8 +223,8 @@ struct DashboardView: View {
             }
             .padding(AppSpacing.l)
         }
-        .frame(width: 280)
-        .background(AppColors.cardBackground)
+        .frame(width: 296)
+        .background(AppColors.panelBackground)
     }
 
     private var rfidStatusPill: some View {
@@ -272,10 +282,10 @@ struct DashboardView: View {
 
     private var statusColor: Color {
         switch rfidManager.connectionStatus {
-        case .disconnected: return .gray
-        case .connecting, .initializing: return .orange
-        case .connected, .scanning: return .green
-        case .error: return .red
+        case .disconnected: return AppColors.inkSubtle
+        case .connecting, .initializing: return AppColors.warning
+        case .connected, .scanning: return AppColors.success
+        case .error: return AppColors.danger
         }
     }
 
@@ -429,46 +439,47 @@ enum DashboardPanelItem {
 
 struct SectionHeader: View {
     let title: String
+
     var body: some View {
         Text(title)
-            .font(.headline)
+            .font(AppTypography.heading)
+            .foregroundStyle(AppColors.ink)
     }
 }
 
 struct StatusPill: View {
     let label: String
     let color: Color
-    var action: (() -> Void)?
+    var onReconnect: () -> Void
+
     var body: some View {
-        HStack(spacing: AppSpacing.s) {
-            Circle()
-                .fill(color)
-                .frame(width: 8, height: 8)
-            Text(label)
-                .font(.caption)
-            Spacer()
-            if let action = action {
-                Button("Reconnect", action: action)
-                    .font(.caption2)
-                    .buttonStyle(.borderless)
+        AppSurfaceCard(padding: AppSpacing.m, accent: color) {
+            HStack {
+                AppStatusBadge(title: label, tone: tone(for: label))
+                Spacer()
+                Button("Reconnect", action: onReconnect)
+                    .buttonStyle(.bordered)
+                    .tint(AppColors.primary)
             }
         }
-        .padding(AppSpacing.s)
-        .background(AppColors.primary.opacity(0.08))
-        .cornerRadius(AppCornerRadius.m)
+    }
+
+    private func tone(for label: String) -> AppStatusBadge.Tone {
+        let v = label.lowercased()
+        if v.contains("scan") || v.contains("connect") { return .success }
+        if v.contains("initial") || v.contains("connect") { return .warning }
+        if v.contains("error") || v.contains("disconnect") { return .danger }
+        return .neutral
     }
 }
 
 struct AppCard<Content: View>: View {
-    @ViewBuilder let content: Content
+    @ViewBuilder let content: () -> Content
+
     var body: some View {
-        content
-            .background(AppColors.cardBackground)
-            .overlay(
-                RoundedRectangle(cornerRadius: AppCornerRadius.m)
-                    .stroke(AppColors.cardStroke, lineWidth: 1)
-            )
-            .cornerRadius(AppCornerRadius.m)
+        AppSurfaceCard(padding: AppSpacing.m) {
+            content()
+        }
     }
 }
 
@@ -477,30 +488,22 @@ struct DashboardActionCard: View {
     let subtitle: String
     let icon: String
     let action: () -> Void
+
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: AppSpacing.m) {
+            AppSurfaceCard(padding: AppSpacing.m, accent: AppColors.accent) {
                 Image(systemName: icon)
-                    .font(.system(size: 28))
+                    .font(.title3)
                     .foregroundStyle(AppColors.primary)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundStyle(.primary)
-                    Text(subtitle)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+                Text(title)
+                    .font(AppTypography.body.weight(.semibold))
+                    .foregroundStyle(AppColors.ink)
+                Text(subtitle)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+                    .lineLimit(2)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(AppSpacing.l)
-            .background(AppColors.primary.opacity(0.08))
-            .overlay(
-                RoundedRectangle(cornerRadius: AppCornerRadius.m)
-                    .stroke(AppColors.cardStroke, lineWidth: 1)
-            )
-            .cornerRadius(AppCornerRadius.m)
+            .frame(minHeight: 108)
         }
         .buttonStyle(.plain)
     }
@@ -509,19 +512,15 @@ struct DashboardActionCard: View {
 struct DashboardWidgetCard: View {
     let title: String
     let value: String
+
     var body: some View {
-        AppCard {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
-                Text(title)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Text(value)
-                    .font(.title2)
-                    .fontWeight(.medium)
-                    .monospacedDigit()
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(AppSpacing.l)
+        AppSurfaceCard(padding: AppSpacing.m, accent: AppColors.primary) {
+            Text(title)
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkSubtle)
+            Text(value)
+                .font(.system(size: 22, weight: .semibold, design: .rounded))
+                .foregroundStyle(AppColors.ink)
         }
     }
 }

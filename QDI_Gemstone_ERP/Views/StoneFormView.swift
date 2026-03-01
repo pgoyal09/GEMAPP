@@ -33,6 +33,8 @@ struct StoneFormView: View {
     @State private var skuText: String = ""
     @State private var expandDeferred: Bool = true
     @State private var showSuccess: Bool = false
+    @State private var showDiscardChangesAlert = false
+    @State private var baselineSnapshot = ""
     @FocusState private var focusedField: StoneFormField?
 
     enum StoneFormField: Hashable {
@@ -87,6 +89,44 @@ struct StoneFormView: View {
     private func isMissingDimensions() -> Bool { mode == .review && (lengthVal == nil && widthVal == nil && heightVal == nil) }
     private func isMissingCertDetails() -> Bool { mode == .review && hasCert && (certLab.isEmpty || certNo.isEmpty) }
 
+    private var hasUnsavedChanges: Bool {
+        currentSnapshot() != baselineSnapshot
+    }
+
+    private func attemptDismiss() {
+        if hasUnsavedChanges {
+            showDiscardChangesAlert = true
+        } else {
+            onDismiss?()
+        }
+    }
+
+    private func currentSnapshot() -> String {
+        [
+            stoneTypeText,
+            shapeText,
+            grouping.rawValue,
+            caratsText,
+            treatment,
+            hasCert ? "1" : "0",
+            skuText,
+            color,
+            clarity,
+            cut,
+            polish,
+            symmetry,
+            fluorescence,
+            certLab,
+            certNo,
+            lengthText,
+            widthText,
+            heightText,
+            costText,
+            sellText,
+            statusOverride.rawValue
+        ].joined(separator: "~")
+    }
+
     var body: some View {
         Group {
             if mode == .edit {
@@ -97,11 +137,21 @@ struct StoneFormView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(AppColors.background)
-        .onAppear { loadFromGemstoneOrDefaults() }
-        .onChange(of: gemstone?.id) { _, _ in loadFromGemstoneOrDefaults() }
+        .onAppear { loadFromGemstoneOrDefaults(); baselineSnapshot = currentSnapshot() }
+        .onChange(of: gemstone?.id) { _, _ in loadFromGemstoneOrDefaults(); baselineSnapshot = currentSnapshot() }
         .onChange(of: stoneTypeText) { _, _ in refreshSKUIfNeeded() }
         .onChange(of: shapeText) { _, _ in refreshSKUIfNeeded() }
         .onChange(of: grouping) { _, _ in refreshSKUIfNeeded() }
+
+        .interactiveDismissDisabled(hasUnsavedChanges)
+        .alert("Leave without saving?", isPresented: $showDiscardChangesAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Discard", role: .destructive) {
+                onDismiss?()
+            }
+        } message: {
+            Text("Leave without saving?")
+        }
         .overlay {
             if showSuccess {
                 Text("Saved")
@@ -189,7 +239,7 @@ struct StoneFormView: View {
             }
             HStack(spacing: AppSpacing.s) {
                 if let onDismiss {
-                    Button("Cancel") { onDismiss() }
+                    Button("Cancel") { attemptDismiss() }
                         .keyboardShortcut(.cancelAction)
                 }
                 Button("Save") {
@@ -434,7 +484,7 @@ struct StoneFormView: View {
                 }
                 .disabled(!canSave || !hasNextInReview)
                 if let onDismiss {
-                    Button("Done") { onDismiss() }
+                    Button("Done") { attemptDismiss() }
                 }
             case .edit:
                 Button("Save") {
@@ -445,7 +495,7 @@ struct StoneFormView: View {
                 .disabled(!canSave)
                 .keyboardShortcut(.defaultAction)
                 if let onDismiss {
-                    Button("Done") { onDismiss() }
+                    Button("Done") { attemptDismiss() }
                 }
             }
         }
@@ -748,6 +798,7 @@ struct StoneFormView: View {
         }
         do {
             try modelContext.save()
+            baselineSnapshot = currentSnapshot()
             return true
         } catch {
             return false

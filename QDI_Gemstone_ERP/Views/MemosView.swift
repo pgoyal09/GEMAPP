@@ -192,10 +192,12 @@ struct MemoDocumentView: View {
             }
         }
         .sheet(isPresented: $showInventorySheet) {
-            InventorySelectSheet { stone in
-                TransactionViewModel.addStoneToMemo(stone, memo: memo, modelContext: modelContext)
+            InventorySelectSheet(onSelectMany: { stones in
+                for stone in stones {
+                    TransactionViewModel.addStoneToMemo(stone, memo: memo, modelContext: modelContext)
+                }
                 showInventorySheet = false
-            }
+            })
         }
         .sheet(isPresented: $showAddCustomerSheet) {
             NavigationStack {

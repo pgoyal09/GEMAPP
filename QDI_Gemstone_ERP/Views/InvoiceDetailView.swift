@@ -267,11 +267,13 @@ struct InvoiceDetailView: View {
         .cornerRadius(AppCornerRadius.l)
         .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
         .sheet(isPresented: $showInventorySheet) {
-            InventorySelectSheet { stone in
-                TransactionViewModel.addStoneToInvoice(stone, invoice: invoice, modelContext: modelContext)
+            InventorySelectSheet(onSelectMany: { stones in
+                for stone in stones {
+                    TransactionViewModel.addStoneToInvoice(stone, invoice: invoice, modelContext: modelContext)
+                }
                 onUpdate?()
                 showInventorySheet = false
-            }
+            })
         }
     }
 

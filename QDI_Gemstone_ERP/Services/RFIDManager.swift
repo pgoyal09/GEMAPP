@@ -782,25 +782,12 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
         }
     }
 
-    /// Derive stable canonical tag ID from payload. Do NOT use leading metadata bytes.
-    /// Search for E2 80 (stable identity marker in observed frames) and extract chunk from there.
-    /// Fallback: use last 12 bytes (EPC often at end) to avoid leading metadata.
+    /// Derive stable canonical tag ID from payload using shared EPC canonical rules.
     private func deriveCanonicalTagID(from payload: [UInt8]) -> String {
-        let stableChunkLen = 12
-        guard payload.count >= 2 else {
-            return payload.map { String(format: "%02X", $0) }.joined().uppercased()
+        if let canonical = EPCanonical.canonicalHex(fromPayload: payload) {
+            return canonical
         }
-        for i in 0..<(payload.count - 1) {
-            if payload[i] == 0xE2 && payload[i + 1] == 0x80 {
-                let start = i
-                let end = min(start + stableChunkLen, payload.count)
-                let chunk = Array(payload[start..<end])
-                return chunk.map { String(format: "%02X", $0) }.joined().uppercased()
-            }
-        }
-        let fallbackStart = max(0, payload.count - stableChunkLen)
-        let chunk = Array(payload[fallbackStart...])
-        return chunk.map { String(format: "%02X", $0) }.joined().uppercased()
+        return payload.map { String(format: "%02X", $0) }.joined().uppercased()
     }
 
     /// Tag events: cmd 0xAA with EPC-sized payload, NOT the async ack.
@@ -862,8 +849,10 @@ private var time_base_info: mach_timebase_info_data_t = {
     return t
 }()
 
+private let rfidManagerLog = Logger(subsystem: "com.qdi.gemapp", category: "rfid.manager")
+
 private func debugLog(_ msg: String) {
     #if DEBUG
-    print(msg)
+    rfidManagerLog.debug("\(msg, privacy: .public)")
     #endif
 }

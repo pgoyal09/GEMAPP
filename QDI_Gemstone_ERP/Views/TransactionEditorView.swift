@@ -17,6 +17,8 @@ struct TransactionEditorView: View {
     @State private var viewModel = TransactionViewModel()
     @State private var showInventorySheet = false
     @State private var showAddCustomerSheet = false
+    @State private var showDiscardChangesAlert = false
+    @State private var baselineSnapshot = ""
     
     @Query(sort: \Customer.lastName) private var customers: [Customer]
     
@@ -56,28 +58,28 @@ struct TransactionEditorView: View {
                 HStack {
                     Text(msg)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppColors.inkSubtle)
                     Spacer()
                     Button("Dismiss") { viewModel.clearLastRFIDMessage() }
                         .buttonStyle(.borderless)
                 }
                 .padding(8)
-                .background(Color(white: 0.95))
+                .background(AppColors.cardElevated)
             }
-            headerSection
-            Divider().padding(.vertical, 8)
-            lineItemsSection
-            Divider().padding(.vertical, 8)
-            footerSection
+            AppSurfaceCard(accent: AppColors.accent) { headerSection }
+            AppSurfaceCard(accent: AppColors.primary) { lineItemsSection }
+            AppSurfaceCard(accent: AppColors.accentPeach) { footerSection }
         }
-        .padding(24)
+        .padding(AppSpacing.xl)
         .frame(minWidth: 700, minHeight: 500)
-        .background(Color(white: 0.98))
+        .background(AppColors.background)
         .sheet(isPresented: $showInventorySheet) {
-            InventorySelectSheet { stone in
-                viewModel.addStoneFromInventory(stone)
+            InventorySelectSheet(onSelectMany: { stones in
+                for stone in stones {
+                    viewModel.addStoneFromInventory(stone)
+                }
                 showInventorySheet = false
-            }
+            })
         }
         .sheet(isPresented: $showAddCustomerSheet) {
             NavigationStack {
@@ -89,7 +91,7 @@ struct TransactionEditorView: View {
         .navigationTitle(title)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") { dismiss() }
+                Button("Cancel") { attemptDismiss() }
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button(saveButtonLabel) {
@@ -98,9 +100,20 @@ struct TransactionEditorView: View {
                     case .memo: saveMemo()
                     case .editMemo(let memo): saveEditedMemo(memo)
                     }
+                    baselineSnapshot = currentSnapshot()
                 }
                 .disabled(!viewModel.canSave)
             }
+        }
+
+        .interactiveDismissDisabled(hasUnsavedChanges)
+        .alert("Leave without saving?", isPresented: $showDiscardChangesAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Discard", role: .destructive) {
+                dismiss()
+            }
+        } message: {
+            Text("Leave without saving?")
         }
         .onAppear {
             switch mode {
@@ -116,6 +129,7 @@ struct TransactionEditorView: View {
             rfidService?.onTagDiscovered = { [viewModel] tag in
                 viewModel.handleScannedTag(tag, modelContext: modelContext)
             }
+            baselineSnapshot = currentSnapshot()
         }
         .onDisappear {
             rfidService?.onTagDiscovered = nil
@@ -128,7 +142,7 @@ struct TransactionEditorView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Customer")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppColors.inkSubtle)
                     HStack(spacing: 8) {
                         Picker("", selection: $viewModel.customer) {
                             Text("Select customer…").tag(nil as Customer?)
@@ -151,7 +165,7 @@ struct TransactionEditorView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Date")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppColors.inkSubtle)
                     DatePicker("", selection: $viewModel.date, displayedComponents: .date)
                         .labelsHidden()
                         .frame(width: 140)
@@ -160,7 +174,7 @@ struct TransactionEditorView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Terms")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(AppColors.inkSubtle)
                         Picker("", selection: $viewModel.terms) {
                             Text("Net 30").tag("Net 30")
                             Text("Net 60").tag("Net 60")
@@ -174,7 +188,7 @@ struct TransactionEditorView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(referenceLabel)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppColors.inkSubtle)
                     TextField(referencePlaceholder, text: $viewModel.referenceNumber)
                         .textFieldStyle(.roundedBorder)
                         .frame(width: 120)
@@ -187,14 +201,14 @@ struct TransactionEditorView: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("Line Items")
-                    .font(.headline)
+                    .font(AppTypography.heading)
                 Spacer()
             }
 
             if viewModel.items.isEmpty {
                 Text("No line items. Use \"Add Line\" to add from inventory or add a custom line (e.g. Shipping).")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppColors.inkSubtle)
                     .frame(maxWidth: .infinity)
                     .padding(32)
             } else {
@@ -222,7 +236,7 @@ struct TransactionEditorView: View {
                     .buttonStyle(.borderless)
             }
             .font(.subheadline)
-            .foregroundStyle(.blue)
+            .foregroundStyle(AppColors.primary)
         }
     }
     
@@ -232,7 +246,7 @@ struct TransactionEditorView: View {
             VStack(alignment: .trailing, spacing: 6) {
                 HStack {
                     Text("Subtotal")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppColors.inkSubtle)
                     Text(formatCurrency(viewModel.subtotal))
                         .frame(width: 100, alignment: .trailing)
                 }
@@ -240,7 +254,7 @@ struct TransactionEditorView: View {
                 if viewModel.tax > 0 {
                     HStack {
                         Text("Tax")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(AppColors.inkSubtle)
                         Text(formatCurrency(viewModel.tax))
                             .frame(width: 100, alignment: .trailing)
                     }
@@ -268,10 +282,39 @@ struct TransactionEditorView: View {
             Spacer().frame(width: 32)
         }
         .font(.caption)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(AppColors.inkSubtle)
         .padding(.vertical, 4)
     }
     
+    private var hasUnsavedChanges: Bool {
+        currentSnapshot() != baselineSnapshot
+    }
+
+    private func attemptDismiss() {
+        if hasUnsavedChanges {
+            showDiscardChangesAlert = true
+        } else {
+            dismiss()
+        }
+    }
+
+    private func currentSnapshot() -> String {
+        let itemSnapshot = viewModel.items.map { item in
+            [item.sku, item.description, "\(item.carats)", "\(item.rate)", item.isService ? "1" : "0"].joined(separator: "|")
+        }.joined(separator: "||")
+
+        return [
+            viewModel.customer?.id.description ?? "",
+            viewModel.date.timeIntervalSince1970.description,
+            viewModel.dueDate?.timeIntervalSince1970.description ?? "",
+            viewModel.terms,
+            viewModel.referenceNumber,
+            viewModel.notes,
+            "\(viewModel.taxRatePercent)",
+            itemSnapshot
+        ].joined(separator: "~")
+    }
+
     private func formatCurrency(_ value: Decimal) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
@@ -476,7 +519,7 @@ struct TransactionLineRowView: View {
                 viewModel.removeLine(at: IndexSet(integer: index))
             } label: {
                 Image(systemName: "trash")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppColors.inkSubtle)
             }
             .buttonStyle(.plain)
             .frame(width: 32)

@@ -1,5 +1,8 @@
 import Foundation
 import SwiftData
+import os
+
+private let appTransactionLog = Logger(subsystem: "com.qdi.gemapp", category: "inventory.transaction")
 
 // MARK: - Draft line (form state; not persisted until save)
 
@@ -26,7 +29,7 @@ struct DraftLineItem: Identifiable {
     // Display (UI uses these; no if-else in view)
     var displaySku: String { isCustomLine ? "—" : sku }
     var displayName: String {
-        gemstone.map { "\($0.stoneType.rawValue) \($0.color) \($0.clarity) \($0.cut)" } ?? description
+        gemstone.map { TransactionViewModel.autoDescription(for: $0) } ?? description
     }
     var displayCarats: String {
         isService ? "—" : String(format: "%.2f", carats)
@@ -89,18 +92,31 @@ final class TransactionViewModel {
     /// Handle a scanned RFID tag (EPC): if stone is available, add to current transaction (Memo/Invoice); if on memo, process return to stock.
     /// Call from the view when the serial RFID service fires onTagDiscovered (e.g. in TransactionEditorView).
     func handleScannedTag(_ tagID: String, modelContext: ModelContext) {
-        let tag = tagID.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !tag.isEmpty else { return }
-        
+        guard let canonicalEpc = EPCanonical.normalize(tagID) ?? EPCanonical.canonicalHex(fromRawHex: tagID) else {
+            lastRFIDMessage = "Tag format invalid"
+            return
+        }
+
+        let tagDescriptor = FetchDescriptor<RFIDTag>(predicate: #Predicate<RFIDTag> { $0.epcCurrent == canonicalEpc })
+        if let tag = try? modelContext.fetch(tagDescriptor).first,
+           let assignedStone = tag.assignedStone {
+            handleScannedStone(assignedStone, modelContext: modelContext)
+            return
+        }
+
         let descriptor = FetchDescriptor<Gemstone>(
-            predicate: #Predicate<Gemstone> { stone in stone.rfidTag == tag }
+            predicate: #Predicate<Gemstone> { stone in stone.rfidEpc == canonicalEpc || stone.rfidTag == canonicalEpc }
         )
         guard let results = try? modelContext.fetch(descriptor),
               let stone = results.first else {
             lastRFIDMessage = "Tag not in database"
             return
         }
-        
+
+        handleScannedStone(stone, modelContext: modelContext)
+    }
+
+    private func handleScannedStone(_ stone: Gemstone, modelContext: ModelContext) {
         switch stone.effectiveStatus {
         case .available:
             if !lineItems.contains(where: { $0.gemstone?.sku == stone.sku }) {
@@ -132,12 +148,66 @@ final class TransactionViewModel {
     func addStoneFromInventory(_ stone: Gemstone) {
         lineItems.append(DraftLineItem(
             sku: stone.sku,
-            description: "\(stone.stoneType.rawValue) \(stone.color) \(stone.clarity) \(stone.cut)",
+            description: Self.autoDescription(for: stone),
             carats: stone.caratWeight,
             rate: stone.sellPrice,
             gemstone: stone,
             isService: false
         ))
+    }
+
+    static func autoDescription(for stone: Gemstone) -> String {
+        if stone.stoneType == .diamond {
+            return [stone.stoneType.rawValue, stone.color, stone.clarity, stone.cut]
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty && $0 != "-" }
+                .joined(separator: " ")
+        }
+
+        var firstLineParts: [String] = []
+        if stone.hasCert == true { firstLineParts.append("Certified") }
+        let treatment = (stone.treatment ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        if !treatment.isEmpty { firstLineParts.append(treatment) }
+        firstLineParts.append(stone.stoneType.rawValue)
+
+        let shape = (stone.shape ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        if !shape.isEmpty { firstLineParts.append(shape) }
+
+        let groupingCode = (stone.grouping ?? "S").uppercased()
+        let groupingText: String
+        switch groupingCode {
+        case "P": groupingText = "Pair"
+        case "L": groupingText = "Lot"
+        default: groupingText = "Single"
+        }
+        firstLineParts.append(groupingText)
+
+        if groupingCode == "L" {
+            let color = stone.color.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !color.isEmpty && color != "-" { firstLineParts.append(color) }
+        }
+
+        var secondLineParts: [String] = []
+        let dimensions: [String] = [stone.length, stone.width, stone.height]
+            .compactMap { value in
+                guard let value else { return nil }
+                return String(format: "%.2f", value)
+            }
+        if !dimensions.isEmpty {
+            secondLineParts.append(dimensions.joined(separator: " × "))
+        }
+
+        let certLab = (stone.certLab ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        if !certLab.isEmpty { secondLineParts.append(certLab) }
+
+        let certNo = (stone.certNo ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        if !certNo.isEmpty { secondLineParts.append(certNo) }
+
+        let firstLine = firstLineParts.joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
+        let secondLine = secondLineParts.joined(separator: " ").trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if !firstLine.isEmpty && !secondLine.isEmpty { return firstLine + "\n" + secondLine }
+        return firstLine.isEmpty ? secondLine : firstLine
     }
     
     func addBrokeredLine() {
@@ -224,7 +294,11 @@ final class TransactionViewModel {
         let ref = generateNextMemoNumber(modelContext: modelContext)
         let memo = Memo(status: .onMemo, dateAssigned: Date(), referenceNumber: ref, customer: nil)
         modelContext.insert(memo)
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            appTransactionLog.error("Failed to create memo: \(error.localizedDescription, privacy: .public)")
+        }
         return memo
     }
 
@@ -232,7 +306,11 @@ final class TransactionViewModel {
     static func createNewInvoice(modelContext: ModelContext) -> Invoice {
         let invoice = Invoice(invoiceDate: Date(), terms: "Net 30", status: .draft, customer: nil)
         modelContext.insert(invoice)
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            appTransactionLog.error("Failed to create invoice: \(error.localizedDescription, privacy: .public)")
+        }
         return invoice
     }
 
@@ -300,13 +378,11 @@ final class TransactionViewModel {
                 )
             }
         }
-        #if DEBUG
-        let stoneCount = selectedLineItems.compactMap(\.gemstone).count
-        if stoneCount > 0 {
-            print("[Memo→Invoice] Updated \(stoneCount) gemstone(s) to Sold; no gemstones deleted.")
+        do {
+            try modelContext.save()
+        } catch {
+            appTransactionLog.error("Failed to convert memo to invoice: \(error.localizedDescription, privacy: .public)")
         }
-        #endif
-        try? modelContext.save()
         return newInvoice
     }
     
@@ -315,7 +391,7 @@ final class TransactionViewModel {
         let amount = stone.sellPrice * Decimal(stone.caratWeight)
         let item = LineItem(
             sku: stone.sku,
-            itemDescription: "\(stone.stoneType.rawValue) \(stone.color) \(stone.clarity) \(stone.cut)",
+            itemDescription: autoDescription(for: stone),
             carats: stone.caratWeight,
             rate: stone.sellPrice,
             amount: amount,
@@ -327,7 +403,11 @@ final class TransactionViewModel {
         stone.memo = memo
         stone.status = .onMemo
         logEvent(stone: stone, type: .sentToCustomer, message: "Added to Memo", modelContext: modelContext)
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     /// Add a brokered (manual) stone line to an existing memo.
@@ -343,7 +423,11 @@ final class TransactionViewModel {
         )
         modelContext.insert(item)
         item.memo = memo
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     /// Add a custom/service line to an existing memo.
@@ -359,7 +443,11 @@ final class TransactionViewModel {
         )
         modelContext.insert(item)
         item.memo = memo
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     /// Add a gemstone from inventory to an existing invoice.
@@ -367,7 +455,7 @@ final class TransactionViewModel {
         let amount = stone.sellPrice * Decimal(stone.caratWeight)
         let item = LineItem(
             sku: stone.sku,
-            itemDescription: "\(stone.stoneType.rawValue) \(stone.color) \(stone.clarity) \(stone.cut)",
+            itemDescription: autoDescription(for: stone),
             carats: stone.caratWeight,
             rate: stone.sellPrice,
             amount: amount,
@@ -379,7 +467,11 @@ final class TransactionViewModel {
         stone.memo = nil
         stone.status = .sold
         logEvent(stone: stone, type: .sold, message: "Added to Invoice", modelContext: modelContext)
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     /// Add a brokered (manual) stone line to an existing invoice.
@@ -395,7 +487,11 @@ final class TransactionViewModel {
         )
         modelContext.insert(item)
         item.invoice = invoice
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     /// Add a custom/service line to an existing invoice.
@@ -411,7 +507,11 @@ final class TransactionViewModel {
         )
         modelContext.insert(item)
         item.invoice = invoice
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     /// Returns selected items from a memo to stock: marks line items as .returned, sets gemstones to .available.
@@ -432,6 +532,10 @@ final class TransactionViewModel {
                 )
             }
         }
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+        }
     }
 }

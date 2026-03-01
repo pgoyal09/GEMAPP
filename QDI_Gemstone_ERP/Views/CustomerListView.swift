@@ -13,8 +13,8 @@ struct CustomerListView: View {
             VStack(spacing: 0) {
                 HStack {
                     Text("Customers")
-                        .font(.largeTitle)
-                        .fontWeight(.semibold)
+                        .font(AppTypography.title)
+                        .foregroundStyle(AppColors.ink)
                     Spacer()
                     Button {
                         showAddCustomerSheet = true
@@ -26,15 +26,25 @@ struct CustomerListView: View {
                     .buttonStyle(.plain)
                 }
                 .padding()
-                if viewModel.customers.isEmpty {
+
+                HStack(spacing: AppSpacing.s) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(AppColors.inkSubtle)
+                    TextField("Search name, company, email…", text: $viewModel.searchText)
+                        .appSearchField()
+                }
+                .padding(.horizontal)
+                .padding(.bottom, AppSpacing.s)
+
+                if viewModel.filteredCustomers.isEmpty {
                     ContentUnavailableView(
                         "No Customers",
                         systemImage: "person.2",
-                        description: Text("Customers will appear here.")
+                        description: Text(viewModel.searchText.isEmpty ? "Customers will appear here." : "No customers match your search.")
                     )
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    List(viewModel.customers, selection: $selectedCustomer) { customer in
+                    List(viewModel.filteredCustomers, selection: $selectedCustomer) { customer in
                         Text(customer.displayName)
                             .lineLimit(1)
                             .truncationMode(.tail)
