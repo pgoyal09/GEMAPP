@@ -83,8 +83,13 @@ struct InventorySelectSheet: View {
 
             // Title + buttons
             HStack {
-                Text("Select Stone\(selectedStoneIDs.count > 1 ? "s" : "")")
-                    .font(.headline)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Select Stone\(selectedStoneIDs.count > 1 ? "s" : "")")
+                        .font(.headline)
+                    Text("Click to select multiple")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
                 if !selectedStoneIDs.isEmpty {
                     Text("(\(selectedStoneIDs.count) selected)")
                         .font(.caption)
@@ -112,34 +117,20 @@ struct InventorySelectSheet: View {
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                Table(filteredStones, selection: $selectedStoneIDs) {
-                    TableColumn("") { stone in
-                        Image(systemName: selectedStoneIDs.contains(stone.id) ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(selectedStoneIDs.contains(stone.id) ? Color.accentColor : .secondary)
-                    }
-                    .width(28)
-                    TableColumn("SKU") { stone in
-                        Text(stone.sku)
-                            .font(.system(.body, design: .monospaced))
-                    }
-                    .width(100)
-                    TableColumn("Type") { stone in Text(stone.stoneType.rawValue) }
-                    .width(90)
-                    TableColumn("Carat") { stone in
-                        Text(String(format: "%.2f", stone.caratWeight))
-                            .monospacedDigit()
-                    }
-                    .width(70)
-                    TableColumn("Color") { stone in Text(stone.color) }
-                    .width(80)
-                    TableColumn("Shape") { stone in Text(shapeDisplay(stone)) }
-                    .width(90)
-                    TableColumn("Sell Price") { stone in Text(formatCurrency(stone.sellPrice)) }
-                    .width(90)
-                }
-                .onTapGesture(count: 2) {
-                    if hasValidSelection {
-                        confirmSelection()
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        inventoryHeader
+                        Divider()
+                        ForEach(filteredStones, id: \.id) { stone in
+                            inventoryRow(stone)
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    toggleSelection(stone)
+                                }
+                                .onTapGesture(count: 2) {
+                                    if hasValidSelection { confirmSelection() }
+                                }
+                        }
                     }
                 }
             }
@@ -148,10 +139,59 @@ struct InventorySelectSheet: View {
         .background(Color(nsColor: .windowBackgroundColor))
     }
 
+    private var inventoryHeader: some View {
+        HStack(spacing: 0) {
+            Color.clear.frame(width: 28)
+            Text("SKU").font(.caption.bold()).foregroundStyle(.secondary).frame(width: 100, alignment: .leading)
+            Text("Type").font(.caption.bold()).foregroundStyle(.secondary).frame(width: 90, alignment: .leading)
+            Text("Carat").font(.caption.bold()).foregroundStyle(.secondary).frame(width: 70, alignment: .trailing)
+            Text("Color").font(.caption.bold()).foregroundStyle(.secondary).frame(width: 80, alignment: .leading)
+            Text("Shape").font(.caption.bold()).foregroundStyle(.secondary).frame(width: 90, alignment: .leading)
+            Text("Sell Price").font(.caption.bold()).foregroundStyle(.secondary).frame(width: 90, alignment: .trailing)
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 8)
+        .background(Color(white: 0.94))
+    }
+
+    private func toggleSelection(_ stone: Gemstone) {
+        if selectedStoneIDs.contains(stone.id) {
+            selectedStoneIDs.remove(stone.id)
+        } else {
+            selectedStoneIDs.insert(stone.id)
+        }
+    }
+
     private func confirmSelection() {
         if hasValidSelection {
             onSelect(selectedStones)
         }
+    }
+
+    private func inventoryRow(_ stone: Gemstone) -> some View {
+        let isSelected = selectedStoneIDs.contains(stone.id)
+        return HStack(spacing: 0) {
+            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                .foregroundStyle(isSelected ? Color.accentColor : .secondary)
+                .frame(width: 28, alignment: .center)
+            Text(stone.sku)
+                .font(.system(.body, design: .monospaced))
+                .frame(width: 100, alignment: .leading)
+            Text(stone.stoneType.rawValue)
+                .frame(width: 90, alignment: .leading)
+            Text(String(format: "%.2f", stone.caratWeight))
+                .monospacedDigit()
+                .frame(width: 70, alignment: .trailing)
+            Text(stone.color)
+                .frame(width: 80, alignment: .leading)
+            Text(shapeDisplay(stone))
+                .frame(width: 90, alignment: .leading)
+            Text(formatCurrency(stone.sellPrice))
+                .frame(width: 90, alignment: .trailing)
+        }
+        .padding(.vertical, 6)
+        .padding(.horizontal, 8)
+        .background(isSelected ? Color.accentColor.opacity(0.15) : Color.clear)
     }
 
     private func formatCurrency(_ value: Decimal) -> String {

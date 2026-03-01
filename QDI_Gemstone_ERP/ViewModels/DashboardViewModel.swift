@@ -61,17 +61,10 @@ final class DashboardViewModel {
     }
 
     private func calculateTotalValueOnMemo(modelContext: ModelContext) -> Decimal {
-        let onMemoStatus = MemoStatus.onMemo
-        let descriptor = FetchDescriptor<Memo>(
-            predicate: #Predicate<Memo> { $0.status == onMemoStatus }
-        )
-        guard let memos = try? modelContext.fetch(descriptor) else { return 0 }
-
-        return memos.flatMap { memo in
-            memo.openLineItems.map { item in
-                item.gemstone?.sellPrice ?? item.amount
-            }
-        }.reduce(0, +)
+        let descriptor = FetchDescriptor<Memo>()
+        guard let allMemos = try? modelContext.fetch(descriptor) else { return 0 }
+        let onMemoMemos = allMemos.filter { $0.status == .onMemo }
+        return onMemoMemos.reduce(Decimal(0)) { $0 + $1.openMemoAmount }
     }
 
     private func fetchRecentActivity(modelContext: ModelContext) -> [RecentActivityItem] {

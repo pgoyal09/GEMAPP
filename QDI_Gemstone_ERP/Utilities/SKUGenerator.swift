@@ -62,8 +62,8 @@ enum SKUGenerator {
         generate(type: type, shapeString: shape, grouping: grouping, modelContext: modelContext)
     }
 
-    /// Resolves final SKU for save: validates prefix matches current form values.
-    /// If mismatch, regenerates from current values. Always returns unique SKU.
+    /// Resolves final SKU for save: prefers candidate (user-edited) when non-empty; else generates.
+    /// Always returns unique SKU. Manual SKUs are allowed regardless of prefix.
     static func resolveSKUForSave(
         candidateSKU: String?,
         type: StoneType,
@@ -73,29 +73,27 @@ enum SKUGenerator {
     ) -> String {
         let candidate = (candidateSKU ?? "").trimmingCharacters(in: .whitespaces)
         let generated = generateSKU(type: type, shape: shape, grouping: grouping, modelContext: modelContext)
-
-        if candidate.isEmpty {
-            return ensureUnique(generated, modelContext: modelContext)
+        if !candidate.isEmpty {
+            return ensureUnique(candidate, modelContext: modelContext)
         }
-
-        if !prefixMatches(sku: candidate, type: type, shapeString: shape, grouping: grouping) {
-            #if DEBUG
-            print("[SKUGenerator] Mismatch: SKU '\(candidate)' prefix does not match type=\(type.rawValue) shape=\(shape) group=\(groupingCode(grouping)). Regenerating.")
-            #endif
-            return ensureUnique(generated, modelContext: modelContext)
-        }
-
-        return ensureUnique(candidate, modelContext: modelContext)
+        return ensureUnique(generated, modelContext: modelContext)
     }
 
     /// Preserves existing SKU if prefix matches; otherwise regenerates. Use when editing existing stone.
+    /// Prefers candidateSKU when provided and non-empty (manual override).
     static func resolveSKUForEdit(
+        candidateSKU: String?,
         existingSKU: String,
         type: StoneType,
         shape: String,
         grouping: IntakeGrouping,
-        modelContext: ModelContext
+        modelContext: ModelContext,
+        excludingID: PersistentIdentifier? = nil
     ) -> String {
+        let candidate = (candidateSKU ?? "").trimmingCharacters(in: .whitespaces)
+        if !candidate.isEmpty {
+            return ensureUnique(candidate, excludingID: excludingID, modelContext: modelContext)
+        }
         if prefixMatches(sku: existingSKU, type: type, shapeString: shape, grouping: grouping) {
             return existingSKU
         }
@@ -149,9 +147,13 @@ enum SKUGenerator {
     }
 
     /// Ensure SKU is unique; if not, increment sequence until unique.
-    static func ensureUnique(_ sku: String, modelContext: ModelContext) -> String {
+    /// Pass excludingID to ignore a stone (e.g. current stone when editing).
+    static func ensureUnique(_ sku: String, excludingID: PersistentIdentifier? = nil, modelContext: ModelContext) -> String {
         let descriptor = FetchDescriptor<Gemstone>()
-        let all = (try? modelContext.fetch(descriptor)) ?? []
+        var all = (try? modelContext.fetch(descriptor)) ?? []
+        if let id = excludingID {
+            all = all.filter { $0.id != id }
+        }
         let existingSKUs = Set(all.map(\.sku))
         var candidate = sku.trimmingCharacters(in: .whitespaces)
         if candidate.isEmpty { candidate = "TMP-OT-S-001" }
@@ -164,6 +166,20 @@ enum SKUGenerator {
             seq += 1
         }
         return candidate
+    }
+
+    /// Returns true if a gemstone with this SKU exists. Pass excludingID to ignore the current stone when editing.
+    static func skuExists(sku: String, excludingID: PersistentIdentifier?, modelContext: ModelContext) -> Bool {
+        let trimmed = sku.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return false }
+        let descriptor = FetchDescriptor<Gemstone>(
+            predicate: #Predicate<Gemstone> { $0.sku == trimmed }
+        )
+        guard let matches = try? modelContext.fetch(descriptor) else { return false }
+        if let id = excludingID {
+            return matches.contains { $0.id != id }
+        }
+        return !matches.isEmpty
     }
 
     /// Debug: scan gemstones for SKU/type mismatches. Returns stones whose SKU prefix doesn't match their stoneType.

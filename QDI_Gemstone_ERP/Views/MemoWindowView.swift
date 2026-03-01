@@ -6,6 +6,7 @@ import AppKit
 struct MemoWindowView: View {
     let memoID: PersistentIdentifier
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.documentDirtyTracker) private var documentDirtyTracker
     @State private var showLeaveWithoutSavingAlert = false
 
     var body: some View {
@@ -25,7 +26,8 @@ struct MemoWindowView: View {
         .frame(minWidth: 1100, minHeight: 760)
         .background {
             Button("") {
-                if modelContext.hasChanges {
+                let isDirty = modelContext.hasChanges || (documentDirtyTracker?.hasUnsavedMemo ?? false)
+                if isDirty {
                     showLeaveWithoutSavingAlert = true
                 } else {
                     modelContext.rollback()
@@ -39,6 +41,7 @@ struct MemoWindowView: View {
         .alert("Leave without saving?", isPresented: $showLeaveWithoutSavingAlert) {
             Button("Keep Editing", role: .cancel) {}
             Button("Discard", role: .destructive) {
+                documentDirtyTracker?.hasUnsavedMemo = false
                 modelContext.rollback()
                 NSApp.keyWindow?.close()
             }

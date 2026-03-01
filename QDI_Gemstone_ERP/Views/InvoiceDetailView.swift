@@ -5,7 +5,10 @@ import AppKit
 struct InvoiceDetailView: View {
     let invoice: Invoice
     var onUpdate: (() -> Void)?
+    /// Called when view is dismissed (e.g. sheet). Parent should clear binding so sheet doesn't reopen.
+    var onDismiss: (() -> Void)?
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.documentDirtyTracker) private var documentDirtyTracker
     @Query(sort: \Customer.lastName) private var customers: [Customer]
     @State private var generatedPDFURL: URL?
     @State private var pdfError: String?
@@ -13,10 +16,22 @@ struct InvoiceDetailView: View {
     @State private var showInventorySheet = false
     @State private var showAddCustomerSheet = false
     @State private var showLeaveWithoutSavingAlert = false
+    @State private var showDeleteConfirm = false
     @State private var totalRefreshID = 0
     @State private var hasUnsavedEdits = false
 
     private var isDirty: Bool { modelContext.hasChanges || hasUnsavedEdits }
+
+    /// Dismisses the view: when onDismiss is set (sheet), clears parent binding; else closes window.
+    private func performDismiss() {
+        modelContext.rollback()
+        documentDirtyTracker?.hasUnsavedInvoice = false
+        if let onDismiss {
+            onDismiss()
+        } else {
+            NSApp.keyWindow?.close()
+        }
+    }
 
     private var isCreateMode: Bool { invoice.customer == nil }
     private func formatCurrency(_ value: Decimal) -> String {
@@ -194,8 +209,7 @@ struct InvoiceDetailView: View {
                     if isDirty {
                         showLeaveWithoutSavingAlert = true
                     } else {
-                        modelContext.rollback()
-                        NSApp.keyWindow?.close()
+                        performDismiss()
                     }
                 }
                 .keyboardShortcut(.cancelAction)
@@ -206,6 +220,7 @@ struct InvoiceDetailView: View {
                         try modelContext.save()
                         hasUnsavedEdits = false
                         onUpdate?()
+                        NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
                     } catch {
                         pdfError = error.localizedDescription
                     }
@@ -216,6 +231,15 @@ struct InvoiceDetailView: View {
                 if invoice.effectiveStatus != .paid && invoice.effectiveStatus != .void {
                     Button("Mark as Paid") {
                         markAsPaid()
+                    }
+                }
+            }
+            ToolbarItem(placement: .destructiveAction) {
+                if invoice.effectiveStatus != .paid && invoice.effectiveStatus != .void {
+                    Button(role: .destructive) {
+                        showDeleteConfirm = true
+                    } label: {
+                        Label("Delete", systemImage: "trash")
                     }
                 }
             }
@@ -249,18 +273,33 @@ struct InvoiceDetailView: View {
             if isDirty {
                 showLeaveWithoutSavingAlert = true
             } else {
-                modelContext.rollback()
-                NSApp.keyWindow?.close()
+                performDismiss()
             }
         }
         .alert("Leave without saving?", isPresented: $showLeaveWithoutSavingAlert) {
             Button("Keep Editing", role: .cancel) {}
             Button("Discard", role: .destructive) {
-                modelContext.rollback()
-                NSApp.keyWindow?.close()
+                performDismiss()
             }
         } message: {
             Text("Your changes will not be saved.")
+        }
+        .alert("Delete Invoice?", isPresented: $showDeleteConfirm) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                deleteInvoice()
+            }
+        } message: {
+            Text("Line items will be returned to inventory. This cannot be undone.")
+        }
+        .onChange(of: isDirty) { _, dirty in
+            documentDirtyTracker?.hasUnsavedInvoice = dirty
+        }
+        .onAppear {
+            documentDirtyTracker?.hasUnsavedInvoice = isDirty
+        }
+        .onDisappear {
+            documentDirtyTracker?.hasUnsavedInvoice = false
         }
     }
 
@@ -370,6 +409,17 @@ struct InvoiceDetailView: View {
         .background(Color(white: 0.94))
     }
     
+    private func deleteInvoice() {
+        TransactionViewModel.deleteInvoice(invoice, modelContext: modelContext)
+        documentDirtyTracker?.hasUnsavedInvoice = false
+        NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
+        if let onDismiss {
+            onDismiss()
+        } else {
+            NSApp.keyWindow?.close()
+        }
+    }
+
     private func markAsPaid() {
         invoice.status = .paid
     }

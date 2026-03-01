@@ -7,6 +7,7 @@ private let appLog = Logger(subsystem: "com.qdi.gemapp", category: "app")
 @main
 struct QDI_Gemstone_ERPApp: App {
     @StateObject private var rfidManager = RFIDManager()
+    @State private var documentDirtyTracker = DocumentDirtyTracker()
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -47,6 +48,7 @@ struct QDI_Gemstone_ERPApp: App {
         WindowGroup {
             ContentView()
                 .modelContainer(sharedModelContainer)
+                .environment(\.documentDirtyTracker, documentDirtyTracker)
                 .environmentObject(rfidManager)
                 .onAppear {
                     DataSeeder.seedIfNeeded(modelContext: sharedModelContainer.mainContext)
@@ -62,6 +64,7 @@ struct QDI_Gemstone_ERPApp: App {
             if let id = memoID {
                 MemoWindowView(memoID: id)
                     .modelContainer(sharedModelContainer)
+                    .environment(\.documentDirtyTracker, documentDirtyTracker)
             } else {
                 ContentUnavailableView("Invalid Memo", systemImage: "doc.text", description: Text("No memo selected."))
             }
@@ -74,6 +77,7 @@ struct QDI_Gemstone_ERPApp: App {
             if let id = invoiceID {
                 InvoiceWindowView(invoiceID: id)
                     .modelContainer(sharedModelContainer)
+                    .environment(\.documentDirtyTracker, documentDirtyTracker)
             } else {
                 ContentUnavailableView("Invalid Invoice", systemImage: "dollarsign.circle", description: Text("No invoice selected."))
             }

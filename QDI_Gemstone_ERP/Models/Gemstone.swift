@@ -54,6 +54,10 @@ final class Gemstone {
     var length: Double?
     var width: Double?
     var height: Double?
+    /// Second stone dimensions for Pair grouping
+    var length2: Double?
+    var width2: Double?
+    var height2: Double?
     var polish: String?
     var symmetry: String?
     var fluorescence: String?
@@ -88,6 +92,9 @@ final class Gemstone {
         length: Double? = nil,
         width: Double? = nil,
         height: Double? = nil,
+        length2: Double? = nil,
+        width2: Double? = nil,
+        height2: Double? = nil,
         polish: String? = nil,
         symmetry: String? = nil,
         fluorescence: String? = nil
@@ -113,6 +120,9 @@ final class Gemstone {
         self.length = length
         self.width = width
         self.height = height
+        self.length2 = length2
+        self.width2 = width2
+        self.height2 = height2
         self.polish = polish
         self.symmetry = symmetry
         self.fluorescence = fluorescence

@@ -62,6 +62,16 @@ final class Memo {
     var isClosed: Bool {
         openLineItems.isEmpty
     }
+
+    /// Customer display name for sorting.
+    var customerDisplayName: String {
+        customer?.displayName ?? ""
+    }
+
+    /// Customer open exposure for sorting.
+    var customerOpenExposure: Decimal {
+        customer?.openExposure ?? 0
+    }
 }
 
 enum MemoStatus: String, Codable, CaseIterable {

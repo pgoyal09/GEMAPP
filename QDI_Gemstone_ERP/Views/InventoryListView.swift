@@ -58,26 +58,30 @@ struct InventoryListView: View {
                 tableContent
             }
             .frame(minWidth: 320, maxWidth: .infinity)
+            .layoutPriority(1)
 
             Divider()
 
-            if let stone = selectedStone {
-                ScrollView {
-                    GemstoneDetailView(stone: stone)
+            Group {
+                if let stone = selectedStone {
+                    ScrollView(.vertical, showsIndicators: true) {
+                        GemstoneDetailView(stone: stone)
+                            .frame(minWidth: InspectorWidth.ideal, maxWidth: InspectorWidth.ideal, alignment: .leading)
+                    }
+                    .frame(minWidth: InspectorWidth.ideal, maxWidth: InspectorWidth.ideal)
+                } else {
+                    ContentUnavailableView(
+                        "Select an Item",
+                        systemImage: "diamond",
+                        description: Text("Select a gemstone to view details.")
+                    )
                 }
-                .frame(minWidth: InspectorWidth.ideal, maxWidth: InspectorWidth.ideal, maxHeight: .infinity)
-                .background(AppColors.background)
-            } else {
-                ContentUnavailableView(
-                    "Select an Item",
-                    systemImage: "diamond",
-                    description: Text("Select a gemstone to view details.")
-                )
-                .frame(minWidth: InspectorWidth.ideal, maxWidth: InspectorWidth.ideal, maxHeight: .infinity)
-                .background(AppColors.background)
             }
+            .frame(minWidth: InspectorWidth.ideal, maxWidth: InspectorWidth.ideal, maxHeight: .infinity)
+            .fixedSize(horizontal: true, vertical: false)
+            .background(AppColors.background)
         }
-         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(AppColors.background)
         .sheet(isPresented: $showEditSheet) {
             if let stone = selectedStone {
@@ -88,7 +92,7 @@ struct InventoryListView: View {
                         onSave: { showEditSheet = false },
                         onDismiss: { showEditSheet = false }
                     )
-                    .frame(minWidth: 816, minHeight: 480)
+                    .frame(minWidth: 980, minHeight: 480)
                     .navigationTitle("Edit: \(stone.sku)")
                 }
                 .id(stone.id)

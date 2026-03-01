@@ -50,4 +50,12 @@ final class Invoice {
     }
     
     var effectiveStatus: InvoiceStatus { status ?? .sent }
+
+    var totalAmount: Decimal {
+        lineItems.reduce(Decimal(0)) { $0 + $1.amount }
+    }
+
+    var customerDisplayName: String {
+        customer?.displayName ?? ""
+    }
 }

@@ -7,13 +7,31 @@ struct AppShellView: View {
     @EnvironmentObject private var rfidManager: RFIDManager
     @Environment(\.rfidCoordinator) private var rfidCoordinator
     @State private var route: NavigationItem = .dashboard
+    @State private var pendingRoute: NavigationItem?
+    @State private var showLeaveWithoutSavingAlert = false
+    @State private var navigationGuard = NavigationGuard()
     @State private var scannerViewModel: ScannerViewModel?
     @State private var reconcileViewModel: ReconcileViewModel?
+
+    private var routeBinding: Binding<NavigationItem> {
+        Binding(
+            get: { route },
+            set: { newValue in
+                if newValue != route && navigationGuard.hasUnsavedChanges {
+                    pendingRoute = newValue
+                    showLeaveWithoutSavingAlert = true
+                } else {
+                    navigationGuard.clearDirty()
+                    route = newValue
+                }
+            }
+        )
+    }
 
     var body: some View {
         HStack(spacing: 0) {
             // Left: fixed-width sidebar (never resizable)
-            SidebarView(selectedItem: $route)
+            SidebarView(selectedItem: routeBinding)
                 .frame(width: 240)
                 .background(AppColors.panelBackground)
 
@@ -46,7 +64,22 @@ struct AppShellView: View {
             }
              .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .environment(\.navigationGuard, navigationGuard)
         .background(AppColors.shellGradient)
+        .alert("Leave without saving?", isPresented: $showLeaveWithoutSavingAlert) {
+            Button("Keep Editing", role: .cancel) {
+                pendingRoute = nil
+            }
+            Button("Discard", role: .destructive) {
+                navigationGuard.performDiscard()
+                if let next = pendingRoute {
+                    route = next
+                }
+                pendingRoute = nil
+            }
+        } message: {
+            Text("Your changes will not be saved.")
+        }
         .frame(minWidth: 1000, minHeight: 700)
         .environment(\.rfidService, rfidManager)
         .sheet(isPresented: Binding(

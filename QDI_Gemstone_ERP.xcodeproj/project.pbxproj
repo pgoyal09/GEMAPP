@@ -63,6 +63,8 @@
 		A10000000000000000000036 /* RFIDCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000036 /* RFIDCoordinator.swift */; };
 		A10000000000000000000037 /* RFIDScanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000037 /* RFIDScanService.swift */; };
 		A10000000000000000000038 /* UnknownTagAssignSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000038 /* UnknownTagAssignSheet.swift */; };
+		A10000000000000000000039 /* NavigationGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000039 /* NavigationGuard.swift */; };
+		A1000000000000000000003A /* DocumentDirtyTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000003A /* DocumentDirtyTracker.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -122,6 +124,8 @@
 		A20000000000000000000036 /* RFIDCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDCoordinator.swift; sourceTree = "<group>"; };
 		A20000000000000000000037 /* RFIDScanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDScanService.swift; sourceTree = "<group>"; };
 		A20000000000000000000038 /* UnknownTagAssignSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnknownTagAssignSheet.swift; sourceTree = "<group>"; };
+		A20000000000000000000039 /* NavigationGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationGuard.swift; sourceTree = "<group>"; };
+		A2000000000000000000003A /* DocumentDirtyTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentDirtyTracker.swift; sourceTree = "<group>"; };
 		A30000000000000000000001 /* QDI Gemstone ERP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "QDI Gemstone ERP.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -250,6 +254,8 @@
 			children = (
 				A20000000000000000000011 /* DesignTokens.swift */,
 				A2000000000000000000002E /* LineItemColumnLayout.swift */,
+				A2000000000000000000003A /* DocumentDirtyTracker.swift */,
+				A20000000000000000000039 /* NavigationGuard.swift */,
 				A20000000000000000000032 /* SKUGenerator.swift */,
 				A20000000000000000000033 /* QuickIntakeEnums.swift */,
 			);
@@ -382,6 +388,8 @@
 				A10000000000000000000036 /* RFIDCoordinator.swift in Sources */,
 				A10000000000000000000037 /* RFIDScanService.swift in Sources */,
 				A10000000000000000000038 /* UnknownTagAssignSheet.swift in Sources */,
+				A10000000000000000000039 /* NavigationGuard.swift in Sources */,
+				A1000000000000000000003A /* DocumentDirtyTracker.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

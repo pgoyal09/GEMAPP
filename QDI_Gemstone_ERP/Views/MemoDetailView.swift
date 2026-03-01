@@ -6,10 +6,10 @@ struct MemoDetailView: View {
     var onDelete: (() -> Void)?
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    
+    @Environment(\.openWindow) private var openWindow
+
     @State private var selectedLineItemIDs: Set<PersistentIdentifier> = []
     @State private var totalRefreshID = 0
-    @State private var createdInvoice: Invoice?
     @State private var showDeleteConfirm = false
 
     private var selectedOpenItems: [LineItem] {
@@ -136,11 +136,6 @@ struct MemoDetailView: View {
                 }
             }
         }
-        .sheet(item: $createdInvoice) { invoice in
-            NavigationStack {
-                InvoiceDetailView(invoice: invoice)
-            }
-        }
         .alert("Delete Memo?", isPresented: $showDeleteConfirm) {
             Button("Delete", role: .destructive) { deleteMemo() }
         } message: {
@@ -160,7 +155,7 @@ struct MemoDetailView: View {
     private func convertSelectedToInvoice() {
         guard !selectedOpenItems.isEmpty else { return }
         if let newInvoice = TransactionViewModel.convertMemoToInvoice(memo: memo, selectedLineItems: selectedOpenItems, modelContext: modelContext) {
-            createdInvoice = newInvoice
+            openWindow(id: "invoice", value: newInvoice.id)
             selectedLineItemIDs.removeAll()
         }
     }
@@ -172,8 +167,12 @@ struct MemoDetailView: View {
     }
     
     private func deleteMemo() {
-        TransactionViewModel.returnItemsFromMemo(items: memo.openLineItems, modelContext: modelContext)
+        TransactionViewModel.returnItemsFromMemo(items: Array(memo.openLineItems), modelContext: modelContext)
         modelContext.delete(memo)
+        do {
+            try modelContext.save()
+        } catch { return }
+        NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
         onDelete?()
         dismiss()
     }

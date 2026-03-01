@@ -1,6 +1,11 @@
 import SwiftUI
 
-/// Keyboard-first autocomplete text field. Tab commits best match and moves to next field.
+private struct TextWidthKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+}
+
+/// Autocomplete text field. Dropdown shows only when button is pressed; inline gray hint shows best match.
 struct AutocompleteFieldView: View {
     let label: String
     @Binding var text: String
@@ -10,6 +15,7 @@ struct AutocompleteFieldView: View {
     var onSubmit: (() -> Void)?
 
     @State private var showSuggestions = false
+    @State private var typedTextWidth: CGFloat = 0
     @FocusState private var isFocused: Bool
 
     private var matches: [String] {
@@ -26,6 +32,17 @@ struct AutocompleteFieldView: View {
         return matches.first { $0.lowercased().hasPrefix(t) }
     }
 
+    /// Suffix of bestMatch after the current text (for inline gray hint)
+    private var completionSuffix: String {
+        guard let match = bestMatch, !match.isEmpty else { return "" }
+        let t = text.trimmingCharacters(in: .whitespaces)
+        if t.isEmpty { return match }
+        let low = t.lowercased()
+        let lowM = match.lowercased()
+        guard lowM.hasPrefix(low) else { return "" }
+        return String(match.dropFirst(t.count))
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             if showLabel && !label.isEmpty {
@@ -33,22 +50,58 @@ struct AutocompleteFieldView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            TextField(placeholder, text: $text)
-                .textFieldStyle(.roundedBorder)
-                .focused($isFocused)
-                .onChange(of: text) { _, _ in showSuggestions = isFocused }
-                .onSubmit { commitAndAdvance() }
-                .onExitCommand { showSuggestions = false }
+            HStack(spacing: 4) {
+                inlineHintField
+                Button {
+                    showSuggestions.toggle()
+                } label: {
+                    Image(systemName: "chevron.down.circle")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                }
+                .buttonStyle(.plain)
+            }
         }
         .overlay(alignment: .topLeading) {
-            if showSuggestions && isFocused && !matches.isEmpty {
+            if showSuggestions && !matches.isEmpty {
                 suggestionsDropdown
             }
         }
         .onChange(of: isFocused) { _, focused in
-            if !focused { commitValue() }
-            showSuggestions = focused
+            if !focused {
+                commitValue()
+                showSuggestions = false
+            }
         }
+    }
+
+    private var inlineHintField: some View {
+        TextField(placeholder, text: $text)
+            .textFieldStyle(.roundedBorder)
+            .focused($isFocused)
+            .onSubmit { commitAndAdvance() }
+            .onExitCommand { showSuggestions = false }
+            .overlay(alignment: .leading) {
+                if !completionSuffix.isEmpty {
+                    HStack(spacing: 0) {
+                        Color.clear.frame(width: typedTextWidth + 8)
+                        Text(completionSuffix)
+                            .foregroundStyle(.secondary)
+                            .opacity(0.6)
+                            .lineLimit(1)
+                            .allowsHitTesting(false)
+                    }
+                    .padding(.leading, 4)
+                }
+            }
+            .background {
+                Text(text.isEmpty ? " " : text)
+                    .lineLimit(1)
+                    .fixedSize()
+                    .hidden()
+                    .overlay(GeometryReader { g in Color.clear.preference(key: TextWidthKey.self, value: g.size.width) })
+            }
+            .onPreferenceChange(TextWidthKey.self) { typedTextWidth = $0 }
     }
 
     private var suggestionsDropdown: some View {
@@ -62,11 +115,6 @@ struct AutocompleteFieldView: View {
                     HStack {
                         Text(opt)
                             .foregroundStyle(.primary)
-                        if opt == bestMatch {
-                            Text("Tab")
-                                .font(.caption2)
-                                .foregroundStyle(.tertiary)
-                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 10)

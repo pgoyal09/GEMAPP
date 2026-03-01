@@ -321,6 +321,7 @@ struct TransactionEditorView: View {
         #endif
         do {
             try modelContext.save()
+            NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
             viewModel.reset()
             dismiss()
         } catch {
@@ -363,6 +364,7 @@ struct TransactionEditorView: View {
         
         do {
             try modelContext.save()
+            NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
             viewModel.reset()
             dismiss()
         } catch {
@@ -409,6 +411,7 @@ struct TransactionEditorView: View {
         
         do {
             try modelContext.save()
+            NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
             viewModel.reset()
             dismiss()
         } catch {

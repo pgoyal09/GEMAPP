@@ -4,7 +4,7 @@ import SwiftData
 struct CustomerListView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = CustomersViewModel()
-    @State private var selectedCustomer: Customer?
+    @State private var selectedCustomerID: PersistentIdentifier?
     @State private var showAddCustomerSheet = false
 
     var body: some View {
@@ -26,12 +26,10 @@ struct CustomerListView: View {
                     .buttonStyle(.plain)
                 }
                 .padding()
-                if !viewModel.customers.isEmpty {
-                    TextField("Search customers…", text: $viewModel.searchText)
-                        .textFieldStyle(.roundedBorder)
-                        .padding(.horizontal)
-                        .padding(.bottom, 8)
-                }
+                TextField("Search by name, email, or company…", text: $viewModel.searchText)
+                    .textFieldStyle(.roundedBorder)
+                    .padding(.horizontal)
+                    .padding(.bottom, 8)
                 if viewModel.customers.isEmpty {
                     ContentUnavailableView(
                         "No Customers",
@@ -40,11 +38,11 @@ struct CustomerListView: View {
                     )
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    List(viewModel.filteredCustomers, selection: $selectedCustomer) { customer in
+                    List(viewModel.filteredCustomers, id: \.id, selection: $selectedCustomerID) { customer in
                         Text(customer.displayName)
                             .lineLimit(1)
                             .truncationMode(.tail)
-                            .tag(customer)
+                            .tag(customer.id)
                     }
                     .listStyle(.inset)
                 }
@@ -54,7 +52,8 @@ struct CustomerListView: View {
             Divider()
 
             // Right: customer detail (fills remaining space)
-            if let customer = selectedCustomer {
+            if let id = selectedCustomerID,
+               let customer = viewModel.filteredCustomers.first(where: { $0.id == id }) {
                 ScrollView {
                     CustomerDetailView(customer: customer)
                 }

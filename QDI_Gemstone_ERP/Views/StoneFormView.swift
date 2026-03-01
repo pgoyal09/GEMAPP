@@ -20,16 +20,17 @@ struct StoneFormView: View {
     var onSaveAndNext: (() -> Void)?
     var onSaveAndClose: (() -> Void)?
     var onDismiss: (() -> Void)?
+    var onDirtyStateChange: ((Bool) -> Void)?
 
     @Environment(\.modelContext) private var modelContext
     @AppStorage("QuickIntake.lastStoneType") private var lastStoneTypeRaw: String = StoneType.diamond.rawValue
-    @AppStorage("QuickIntake.lastTreatment") private var lastTreatment: String = "None"
+    @AppStorage("QuickIntake.lastTreatment") private var lastTreatment: String = ""
 
     @State private var stoneTypeText: String = "Diamond"
     @State private var shapeText: String = "Round"
     @State private var grouping: IntakeGrouping = .single
     @State private var caratsText: String = ""
-    @State private var treatment: String = "None"
+    @State private var treatment: String = ""
     @State private var hasCert: Bool = false
     @State private var skuText: String = ""
     @State private var expandDeferred: Bool = true
@@ -39,7 +40,7 @@ struct StoneFormView: View {
     enum StoneFormField: Hashable {
         case stoneType, shape, carats, treatment, sku
         case color, clarity, cut, polish, symmetry, fluorescence
-        case certLab, certNo, len, wid, hei, cost, sell
+        case certLab, certNo, len, wid, hei, len2, wid2, hei2, cost, sell
     }
 
     @State private var color: String = ""
@@ -53,6 +54,9 @@ struct StoneFormView: View {
     @State private var lengthText: String = ""
     @State private var widthText: String = ""
     @State private var heightText: String = ""
+    @State private var length2Text: String = ""
+    @State private var width2Text: String = ""
+    @State private var height2Text: String = ""
     @State private var costText: String = ""
     @State private var sellText: String = ""
     @State private var statusOverride: GemstoneStatus = .available
@@ -61,6 +65,10 @@ struct StoneFormView: View {
     @State private var showCertImagePicker = false
     @State private var showMediaPicker = false
     @State private var showLeaveWithoutSavingAlert = false
+    @State private var showSKUChangeConfirm = false
+    @State private var showSKUDuplicateError = false
+    @State private var pendingSKURevert: String?
+    @State private var pendingSaveAfterSKUConfirm = false
 
     private var stoneType: StoneType { StoneType(rawValue: stoneTypeText) ?? .diamond }
     private var carats: Double? { Double(caratsText) }
@@ -69,6 +77,9 @@ struct StoneFormView: View {
     private var lengthVal: Double? { Double(lengthText) }
     private var widthVal: Double? { Double(widthText) }
     private var heightVal: Double? { Double(heightText) }
+    private var length2Val: Double? { Double(length2Text) }
+    private var width2Val: Double? { Double(width2Text) }
+    private var height2Val: Double? { Double(height2Text) }
 
     private var suggestedSKU: String {
         SKUGenerator.generateSKU(type: stoneType, shape: shapeText, grouping: grouping, modelContext: modelContext)
@@ -93,9 +104,14 @@ struct StoneFormView: View {
     private func isMissingDimensions() -> Bool { mode == .review && (lengthVal == nil && widthVal == nil && heightVal == nil) }
     private func isMissingCertDetails() -> Bool { mode == .review && hasCert && (certLab.isEmpty || certNo.isEmpty) }
 
+    /// True when user has entered content worth saving. Autofilled SKU/type/shape alone do not count.
+    private var intakeFormHasContent: Bool {
+        mode == .intake && !caratsText.isEmpty
+    }
+
     private var hasUnsavedChanges: Bool {
         guard mode == .edit, let g = gemstone else { return false }
-        if statusOverride != g.effectiveStatus { return true }
+        // Status is read-only, not considered for unsaved changes
         if stoneTypeText != g.stoneType.rawValue { return true }
         if shapeText != (g.shape ?? "Round") { return true }
         if grouping != groupingFromCode(g.grouping ?? "S") { return true }
@@ -112,6 +128,9 @@ struct StoneFormView: View {
         if lengthText != (g.length.map { String(format: "%.2f", $0) } ?? "") { return true }
         if widthText != (g.width.map { String(format: "%.2f", $0) } ?? "") { return true }
         if heightText != (g.height.map { String(format: "%.2f", $0) } ?? "") { return true }
+        if length2Text != (g.length2.map { String(format: "%.2f", $0) } ?? "") { return true }
+        if width2Text != (g.width2.map { String(format: "%.2f", $0) } ?? "") { return true }
+        if height2Text != (g.height2.map { String(format: "%.2f", $0) } ?? "") { return true }
         if costText != (g.costPrice != 0 ? "\(g.costPrice)" : "") { return true }
         if sellText != (g.sellPrice != 0 ? "\(g.sellPrice)" : "") { return true }
         if certificateImagePath != (g.certificateImagePath ?? "") { return true }
@@ -129,9 +148,11 @@ struct StoneFormView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(AppColors.background)
-        .onAppear { loadFromGemstoneOrDefaults() }
+        .onAppear { loadFromGemstoneOrDefaults(); onDirtyStateChange?(intakeFormHasContent || hasUnsavedChanges) }
         .onChange(of: gemstone?.id) { _, _ in loadFromGemstoneOrDefaults() }
         .onChange(of: stoneTypeText) { _, _ in refreshSKUIfNeeded() }
+        .onChange(of: caratsText) { _, _ in onDirtyStateChange?(intakeFormHasContent || hasUnsavedChanges) }
+        .onChange(of: skuText) { _, _ in onDirtyStateChange?(intakeFormHasContent || hasUnsavedChanges) }
         .onChange(of: shapeText) { _, _ in refreshSKUIfNeeded() }
         .onChange(of: grouping) { _, _ in refreshSKUIfNeeded() }
         .alert("Leave without saving?", isPresented: $showLeaveWithoutSavingAlert) {
@@ -141,6 +162,24 @@ struct StoneFormView: View {
             }
         } message: {
             Text("Your changes will not be saved.")
+        }
+        .alert("Are you sure you want to change the SKU?", isPresented: $showSKUChangeConfirm) {
+            Button("Cancel", role: .cancel) {
+                if let revert = pendingSKURevert { skuText = revert }
+                pendingSKURevert = nil
+                pendingSaveAfterSKUConfirm = false
+            }
+            Button("Change SKU", role: .destructive) {
+                commitSKUChange()
+            }
+        } message: {
+            Text("Manual SKU changes require confirmation.")
+        }
+        .alert("This SKU already exists. Please try another.", isPresented: $showSKUDuplicateError) {
+            Button("OK", role: .cancel) {
+                if let revert = pendingSKURevert { skuText = revert }
+                pendingSKURevert = nil
+            }
         }
         .overlay {
             if showSuccess {
@@ -153,24 +192,130 @@ struct StoneFormView: View {
                     .cornerRadius(AppCornerRadius.m)
             }
         }
+        .fileImporter(
+            isPresented: $showCertImagePicker,
+            allowedContentTypes: [.image, .pdf],
+            allowsMultipleSelection: false
+        ) { result in
+            guard case .success(let urls) = result, let url = urls.first else { return }
+            _ = url.startAccessingSecurityScopedResource()
+            certificateImagePath = url.path
+        }
+        .fileImporter(
+            isPresented: $showMediaPicker,
+            allowedContentTypes: [.image, .movie, .video, .pdf],
+            allowsMultipleSelection: true
+        ) { result in
+            guard case .success(let urls) = result else { return }
+            for url in urls {
+                _ = url.startAccessingSecurityScopedResource()
+                let path = url.path
+                if !mediaPathsLocal.contains(path) {
+                    mediaPathsLocal.append(path)
+                }
+            }
+        }
     }
 
+    @ViewBuilder
     private var intakeReviewBody: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: AppSpacing.l) {
-                if mode == .intake {
+        if mode == .review {
+            reviewFormBody
+        } else {
+            ScrollView {
+                VStack(alignment: .leading, spacing: AppSpacing.m) {
                     intakeHeader
+                    row1
+                    row2
+                    HStack(spacing: AppSpacing.m) {
+                        skuField
+                        Spacer(minLength: 0)
+                    }
+                    if stoneType == .diamond {
+                        diamondSection
+                    }
+                    deferredSection
+                    HStack {
+                        Spacer(minLength: 0)
+                        saveButtons
+                    }
+                    .padding(.top, AppSpacing.s)
                 }
-                row1
-                row2
-                row3
-                if stoneType == .diamond {
-                    diamondSection
-                }
-                deferredSection
+                .padding(AppSpacing.m)
             }
-            .padding(AppSpacing.xl)
         }
+    }
+
+    private var reviewFormBody: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: AppSpacing.m) {
+                reviewHeaderSection
+                HStack(alignment: .top, spacing: AppSpacing.l) {
+                    editLeftColumn
+                    editRightColumn
+                }
+                if stoneType == .diamond {
+                    editDiamondSection
+                }
+                editCertificateMediaSection
+            }
+            .padding(AppSpacing.m)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var reviewHeaderSection: some View {
+        HStack(alignment: .center, spacing: AppSpacing.m) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("SKU")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                TextField("SKU", text: $skuText)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 140)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Stone Type")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                AutocompleteFieldView(label: "", text: $stoneTypeText, options: stoneTypeOptions, placeholder: "Diamond", showLabel: false)
+            }
+            .frame(width: 130)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Status")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(statusOverride.rawValue)
+                    .frame(width: 110, alignment: .leading)
+                    .padding(.vertical, 6)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer()
+            HStack(spacing: AppSpacing.s) {
+                Button("Save") {
+                    if saveCurrent() {
+                        showSuccessFeedback()
+                    }
+                }
+                .disabled(!canSave)
+                .buttonStyle(.borderedProminent)
+                .keyboardShortcut(.defaultAction)
+                Button("Save + Next") {
+                    if saveCurrent() {
+                        showSuccessFeedback()
+                        onSaveAndNext?()
+                    }
+                }
+                .disabled(!canSave || !hasNextInReview)
+                if let onDismiss {
+                    Button("Done") { onDismiss() }
+                        .buttonStyle(.bordered)
+                }
+            }
+        }
+        .padding(AppSpacing.m)
+        .background(Color(nsColor: .controlBackgroundColor))
+        .cornerRadius(AppCornerRadius.m)
     }
 
     private var editFormBody: some View {
@@ -200,6 +345,7 @@ struct StoneFormView: View {
                 TextField("SKU", text: $skuText)
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 140)
+                    .onSubmit { validateSKUChangeIfNeeded() }
             }
             VStack(alignment: .leading, spacing: 4) {
                 Text("Stone Type")
@@ -212,14 +358,10 @@ struct StoneFormView: View {
                 Text("Status")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                Picker("", selection: $statusOverride) {
-                    ForEach(GemstoneStatus.allCases, id: \.self) { s in
-                        Text(s.rawValue).tag(s)
-                    }
-                }
-                .pickerStyle(.menu)
-                .frame(width: 110)
-                .labelsHidden()
+                Text(statusOverride.rawValue)
+                    .frame(width: 110, alignment: .leading)
+                    .padding(.vertical, 6)
+                    .foregroundStyle(.secondary)
             }
             Spacer()
             if gemstone != nil {
@@ -240,6 +382,12 @@ struct StoneFormView: View {
                     .keyboardShortcut(.cancelAction)
                 }
                 Button("Save") {
+                    if mode == .edit, let g = gemstone, skuText != g.sku {
+                        pendingSaveAfterSKUConfirm = true
+                        pendingSKURevert = g.sku
+                        showSKUChangeConfirm = true
+                        return
+                    }
                     if saveCurrent() {
                         showSuccessFeedback()
                         onSave?()
@@ -311,6 +459,13 @@ struct StoneFormView: View {
                 editField("W", binding: $widthText)
                 editField("H", binding: $heightText)
             }
+            if grouping == .pair {
+                HStack(spacing: AppSpacing.s) {
+                    editField("L2", binding: $length2Text)
+                    editField("W2", binding: $width2Text)
+                    editField("H2", binding: $height2Text)
+                }
+            }
             editField("Cost", binding: $costText)
             editField("Sell Price", binding: $sellText)
         }
@@ -380,7 +535,9 @@ struct StoneFormView: View {
                             .lineLimit(1)
                             .truncationMode(.middle)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        Button("Choose...") { showCertImagePicker = true }
+                        Button("Choose...") {
+                            DispatchQueue.main.async { showCertImagePicker = true }
+                        }
                             .buttonStyle(.bordered)
                     }
                 }
@@ -421,29 +578,6 @@ struct StoneFormView: View {
         .padding(AppSpacing.m)
         .background(Color(nsColor: .controlBackgroundColor))
         .cornerRadius(AppCornerRadius.m)
-        .fileImporter(
-            isPresented: $showCertImagePicker,
-            allowedContentTypes: [.image, .pdf],
-            allowsMultipleSelection: false
-        ) { result in
-            guard case .success(let urls) = result, let url = urls.first else { return }
-            _ = url.startAccessingSecurityScopedResource()
-            certificateImagePath = url.path
-        }
-        .fileImporter(
-            isPresented: $showMediaPicker,
-            allowedContentTypes: [.image, .movie, .video, .pdf],
-            allowsMultipleSelection: true
-        ) { result in
-            guard case .success(let urls) = result else { return }
-            for url in urls {
-                _ = url.startAccessingSecurityScopedResource()
-                let path = url.path
-                if !mediaPathsLocal.contains(path) {
-                    mediaPathsLocal.append(path)
-                }
-            }
-        }
     }
 
     private var intakeHeader: some View {
@@ -501,7 +635,7 @@ struct StoneFormView: View {
             Text("Treatment")
                 .font(.caption)
                 .foregroundStyle(.secondary)
-            TextField("None", text: $treatment)
+            TextField("", text: $treatment)
                 .textFieldStyle(.roundedBorder)
                 .focused($focusedField, equals: .treatment)
         }
@@ -518,13 +652,6 @@ struct StoneFormView: View {
             }
             .pickerStyle(.segmented)
             .labelsHidden()
-        }
-    }
-
-    private var row3: some View {
-        HStack(spacing: AppSpacing.m) {
-            skuField
-            saveButtons
         }
     }
 
@@ -545,12 +672,12 @@ struct StoneFormView: View {
             switch mode {
             case .intake:
                 Button("Save") { performSave(stay: true) }
-                    .disabled(!canSave)
-                    .keyboardShortcut(.defaultAction)
+                    .disabled(!canSave || isSavingInProgress)
                 Button("Save + Next") { performSave(stay: false) }
-                    .disabled(!canSave)
+                    .disabled(!canSave || isSavingInProgress)
+                    .keyboardShortcut(.defaultAction)
                 Button("Save + Dup Prev") { performSaveDuplicate() }
-                    .disabled(!canSave)
+                    .disabled(!canSave || isSavingInProgress)
             case .review:
                 Button("Save") {
                     saveCurrent()
@@ -612,6 +739,7 @@ struct StoneFormView: View {
 
     private var deferredSection: some View {
         DisclosureGroup("Deferred fields (Cert Lab, Dimensions, Cost, Sell)", isExpanded: $expandDeferred) {
+            VStack(alignment: .leading, spacing: AppSpacing.s) {
             HStack(spacing: AppSpacing.m) {
                 certLabField
                 certNoField
@@ -634,6 +762,18 @@ struct StoneFormView: View {
                         .textFieldStyle(.roundedBorder)
                         .focused($focusedField, equals: .sell)
                 }
+            }
+            if grouping == .pair {
+                HStack(spacing: AppSpacing.m) {
+                    Text("Stone 2:")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    dimensionField("L", $length2Text, .len2)
+                    dimensionField("W", $width2Text, .wid2)
+                    dimensionField("H", $height2Text, .hei2)
+                    Spacer()
+                }
+            }
             }
         }
     }
@@ -680,7 +820,7 @@ struct StoneFormView: View {
             shapeText = g.shape ?? "Round"
             grouping = groupingFromCode(g.grouping ?? "S")
             caratsText = String(format: "%.2f", g.caratWeight)
-            treatment = g.treatment ?? g.origin
+            treatment = (g.treatment ?? g.origin) ?? ""
             hasCert = g.hasCert ?? false
             skuText = g.sku
             color = g.color == "-" ? "" : g.color
@@ -694,6 +834,9 @@ struct StoneFormView: View {
             lengthText = g.length.map { String(format: "%.2f", $0) } ?? ""
             widthText = g.width.map { String(format: "%.2f", $0) } ?? ""
             heightText = g.height.map { String(format: "%.2f", $0) } ?? ""
+            length2Text = g.length2.map { String(format: "%.2f", $0) } ?? ""
+            width2Text = g.width2.map { String(format: "%.2f", $0) } ?? ""
+            height2Text = g.height2.map { String(format: "%.2f", $0) } ?? ""
             costText = g.costPrice != 0 ? "\(g.costPrice)" : ""
             sellText = g.sellPrice != 0 ? "\(g.sellPrice)" : ""
             certificateImagePath = g.certificateImagePath ?? ""
@@ -717,10 +860,39 @@ struct StoneFormView: View {
             lengthText = ""
             widthText = ""
             heightText = ""
+            length2Text = ""
+            width2Text = ""
+            height2Text = ""
             costText = ""
             sellText = ""
             certificateImagePath = ""
             mediaPathsLocal = []
+        }
+    }
+
+    private func validateSKUChangeIfNeeded() {
+        guard mode == .edit, let g = gemstone, skuText != g.sku else { return }
+        pendingSaveAfterSKUConfirm = false
+        pendingSKURevert = g.sku
+        showSKUChangeConfirm = true
+    }
+
+    private func commitSKUChange() {
+        let revert = pendingSKURevert
+        pendingSKURevert = nil
+        showSKUChangeConfirm = false
+        let shouldSave = pendingSaveAfterSKUConfirm
+        pendingSaveAfterSKUConfirm = false
+
+        let exists = SKUGenerator.skuExists(sku: skuText, excludingID: gemstone?.id, modelContext: modelContext)
+        if exists {
+            showSKUDuplicateError = true
+            if let r = revert { skuText = r }
+            return
+        }
+        if shouldSave, saveCurrent() {
+            showSuccessFeedback()
+            onSave?()
         }
     }
 
@@ -743,7 +915,9 @@ struct StoneFormView: View {
     }
 
     private func performSave(stay: Bool) {
+        guard !isSavingInProgress else { return }
         guard saveCurrent() else { return }
+        isSavingInProgress = true
         lastStoneTypeRaw = stoneTypeText
         lastTreatment = treatment
         showSuccessFeedback()
@@ -751,9 +925,13 @@ struct StoneFormView: View {
             resetForNextIntake()
             focusedField = .carats
         }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            isSavingInProgress = false
+        }
     }
 
     @State private var lastSavedStone: Gemstone?
+    @State private var isSavingInProgress = false
 
     private func performSaveDuplicate() {
         guard saveCurrent() else { return }
@@ -779,6 +957,9 @@ struct StoneFormView: View {
         lengthText = ""
         widthText = ""
         heightText = ""
+        length2Text = prev.length2.map { String(format: "%.2f", $0) } ?? ""
+        width2Text = prev.width2.map { String(format: "%.2f", $0) } ?? ""
+        height2Text = prev.height2.map { String(format: "%.2f", $0) } ?? ""
         costText = ""
         sellText = ""
         focusedField = .carats
@@ -799,6 +980,9 @@ struct StoneFormView: View {
         lengthText = ""
         widthText = ""
         heightText = ""
+        length2Text = ""
+        width2Text = ""
+        height2Text = ""
         costText = ""
         sellText = ""
         stoneTypeText = StoneType(rawValue: lastStoneTypeRaw)?.rawValue ?? "Diamond"
@@ -828,7 +1012,7 @@ struct StoneFormView: View {
         let groupingStr = SKUGenerator.groupingCode(grouping)
 
         if let g = gemstone {
-            g.status = statusOverride
+            // Status is system-managed; do not overwrite from form
             g.stoneType = stoneType
             g.caratWeight = carat
             g.color = colorVal
@@ -846,12 +1030,15 @@ struct StoneFormView: View {
             g.length = lengthVal
             g.width = widthVal
             g.height = heightVal
+            g.length2 = grouping == .pair ? length2Val : nil
+            g.width2 = grouping == .pair ? width2Val : nil
+            g.height2 = grouping == .pair ? height2Val : nil
             g.polish = polishVal
             g.symmetry = symmetryVal
             g.fluorescence = fluorescenceVal
             g.certificateImagePath = certificateImagePath.isEmpty ? nil : certificateImagePath
             g.mediaPaths = mediaPathsLocal
-            g.sku = SKUGenerator.resolveSKUForEdit(existingSKU: g.sku, type: stoneType, shape: shapeText, grouping: grouping, modelContext: modelContext)
+            g.sku = SKUGenerator.resolveSKUForEdit(candidateSKU: skuText, existingSKU: g.sku, type: stoneType, shape: shapeText, grouping: grouping, modelContext: modelContext, excludingID: g.id)
             logEvent(stone: g, type: .dateAdded, message: "Updated", modelContext: modelContext)
         } else {
             let sku = SKUGenerator.resolveSKUForSave(candidateSKU: skuText, type: stoneType, shape: shapeText, grouping: grouping, modelContext: modelContext)
@@ -874,6 +1061,9 @@ struct StoneFormView: View {
                 length: lengthVal,
                 width: widthVal,
                 height: heightVal,
+                length2: grouping == .pair ? length2Val : nil,
+                width2: grouping == .pair ? width2Val : nil,
+                height2: grouping == .pair ? height2Val : nil,
                 polish: polishVal,
                 symmetry: symmetryVal,
                 fluorescence: fluorescenceVal

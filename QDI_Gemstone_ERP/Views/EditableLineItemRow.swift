@@ -30,9 +30,9 @@ struct EditableLineItemRow: View {
                 .font(.system(.body, design: .monospaced))
                 .padding(.horizontal, 4)
 
-            TextField("Description", text: $descriptionText)
+            TextField("Description", text: $descriptionText, axis: .vertical)
                 .textFieldStyle(.roundedBorder)
-                .lineLimit(1)
+                .lineLimit(1...10)
                 .frame(minWidth: LineItemColumnLayout.descriptionMin, maxWidth: .infinity, alignment: .leading)
                 .onSubmit { commitDescription() }
                 .padding(.horizontal, 4)

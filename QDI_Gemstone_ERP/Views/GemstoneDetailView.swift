@@ -3,6 +3,7 @@ import SwiftData
 
 struct GemstoneDetailView: View {
     let stone: Gemstone
+    @Environment(\.openWindow) private var openWindow
 
     private var sortedEvents: [HistoryEvent] {
         stone.events.sorted { $0.date > $1.date }
@@ -31,7 +32,16 @@ struct GemstoneDetailView: View {
                 .font(.system(size: 24, weight: .semibold, design: .rounded))
                 .foregroundStyle(AppColors.ink)
             HStack(spacing: AppSpacing.s) {
-                AppStatusBadge(title: stone.effectiveStatus.rawValue, tone: statusTone)
+                if stone.effectiveStatus == .onMemo, let memo = stone.memo {
+                    Button {
+                        openWindow(id: "memo", value: memo.id)
+                    } label: {
+                        AppStatusBadge(title: stone.effectiveStatus.rawValue, tone: statusTone)
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    AppStatusBadge(title: stone.effectiveStatus.rawValue, tone: statusTone)
+                }
                 AppStatusBadge(title: stone.stoneType.rawValue, tone: .accent)
                 Text("\(String(format: "%.2f", stone.caratWeight)) ct")
                     .font(AppTypography.caption)
@@ -70,18 +80,16 @@ struct GemstoneDetailView: View {
     }
 
     private var dimensionsSection: some View {
-        Group {
-            if stone.length != nil || stone.width != nil || stone.height != nil {
-                detailSection(title: "Dimensions") {
-                    VStack(alignment: .leading, spacing: AppSpacing.m) {
-                        if let l = stone.length, let w = stone.width, let h = stone.height {
-                            DetailRow(label: "L × W × H", value: "\(formatDim(l)) × \(formatDim(w)) × \(formatDim(h))")
-                        } else {
-                            if let l = stone.length { DetailRow(label: "Length", value: formatDim(l)) }
-                            if let w = stone.width { DetailRow(label: "Width", value: formatDim(w)) }
-                            if let h = stone.height { DetailRow(label: "Height", value: formatDim(h)) }
-                        }
-                    }
+        detailSection(title: "Dimensions") {
+            VStack(alignment: .leading, spacing: AppSpacing.m) {
+                if let l = stone.length, let w = stone.width, let h = stone.height {
+                    DetailRow(label: "L × W × H", value: "\(formatDim(l)) × \(formatDim(w)) × \(formatDim(h))")
+                } else if stone.length != nil || stone.width != nil || stone.height != nil {
+                    if let l = stone.length { DetailRow(label: "Length", value: formatDim(l)) }
+                    if let w = stone.width { DetailRow(label: "Width", value: formatDim(w)) }
+                    if let h = stone.height { DetailRow(label: "Height", value: formatDim(h)) }
+                } else {
+                    DetailRow(label: "Dimensions", value: "—")
                 }
             }
         }
@@ -168,6 +176,7 @@ struct GemstoneDetailView: View {
                 .foregroundStyle(AppColors.ink)
             AppSurfaceCard(padding: AppSpacing.m) {
                 content()
+                    .frame(minHeight: 52, alignment: .topLeading)
             }
         }
     }

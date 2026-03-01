@@ -5,16 +5,17 @@ import AppKit
 struct MemosView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.documentDirtyTracker) private var documentDirtyTracker
+    @Environment(\.navigationGuard) private var navigationGuard
     @State private var viewModel = MemosViewModel()
     @State private var selectedMemoID: PersistentIdentifier?
 
     var body: some View {
         VStack(spacing: 0) {
-            // Title row + create button
             HStack {
                 Text("Memos")
-                    .font(.largeTitle)
-                    .fontWeight(.semibold)
+                    .font(AppTypography.title)
+                    .foregroundStyle(AppColors.ink)
                 Spacer()
                 Button {
                     let memo = TransactionViewModel.createNewMemo(modelContext: modelContext)
@@ -96,11 +97,22 @@ struct MemosView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AppColors.shellGradient)
         .onAppear {
             viewModel.load(modelContext: modelContext)
             if let id = selectedMemoID, !viewModel.memos.contains(where: { $0.id == id }) {
                 selectedMemoID = nil
             }
+            navigationGuard?.reportDirty(documentDirtyTracker?.hasUnsavedMemo ?? false)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .memoOrInvoiceDidSave)) { _ in
+            viewModel.load(modelContext: modelContext)
+        }
+        .onChange(of: documentDirtyTracker?.hasUnsavedMemo ?? false) { _, dirty in
+            navigationGuard?.reportDirty(dirty)
+        }
+        .onDisappear {
+            navigationGuard?.reportDirty(false)
         }
     }
 
@@ -156,9 +168,10 @@ struct MemoDocumentView: View {
     let memo: Memo
     var onDelete: (() -> Void)?
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.documentDirtyTracker) private var documentDirtyTracker
     @Query(sort: \Customer.lastName) private var customers: [Customer]
     @State private var selectedLineItemIDs: Set<PersistentIdentifier> = []
-    @State private var createdInvoice: Invoice?
     @State private var showDeleteConfirm = false
     @State private var showInventorySheet = false
     @State private var showAddCustomerSheet = false
@@ -207,6 +220,7 @@ struct MemoDocumentView: View {
                     do {
                         try modelContext.save()
                         hasUnsavedEdits = false
+                        NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
                     } catch {
                         // TODO: show error
                     }
@@ -237,11 +251,6 @@ struct MemoDocumentView: View {
                 }
             }
         }
-        .sheet(item: $createdInvoice) { invoice in
-            NavigationStack {
-                InvoiceDetailView(invoice: invoice)
-            }
-        }
         .alert("Delete Memo?", isPresented: $showDeleteConfirm) {
             Button("Delete", role: .destructive) { deleteMemo() }
         } message: {
@@ -259,10 +268,20 @@ struct MemoDocumentView: View {
             Button("Keep Editing", role: .cancel) {}
             Button("Discard", role: .destructive) {
                 modelContext.rollback()
+                documentDirtyTracker?.hasUnsavedMemo = false
                 NSApp.keyWindow?.close()
             }
         } message: {
             Text("Your changes will not be saved.")
+        }
+        .onChange(of: isDirty) { _, dirty in
+            documentDirtyTracker?.hasUnsavedMemo = dirty
+        }
+        .onAppear {
+            documentDirtyTracker?.hasUnsavedMemo = isDirty
+        }
+        .onDisappear {
+            documentDirtyTracker?.hasUnsavedMemo = false
         }
     }
 
@@ -502,7 +521,7 @@ struct MemoDocumentView: View {
     private func convertSelectedToInvoice() {
         guard !selectedOpenItems.isEmpty else { return }
         if let inv = TransactionViewModel.convertMemoToInvoice(memo: memo, selectedLineItems: selectedOpenItems, modelContext: modelContext) {
-            createdInvoice = inv
+            openWindow(id: "invoice", value: inv.id)
             selectedLineItemIDs.removeAll()
             totalRefreshID += 1
             hasUnsavedEdits = true
@@ -518,10 +537,17 @@ struct MemoDocumentView: View {
     }
 
     private func deleteMemo() {
-        TransactionViewModel.returnItemsFromMemo(items: memo.openLineItems, modelContext: modelContext)
+        let itemsToReturn = Array(memo.openLineItems)
+        TransactionViewModel.returnItemsFromMemo(items: itemsToReturn, modelContext: modelContext)
         modelContext.delete(memo)
-        try? modelContext.save()
-        onDelete?()
+        do {
+            try modelContext.save()
+        } catch {
+            return
+        }
+        documentDirtyTracker?.hasUnsavedMemo = false
         NSApp.keyWindow?.close()
+        NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
+        onDelete?()
     }
 }

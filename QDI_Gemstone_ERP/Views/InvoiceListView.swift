@@ -4,6 +4,8 @@ import SwiftData
 struct InvoiceListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.documentDirtyTracker) private var documentDirtyTracker
+    @Environment(\.navigationGuard) private var navigationGuard
     @State private var viewModel = InvoicesViewModel()
     @State private var selectedInvoiceID: PersistentIdentifier?
 
@@ -12,8 +14,8 @@ struct InvoiceListView: View {
             // Title row
             HStack {
                 Text("Invoices")
-                    .font(.largeTitle)
-                    .fontWeight(.semibold)
+                    .font(AppTypography.title)
+                    .foregroundStyle(AppColors.ink)
                 Spacer()
                 Button {
                     let invoice = TransactionViewModel.createNewInvoice(modelContext: modelContext)
@@ -84,11 +86,22 @@ struct InvoiceListView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AppColors.shellGradient)
         .onAppear {
             viewModel.load(modelContext: modelContext)
             if let id = selectedInvoiceID, !viewModel.invoices.contains(where: { $0.id == id }) {
                 selectedInvoiceID = nil
             }
+            navigationGuard?.reportDirty(documentDirtyTracker?.hasUnsavedInvoice ?? false)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .memoOrInvoiceDidSave)) { _ in
+            viewModel.load(modelContext: modelContext)
+        }
+        .onChange(of: documentDirtyTracker?.hasUnsavedInvoice ?? false) { _, dirty in
+            navigationGuard?.reportDirty(dirty)
+        }
+        .onDisappear {
+            navigationGuard?.reportDirty(false)
         }
     }
 

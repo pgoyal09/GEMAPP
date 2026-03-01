@@ -1,4 +1,5 @@
 import SwiftUI
+import Foundation
 
 // MARK: - Palette (soft sculpted gemstone aesthetic)
 
@@ -155,4 +156,11 @@ enum InspectorWidth {
     static let min: CGFloat = 320
     static let ideal: CGFloat = 380
     static let max: CGFloat = 480
+}
+
+// MARK: - App Notifications
+
+extension Notification.Name {
+    /// Posted when memo or invoice data is saved. Dashboard listens to refresh totals.
+    static let memoOrInvoiceDidSave = Notification.Name("com.qdi.gemapp.memoOrInvoiceDidSave")
 }

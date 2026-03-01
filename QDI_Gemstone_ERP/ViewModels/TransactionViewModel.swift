@@ -7,15 +7,15 @@ private let appTransactionLog = Logger(subsystem: "com.qdi.gemapp", category: "i
 // MARK: - Stone description builder
 
 /// Builds line item descriptions from stone characteristics per spec.
-/// Order: [Certified] [Treatment] [Stone Type] [Shape] [Single/Pair/Lot] [Color if lot] \n [Dimensions] [Cert Lab] [Cert No]
+/// Non-diamond order: [Certified] [Treatment] [Stone Type] [Shape] [single/pair/lot] [if lot: color] \n [Dimensions] [Lab] [Cert No]
+/// Diamond: same structure plus color, clarity, cut where applicable. Omit fields that are not entered.
 enum StoneDescriptionBuilder {
     static func buildDescription(for stone: Gemstone) -> String {
         var lines: [String] = []
         var topParts: [String] = []
-        let isCertified = stone.hasCert == true
-        if isCertified { topParts.append("Certified") }
-        if let treatment = stone.treatment, !treatment.trimmingCharacters(in: .whitespaces).isEmpty {
-            topParts.append(treatment.trimmingCharacters(in: .whitespaces))
+        if stone.hasCert == true { topParts.append("Certified") }
+        if let t = stone.treatment, !t.trimmingCharacters(in: .whitespaces).isEmpty {
+            topParts.append(t.trimmingCharacters(in: .whitespaces))
         }
         topParts.append(stone.stoneType.rawValue)
         if stone.stoneType == .diamond {
@@ -30,13 +30,19 @@ enum StoneDescriptionBuilder {
         case "P": topParts.append("Pair")
         case "L":
             topParts.append("Lot")
-            if stone.stoneType != .diamond && !stone.color.isEmpty && stone.color != "-" { topParts.append(stone.color) }
+            if stone.stoneType != .diamond {
+                let c = stone.color.trimmingCharacters(in: .whitespaces)
+                if !c.isEmpty && c != "-" { topParts.append(c) }
+            }
         default: topParts.append("Single")
         }
         if !topParts.isEmpty { lines.append(topParts.joined(separator: " ")) }
         var bottomParts: [String] = []
         if let l = stone.length, let w = stone.width, let h = stone.height {
-            bottomParts.append(String(format: "%.2f × %.2f × %.2f", l, w, h))
+            bottomParts.append(formatDimensions(l: l, w: w, h: h))
+        }
+        if grouping == "L", let l2 = stone.length2, let w2 = stone.width2, let h2 = stone.height2 {
+            bottomParts.append(formatDimensions(l: l2, w: w2, h: h2))
         }
         if let lab = stone.certLab, !lab.trimmingCharacters(in: .whitespaces).isEmpty {
             bottomParts.append(lab.trimmingCharacters(in: .whitespaces))
@@ -46,6 +52,15 @@ enum StoneDescriptionBuilder {
         }
         if !bottomParts.isEmpty { lines.append(bottomParts.joined(separator: " ")) }
         return lines.joined(separator: "\n").trimmingCharacters(in: .whitespaces)
+    }
+
+    /// Formats dimensions using exact decimals (no forced rounding); ends with mm.
+    private static func formatDimensions(l: Double, w: Double, h: Double) -> String {
+        let fmt = { (v: Double) -> String in
+            let s = "\(v)"
+            return s.hasSuffix(".0") ? String(s.dropLast(2)) : s
+        }
+        return "\(fmt(l)) × \(fmt(w)) × \(fmt(h)) mm"
     }
 }
 
@@ -362,16 +377,18 @@ final class TransactionViewModel {
             if let stone = original.gemstone {
                 stone.status = .sold
                 stone.memo = nil
+                let custName = memo.customer?.displayName ?? "Unknown"
                 logEvent(
                     stone: stone,
                     type: .sold,
-                    message: "Converted from Memo #\(memoRef) to Invoice",
+                    message: "Sold to \(custName)",
                     modelContext: modelContext
                 )
             }
         }
         do {
             try modelContext.save()
+            NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
         } catch {
             appTransactionLog.error("Failed to convert memo to invoice: \(error.localizedDescription, privacy: .public)")
         }
@@ -396,7 +413,8 @@ final class TransactionViewModel {
         item.memo = memo
         stone.memo = memo
         stone.status = .onMemo
-        logEvent(stone: stone, type: .sentToCustomer, message: "Added to Memo", modelContext: modelContext)
+        let custName = memo.customer?.displayName ?? "Unknown"
+        logEvent(stone: stone, type: .sentToCustomer, message: "On memo to \(custName)", modelContext: modelContext)
         if persistImmediately {
             do {
                 try modelContext.save()
@@ -467,7 +485,8 @@ final class TransactionViewModel {
         item.invoice = invoice
         stone.memo = nil
         stone.status = .sold
-        logEvent(stone: stone, type: .sold, message: "Added to Invoice", modelContext: modelContext)
+        let custName = invoice.customer?.displayName ?? "Unknown"
+        logEvent(stone: stone, type: .sold, message: "Sold to \(custName)", modelContext: modelContext)
         if persistImmediately {
             do {
                 try modelContext.save()
@@ -518,6 +537,39 @@ final class TransactionViewModel {
             } catch {
                 appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
             }
+        }
+    }
+
+    /// Voids an invoice: sets status to .void and restores linked gemstones to .available.
+    static func voidInvoice(_ invoice: Invoice, modelContext: ModelContext) {
+        invoice.status = .void
+        for item in invoice.lineItems {
+            if let stone = item.gemstone {
+                stone.status = .available
+                stone.memo = nil
+            }
+        }
+        do {
+            try modelContext.save()
+        } catch {
+            appTransactionLog.error("Failed to void invoice: \(error.localizedDescription, privacy: .public)")
+        }
+    }
+
+    /// Deletes an invoice: restores stones to available, deletes line items and invoice. Use for draft/unpaid invoices.
+    static func deleteInvoice(_ invoice: Invoice, modelContext: ModelContext) {
+        for item in invoice.lineItems {
+            if let stone = item.gemstone {
+                stone.status = .available
+                stone.memo = nil
+            }
+            modelContext.delete(item)
+        }
+        modelContext.delete(invoice)
+        do {
+            try modelContext.save()
+        } catch {
+            appTransactionLog.error("Failed to delete invoice: \(error.localizedDescription, privacy: .public)")
         }
     }
 

@@ -85,7 +85,7 @@ struct ReviewQueueView: View {
                         },
                         onDismiss: { showEditSheet = false }
                     )
-                    .frame(minWidth: 520, minHeight: 540)
+                    .frame(minWidth: 624, minHeight: 540)
                     .navigationTitle("Review: \(stone.sku)")
                 }
                 .id(stone.id)

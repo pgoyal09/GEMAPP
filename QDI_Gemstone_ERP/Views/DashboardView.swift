@@ -36,6 +36,9 @@ struct DashboardView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             viewModel.load(modelContext: modelContext)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .memoOrInvoiceDidSave)) { _ in
+            viewModel.load(modelContext: modelContext)
+        }
         .alert("Reset Demo Data", isPresented: $showResetConfirm) {
             Button("Cancel", role: .cancel) {}
             Button("Reset", role: .destructive) {
@@ -190,8 +193,14 @@ struct DashboardView: View {
                 } else {
                     VStack(alignment: .leading, spacing: AppSpacing.s) {
                         ForEach(viewModel.recentActivity) { activity in
-                            Text(activity.title)
-                                .font(.subheadline)
+                            Button {
+                                openWindow(id: "memo", value: activity.id)
+                            } label: {
+                                Text(activity.title)
+                                    .font(.subheadline)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .buttonStyle(.plain)
                         }
                         .padding(AppSpacing.m)
                     }
@@ -213,6 +222,15 @@ struct DashboardView: View {
                     memoDetailSummary(item: item)
                 }
                 Spacer(minLength: AppSpacing.xl)
+                Button {
+                    showResetConfirm = true
+                } label: {
+                    Label("Generate New Mock Data", systemImage: "arrow.clockwise.circle")
+                        .font(.subheadline)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .disabled(isResetting)
             }
             .padding(AppSpacing.l)
         }
@@ -305,7 +323,7 @@ struct DashboardView: View {
 
     private func memoRowButton(item: OldestMemoItem) -> some View {
         Button {
-            selectedMemoID = item.id
+            openWindow(id: "memo", value: item.id)
         } label: {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
