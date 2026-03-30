@@ -1,0 +1,44 @@
+{
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Services/ZebraPrintService.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/ZebraPrintService.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/ZebraPrintService.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/ZebraPrintService.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/ZebraPrintService.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/ZebraPrintService.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Views/AddLotQuantitySheet.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/AddLotQuantitySheet.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/AddLotQuantitySheet.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/AddLotQuantitySheet.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/AddLotQuantitySheet.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/AddLotQuantitySheet.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Views/LotHistorySheet.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotHistorySheet.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotHistorySheet.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotHistorySheet.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotHistorySheet.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotHistorySheet.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Views/LotSelectSheet.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotSelectSheet.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotSelectSheet.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotSelectSheet.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotSelectSheet.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotSelectSheet.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Views/PrintTagButton.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/PrintTagButton.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/PrintTagButton.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/PrintTagButton.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/PrintTagButton.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/PrintTagButton.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps"
+  }
+}

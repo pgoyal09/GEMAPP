@@ -1,0 +1,6 @@
+Target dependency graph (3 targets)
+Target 'QDI Gemstone ERP' in project 'QDI_Gemstone_ERP'
+➜ Explicit dependency on target 'ORSSerial' in project 'ORSSerialPort'
+Target 'ORSSerial' in project 'ORSSerialPort'
+➜ Explicit dependency on target 'ORSSerial' in project 'ORSSerialPort'
+Target 'ORSSerial' in project 'ORSSerialPort' (no dependencies)

@@ -1,0 +1,44 @@
+{
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Services/DemoDataManager.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/DemoDataManager.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/DemoDataManager.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/DemoDataManager.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/DemoDataManager.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/DemoDataManager.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Services/RFIDManager.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/RFIDManager.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/RFIDManager.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/RFIDManager.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/RFIDManager.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/RFIDManager.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Views/AppShellView.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/AppShellView.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/AppShellView.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/AppShellView.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/AppShellView.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/AppShellView.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Views/EditableLineItemRow.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/EditableLineItemRow.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/EditableLineItemRow.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/EditableLineItemRow.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/EditableLineItemRow.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/EditableLineItemRow.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Views/InventoryReconcileView.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/InventoryReconcileView.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/InventoryReconcileView.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/InventoryReconcileView.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/InventoryReconcileView.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/InventoryReconcileView.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Views/MemoWindowView.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/MemoWindowView.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/MemoWindowView.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/MemoWindowView.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/MemoWindowView.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/MemoWindowView.swiftdeps"
+  }
+}

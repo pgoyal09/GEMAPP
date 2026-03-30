@@ -1,0 +1,44 @@
+{
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Models/LotTransaction.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotTransaction.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotTransaction.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotTransaction.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotTransaction.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotTransaction.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Utilities/CurrencyFormatter.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/CurrencyFormatter.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/CurrencyFormatter.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/CurrencyFormatter.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/CurrencyFormatter.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/CurrencyFormatter.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/ViewModels/AccountingViewModel.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/AccountingViewModel.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/AccountingViewModel.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/AccountingViewModel.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/AccountingViewModel.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/AccountingViewModel.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Views/AccountingView.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/AccountingView.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/AccountingView.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/AccountingView.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/AccountingView.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/AccountingView.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Views/InventoryAgingView.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/InventoryAgingView.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/InventoryAgingView.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/InventoryAgingView.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/InventoryAgingView.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/InventoryAgingView.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Views/LotInventoryView.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotInventoryView.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotInventoryView.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotInventoryView.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotInventoryView.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/arm64/LotInventoryView.swiftdeps"
+  }
+}

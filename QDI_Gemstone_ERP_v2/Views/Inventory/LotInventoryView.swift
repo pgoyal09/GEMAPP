@@ -3,9 +3,19 @@ import SwiftData
 
 struct LotInventoryView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \Gemstone.sku) private var allStones: [Gemstone]
+    @Query private var allStones: [Gemstone]
 
     @State var viewModel = LotInventoryViewModel()
+
+    // MARK: - Init
+
+    init() {
+        let lotGrouping = StoneGrouping.lot
+        _allStones = Query(
+            filter: #Predicate<Gemstone> { $0.grouping == lotGrouping },
+            sort: \Gemstone.sku
+        )
+    }
     @State private var showHistorySheet = false
     @State private var historyLot: Gemstone?
     @State private var sortKey: String = "sku"
@@ -14,7 +24,7 @@ struct LotInventoryView: View {
     // MARK: - Computed
 
     private var lots: [Gemstone] {
-        allStones.filter { $0.grouping == .lot }
+        allStones
     }
 
     private var filteredLots: [Gemstone] {

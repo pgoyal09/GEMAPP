@@ -1,0 +1,44 @@
+{
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Utilities/QuickIntakeEnums.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/QuickIntakeEnums.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/QuickIntakeEnums.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/QuickIntakeEnums.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/QuickIntakeEnums.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/QuickIntakeEnums.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Views/AutocompleteFieldView.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/AutocompleteFieldView.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/AutocompleteFieldView.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/AutocompleteFieldView.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/AutocompleteFieldView.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/AutocompleteFieldView.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Views/StoneFormEditSections.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormEditSections.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormEditSections.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormEditSections.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormEditSections.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormEditSections.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Views/StoneFormIntakeSections.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormIntakeSections.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormIntakeSections.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormIntakeSections.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormIntakeSections.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormIntakeSections.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Views/StoneFormReviewBody.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormReviewBody.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormReviewBody.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormReviewBody.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormReviewBody.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormReviewBody.swiftdeps"
+  },
+  "/Users/qdioffice/Desktop/GEMAPP/QDI_Gemstone_ERP/Views/StoneFormView.swift" : {
+    "const-values" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormView.swiftconstvalues",
+    "dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormView.d",
+    "diagnostics" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormView.dia",
+    "object" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormView.o",
+    "swift-dependencies" : "/Users/qdioffice/Desktop/GEMAPP/build/QDI_Gemstone_ERP.build/Debug/QDI Gemstone ERP.build/Objects-normal/x86_64/StoneFormView.swiftdeps"
+  }
+}

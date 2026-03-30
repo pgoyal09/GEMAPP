@@ -7,7 +7,7 @@ struct DiamondsInventoryView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
 
-    @Query(sort: \Gemstone.createdAt, order: .reverse) private var allStones: [Gemstone]
+    @Query private var allStones: [Gemstone]
 
     @State private var searchText = ""
     @State private var selectedStoneID: PersistentIdentifier?
@@ -32,10 +32,26 @@ struct DiamondsInventoryView: View {
     @State private var caratMin: Double?
     @State private var caratMax: Double?
 
+    // MARK: - Init
+
+    init(navigateTo: Binding<NavigationItem>) {
+        self._navigateTo = navigateTo
+        let diamondType = StoneType.diamond
+        let lotGrouping = StoneGrouping.lot
+        let soldStatus = GemstoneStatus.sold
+        _allStones = Query(
+            filter: #Predicate<Gemstone> {
+                $0.stoneType == diamondType && $0.grouping != lotGrouping && $0.status != soldStatus
+            },
+            sort: \Gemstone.createdAt,
+            order: .reverse
+        )
+    }
+
     // MARK: - Computed
 
     private var diamonds: [Gemstone] {
-        allStones.filter { $0.stoneType == .diamond && $0.grouping != .lot && $0.status != .sold }
+        allStones
     }
 
     private var filteredStones: [Gemstone] {
