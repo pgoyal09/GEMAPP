@@ -14,6 +14,7 @@ final class ReconcileViewModel {
 
     var isScanning: Bool = false
     var modelContext: ModelContext?
+    var lastReconciliationDate: Date?
 
     init(rfidService: RFIDService, rfidCoordinator: RFIDCoordinator? = nil) {
         self.rfidService = rfidService
@@ -47,6 +48,7 @@ final class ReconcileViewModel {
     func stopScanning() {
         rfidService.stopScanning()
         isScanning = false
+        lastReconciliationDate = Date()
     }
 
     func resetScan() {
@@ -75,6 +77,36 @@ final class ReconcileViewModel {
         scannedTagIDs
             .filter { !foundTagIDs.contains($0) }
             .map { ($0, extraScanReasons[$0] ?? "Unknown") }
+    }
+
+    // MARK: - Export
+
+    func exportReconciliationReport() -> String {
+        var lines: [String] = []
+        let dateStr = lastReconciliationDate?.formatted(.dateTime.year().month().day().hour().minute()) ?? "N/A"
+        lines.append("Reconciliation Report")
+        lines.append("Date: \(dateStr)")
+        lines.append("Total Expected: \(availableStones.count)")
+        lines.append("Found: \(foundStones.count)")
+        lines.append("Missing: \(missingStones.count)")
+        lines.append("Extra Scans: \(extraScans.count)")
+        lines.append("")
+
+        lines.append("Status,SKU,Stone Type,Carats,RFID EPC,Reason")
+
+        for stone in foundStones {
+            lines.append("Found,\(stone.sku),\(stone.stoneType.rawValue),\(String(format: "%.2f", stone.caratWeight)),\(stone.rfidEpc ?? "N/A"),Matched")
+        }
+
+        for stone in missingStones {
+            lines.append("Missing,\(stone.sku),\(stone.stoneType.rawValue),\(String(format: "%.2f", stone.caratWeight)),\(stone.rfidEpc ?? "No tag"),Not scanned")
+        }
+
+        for scan in extraScans {
+            lines.append("Extra,\(scan.tagID),,,\(scan.reason)")
+        }
+
+        return lines.joined(separator: "\n")
     }
 
     // MARK: - Private

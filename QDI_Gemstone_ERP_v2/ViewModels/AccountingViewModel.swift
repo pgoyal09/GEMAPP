@@ -3,19 +3,67 @@ import SwiftData
 
 // MARK: - Data Types
 
-enum AccountingDateRange: String, CaseIterable {
-    case allTime = "All Time"
-    case thisYear = "This Year"
-    case last12Months = "Last 12 Months"
+enum AccountingDateRange: Hashable {
+    case allTime
+    case thisYear
+    case last12Months
+    case thisMonth
+    case thisQuarter
+    case thisWeek
+    case custom(from: Date, to: Date)
+
+    var displayName: String {
+        switch self {
+        case .allTime: return "All Time"
+        case .thisYear: return "This Year"
+        case .last12Months: return "Last 12 Months"
+        case .thisMonth: return "This Month"
+        case .thisQuarter: return "This Quarter"
+        case .thisWeek: return "This Week"
+        case .custom: return "Custom"
+        }
+    }
+
+    /// All fixed (non-custom) cases for the picker.
+    static var pickerCases: [AccountingDateRange] {
+        [.allTime, .thisWeek, .thisMonth, .thisQuarter, .thisYear, .last12Months, .custom(from: Date(), to: Date())]
+    }
+
+    /// Whether this is a custom range (for showing date pickers).
+    var isCustom: Bool {
+        if case .custom = self { return true }
+        return false
+    }
 
     var startDate: Date? {
         let calendar = Calendar.current
+        let now = Date()
         switch self {
         case .allTime: return nil
         case .thisYear:
-            return calendar.date(from: calendar.dateComponents([.year], from: Date()))
+            return calendar.date(from: calendar.dateComponents([.year], from: now))
         case .last12Months:
-            return calendar.date(byAdding: .month, value: -12, to: Date())
+            return calendar.date(byAdding: .month, value: -12, to: now)
+        case .thisMonth:
+            return calendar.date(from: calendar.dateComponents([.year, .month], from: now))
+        case .thisQuarter:
+            let month = calendar.component(.month, from: now)
+            let quarterStartMonth = ((month - 1) / 3) * 3 + 1
+            var components = calendar.dateComponents([.year], from: now)
+            components.month = quarterStartMonth
+            components.day = 1
+            return calendar.date(from: components)
+        case .thisWeek:
+            return calendar.dateInterval(of: .weekOfYear, for: now)?.start
+        case .custom(let from, _):
+            return from
+        }
+    }
+
+    var endDate: Date? {
+        switch self {
+        case .custom(_, let to): return to
+        default: return nil
         }
     }
 }
@@ -60,10 +108,11 @@ final class AccountingViewModel {
 
     func load(modelContext: ModelContext) {
         let startDate = dateRange.startDate
-        loadRevenueAndCost(startDate: startDate, modelContext: modelContext)
+        let endDate = dateRange.endDate
+        loadRevenueAndCost(startDate: startDate, endDate: endDate, modelContext: modelContext)
         loadAgedReceivables(modelContext: modelContext)
-        loadSalesByStoneType(startDate: startDate, modelContext: modelContext)
-        loadMonthlySales(startDate: startDate, modelContext: modelContext)
+        loadSalesByStoneType(startDate: startDate, endDate: endDate, modelContext: modelContext)
+        loadMonthlySales(startDate: startDate, endDate: endDate, modelContext: modelContext)
     }
 
     // MARK: - CSV Export
@@ -82,29 +131,8 @@ final class AccountingViewModel {
 
     // MARK: - Private
 
-    private func loadRevenueAndCost(startDate: Date?, modelContext: ModelContext) {
-        // Optimized: use a predicate to fetch only paid/sent invoices
-        let paidStatus = InvoiceStatus.paid
-        let sentStatus = InvoiceStatus.sent
-        let descriptor: FetchDescriptor<Invoice>
-        if let start = startDate {
-            descriptor = FetchDescriptor<Invoice>(
-                predicate: #Predicate<Invoice> {
-                    ($0.status == paidStatus || $0.status == sentStatus) &&
-                    $0.invoiceDate >= start
-                }
-            )
-        } else {
-            descriptor = FetchDescriptor<Invoice>(
-                predicate: #Predicate<Invoice> {
-                    $0.status == paidStatus || $0.status == sentStatus
-                }
-            )
-        }
-        guard let filtered = try? modelContext.fetch(descriptor) else {
-            totalRevenue = 0; totalCost = 0; return
-        }
-
+    private func loadRevenueAndCost(startDate: Date?, endDate: Date? = nil, modelContext: ModelContext) {
+        let filtered = fetchFilteredInvoices(startDate: startDate, endDate: endDate, modelContext: modelContext)
         totalRevenue = filtered.reduce(Decimal.zero) { $0 + $1.totalAmount }
 
         totalCost = filtered.reduce(Decimal.zero) { sum, inv in
@@ -118,6 +146,35 @@ final class AccountingViewModel {
                 return lineSum
             }
         }
+    }
+
+    /// Shared helper to fetch paid/sent invoices within a date range.
+    private func fetchFilteredInvoices(startDate: Date?, endDate: Date? = nil, modelContext: ModelContext) -> [Invoice] {
+        let paidStatus = InvoiceStatus.paid
+        let sentStatus = InvoiceStatus.sent
+        let descriptor: FetchDescriptor<Invoice>
+        if let start = startDate, let end = endDate {
+            descriptor = FetchDescriptor<Invoice>(
+                predicate: #Predicate<Invoice> {
+                    ($0.status == paidStatus || $0.status == sentStatus) &&
+                    $0.invoiceDate >= start && $0.invoiceDate <= end
+                }
+            )
+        } else if let start = startDate {
+            descriptor = FetchDescriptor<Invoice>(
+                predicate: #Predicate<Invoice> {
+                    ($0.status == paidStatus || $0.status == sentStatus) &&
+                    $0.invoiceDate >= start
+                }
+            )
+        } else {
+            descriptor = FetchDescriptor<Invoice>(
+                predicate: #Predicate<Invoice> {
+                    $0.status == paidStatus || $0.status == sentStatus
+                }
+            )
+        }
+        return (try? modelContext.fetch(descriptor)) ?? []
     }
 
     private func loadAgedReceivables(modelContext: ModelContext) {
@@ -154,28 +211,8 @@ final class AccountingViewModel {
         agedReceivables = buckets
     }
 
-    private func loadSalesByStoneType(startDate: Date?, modelContext: ModelContext) {
-        // Optimized: use predicate to fetch only paid/sent invoices
-        let paidStatus = InvoiceStatus.paid
-        let sentStatus = InvoiceStatus.sent
-        let descriptor: FetchDescriptor<Invoice>
-        if let start = startDate {
-            descriptor = FetchDescriptor<Invoice>(
-                predicate: #Predicate<Invoice> {
-                    ($0.status == paidStatus || $0.status == sentStatus) &&
-                    $0.invoiceDate >= start
-                }
-            )
-        } else {
-            descriptor = FetchDescriptor<Invoice>(
-                predicate: #Predicate<Invoice> {
-                    $0.status == paidStatus || $0.status == sentStatus
-                }
-            )
-        }
-        guard let invoices = try? modelContext.fetch(descriptor) else {
-            salesByStoneType = []; return
-        }
+    private func loadSalesByStoneType(startDate: Date?, endDate: Date? = nil, modelContext: ModelContext) {
+        let invoices = fetchFilteredInvoices(startDate: startDate, endDate: endDate, modelContext: modelContext)
 
         var map: [String: Decimal] = [:]
         for inv in invoices {
@@ -189,28 +226,8 @@ final class AccountingViewModel {
             .sorted { $0.revenue > $1.revenue }
     }
 
-    private func loadMonthlySales(startDate: Date?, modelContext: ModelContext) {
-        // Optimized: use predicate to fetch only paid/sent invoices
-        let paidStatus = InvoiceStatus.paid
-        let sentStatus = InvoiceStatus.sent
-        let descriptor: FetchDescriptor<Invoice>
-        if let start = startDate {
-            descriptor = FetchDescriptor<Invoice>(
-                predicate: #Predicate<Invoice> {
-                    ($0.status == paidStatus || $0.status == sentStatus) &&
-                    $0.invoiceDate >= start
-                }
-            )
-        } else {
-            descriptor = FetchDescriptor<Invoice>(
-                predicate: #Predicate<Invoice> {
-                    $0.status == paidStatus || $0.status == sentStatus
-                }
-            )
-        }
-        guard let invoices = try? modelContext.fetch(descriptor) else {
-            monthlySales = []; return
-        }
+    private func loadMonthlySales(startDate: Date?, endDate: Date? = nil, modelContext: ModelContext) {
+        let invoices = fetchFilteredInvoices(startDate: startDate, endDate: endDate, modelContext: modelContext)
 
         let fmt = DateFormatter()
         fmt.dateFormat = "yyyy-MM"

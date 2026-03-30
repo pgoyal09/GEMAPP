@@ -7,7 +7,10 @@ private let logger = Logger(subsystem: "com.qdi.gemapp", category: "transaction"
 /// Errors thrown by transaction operations.
 enum TransactionError: LocalizedError {
     case stoneNotAvailable(sku: String, status: String)
+    case stoneOnMemo(sku: String)
     case duplicateStone(sku: String)
+    case stoneAlreadyOnMemo(sku: String, ref: String)
+    case stoneAlreadyOnInvoice(sku: String, ref: String)
     case invalidCaratWeight
     case lotInsufficientCarats(available: Double, requested: Double)
 
@@ -15,8 +18,14 @@ enum TransactionError: LocalizedError {
         switch self {
         case .stoneNotAvailable(let sku, let status):
             return "Stone \(sku) is not available (current status: \(status))."
+        case .stoneOnMemo(let sku):
+            return "Stone \(sku) is currently on a memo. Use Convert to Invoice from the memo instead."
         case .duplicateStone(let sku):
             return "Stone \(sku) is already in this document."
+        case .stoneAlreadyOnMemo(let sku, let ref):
+            return "Stone \(sku) is already on memo \(ref). Return it first."
+        case .stoneAlreadyOnInvoice(let sku, let ref):
+            return "Stone \(sku) is already on invoice \(ref)."
         case .invalidCaratWeight:
             return "Carat weight must be greater than zero."
         case .lotInsufficientCarats(let available, let requested):
@@ -60,6 +69,21 @@ enum TransactionService {
         // Guard: stone must not already be in the memo
         if memo.lineItems.contains(where: { $0.gemstone?.persistentModelID == stone.persistentModelID }) {
             throw TransactionError.duplicateStone(sku: stone.sku)
+        }
+        // Guard: stone must not be on ANY other memo with an active line item
+        let stoneID = stone.persistentModelID
+        let openStatus = LineItemStatus.open
+        let allLineItems = FetchDescriptor<LineItem>(
+            predicate: #Predicate<LineItem> { item in
+                item.gemstone?.persistentModelID == stoneID &&
+                item.memo != nil &&
+                item.status == openStatus
+            }
+        )
+        if let existingItems = try? modelContext.fetch(allLineItems),
+           let existingItem = existingItems.first(where: { $0.memo?.persistentModelID != memo.persistentModelID }) {
+            let ref = existingItem.memo?.referenceNumber ?? "unknown"
+            throw TransactionError.stoneAlreadyOnMemo(sku: stone.sku, ref: ref)
         }
         // Guard: carat weight must be positive
         guard stone.caratWeight > 0 else {
@@ -112,13 +136,33 @@ enum TransactionService {
 
     @MainActor
     static func addStone(_ stone: Gemstone, to invoice: Invoice, modelContext: ModelContext) throws {
-        // Guard: stone must be in stock or on memo (not already sold)
-        guard stone.status == .available || stone.status == .onMemo else {
+        // Guard: stone on memo must go through memo-to-invoice conversion
+        if stone.status == .onMemo {
+            throw TransactionError.stoneOnMemo(sku: stone.sku)
+        }
+        // Guard: stone must be in stock (not sold or on memo)
+        guard stone.status == .available else {
             throw TransactionError.stoneNotAvailable(sku: stone.sku, status: stone.status.rawValue)
         }
         // Guard: stone must not already be in the invoice
         if invoice.lineItems.contains(where: { $0.gemstone?.persistentModelID == stone.persistentModelID }) {
             throw TransactionError.duplicateStone(sku: stone.sku)
+        }
+        // Guard: stone must not be on ANY other invoice with an active line item
+        let stoneID = stone.persistentModelID
+        let soldStatus = LineItemStatus.sold
+        let openStatus = LineItemStatus.open
+        let allInvoiceItems = FetchDescriptor<LineItem>(
+            predicate: #Predicate<LineItem> { item in
+                item.gemstone?.persistentModelID == stoneID &&
+                item.invoice != nil &&
+                (item.status == soldStatus || item.status == openStatus)
+            }
+        )
+        if let existingItems = try? modelContext.fetch(allInvoiceItems),
+           let existingItem = existingItems.first(where: { $0.invoice?.persistentModelID != invoice.persistentModelID }) {
+            let ref = existingItem.invoice?.referenceNumber ?? "unknown"
+            throw TransactionError.stoneAlreadyOnInvoice(sku: stone.sku, ref: ref)
         }
         // Guard: carat weight must be positive
         guard stone.caratWeight > 0 else {

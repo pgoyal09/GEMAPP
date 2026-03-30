@@ -215,6 +215,7 @@ struct MemoDocumentView: View {
         HStack(spacing: 8) {
             Button("Single/Pair") { showInventorySheet = true }
             Button("Lot") { showLotSheet = true }
+                .help("A group of similar stones sold by total carat weight")
             Button("Brokered") {
                 do {
                     try TransactionService.addBrokeredLine(to: memo, modelContext: modelContext)

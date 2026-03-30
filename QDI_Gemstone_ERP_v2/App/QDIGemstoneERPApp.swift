@@ -61,6 +61,10 @@ struct QDIGemstoneERPApp: App {
                 .environment(\.rfidCoordinator, rfidCoordinator)
                 .onAppear {
                     setupRFID()
+                    #if DEBUG
+                    // Only seed demo data in debug builds — production starts with empty database
+                    try? DemoDataService.seedIfNeeded(modelContext: sharedModelContainer.mainContext)
+                    #endif
                     if Self.migrationDidFail {
                         migrationError = Self.migrationErrorMessage
                         showMigrationFailureAlert = true

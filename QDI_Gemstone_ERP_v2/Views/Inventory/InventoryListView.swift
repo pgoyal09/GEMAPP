@@ -19,6 +19,9 @@ struct InventoryListView: View {
     @State var viewModel = InventoryViewModel()
     @State private var showEditSheet = false
     @State private var editingStone: Gemstone?
+    @State private var selectedStones: Set<PersistentIdentifier> = []
+
+    @Environment(\.openWindow) private var openWindow
 
     // MARK: - Computed
 
@@ -71,6 +74,13 @@ struct InventoryListView: View {
         }
         .animation(.easeInOut(duration: 0.2), value: viewModel.showFiltersPanel)
         .animation(.easeInOut(duration: 0.2), value: selectedStone?.persistentModelID)
+        .overlay(alignment: .bottom) {
+            if !selectedStones.isEmpty {
+                multiSelectActionBar
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .animation(.easeInOut(duration: 0.25), value: selectedStones.isEmpty)
+            }
+        }
         .sheet(isPresented: $showEditSheet) {
             if let stone = editingStone {
                 StoneFormView(mode: .edit(stone))
@@ -206,7 +216,7 @@ struct InventoryListView: View {
 
     private var tableMinWidth: CGFloat {
         let base = TableColumn.sku + TableColumn.type + TableColumn.shape + TableColumn.carat
-            + TableColumn.color + TableColumn.clarity + TableColumn.price + TableColumn.status
+            + TableColumn.color + TableColumn.clarity + TableColumn.price + TableColumn.status + 90
         return base + (mode == .sold ? TableColumn.customer : 0) + 60
     }
 
@@ -253,6 +263,7 @@ struct InventoryListView: View {
                 TableHeader(title: "Sold To", width: TableColumn.customer, alignment: .leading)
             }
             sortableHeader("Status", key: "status", width: TableColumn.status, alignment: .center)
+            sortableHeader("Date Added", key: "dateAdded", width: 90, alignment: .leading)
             Spacer()
         }
         .padding(.horizontal, AppSpacing.m)
@@ -278,6 +289,19 @@ struct InventoryListView: View {
                 viewModel.selectedStoneID = stone.persistentModelID
             }
         }) {
+            if mode == .current {
+                Toggle(isOn: Binding(
+                    get: { selectedStones.contains(stone.persistentModelID) },
+                    set: { isOn in
+                        if isOn { selectedStones.insert(stone.persistentModelID) }
+                        else { selectedStones.remove(stone.persistentModelID) }
+                    }
+                )) { EmptyView() }
+                .toggleStyle(.checkbox)
+                .frame(width: 24)
+                .accessibilityLabel("Select \(stone.sku)")
+            }
+
             Text(stone.sku)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
@@ -333,6 +357,12 @@ struct InventoryListView: View {
             statusBadge(for: stone.status)
                 .frame(width: TableColumn.status, alignment: .center)
 
+            Text(stone.createdAt.formatted(.dateTime.month(.abbreviated).day()))
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+                .lineLimit(1)
+                .frame(width: 90, alignment: .leading)
+
             Spacer()
         }
     }
@@ -349,5 +379,73 @@ struct InventoryListView: View {
 
     private func formattedPrice(_ price: Decimal) -> String {
         price.asCurrency
+    }
+
+    // MARK: - Multi-Select Action Bar
+
+    private var multiSelectActionBar: some View {
+        HStack(spacing: AppSpacing.m) {
+            Text("\(selectedStones.count) stone\(selectedStones.count == 1 ? "" : "s") selected")
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.ink)
+
+            Spacer()
+
+            GradientButton(title: "Create Memo with \(selectedStones.count) stones", icon: "doc.text") {
+                createMemoWithSelectedStones()
+            }
+
+            GradientButton(title: "Create Invoice with \(selectedStones.count) stones", icon: "doc.text.fill") {
+                createInvoiceWithSelectedStones()
+            }
+
+            Button("Clear Selection") {
+                selectedStones.removeAll()
+            }
+            .buttonStyle(.outline)
+        }
+        .padding(.horizontal, AppSpacing.l)
+        .padding(.vertical, AppSpacing.m)
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                        .strokeBorder(AppColors.primary.opacity(0.3), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.3), radius: 12, y: -4)
+        )
+        .padding(.horizontal, AppSpacing.l)
+        .padding(.bottom, AppSpacing.m)
+    }
+
+    private func createMemoWithSelectedStones() {
+        let stones = filteredStones.filter { selectedStones.contains($0.persistentModelID) }
+        guard !stones.isEmpty else { return }
+        do {
+            let memo = try TransactionService.createMemo(modelContext: modelContext)
+            for stone in stones {
+                try TransactionService.addStone(stone, to: memo, modelContext: modelContext)
+            }
+            selectedStones.removeAll()
+            openWindow(id: "memo", value: memo.persistentModelID)
+        } catch {
+            print("Failed to create memo with selected stones: \(error.localizedDescription)")
+        }
+    }
+
+    private func createInvoiceWithSelectedStones() {
+        let stones = filteredStones.filter { selectedStones.contains($0.persistentModelID) }
+        guard !stones.isEmpty else { return }
+        do {
+            let invoice = try TransactionService.createInvoice(modelContext: modelContext)
+            for stone in stones {
+                try TransactionService.addStone(stone, to: invoice, modelContext: modelContext)
+            }
+            selectedStones.removeAll()
+            openWindow(id: "invoice", value: invoice.persistentModelID)
+        } catch {
+            print("Failed to create invoice with selected stones: \(error.localizedDescription)")
+        }
     }
 }

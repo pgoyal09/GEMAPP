@@ -123,6 +123,7 @@ struct GemstoneDetailPanel: View {
             VStack(alignment: .leading, spacing: AppSpacing.s) {
                 SectionHeader(title: "RFID")
                 DetailRow(label: "EPC", value: gemstone.rfidEpc ?? "--")
+                    .help("Electronic Product Code stored on RFID tags")
                 DetailRow(label: "TID", value: gemstone.rfidTid ?? "--")
                 if let assignedAt = gemstone.rfidAssignedAt {
                     DetailRow(label: "Assigned", value: formattedDate(assignedAt))

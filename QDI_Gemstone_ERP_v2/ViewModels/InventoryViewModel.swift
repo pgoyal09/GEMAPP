@@ -290,6 +290,8 @@ final class InventoryViewModel {
                 result = a.sellPrice < b.sellPrice
             case "status":
                 result = a.status.rawValue.localizedCompare(b.status.rawValue) == .orderedAscending
+            case "dateAdded":
+                result = a.createdAt < b.createdAt
             default:
                 result = a.createdAt < b.createdAt
             }

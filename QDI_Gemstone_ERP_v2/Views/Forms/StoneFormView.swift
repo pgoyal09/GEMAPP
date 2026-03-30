@@ -77,6 +77,7 @@ struct StoneFormView: View {
                     }
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Grouping").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                            .help("Single stone, Pair, Lot (group sold by total weight), Melee (small stones under 0.20ct), or Parcel (collection of grouped stones)")
                         Picker("", selection: $viewModel.grouping) {
                             ForEach(StoneGrouping.allCases, id: \.self) { Text($0.displayName).tag($0) }
                         }
@@ -140,6 +141,7 @@ struct StoneFormView: View {
         GlassCard(padding: AppSpacing.m) {
             VStack(alignment: .leading, spacing: AppSpacing.s) {
                 SectionHeader(title: "Lot Details")
+                    .help("A group of similar stones sold by total carat weight")
                 HStack(spacing: AppSpacing.m) {
                     field("Size Range", $viewModel.size)
                     field("Quality", $viewModel.quality)
@@ -234,6 +236,7 @@ struct StoneFormView: View {
             }
             .buttonStyle(.gradient)
             .disabled(!viewModel.canSave)
+            .keyboardShortcut("s", modifiers: .command)
         }
         .padding(AppSpacing.m)
         .background(Color.white.opacity(0.02))

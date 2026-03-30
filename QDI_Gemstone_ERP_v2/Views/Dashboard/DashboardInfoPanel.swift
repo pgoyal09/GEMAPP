@@ -89,6 +89,7 @@ struct DashboardInfoPanel: View {
             HStack(spacing: 10) {
                 snapshotChip("Available", viewModel.inventorySnapshot.availableCount, color: AppColors.success)
                 snapshotChip("On Memo", viewModel.inventorySnapshot.onMemoCount, color: AppColors.primary)
+                    .help("Consignment agreement allowing customer to review stones before buying")
                 snapshotChip("Sold", viewModel.inventorySnapshot.soldCount, color: AppColors.inkMuted)
             }
         }

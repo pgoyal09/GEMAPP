@@ -1,10 +1,13 @@
 import SwiftUI
 import SwiftData
+import AppKit
+import UniformTypeIdentifiers
 
 /// RFID reconciliation view comparing scanned tags against expected inventory.
 struct ReconcileView: View {
     @Bindable var viewModel: ReconcileViewModel
     @Environment(\.modelContext) private var modelContext
+    @State private var showExportSuccess = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -32,46 +35,89 @@ struct ReconcileView: View {
     // MARK: - Control Bar
 
     private var controlBar: some View {
-        HStack(spacing: AppSpacing.s) {
-            Text("RFID Reconciliation")
-                .font(AppTypography.heading)
-                .foregroundStyle(AppColors.ink)
+        VStack(alignment: .trailing, spacing: AppSpacing.xs) {
+            HStack(spacing: AppSpacing.s) {
+                Text("RFID Reconciliation")
+                    .font(AppTypography.heading)
+                    .foregroundStyle(AppColors.ink)
 
-            Spacer()
-
-            if viewModel.isScanning {
-                HStack(spacing: AppSpacing.xs) {
-                    ProgressView()
-                        .controlSize(.small)
-                        .tint(AppColors.primary)
-                    Text("Scanning...")
+                if let lastDate = viewModel.lastReconciliationDate {
+                    Text("Last reconciled: \(lastDate.formatted(.dateTime.month().day().hour().minute()))")
                         .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.primary)
+                        .foregroundStyle(AppColors.inkSubtle)
                 }
-            }
 
-            if viewModel.isScanning {
+                Spacer()
+
+                if viewModel.isScanning {
+                    HStack(spacing: AppSpacing.xs) {
+                        ProgressView()
+                            .controlSize(.small)
+                            .tint(AppColors.primary)
+                        Text("Scanning...")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.primary)
+                    }
+                }
+
+                if viewModel.isScanning {
+                    Button {
+                        viewModel.stopScanning()
+                    } label: {
+                        Label("Stop", systemImage: "stop.fill")
+                    }
+                    .buttonStyle(.outline(AppColors.danger))
+                } else {
+                    GradientButton(title: "Start Scan", icon: "antenna.radiowaves.left.and.right") {
+                        viewModel.startScanning()
+                    }
+                }
+
                 Button {
-                    viewModel.stopScanning()
+                    exportReconciliationReport()
                 } label: {
-                    Label("Stop", systemImage: "stop.fill")
+                    Label("Export Report", systemImage: "arrow.down.doc")
                 }
-                .buttonStyle(.outline(AppColors.danger))
-            } else {
-                GradientButton(title: "Start Scan", icon: "antenna.radiowaves.left.and.right") {
-                    viewModel.startScanning()
-                }
-            }
+                .buttonStyle(.outline)
+                .disabled(viewModel.foundStones.isEmpty && viewModel.missingStones.isEmpty)
 
-            Button {
-                viewModel.resetScan()
-            } label: {
-                Label("Reset", systemImage: "arrow.counterclockwise")
+                Button {
+                    viewModel.resetScan()
+                } label: {
+                    Label("Reset", systemImage: "arrow.counterclockwise")
+                }
+                .buttonStyle(.outline)
             }
-            .buttonStyle(.outline)
         }
         .padding(.horizontal, AppSpacing.l)
         .padding(.vertical, AppSpacing.m)
+        .overlay {
+            if showExportSuccess {
+                ToastOverlay(message: "Reconciliation report exported")
+                    .animation(.easeInOut, value: showExportSuccess)
+            }
+        }
+    }
+
+    private func exportReconciliationReport() {
+        let csv = viewModel.exportReconciliationReport()
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "reconciliation_report.csv"
+        panel.allowedContentTypes = [UTType.commaSeparatedText]
+        panel.begin { response in
+            if response == .OK, let url = panel.url {
+                do {
+                    try csv.write(to: url, atomically: true, encoding: .utf8)
+                    showExportSuccess = true
+                    Task { @MainActor in
+                        try? await Task.sleep(for: .seconds(2))
+                        showExportSuccess = false
+                    }
+                } catch {
+                    print("Failed to export reconciliation report: \(error.localizedDescription)")
+                }
+            }
+        }
     }
 
     // MARK: - Progress

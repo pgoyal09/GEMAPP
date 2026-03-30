@@ -28,6 +28,7 @@ struct UnknownTagAssignSheet: View {
                 GlassCard(padding: AppSpacing.s) {
                     VStack(alignment: .leading, spacing: 4) {
                         DetailRow(label: "EPC", value: epc)
+                            .help("Electronic Product Code stored on RFID tags")
                         if !tid.isEmpty { DetailRow(label: "TID", value: tid) }
                     }
                 }

@@ -127,8 +127,12 @@ struct CompanySettingsView: View {
         panel.allowsMultipleSelection = false
 
         guard panel.runModal() == .OK, let url = panel.url else { return }
-        guard let data = try? Data(contentsOf: url) else { return }
-        logoData = data
-        PDFService.saveCompanyLogo(data)
+        do {
+            let data = try Data(contentsOf: url)
+            logoData = data
+            PDFService.saveCompanyLogo(data)
+        } catch {
+            print("Failed to load logo image: \(error.localizedDescription)")
+        }
     }
 }

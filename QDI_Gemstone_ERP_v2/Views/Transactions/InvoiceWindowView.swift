@@ -26,7 +26,12 @@ struct InvoiceWindowView: View {
 
     private func fetchInvoice() -> Invoice? {
         let descriptor = FetchDescriptor<Invoice>()
-        return (try? modelContext.fetch(descriptor))?.first { $0.persistentModelID == invoiceID }
+        do {
+            return try modelContext.fetch(descriptor).first { $0.persistentModelID == invoiceID }
+        } catch {
+            print("Failed to fetch invoice: \(error.localizedDescription)")
+            return nil
+        }
     }
 
     /// Mirror of MemoWindowView cleanup: delete invoices with 0 line items on dismiss.

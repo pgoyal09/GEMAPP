@@ -7,6 +7,8 @@ struct AccountingView: View {
     @State private var viewModel = AccountingViewModel()
     @State private var selectedTab = 0
     @State private var showExportSuccess = false
+    @State private var customStartDate = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
+    @State private var customEndDate = Date()
 
     var body: some View {
         ScrollView {
@@ -31,20 +33,45 @@ struct AccountingView: View {
     // MARK: - Header
 
     private var headerRow: some View {
-        HStack {
-            Text("Internal tracking only — not a substitute for accounting software.")
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.inkSubtle)
-            Spacer()
-            Picker("", selection: $viewModel.dateRange) {
-                ForEach(AccountingDateRange.allCases, id: \.self) { r in
-                    Text(r.rawValue).tag(r)
+        VStack(alignment: .trailing, spacing: AppSpacing.s) {
+            HStack {
+                Text("Internal tracking only — not a substitute for accounting software.")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+                Spacer()
+                Picker("", selection: $viewModel.dateRange) {
+                    ForEach(AccountingDateRange.pickerCases, id: \.self) { r in
+                        Text(r.displayName).tag(r)
+                    }
+                }
+                .frame(width: 160)
+                .accessibilityLabel("Date Range")
+                Button("Export CSV") { exportCSV() }
+                    .buttonStyle(.outline)
+            }
+            if viewModel.dateRange.isCustom {
+                HStack(spacing: AppSpacing.s) {
+                    Spacer()
+                    Text("From:")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkMuted)
+                    DatePicker("", selection: $customStartDate, displayedComponents: .date)
+                        .labelsHidden()
+                        .frame(width: 130)
+                    Text("To:")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkMuted)
+                    DatePicker("", selection: $customEndDate, displayedComponents: .date)
+                        .labelsHidden()
+                        .frame(width: 130)
+                }
+                .onChange(of: customStartDate) { _, newVal in
+                    viewModel.dateRange = .custom(from: newVal, to: customEndDate)
+                }
+                .onChange(of: customEndDate) { _, newVal in
+                    viewModel.dateRange = .custom(from: customStartDate, to: newVal)
                 }
             }
-            .frame(width: 160)
-            .accessibilityLabel("Date Range")
-            Button("Export CSV") { exportCSV() }
-                .buttonStyle(.outline)
         }
     }
 

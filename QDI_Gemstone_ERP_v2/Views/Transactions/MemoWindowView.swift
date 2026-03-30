@@ -26,7 +26,12 @@ struct MemoWindowView: View {
 
     private func fetchMemo() -> Memo? {
         let descriptor = FetchDescriptor<Memo>()
-        return (try? modelContext.fetch(descriptor))?.first { $0.persistentModelID == memoID }
+        do {
+            return try modelContext.fetch(descriptor).first { $0.persistentModelID == memoID }
+        } catch {
+            print("Failed to fetch memo: \(error.localizedDescription)")
+            return nil
+        }
     }
 
     private func cleanupEmptyMemo() {

@@ -58,6 +58,7 @@ struct CustomerDetailPanel: View {
     private var onMemoSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.s) {
             SectionHeader(title: "On Memo")
+                .help("Consignment agreement allowing customer to review stones before buying")
             if customer.activeMemos.isEmpty {
                 Text("No active memos")
                     .font(AppTypography.caption)
