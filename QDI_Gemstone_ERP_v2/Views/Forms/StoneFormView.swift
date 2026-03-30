@@ -279,6 +279,36 @@ struct StoneFormView: View {
                     field("Cost Price", $viewModel.costPriceText)
                     field("Sell Price", $viewModel.sellPriceText)
                 }
+                HStack(spacing: AppSpacing.m) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Currency").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                        Picker("", selection: $viewModel.currencyType) {
+                            ForEach(CurrencyType.allCases, id: \.self) { c in
+                                Text(c.rawValue).tag(c)
+                            }
+                        }
+                        .labelsHidden()
+                        .accessibilityLabel("Currency")
+                    }
+                    field("Exchange Rate", $viewModel.exchangeRateText)
+                }
+                // Computed pricing display
+                if let stone = viewModel.mode.existingStone {
+                    VStack(alignment: .leading, spacing: 4) {
+                        if let rap = stone.rapNetCalculatedPrice {
+                            DetailRow(label: "RapNet Calc $/ct", value: rap.asCurrency)
+                        }
+                        if let ppc = stone.perCaratPrice {
+                            DetailRow(label: "Per Carat Price", value: ppc.asCurrency)
+                        }
+                        if stone.currencyType != .usd {
+                            DetailRow(
+                                label: "Sell (\(stone.currencyType.rawValue))",
+                                value: "\(stone.currencyType.symbol)\(stone.sellPriceInDisplayCurrency)"
+                            )
+                        }
+                    }
+                }
             }
         }
     }

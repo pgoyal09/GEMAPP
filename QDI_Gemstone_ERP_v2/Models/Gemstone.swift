@@ -56,6 +56,11 @@ final class Gemstone {
     var costPrice: Decimal
     var sellPrice: Decimal
 
+    /// Display currency for this stone (defaults to USD).
+    var currencyType: CurrencyType
+    /// Exchange rate to USD (e.g. 83.5 for INR). 1.0 when currency is USD.
+    var exchangeRate: Decimal
+
     // MARK: - Lot Inventory
 
     /// Currently available carats for lot stones. Nil for non-lot stones.
@@ -192,6 +197,8 @@ final class Gemstone {
         height2: Double? = nil,
         costPrice: Decimal = 0,
         sellPrice: Decimal = 0,
+        currencyType: CurrencyType = .usd,
+        exchangeRate: Decimal = 1,
         remainingCarats: Double? = nil,
         averageCostPerCarat: Decimal? = nil,
         rfidEpc: String? = nil,
@@ -229,6 +236,8 @@ final class Gemstone {
         self.height2 = height2
         self.costPrice = costPrice
         self.sellPrice = sellPrice
+        self.currencyType = currencyType
+        self.exchangeRate = exchangeRate
         self.remainingCarats = remainingCarats
         self.averageCostPerCarat = averageCostPerCarat
         self.rfidEpc = rfidEpc
@@ -256,6 +265,30 @@ final class Gemstone {
     /// Effective average cost per carat. Falls back to costPrice / caratWeight.
     var effectiveAverageCost: Decimal {
         averageCostPerCarat ?? (caratWeight > 0 ? costPrice / Decimal(caratWeight) : costPrice)
+    }
+
+    // MARK: - Pricing Engine
+
+    /// RapNet calculated price per carat: rapNetPrice * (1 - rapNetDiscountPct/100).
+    var rapNetCalculatedPrice: Decimal? {
+        guard let rap = rapNetPrice, let disc = rapNetDiscountPct else { return nil }
+        return rap * (1 - Decimal(disc) / 100)
+    }
+
+    /// Effective per-carat price: sellPrice if set, otherwise rapNetCalculatedPrice.
+    var perCaratPrice: Decimal? {
+        if sellPrice > 0 { return sellPrice }
+        return rapNetCalculatedPrice
+    }
+
+    /// Sell price converted to display currency using the exchange rate.
+    var sellPriceInDisplayCurrency: Decimal {
+        sellPrice * exchangeRate
+    }
+
+    /// Cost price converted to display currency using the exchange rate.
+    var costPriceInDisplayCurrency: Decimal {
+        costPrice * exchangeRate
     }
 
     // MARK: - Review Queue Flags

@@ -29,6 +29,7 @@
 		14CC1929E412754E2E088A23 /* GlassBackgroundModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CB667D10C57F1B9EB42D6F /* GlassBackgroundModifier.swift */; };
 		16356103918657A1C69BC698 /* GlassFieldModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F178839EE6951B96D2016337 /* GlassFieldModifier.swift */; };
 		1989853CA2BB15A70FADE321 /* CustomerListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9036CD16C22CE2FC676144FB /* CustomerListViewModel.swift */; };
+		1BE2DAC96C3940E8D35B2D7E /* CurrencyType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B99186D49AA8B177AE260B /* CurrencyType.swift */; };
 		1CD0AE33C4EAFD6907195D3F /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ECF159A5FC31BBD9D068E1C /* SidebarView.swift */; };
 		1D3823E437D7D660EE2A4797 /* PDFService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD9E6F4BB3CB6A102CD30AEB /* PDFService.swift */; };
 		1ED84C0E9FD45192AA89D070 /* MemoListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FC22A075D95D822A554438 /* MemoListView.swift */; };
@@ -86,6 +87,7 @@
 		748169DF4ED8777BCBEC80AF /* Invoice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 230BF8E5988671BEFE23C0E0 /* Invoice.swift */; };
 		75DCAB009D62E00D1737C994 /* AccountingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FBD15DCE21EE1BD176D04F /* AccountingView.swift */; };
 		76146595A695A198CD2574FC /* SortableViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB788FFE84CBD6FB2D45A564 /* SortableViewModel.swift */; };
+		7975E425CB137B9FE818E3DF /* InputValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D45A3823E9EF2FE28178AC3 /* InputValidator.swift */; };
 		79D64E872448970E69F593C9 /* FilterPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E7B6A77056D754FF2151496 /* FilterPill.swift */; };
 		7E295706AFD620C12A948AC9 /* LotTransactionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9453E5A1BB6929896AE1BE0A /* LotTransactionType.swift */; };
 		7EA01D623D3136817EE57733 /* InventorySelectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9299C8922C00C4B986D2EF8 /* InventorySelectSheet.swift */; };
@@ -194,10 +196,12 @@
 		5E0F40EC01C97C5209D4F80E /* MemoDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoDocumentView.swift; sourceTree = "<group>"; };
 		5ED44A9E836CD59534C5F518 /* QDI_Gemstone_ERP_v2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QDI_Gemstone_ERP_v2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		626E3D17936BF2108324AF28 /* LotInventoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotInventoryViewModel.swift; sourceTree = "<group>"; };
+		62B99186D49AA8B177AE260B /* CurrencyType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyType.swift; sourceTree = "<group>"; };
 		6538A7C8468B6A5E43E91FE9 /* RFIDCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDCoordinator.swift; sourceTree = "<group>"; };
 		667B98EBC03A1403A73B6FA0 /* RecentActivityList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentActivityList.swift; sourceTree = "<group>"; };
 		68C8D448759F3A55942EAE97 /* ErrorMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorMapper.swift; sourceTree = "<group>"; };
 		69BA467836A257651957AC30 /* DocumentDirtyTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentDirtyTracker.swift; sourceTree = "<group>"; };
+		6D45A3823E9EF2FE28178AC3 /* InputValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputValidator.swift; sourceTree = "<group>"; };
 		706E45B47AFF9AD78C6EFC5B /* APIRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIRouter.swift; sourceTree = "<group>"; };
 		7220B21A25317D921736B773 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		75E8694EA6DA5A3AF102B5B6 /* CustomerListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerListView.swift; sourceTree = "<group>"; };
@@ -401,6 +405,7 @@
 				8B86ED4CBE9430761895C822 /* CurrencyFormatter.swift */,
 				69BA467836A257651957AC30 /* DocumentDirtyTracker.swift */,
 				68C8D448759F3A55942EAE97 /* ErrorMapper.swift */,
+				6D45A3823E9EF2FE28178AC3 /* InputValidator.swift */,
 				037857AF7FF32943A3CBC483 /* NavigationGuard.swift */,
 				FB788FFE84CBD6FB2D45A564 /* SortableViewModel.swift */,
 				E43EE7BD716FF121687C23A2 /* Extensions */,
@@ -605,6 +610,7 @@
 		CBA383056EAC752827E714A3 /* Enums */ = {
 			isa = PBXGroup;
 			children = (
+				62B99186D49AA8B177AE260B /* CurrencyType.swift */,
 				DBD18A2A4E61A928E95DB592 /* GemstoneStatus.swift */,
 				0C6A26598A73007FDECAF109 /* HistoryEventType.swift */,
 				A5AD9B9980F9121A678A0051 /* InvoiceStatus.swift */,
@@ -735,6 +741,7 @@
 				B15F66E68D3C2F70256ADFF0 /* BatchPDFExporter.swift in Sources */,
 				3F9372EEFCB919D59C09C959 /* CompanySettingsView.swift in Sources */,
 				FF2A553EE82E73075D6FB33A /* CurrencyFormatter.swift in Sources */,
+				1BE2DAC96C3940E8D35B2D7E /* CurrencyType.swift in Sources */,
 				43387DB5F7418C1F49F5CAD8 /* Customer.swift in Sources */,
 				4AA03722527B59077F9F5F76 /* CustomerActivityView.swift in Sources */,
 				C57428D589CE37362E11A2CF /* CustomerDetailPanel.swift in Sources */,
@@ -773,6 +780,7 @@
 				2F7BEB794576611CF1605802 /* HistoryEventType.swift in Sources */,
 				F76E8FCAA742119E0D9A183D /* HistoryLogger.swift in Sources */,
 				5041255737768DE30B3309AD /* HoverRow.swift in Sources */,
+				7975E425CB137B9FE818E3DF /* InputValidator.swift in Sources */,
 				E87D650B61167FA6D12F2169 /* InventoryFilterBar.swift in Sources */,
 				303AE869A631CC57C6648528 /* InventoryListView.swift in Sources */,
 				5A35814DAD47C9CDE9833234 /* InventoryRoutes.swift in Sources */,
