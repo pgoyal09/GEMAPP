@@ -20,6 +20,9 @@ struct InvoiceListView: View {
             invoiceTable
         }
         .onAppear { viewModel.fetchPage(context: modelContext) }
+        .onChange(of: viewModel.statusFilter) { _, _ in
+            viewModel.refetch(context: modelContext)
+        }
         .overlay {
             if let msg = batchToastMessage {
                 ToastOverlay(message: msg, isError: batchToastIsError)
@@ -203,41 +206,63 @@ struct InvoiceListView: View {
         batchFailed = 0
         let total = filtered.count
 
-        for invoice in filtered {
-            let refNum = invoice.referenceNumber
-            PDFService.shared.generatePDF(invoice: invoice) { result in
-                Task { @MainActor in
-                    switch result {
-                    case .success(let tempURL):
-                        let destURL = folder.appendingPathComponent("Invoice-\(refNum).pdf")
-                        do {
-                            if FileManager.default.fileExists(atPath: destURL.path) {
-                                try FileManager.default.removeItem(at: destURL)
+        Task { @MainActor in
+            let maxConcurrency = 3
+            var idx = 0
+
+            // Process in batches of maxConcurrency
+            while idx < filtered.count {
+                let batchEnd = min(idx + maxConcurrency, filtered.count)
+                let batch = Array(filtered[idx..<batchEnd])
+                idx = batchEnd
+
+                await withTaskGroup(of: Bool.self) { group in
+                    for invoice in batch {
+                        let refNum = invoice.referenceNumber
+                        group.addTask { @MainActor in
+                            await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
+                                PDFService.shared.generatePDF(invoice: invoice) { result in
+                                    switch result {
+                                    case .success(let tempURL):
+                                        let destURL = folder.appendingPathComponent("Invoice-\(refNum).pdf")
+                                        do {
+                                            let fm = FileManager.default
+                                            if fm.fileExists(atPath: destURL.path) {
+                                                try fm.removeItem(at: destURL)
+                                            }
+                                            try fm.copyItem(at: tempURL, to: destURL)
+                                        } catch {
+                                            continuation.resume(returning: false)
+                                            PDFService.shared.cleanupTempFile(at: tempURL)
+                                            return
+                                        }
+                                        PDFService.shared.cleanupTempFile(at: tempURL)
+                                        continuation.resume(returning: true)
+                                    case .failure:
+                                        continuation.resume(returning: false)
+                                    }
+                                }
                             }
-                            try FileManager.default.copyItem(at: tempURL, to: destURL)
-                        } catch {
-                            batchFailed += 1
                         }
-                        PDFService.shared.cleanupTempFile(at: tempURL)
-                    case .failure:
-                        batchFailed += 1
                     }
-                    batchCompleted += 1
-                    if batchCompleted == total {
-                        isExportingBatch = false
-                        let exported = total - batchFailed
-                        if batchFailed > 0 {
-                            batchToastIsError = true
-                            batchToastMessage = "Exported \(exported) of \(total) (\(batchFailed) failed)"
-                        } else {
-                            batchToastIsError = false
-                            batchToastMessage = "Exported \(total) invoice PDF\(total == 1 ? "" : "s")"
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                            withAnimation { batchToastMessage = nil }
-                        }
+                    for await success in group {
+                        if !success { batchFailed += 1 }
+                        batchCompleted += 1
                     }
                 }
+            }
+
+            isExportingBatch = false
+            let exported = total - batchFailed
+            if batchFailed > 0 {
+                batchToastIsError = true
+                batchToastMessage = "Exported \(exported) of \(total) (\(batchFailed) failed)"
+            } else {
+                batchToastIsError = false
+                batchToastMessage = "Exported \(total) invoice PDF\(total == 1 ? "" : "s")"
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                withAnimation { batchToastMessage = nil }
             }
         }
     }

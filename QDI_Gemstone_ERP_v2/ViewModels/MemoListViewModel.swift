@@ -20,7 +20,10 @@ final class MemoListViewModel: SortableViewModel {
     func fetchPage(context: ModelContext) {
         currentOffset = 0
         hasMore = true
-        var descriptor = FetchDescriptor<Memo>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        var descriptor = FetchDescriptor<Memo>(
+            predicate: buildPredicate(),
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
         descriptor.fetchLimit = pageSize
         fetchedMemos = (try? context.fetch(descriptor)) ?? []
         currentOffset = fetchedMemos.count
@@ -29,7 +32,10 @@ final class MemoListViewModel: SortableViewModel {
 
     func loadMore(context: ModelContext) {
         guard hasMore else { return }
-        var descriptor = FetchDescriptor<Memo>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        var descriptor = FetchDescriptor<Memo>(
+            predicate: buildPredicate(),
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
         descriptor.fetchLimit = pageSize
         descriptor.fetchOffset = currentOffset
         let page = (try? context.fetch(descriptor)) ?? []
@@ -38,12 +44,27 @@ final class MemoListViewModel: SortableViewModel {
         hasMore = page.count == pageSize
     }
 
+    /// Re-fetch with current predicate filters.
+    func refetch(context: ModelContext) {
+        fetchPage(context: context)
+    }
+
+    private func buildPredicate() -> Predicate<Memo>? {
+        guard let status = statusFilter else { return nil }
+        let onMemoStatus = MemoStatus.onMemo
+        let returnedStatus = MemoStatus.returned
+        let soldStatus = MemoStatus.sold
+        switch status {
+        case .onMemo: return #Predicate<Memo> { $0.status == onMemoStatus }
+        case .returned: return #Predicate<Memo> { $0.status == returnedStatus }
+        case .sold: return #Predicate<Memo> { $0.status == soldStatus }
+        }
+    }
+
     func filtered(from memos: [Memo]) -> [Memo] {
         var result = memos
 
-        if let status = statusFilter {
-            result = result.filter { $0.status == status }
-        }
+        // Status — handled by predicate
 
         let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if !q.isEmpty {

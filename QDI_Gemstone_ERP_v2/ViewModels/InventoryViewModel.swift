@@ -95,11 +95,16 @@ final class InventoryViewModel: SortableViewModel {
     private(set) var hasMore = true
     private let pageSize = 50
     private var currentOffset = 0
+    private var currentMode: InventoryListMode = .current
 
     func fetchPage(context: ModelContext, mode: InventoryListMode = .current) {
+        currentMode = mode
         currentOffset = 0
         hasMore = true
-        var descriptor = FetchDescriptor<Gemstone>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        var descriptor = FetchDescriptor<Gemstone>(
+            predicate: buildPredicate(),
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
         descriptor.fetchLimit = pageSize
         fetchedStones = (try? context.fetch(descriptor)) ?? []
         currentOffset = fetchedStones.count
@@ -108,13 +113,55 @@ final class InventoryViewModel: SortableViewModel {
 
     func loadMore(context: ModelContext) {
         guard hasMore else { return }
-        var descriptor = FetchDescriptor<Gemstone>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        var descriptor = FetchDescriptor<Gemstone>(
+            predicate: buildPredicate(),
+            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
+        )
         descriptor.fetchLimit = pageSize
         descriptor.fetchOffset = currentOffset
         let page = (try? context.fetch(descriptor)) ?? []
         fetchedStones.append(contentsOf: page)
         currentOffset += page.count
         hasMore = page.count == pageSize
+    }
+
+    /// Re-fetch the first page using current predicate filters.
+    func refetch(context: ModelContext) {
+        fetchPage(context: context, mode: currentMode)
+    }
+
+    // MARK: - Predicate Builder
+
+    /// Builds a #Predicate incorporating mode, status, and stone type filters
+    /// to push filtering to the database layer instead of client-side.
+    private func buildPredicate() -> Predicate<Gemstone> {
+        let lotGrouping = StoneGrouping.lot
+        let soldStatus = GemstoneStatus.sold
+        let availableStatus = GemstoneStatus.available
+        let onMemoStatus = GemstoneStatus.onMemo
+
+        if currentMode == .sold {
+            if let type = stoneTypeFilter {
+                return #Predicate<Gemstone> { $0.status == soldStatus && $0.stoneType == type }
+            }
+            return #Predicate<Gemstone> { $0.status == soldStatus }
+        }
+
+        switch (statusFilter, stoneTypeFilter) {
+        case (.available, let type?):
+            return #Predicate<Gemstone> { $0.grouping != lotGrouping && $0.status == availableStatus && $0.stoneType == type }
+        case (.available, nil):
+            return #Predicate<Gemstone> { $0.grouping != lotGrouping && $0.status == availableStatus }
+        case (.onMemo, let type?):
+            return #Predicate<Gemstone> { $0.grouping != lotGrouping && $0.status == onMemoStatus && $0.stoneType == type }
+        case (.onMemo, nil):
+            return #Predicate<Gemstone> { $0.grouping != lotGrouping && $0.status == onMemoStatus }
+        default:
+            if let type = stoneTypeFilter {
+                return #Predicate<Gemstone> { $0.grouping != lotGrouping && $0.status != soldStatus && $0.stoneType == type }
+            }
+            return #Predicate<Gemstone> { $0.grouping != lotGrouping && $0.status != soldStatus }
+        }
     }
 
     // MARK: - Selection
@@ -184,11 +231,12 @@ final class InventoryViewModel: SortableViewModel {
         clarityFilter = nil
     }
 
-    /// Filter gemstones by search, status, and structured filters.
+    /// Filter gemstones by search and structured filters.
+    /// Status, stone type, and mode are handled by the fetch predicate.
     func filtered(from gemstones: [Gemstone]) -> [Gemstone] {
         var result = gemstones
 
-        // Free-text search
+        // Free-text search (stays client-side — complex multi-field matching)
         let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if !q.isEmpty {
             result = result.filter { stone in
@@ -202,15 +250,8 @@ final class InventoryViewModel: SortableViewModel {
             }
         }
 
-        // Status
-        if let status = statusFilter.gemstoneStatus {
-            result = result.filter { $0.status == status }
-        }
-
-        // Stone type
-        if let type = stoneTypeFilter {
-            result = result.filter { $0.stoneType == type }
-        }
+        // Status — handled by predicate
+        // Stone type — handled by predicate
 
         // Shape
         if let s = shapeFilter, !s.isEmpty {

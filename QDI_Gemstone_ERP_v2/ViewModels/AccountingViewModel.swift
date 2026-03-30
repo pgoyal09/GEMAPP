@@ -110,11 +110,28 @@ final class AccountingViewModel {
     func load(modelContext: ModelContext) {
         isLoading = true
         defer { isLoading = false }
+
+        // Single fetch: all paid + sent invoices, then partition client-side.
+        let paidStatus = InvoiceStatus.paid
+        let sentStatus = InvoiceStatus.sent
+        let descriptor = FetchDescriptor<Invoice>(
+            predicate: #Predicate<Invoice> { $0.status == paidStatus || $0.status == sentStatus }
+        )
+        let allInvoices = (try? modelContext.fetch(descriptor)) ?? []
+
+        // Date-filtered subset for revenue/cost/breakdown
         let startDate = dateRange.startDate
         let endDate = dateRange.endDate
-        let filtered = fetchFilteredInvoices(startDate: startDate, endDate: endDate, modelContext: modelContext)
+        let filtered = allInvoices.filter { inv in
+            if let start = startDate, inv.invoiceDate < start { return false }
+            if let end = endDate, inv.invoiceDate > end { return false }
+            return true
+        }
         computeAll(from: filtered)
-        loadAgedReceivables(modelContext: modelContext)
+
+        // Aged receivables from sent-only (all time, not date-filtered)
+        let sentInvoices = allInvoices.filter { $0.status == .sent }
+        computeAgedReceivables(from: sentInvoices)
     }
 
     // MARK: - CSV Export
@@ -168,44 +185,8 @@ final class AccountingViewModel {
             .sorted { $0.id < $1.id }
     }
 
-    /// Shared helper to fetch paid/sent invoices within a date range.
-    private func fetchFilteredInvoices(startDate: Date?, endDate: Date? = nil, modelContext: ModelContext) -> [Invoice] {
-        let paidStatus = InvoiceStatus.paid
-        let sentStatus = InvoiceStatus.sent
-        let descriptor: FetchDescriptor<Invoice>
-        if let start = startDate, let end = endDate {
-            descriptor = FetchDescriptor<Invoice>(
-                predicate: #Predicate<Invoice> {
-                    ($0.status == paidStatus || $0.status == sentStatus) &&
-                    $0.invoiceDate >= start && $0.invoiceDate <= end
-                }
-            )
-        } else if let start = startDate {
-            descriptor = FetchDescriptor<Invoice>(
-                predicate: #Predicate<Invoice> {
-                    ($0.status == paidStatus || $0.status == sentStatus) &&
-                    $0.invoiceDate >= start
-                }
-            )
-        } else {
-            descriptor = FetchDescriptor<Invoice>(
-                predicate: #Predicate<Invoice> {
-                    $0.status == paidStatus || $0.status == sentStatus
-                }
-            )
-        }
-        return (try? modelContext.fetch(descriptor)) ?? []
-    }
-
-    private func loadAgedReceivables(modelContext: ModelContext) {
-        let sentStatus = InvoiceStatus.sent
-        let descriptor = FetchDescriptor<Invoice>(
-            predicate: #Predicate<Invoice> { $0.status == sentStatus }
-        )
-        guard let invoices = try? modelContext.fetch(descriptor) else {
-            agedReceivables = []; return
-        }
-
+    /// Compute aged receivables from pre-fetched sent invoices (no additional DB fetch).
+    private func computeAgedReceivables(from sentInvoices: [Invoice]) {
         var buckets = [
             AgedReceivableBucket(id: "0-30", label: "0–30 days"),
             AgedReceivableBucket(id: "31-60", label: "31–60 days"),
@@ -215,7 +196,7 @@ final class AccountingViewModel {
 
         let today = Date()
         let calendar = Calendar.current
-        for inv in invoices {
+        for inv in sentInvoices {
             let days = calendar.dateComponents([.day], from: inv.invoiceDate, to: today).day ?? 0
             let idx: Int
             switch days {

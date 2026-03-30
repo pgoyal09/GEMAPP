@@ -26,19 +26,8 @@ struct InventoryListView: View {
 
     // MARK: - Computed
 
-    private var allGemstones: [Gemstone] { viewModel.fetchedStones }
-
-    private var baseStones: [Gemstone] {
-        switch mode {
-        case .current:
-            return allGemstones.filter { $0.grouping != .lot && $0.status != .sold }
-        case .sold:
-            return allGemstones.filter { $0.status == .sold }
-        }
-    }
-
     private var filteredStones: [Gemstone] {
-        viewModel.filtered(from: baseStones)
+        viewModel.filtered(from: viewModel.fetchedStones)
     }
 
     private var selectedStone: Gemstone? {
@@ -96,8 +85,14 @@ struct InventoryListView: View {
             }
         }
         .onChange(of: viewModel.searchText) { _, _ in selectedStones.removeAll() }
-        .onChange(of: viewModel.statusFilter) { _, _ in selectedStones.removeAll() }
-        .onChange(of: viewModel.stoneTypeFilter) { _, _ in selectedStones.removeAll() }
+        .onChange(of: viewModel.statusFilter) { _, _ in
+            selectedStones.removeAll()
+            viewModel.refetch(context: modelContext)
+        }
+        .onChange(of: viewModel.stoneTypeFilter) { _, _ in
+            selectedStones.removeAll()
+            viewModel.refetch(context: modelContext)
+        }
         .onChange(of: viewModel.shapeFilter) { _, _ in selectedStones.removeAll() }
         .sheet(isPresented: $showEditSheet) {
             if let stone = editingStone {
@@ -408,8 +403,8 @@ struct InventoryListView: View {
             Text("Value: \(totalValue.asCurrency)")
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
-            if allGemstones.count != stones.count {
-                Text("(of \(allGemstones.count) total)")
+            if viewModel.fetchedStones.count != stones.count {
+                Text("(of \(viewModel.fetchedStones.count) loaded)")
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.inkSubtle)
             }

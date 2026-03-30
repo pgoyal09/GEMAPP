@@ -79,6 +79,13 @@ enum BackupService {
 
     // MARK: - CSV Export
 
+    /// Exports CSV bundle using a background ModelContext for better performance.
+    static func exportCSVBundleInBackground(container: ModelContainer) throws -> URL {
+        let bgContext = ModelContext(container)
+        bgContext.autosaveEnabled = false
+        return try exportCSVBundle(modelContext: bgContext)
+    }
+
     /// Exports gemstones, customers, memos, and invoices to CSV files in a temporary directory.
     @MainActor
     static func exportCSVBundle(modelContext: ModelContext) throws -> URL {

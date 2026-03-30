@@ -20,7 +20,10 @@ final class InvoiceListViewModel: SortableViewModel {
     func fetchPage(context: ModelContext) {
         currentOffset = 0
         hasMore = true
-        var descriptor = FetchDescriptor<Invoice>(sortBy: [SortDescriptor(\.invoiceDate, order: .reverse)])
+        var descriptor = FetchDescriptor<Invoice>(
+            predicate: buildPredicate(),
+            sortBy: [SortDescriptor(\.invoiceDate, order: .reverse)]
+        )
         descriptor.fetchLimit = pageSize
         fetchedInvoices = (try? context.fetch(descriptor)) ?? []
         currentOffset = fetchedInvoices.count
@@ -29,7 +32,10 @@ final class InvoiceListViewModel: SortableViewModel {
 
     func loadMore(context: ModelContext) {
         guard hasMore else { return }
-        var descriptor = FetchDescriptor<Invoice>(sortBy: [SortDescriptor(\.invoiceDate, order: .reverse)])
+        var descriptor = FetchDescriptor<Invoice>(
+            predicate: buildPredicate(),
+            sortBy: [SortDescriptor(\.invoiceDate, order: .reverse)]
+        )
         descriptor.fetchLimit = pageSize
         descriptor.fetchOffset = currentOffset
         let page = (try? context.fetch(descriptor)) ?? []
@@ -38,12 +44,29 @@ final class InvoiceListViewModel: SortableViewModel {
         hasMore = page.count == pageSize
     }
 
+    /// Re-fetch with current predicate filters.
+    func refetch(context: ModelContext) {
+        fetchPage(context: context)
+    }
+
+    private func buildPredicate() -> Predicate<Invoice>? {
+        guard let status = statusFilter else { return nil }
+        let draftStatus = InvoiceStatus.draft
+        let sentStatus = InvoiceStatus.sent
+        let paidStatus = InvoiceStatus.paid
+        let voidStatus = InvoiceStatus.void
+        switch status {
+        case .draft: return #Predicate<Invoice> { $0.status == draftStatus }
+        case .sent: return #Predicate<Invoice> { $0.status == sentStatus }
+        case .paid: return #Predicate<Invoice> { $0.status == paidStatus }
+        case .void: return #Predicate<Invoice> { $0.status == voidStatus }
+        }
+    }
+
     func filtered(from invoices: [Invoice]) -> [Invoice] {
         var result = invoices
 
-        if let status = statusFilter {
-            result = result.filter { $0.status == status }
-        }
+        // Status — handled by predicate
 
         let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if !q.isEmpty {

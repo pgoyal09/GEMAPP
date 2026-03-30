@@ -14,6 +14,9 @@ struct MemoListView: View {
             memoTable
         }
         .onAppear { viewModel.fetchPage(context: modelContext) }
+        .onChange(of: viewModel.statusFilter) { _, _ in
+            viewModel.refetch(context: modelContext)
+        }
         .overlay {
             if let msg = toastMessage {
                 ToastOverlay(message: msg, isError: toastIsError)
