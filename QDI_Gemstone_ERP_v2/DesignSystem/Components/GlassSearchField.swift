@@ -13,6 +13,7 @@ struct GlassSearchField: View {
                 .textFieldStyle(.plain)
                 .font(AppTypography.smallValue)
                 .foregroundStyle(AppColors.ink)
+                .accessibilityLabel(placeholder)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)

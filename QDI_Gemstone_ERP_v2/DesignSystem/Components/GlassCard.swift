@@ -17,6 +17,7 @@ struct GlassCard<Content: View>: View {
                             .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                     )
             )
+            .accessibilityElement(children: .contain)
     }
 }
 

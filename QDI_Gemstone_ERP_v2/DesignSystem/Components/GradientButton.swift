@@ -23,5 +23,6 @@ struct GradientButton: View {
             .shadow(color: AppColors.primary.opacity(0.20), radius: 8, y: 4)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(title)
     }
 }

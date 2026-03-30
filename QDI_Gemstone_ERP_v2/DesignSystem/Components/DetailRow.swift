@@ -16,5 +16,7 @@ struct DetailRow: View {
                 .foregroundStyle(AppColors.ink)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
     }
 }

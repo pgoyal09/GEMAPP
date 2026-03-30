@@ -22,5 +22,7 @@ struct EmptyStateView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(AppSpacing.xxl)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title)\(subtitle.map { ". \($0)" } ?? "")")
     }
 }

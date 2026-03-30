@@ -20,6 +20,8 @@ struct HoverRow<Content: View>: View {
         .onHover { isHovered = $0 }
         .onTapGesture { onTap?() }
         .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     @ViewBuilder

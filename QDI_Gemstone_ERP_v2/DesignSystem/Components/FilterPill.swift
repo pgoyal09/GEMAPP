@@ -25,5 +25,8 @@ struct FilterPill: View {
                 )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("\(title) filter")
+        .accessibilityValue(isActive ? "Active" : "Inactive")
+        .accessibilityAddTraits(isActive ? .isSelected : [])
     }
 }

@@ -13,5 +13,6 @@ struct StoneTypeBadge: View {
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
                     .fill(AppColors.stoneColor(for: type).opacity(0.15))
             )
+            .accessibilityLabel("Stone type: \(type)")
     }
 }

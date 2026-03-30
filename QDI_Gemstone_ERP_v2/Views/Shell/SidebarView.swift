@@ -127,6 +127,8 @@ struct SidebarView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(item.rawValue)
+        .accessibilityIdentifier("sidebar_\(item.rawValue.lowercased().replacingOccurrences(of: " ", with: "_"))")
+        .accessibilityAddTraits(isActive ? .isSelected : [])
         .tag(item)
     }
 }

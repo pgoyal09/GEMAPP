@@ -8,5 +8,6 @@ struct SectionHeader: View {
             .font(AppTypography.sectionLabel)
             .foregroundStyle(AppColors.inkSubtle)
             .tracking(1.5)
+            .accessibilityAddTraits(.isHeader)
     }
 }
