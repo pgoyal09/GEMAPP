@@ -76,6 +76,71 @@ final class Gemstone {
     var rfidAssignedAt: Date?
     var rfidLastSeenAt: Date?
 
+    // MARK: - RapNet Shared Fields
+
+    /// Listing status: "G" (Guaranteed), "M" (On Memo), "STPS", "NA"
+    var availability: String?
+    /// Physical location country (NOT origin).
+    var stoneCountry: String?
+    /// Physical location city.
+    var stoneCity: String?
+    /// Physical location state.
+    var stoneState: String?
+    /// HTTPS video link.
+    var videoUrl: String?
+
+    // MARK: - Diamond-Only RapNet Fields
+
+    /// $/ct asking price on RapNet.
+    var rapNetPrice: Decimal?
+    /// % below Rap list (e.g., -0.30 = 30% below).
+    var rapNetDiscountPct: Double?
+    /// Cash-on-delivery $/ct.
+    var cashPrice: Decimal?
+    /// Cash discount as % of Rap.
+    var cashDiscountPct: Double?
+    /// Depth percentage (e.g., 62.4).
+    var depthPct: Double?
+    /// Table percentage (e.g., 60).
+    var tablePct: Double?
+    /// Fluorescence intensity: VS/S/M/F/SL/VSL/N.
+    var fluorescenceIntensity: String?
+    /// Fluorescence color: B/W/Y/O/R/G/N.
+    var fluorescenceColor: String?
+    /// Fancy color: BK/B/BN/CH/CM/CG/GY/G/O/P/PL/R/V/Y/W/X.
+    var fancyColor: String?
+    /// Fancy color intensity: F/VL/L/FCL/FC/FCD/I/FV/D.
+    var fancyColorIntensity: String?
+    /// Free text fancy color overtone.
+    var fancyColorOvertone: String?
+    /// Eye clean assessment: "Yes"/"Borderline"/"E1"/"E2".
+    var eyeClean: String?
+
+    // MARK: - Gemstone-Only RapNet Fields
+
+    /// Vendor primary color assessment (mandatory for RapNet gem upload).
+    var primaryColorVendor: String?
+    /// Vendor color intensity assessment.
+    var colorIntensityVendor: String?
+    /// Vendor color modifier assessment.
+    var colorModifiersVendor: String?
+    /// Free text color description.
+    var colorDescription: String?
+    /// Lab primary color assessment.
+    var primaryColorLab: String?
+    /// Lab color intensity.
+    var colorIntensityLab: String?
+    /// Lab color modifiers.
+    var colorModifiersLab: String?
+    /// Second treatment type.
+    var treatmentType2: String?
+    /// Third treatment type.
+    var treatmentType3: String?
+    /// Free text treatment notes.
+    var treatmentNotes: String?
+    /// Number of stones (for gem parcels).
+    var numberOfStones: Int?
+
     // MARK: - Media
 
     var certificateImagePath: String?

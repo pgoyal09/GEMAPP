@@ -53,68 +53,71 @@ enum MemoRoutes {
 
         // POST /api/memos — create
         router.post("/api/memos") { req, container in
-            let context = ModelContext(container)
-            let body = req.jsonBody()
-
-            do {
-                let memo = try TransactionService.createMemo(modelContext: context)
-                if let customerName = body?["customer"] as? String {
-                    memo.customer = findCustomer(name: customerName, context: context)
+            await MainActor.run {
+                let context = ModelContext(container)
+                let body = req.jsonBody()
+                do {
+                    let memo = try TransactionService.createMemo(modelContext: context)
+                    if let customerName = body?["customer"] as? String {
+                        memo.customer = findCustomer(name: customerName, context: context)
+                    }
+                    try context.save()
+                    return .created(memoJSON(memo))
+                } catch {
+                    return .error(code: "CREATE_FAILED", message: error.localizedDescription, status: 500)
                 }
-                try context.save()
-                return .created(memoJSON(memo))
-            } catch {
-                return .error(code: "CREATE_FAILED", message: error.localizedDescription, status: 500)
             }
         }
 
         // POST /api/memos/:id/items — add stone
         router.post("/api/memos/:id/items") { req, container in
-            guard let id = req.pathParams["id"], let body = req.jsonBody() else {
-                return .error(code: "BAD_REQUEST", message: "Invalid request")
-            }
-            let context = ModelContext(container)
-            guard let memo = findMemo(id: id, context: context) else {
-                return .notFound("Memo '\(id)' not found")
-            }
-            guard let stoneSku = body["sku"] as? String else {
-                return .error(code: "BAD_REQUEST", message: "sku is required")
-            }
-
-            let stoneDesc = FetchDescriptor<Gemstone>()
-            guard let stones = try? context.fetch(stoneDesc),
-                  let stone = stones.first(where: { $0.sku == stoneSku }) else {
-                return .notFound("Stone '\(stoneSku)' not found")
-            }
-
-            do {
-                try TransactionService.addStone(stone, to: memo, modelContext: context)
-                try context.save()
-                return .ok(memoDetailJSON(memo))
-            } catch {
-                return .error(code: "ADD_FAILED", message: error.localizedDescription)
+            await MainActor.run {
+                guard let id = req.pathParams["id"], let body = req.jsonBody() else {
+                    return .error(code: "BAD_REQUEST", message: "Invalid request")
+                }
+                let context = ModelContext(container)
+                guard let memo = findMemo(id: id, context: context) else {
+                    return .notFound("Memo '\(id)' not found")
+                }
+                guard let stoneSku = body["sku"] as? String else {
+                    return .error(code: "BAD_REQUEST", message: "sku is required")
+                }
+                let stoneDesc = FetchDescriptor<Gemstone>()
+                guard let stones = try? context.fetch(stoneDesc),
+                      let stone = stones.first(where: { $0.sku == stoneSku }) else {
+                    return .notFound("Stone '\(stoneSku)' not found")
+                }
+                do {
+                    try TransactionService.addStone(stone, to: memo, modelContext: context)
+                    try context.save()
+                    return .ok(memoDetailJSON(memo))
+                } catch {
+                    return .error(code: "ADD_FAILED", message: error.localizedDescription)
+                }
             }
         }
 
         // DELETE /api/memos/:id/items/:itemId — remove line item
         router.delete("/api/memos/:id/items/:itemId") { req, container in
-            guard let id = req.pathParams["id"], let itemIdx = req.pathParams["itemId"] else {
-                return .notFound()
-            }
-            let context = ModelContext(container)
-            guard let memo = findMemo(id: id, context: context) else {
-                return .notFound("Memo '\(id)' not found")
-            }
-            guard let idx = Int(itemIdx), idx < memo.lineItems.count else {
-                return .notFound("Line item not found")
-            }
-            let item = memo.lineItems[idx]
-            do {
-                try TransactionService.removeLineItem(item, modelContext: context)
-                try context.save()
-                return .ok(memoDetailJSON(memo))
-            } catch {
-                return .error(code: "REMOVE_FAILED", message: error.localizedDescription)
+            await MainActor.run {
+                guard let id = req.pathParams["id"], let itemIdx = req.pathParams["itemId"] else {
+                    return .notFound()
+                }
+                let context = ModelContext(container)
+                guard let memo = findMemo(id: id, context: context) else {
+                    return .notFound("Memo '\(id)' not found")
+                }
+                guard let idx = Int(itemIdx), idx < memo.lineItems.count else {
+                    return .notFound("Line item not found")
+                }
+                let item = memo.lineItems[idx]
+                do {
+                    try TransactionService.removeLineItem(item, modelContext: context)
+                    try context.save()
+                    return .ok(memoDetailJSON(memo))
+                } catch {
+                    return .error(code: "REMOVE_FAILED", message: error.localizedDescription)
+                }
             }
         }
 
@@ -134,17 +137,22 @@ enum MemoRoutes {
 
         // POST /api/memos/:id/convert — convert to invoice
         router.post("/api/memos/:id/convert") { req, container in
-            guard let id = req.pathParams["id"] else { return .notFound() }
-            let context = ModelContext(container)
-            guard let memo = findMemo(id: id, context: context) else {
-                return .notFound("Memo '\(id)' not found")
-            }
-            do {
-                let invoice = try MemoService.convertToInvoice(memo: memo, selectedItems: memo.lineItems, modelContext: context)
-                try context.save()
-                return .created(InvoiceRoutes.invoiceJSON(invoice))
-            } catch {
-                return .error(code: "CONVERT_FAILED", message: error.localizedDescription)
+            await MainActor.run {
+                guard let id = req.pathParams["id"] else { return .notFound() }
+                let context = ModelContext(container)
+                guard let memo = findMemo(id: id, context: context) else {
+                    return .notFound("Memo '\(id)' not found")
+                }
+                do {
+                    let result = try MemoService.convertToInvoice(memo: memo, selectedItems: memo.lineItems, modelContext: context)
+                    try context.save()
+                    if let invoice = result {
+                        return .created(InvoiceRoutes.invoiceJSON(invoice))
+                    }
+                    return .error(code: "CONVERT_FAILED", message: "No invoice created")
+                } catch {
+                    return .error(code: "CONVERT_FAILED", message: error.localizedDescription)
+                }
             }
         }
     }

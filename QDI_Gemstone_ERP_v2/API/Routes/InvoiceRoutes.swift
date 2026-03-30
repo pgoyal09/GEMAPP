@@ -53,71 +53,74 @@ enum InvoiceRoutes {
 
         // POST /api/invoices — create
         router.post("/api/invoices") { req, container in
-            let context = ModelContext(container)
-            let body = req.jsonBody()
-
-            do {
-                let invoice = try TransactionService.createInvoice(modelContext: context)
-                if let customerName = body?["customer"] as? String {
-                    let custDesc = FetchDescriptor<Customer>()
-                    if let customers = try? context.fetch(custDesc) {
-                        invoice.customer = customers.first { $0.displayName.lowercased() == customerName.lowercased() }
+            await MainActor.run {
+                let context = ModelContext(container)
+                let body = req.jsonBody()
+                do {
+                    let invoice = try TransactionService.createInvoice(modelContext: context)
+                    if let customerName = body?["customer"] as? String {
+                        let custDesc = FetchDescriptor<Customer>()
+                        if let customers = try? context.fetch(custDesc) {
+                            invoice.customer = customers.first { $0.displayName.lowercased() == customerName.lowercased() }
+                        }
                     }
+                    try context.save()
+                    return .created(invoiceJSON(invoice))
+                } catch {
+                    return .error(code: "CREATE_FAILED", message: error.localizedDescription, status: 500)
                 }
-                try context.save()
-                return .created(invoiceJSON(invoice))
-            } catch {
-                return .error(code: "CREATE_FAILED", message: error.localizedDescription, status: 500)
             }
         }
 
         // POST /api/invoices/:id/items — add line item
         router.post("/api/invoices/:id/items") { req, container in
-            guard let id = req.pathParams["id"], let body = req.jsonBody() else {
-                return .error(code: "BAD_REQUEST", message: "Invalid request")
-            }
-            let context = ModelContext(container)
-            guard let invoice = findInvoice(id: id, context: context) else {
-                return .notFound("Invoice '\(id)' not found")
-            }
-            guard let stoneSku = body["sku"] as? String else {
-                return .error(code: "BAD_REQUEST", message: "sku is required")
-            }
-
-            let stoneDesc = FetchDescriptor<Gemstone>()
-            guard let stones = try? context.fetch(stoneDesc),
-                  let stone = stones.first(where: { $0.sku == stoneSku }) else {
-                return .notFound("Stone '\(stoneSku)' not found")
-            }
-
-            do {
-                try TransactionService.addStone(stone, to: invoice, modelContext: context)
-                try context.save()
-                return .ok(invoiceDetailJSON(invoice))
-            } catch {
-                return .error(code: "ADD_FAILED", message: error.localizedDescription)
+            await MainActor.run {
+                guard let id = req.pathParams["id"], let body = req.jsonBody() else {
+                    return .error(code: "BAD_REQUEST", message: "Invalid request")
+                }
+                let context = ModelContext(container)
+                guard let invoice = findInvoice(id: id, context: context) else {
+                    return .notFound("Invoice '\(id)' not found")
+                }
+                guard let stoneSku = body["sku"] as? String else {
+                    return .error(code: "BAD_REQUEST", message: "sku is required")
+                }
+                let stoneDesc = FetchDescriptor<Gemstone>()
+                guard let stones = try? context.fetch(stoneDesc),
+                      let stone = stones.first(where: { $0.sku == stoneSku }) else {
+                    return .notFound("Stone '\(stoneSku)' not found")
+                }
+                do {
+                    try TransactionService.addStone(stone, to: invoice, modelContext: context)
+                    try context.save()
+                    return .ok(invoiceDetailJSON(invoice))
+                } catch {
+                    return .error(code: "ADD_FAILED", message: error.localizedDescription)
+                }
             }
         }
 
         // DELETE /api/invoices/:id/items/:itemId
         router.delete("/api/invoices/:id/items/:itemId") { req, container in
-            guard let id = req.pathParams["id"], let itemIdx = req.pathParams["itemId"] else {
-                return .notFound()
-            }
-            let context = ModelContext(container)
-            guard let invoice = findInvoice(id: id, context: context) else {
-                return .notFound("Invoice '\(id)' not found")
-            }
-            guard let idx = Int(itemIdx), idx < invoice.lineItems.count else {
-                return .notFound("Line item not found")
-            }
-            let item = invoice.lineItems[idx]
-            do {
-                try TransactionService.removeLineItem(item, modelContext: context)
-                try context.save()
-                return .ok(invoiceDetailJSON(invoice))
-            } catch {
-                return .error(code: "REMOVE_FAILED", message: error.localizedDescription)
+            await MainActor.run {
+                guard let id = req.pathParams["id"], let itemIdx = req.pathParams["itemId"] else {
+                    return .notFound()
+                }
+                let context = ModelContext(container)
+                guard let invoice = findInvoice(id: id, context: context) else {
+                    return .notFound("Invoice '\(id)' not found")
+                }
+                guard let idx = Int(itemIdx), idx < invoice.lineItems.count else {
+                    return .notFound("Line item not found")
+                }
+                let item = invoice.lineItems[idx]
+                do {
+                    try TransactionService.removeLineItem(item, modelContext: context)
+                    try context.save()
+                    return .ok(invoiceDetailJSON(invoice))
+                } catch {
+                    return .error(code: "REMOVE_FAILED", message: error.localizedDescription)
+                }
             }
         }
 
@@ -160,13 +163,16 @@ enum InvoiceRoutes {
                 return .notFound("Invoice '\(id)' not found")
             }
 
-            let pdfData: Data? = await withCheckedContinuation { continuation in
+            nonisolated(unsafe) let inv = invoice
+            let pdfData: Data? = await withCheckedContinuation { (continuation: CheckedContinuation<Data?, Never>) in
                 Task { @MainActor in
-                    PDFService.shared.generatePDF(invoice: invoice) { result in
+                    PDFService.shared.generatePDF(invoice: inv) { result in
                         switch result {
                         case .success(let url):
                             let data = try? Data(contentsOf: url)
-                            PDFService.shared.cleanupTempFile(at: url)
+                            Task { @MainActor in
+                                PDFService.shared.cleanupTempFile(at: url)
+                            }
                             continuation.resume(returning: data)
                         case .failure:
                             continuation.resume(returning: nil)

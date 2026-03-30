@@ -56,7 +56,7 @@ enum StoneDescriptionBuilder {
         if let t = stone.treatment.trimmedOrNil { topParts.append(t) }
         topParts.append(stone.stoneType.rawValue)
         if let s = shape { topParts.append(s) }
-        topParts.append(stone.grouping == .pair ? "Pair" : "Single")
+        topParts.append("Single")
 
         var lines = [topParts.joined(separator: " ")]
 

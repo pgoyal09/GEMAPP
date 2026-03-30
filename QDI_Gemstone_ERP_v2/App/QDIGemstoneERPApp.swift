@@ -63,6 +63,7 @@ struct QDIGemstoneERPApp: App {
                 .onAppear {
                     setupRFID()
                     startAPIServer()
+                    runPhase2Migrations()
                     #if DEBUG
                     // Only seed demo data in debug builds — production starts with empty database
                     do {
@@ -141,6 +142,52 @@ struct QDIGemstoneERPApp: App {
             }
         }
         .modelContainer(sharedModelContainer)
+    }
+
+    // MARK: - API Server
+
+    private func startAPIServer() {
+        guard apiServer == nil else { return }
+        let server = APIServer(modelContainer: sharedModelContainer, bearerToken: "qdi-dev-token")
+        do {
+            try server.start()
+            apiServer = server
+        } catch {
+            AppLogger.data.error("API server failed to start: \(error.localizedDescription)")
+        }
+    }
+
+    // MARK: - Phase 2 Migrations
+
+    private func runPhase2Migrations() {
+        let ctx = sharedModelContainer.mainContext
+        do {
+            let allDescriptor = FetchDescriptor<Gemstone>()
+            let allStones = try ctx.fetch(allDescriptor)
+            var changed = false
+
+            // ONE-TIME: convert all pair → single grouping
+            for stone in allStones where stone.grouping == .pair {
+                stone.grouping = .single
+                changed = true
+            }
+
+            // ONE-TIME: split fluorescence into intensity + color
+            for stone in allStones {
+                if stone.fluorescenceIntensity == nil && !stone.fluorescence.isEmpty {
+                    stone.fluorescenceIntensity = stone.fluorescence
+                    stone.fluorescenceColor = "N"
+                    changed = true
+                }
+            }
+
+            if changed {
+                try ctx.save()
+                AppLogger.data.info("Phase 2 migration completed")
+            }
+        } catch {
+            AppLogger.data.error("Phase 2 migration failed: \(error.localizedDescription)")
+        }
     }
 
     private func setupRFID() {

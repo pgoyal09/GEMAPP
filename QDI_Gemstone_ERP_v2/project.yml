@@ -24,6 +24,7 @@ targets:
     platform: macOS
     sources:
       - path: App
+      - path: API
       - path: Models
       - path: Services
       - path: Utilities

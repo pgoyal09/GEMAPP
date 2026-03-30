@@ -104,7 +104,7 @@ final class StoneFormViewModel {
 
     var isDiamond: Bool { stoneType == .diamond }
     var isLot: Bool { grouping == .lot }
-    var isPair: Bool { grouping == .pair }
+    var isPair: Bool { false }
 
     var caratWeight: Double { Double(caratText) ?? 0 }
     var costPrice: Decimal { Decimal(string: costPriceText) ?? 0 }

@@ -90,50 +90,52 @@ enum InventoryRoutes {
 
         // POST /api/stones — create
         router.post("/api/stones") { req, container in
-            guard let body = req.jsonBody() else {
-                return .error(code: "BAD_REQUEST", message: "Invalid JSON body")
+            await MainActor.run {
+                guard let body = req.jsonBody() else {
+                    return .error(code: "BAD_REQUEST", message: "Invalid JSON body")
+                }
+                let context = ModelContext(container)
+
+                guard let typeStr = body["stoneType"] as? String,
+                      let stoneType = StoneType(rawValue: typeStr) else {
+                    return .error(code: "BAD_REQUEST", message: "stoneType is required")
+                }
+
+                let shape = body["shape"] as? String ?? "Round"
+                let groupingStr = body["grouping"] as? String ?? "S"
+                let grouping = StoneGrouping(rawValue: groupingStr) ?? .single
+
+                let sku = SKUGenerator.generate(
+                    type: stoneType,
+                    shape: shape,
+                    grouping: grouping,
+                    modelContext: context
+                )
+
+                let stone = Gemstone(
+                    sku: sku,
+                    stoneType: stoneType,
+                    caratWeight: body["caratWeight"] as? Double ?? 0,
+                    shape: shape,
+                    grouping: grouping,
+                    origin: body["origin"] as? String ?? "",
+                    status: .available,
+                    color: body["color"] as? String ?? "",
+                    clarity: body["clarity"] as? String ?? "",
+                    cut: body["cut"] as? String ?? "",
+                    treatment: body["treatment"] as? String ?? "",
+                    costPrice: Decimal(body["costPrice"] as? Double ?? 0),
+                    sellPrice: Decimal(body["sellPrice"] as? Double ?? 0)
+                )
+
+                context.insert(stone)
+                do {
+                    try context.save()
+                } catch {
+                    return .error(code: "SAVE_FAILED", message: error.localizedDescription, status: 500)
+                }
+                return .created(stoneJSON(stone))
             }
-            let context = ModelContext(container)
-
-            guard let typeStr = body["stoneType"] as? String,
-                  let stoneType = StoneType(rawValue: typeStr) else {
-                return .error(code: "BAD_REQUEST", message: "stoneType is required")
-            }
-
-            let shape = body["shape"] as? String ?? "Round"
-            let groupingStr = body["grouping"] as? String ?? "S"
-            let grouping = StoneGrouping(rawValue: groupingStr) ?? .single
-
-            let sku = SKUGenerator.generate(
-                type: stoneType,
-                shape: shape,
-                grouping: grouping,
-                modelContext: context
-            )
-
-            let stone = Gemstone(
-                sku: sku,
-                stoneType: stoneType,
-                caratWeight: body["caratWeight"] as? Double ?? 0,
-                shape: shape,
-                grouping: grouping,
-                origin: body["origin"] as? String ?? "",
-                status: .available,
-                color: body["color"] as? String ?? "",
-                clarity: body["clarity"] as? String ?? "",
-                cut: body["cut"] as? String ?? "",
-                treatment: body["treatment"] as? String ?? "",
-                costPrice: Decimal(body["costPrice"] as? Double ?? 0),
-                sellPrice: Decimal(body["sellPrice"] as? Double ?? 0)
-            )
-
-            context.insert(stone)
-            do {
-                try context.save()
-            } catch {
-                return .error(code: "SAVE_FAILED", message: error.localizedDescription, status: 500)
-            }
-            return .created(stoneJSON(stone))
         }
 
         // PATCH /api/stones/:id — update
