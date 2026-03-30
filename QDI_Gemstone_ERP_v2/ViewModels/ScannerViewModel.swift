@@ -16,6 +16,9 @@ final class ScannerViewModel {
     var lastProcessResult: String?
     var modelContext: ModelContext?
 
+    /// Current session memo for batching scanned stones.
+    private var sessionMemo: Memo?
+
     /// Tracks the last time each tag was processed; prevents re-processing within 15 seconds.
     private var lastProcessedTimes: [String: Date] = [:]
     private static let rescanCooldown: TimeInterval = 15
@@ -57,6 +60,7 @@ final class ScannerViewModel {
         lastDiscoveredTagID = nil
         lastProcessResult = nil
         lastProcessedTimes.removeAll()
+        sessionMemo = nil
     }
 
     private func didDiscoverTag(_ tagID: String) {
@@ -124,7 +128,13 @@ final class ScannerViewModel {
 
     private func addStoneToNewMemo(stone: Gemstone, modelContext: ModelContext) {
         do {
-            let memo = try TransactionService.createMemo(modelContext: modelContext)
+            let memo: Memo
+            if let existing = sessionMemo, existing.status == .onMemo {
+                memo = existing
+            } else {
+                memo = try TransactionService.createMemo(modelContext: modelContext)
+                sessionMemo = memo
+            }
             try TransactionService.addStone(stone, to: memo, modelContext: modelContext)
             lastProcessResult = "Added to Memo #\(memo.referenceNumber)"
         } catch {

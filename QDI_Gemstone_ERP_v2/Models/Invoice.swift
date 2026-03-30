@@ -6,11 +6,13 @@ final class Invoice {
     var invoiceDate: Date
     var dueDate: Date?
     var terms: String
+    @Attribute(.unique)
     var referenceNumber: String
     var notes: String
     var createdAt: Date
     var status: InvoiceStatus
 
+    @Relationship
     var customer: Customer?
     /// When non-nil, this invoice was created by converting items from a memo.
     @Relationship(deleteRule: .nullify)

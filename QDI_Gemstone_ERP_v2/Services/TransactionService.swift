@@ -230,6 +230,17 @@ enum TransactionService {
         if restoreStone, let stone = item.gemstone {
             if item.isLotLineItem {
                 stone.effectiveRemainingCarats += item.carats
+                let docRef = item.invoice?.referenceNumber ?? item.memo?.referenceNumber ?? "?"
+                let txn = LotTransaction(
+                    type: .returned,
+                    carats: item.carats,
+                    pricePerCarat: item.rate,
+                    totalPrice: item.amount,
+                    notes: "Line item removed from \(docRef)",
+                    gemstone: stone
+                )
+                modelContext.insert(txn)
+                stone.lotTransactions.append(txn)
             } else {
                 stone.status = .available
                 stone.memo = nil

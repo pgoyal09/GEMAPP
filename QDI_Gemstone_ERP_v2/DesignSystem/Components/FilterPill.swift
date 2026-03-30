@@ -10,8 +10,8 @@ struct FilterPill: View {
             Text(title)
                 .font(AppTypography.caption)
                 .foregroundStyle(isActive ? AppColors.primary : AppColors.inkSubtle)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 6)
+                .padding(.horizontal, AppSpacing.standard)
+                .padding(.vertical, AppSpacing.xs)
                 .background(
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .fill(isActive ? AppColors.primary.opacity(0.20) : Color.white.opacity(0.03))

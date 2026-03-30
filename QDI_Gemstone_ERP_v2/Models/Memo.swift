@@ -8,9 +8,14 @@ final class Memo {
     var dateCompleted: Date?
     var notes: String
     var createdAt: Date
+    @Attribute(.unique)
     var referenceNumber: String
 
+    @Relationship
     var customer: Customer?
+
+    @Relationship(deleteRule: .nullify, inverse: \Invoice.originMemo)
+    var invoicesFromMemo: [Invoice] = []
 
     @Relationship(deleteRule: .cascade, inverse: \LineItem.memo)
     var lineItems: [LineItem] = []

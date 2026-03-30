@@ -68,7 +68,7 @@ final class InventoryViewModel {
 
     // MARK: - Sort State
 
-    var sortKey: String = "createdAt"
+    var sortKey: String = "dateAdded"
     var sortAscending: Bool = false
 
     // MARK: - Filter State
@@ -92,41 +92,6 @@ final class InventoryViewModel {
     // MARK: - Selection
 
     var selectedStoneID: PersistentIdentifier? = nil
-
-    // MARK: - Pagination
-
-    var currentPage: Int = 0
-    var pageSize: Int = 50
-    var totalCount: Int = 0
-    var hasMorePages: Bool = false
-
-    /// Fetch a paginated batch of gemstones from the model context.
-    func fetchPage(modelContext: ModelContext) -> [Gemstone] {
-        var descriptor = FetchDescriptor<Gemstone>(
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
-        )
-        descriptor.fetchLimit = pageSize
-        descriptor.fetchOffset = currentPage * pageSize
-        let results = (try? modelContext.fetch(descriptor)) ?? []
-        // Update total count for pagination
-        totalCount = (try? modelContext.fetchCount(FetchDescriptor<Gemstone>())) ?? 0
-        hasMorePages = (currentPage + 1) * pageSize < totalCount
-        return results
-    }
-
-    /// Load the next page of results.
-    func loadNextPage(modelContext: ModelContext) -> [Gemstone] {
-        guard hasMorePages else { return [] }
-        currentPage += 1
-        return fetchPage(modelContext: modelContext)
-    }
-
-    /// Reset pagination to the first page.
-    func resetPagination() {
-        currentPage = 0
-        totalCount = 0
-        hasMorePages = false
-    }
 
     // MARK: - Computed
 

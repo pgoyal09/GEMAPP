@@ -26,7 +26,14 @@ enum BackupService {
     // MARK: - Database Copy
 
     /// Copies the SwiftData store file to a temporary location for user export.
-    static func exportDatabaseCopy() throws -> URL {
+    /// Saves the model context first to flush WAL data.
+    @MainActor
+    static func exportDatabaseCopy(modelContext: ModelContext) throws -> URL {
+        try modelContext.save()
+        return try copyStoreFiles()
+    }
+
+    private static func copyStoreFiles() throws -> URL {
         let fm = FileManager.default
         guard fm.fileExists(atPath: storeURL.path) else {
             throw BackupError.noStoreFile

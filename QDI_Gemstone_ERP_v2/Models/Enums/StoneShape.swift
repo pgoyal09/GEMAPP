@@ -3,7 +3,7 @@ import Foundation
 /// Common stone shapes for pickers and SKU generation.
 /// The shape field on Gemstone remains a String for flexibility (custom shapes),
 /// but this enum provides the standard options and SKU codes.
-enum StoneShape: String, CaseIterable, Identifiable {
+enum StoneShape: String, CaseIterable, Identifiable, Codable {
     case round = "Round"
     case oval = "Oval"
     case cushion = "Cushion"

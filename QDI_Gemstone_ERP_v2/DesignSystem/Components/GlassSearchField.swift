@@ -15,8 +15,8 @@ struct GlassSearchField: View {
                 .foregroundStyle(AppColors.ink)
                 .accessibilityLabel(placeholder)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
+        .padding(.horizontal, AppSpacing.m)
+        .padding(.vertical, AppSpacing.s)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(Color.white.opacity(0.04))

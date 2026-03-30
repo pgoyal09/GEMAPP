@@ -17,8 +17,8 @@ struct GradientButton: View {
                     .font(AppTypography.smallValue)
             }
             .foregroundStyle(.white)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
+            .padding(.horizontal, AppSpacing.standard)
+            .padding(.vertical, AppSpacing.compact)
             .background(gradient, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
             .shadow(color: AppColors.primary.opacity(0.20), radius: 8, y: 4)
         }

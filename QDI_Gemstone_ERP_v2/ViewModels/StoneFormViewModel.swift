@@ -118,12 +118,12 @@ final class StoneFormViewModel {
             stoneTypeText != stone.stoneType.rawValue ||
             shapeText != stone.shape ||
             grouping != stone.grouping ||
-            caratText != "\(stone.caratWeight)" ||
+            caratWeight != stone.caratWeight ||
             color != stone.color ||
             clarity != stone.clarity ||
             cut != stone.cut ||
-            costPriceText != "\(stone.costPrice)" ||
-            sellPriceText != "\(stone.sellPrice)"
+            costPrice != stone.costPrice ||
+            sellPrice != stone.sellPrice
     }
 
     // MARK: - SKU Management

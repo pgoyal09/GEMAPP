@@ -84,8 +84,9 @@ final class DashboardViewModel {
         var carats: Double = 0
         var value: Decimal = 0
         for stone in availableStones {
-            carats += stone.isLot ? stone.effectiveRemainingCarats : stone.caratWeight
-            value += stone.sellPrice * Decimal(stone.caratWeight)
+            let effectiveCarats = stone.isLot ? stone.effectiveRemainingCarats : stone.caratWeight
+            carats += effectiveCarats
+            value += stone.sellPrice * Decimal(effectiveCarats)
         }
         totalCaratsInStock = carats
         totalInventoryValue = value

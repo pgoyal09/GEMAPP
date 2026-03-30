@@ -112,10 +112,11 @@ final class AccountingViewModel {
         defer { isLoading = false }
         let startDate = dateRange.startDate
         let endDate = dateRange.endDate
-        loadRevenueAndCost(startDate: startDate, endDate: endDate, modelContext: modelContext)
+        let filtered = fetchFilteredInvoices(startDate: startDate, endDate: endDate, modelContext: modelContext)
+        computeRevenueAndCost(from: filtered)
         loadAgedReceivables(modelContext: modelContext)
-        loadSalesByStoneType(startDate: startDate, endDate: endDate, modelContext: modelContext)
-        loadMonthlySales(startDate: startDate, endDate: endDate, modelContext: modelContext)
+        computeSalesByStoneType(from: filtered)
+        computeMonthlySales(from: filtered)
     }
 
     // MARK: - CSV Export
@@ -134,11 +135,10 @@ final class AccountingViewModel {
 
     // MARK: - Private
 
-    private func loadRevenueAndCost(startDate: Date?, endDate: Date? = nil, modelContext: ModelContext) {
-        let filtered = fetchFilteredInvoices(startDate: startDate, endDate: endDate, modelContext: modelContext)
-        totalRevenue = filtered.reduce(Decimal.zero) { $0 + $1.totalAmount }
+    private func computeRevenueAndCost(from invoices: [Invoice]) {
+        totalRevenue = invoices.reduce(Decimal.zero) { $0 + $1.totalAmount }
 
-        totalCost = filtered.reduce(Decimal.zero) { sum, inv in
+        totalCost = invoices.reduce(Decimal.zero) { sum, inv in
             sum + inv.lineItems.reduce(Decimal.zero) { lineSum, item in
                 if let stone = item.gemstone {
                     if item.isLotLineItem {
@@ -214,9 +214,7 @@ final class AccountingViewModel {
         agedReceivables = buckets
     }
 
-    private func loadSalesByStoneType(startDate: Date?, endDate: Date? = nil, modelContext: ModelContext) {
-        let invoices = fetchFilteredInvoices(startDate: startDate, endDate: endDate, modelContext: modelContext)
-
+    private func computeSalesByStoneType(from invoices: [Invoice]) {
         var map: [String: Decimal] = [:]
         for inv in invoices {
             for item in inv.lineItems {
@@ -229,9 +227,7 @@ final class AccountingViewModel {
             .sorted { $0.revenue > $1.revenue }
     }
 
-    private func loadMonthlySales(startDate: Date?, endDate: Date? = nil, modelContext: ModelContext) {
-        let invoices = fetchFilteredInvoices(startDate: startDate, endDate: endDate, modelContext: modelContext)
-
+    private func computeMonthlySales(from invoices: [Invoice]) {
         let fmt = DateFormatter()
         fmt.dateFormat = "yyyy-MM"
 

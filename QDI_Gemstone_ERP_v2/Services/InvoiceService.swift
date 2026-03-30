@@ -45,10 +45,12 @@ enum InvoiceService {
     }
 
     /// Mark lot line items as sold and record lot transactions.
+    /// Skips items that came from memo conversion (those are handled by markConvertedItemsAsSold).
     @MainActor
     static func markLotItemsAsSold(invoice: Invoice, modelContext: ModelContext) {
         let custName = invoice.customer?.displayName ?? "Unknown"
         for item in invoice.lineItems where item.isLotLineItem {
+            guard item.originLineItem == nil else { continue }
             guard let lot = item.gemstone else { continue }
             item.status = .sold
             item.soldDate = Date()
@@ -92,6 +94,8 @@ enum InvoiceService {
                 } else {
                     stone.status = .available
                     stone.memo = nil
+                    HistoryLogger.logQuietly(stone: stone, type: .returnedFromCustomer,
+                                              message: "Restored from voided Invoice #\(invoice.referenceNumber)", modelContext: modelContext)
                 }
             }
         }
@@ -119,6 +123,8 @@ enum InvoiceService {
                 } else {
                     stone.status = .available
                     stone.memo = nil
+                    HistoryLogger.logQuietly(stone: stone, type: .returnedFromCustomer,
+                                              message: "Restored from deleted Invoice #\(invoice.referenceNumber)", modelContext: modelContext)
                 }
             }
             modelContext.delete(item)

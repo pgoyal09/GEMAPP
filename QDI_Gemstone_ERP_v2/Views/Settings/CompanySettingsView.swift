@@ -202,7 +202,7 @@ struct CompanySettingsView: View {
 
     private func exportDatabase() {
         do {
-            let exportDir = try BackupService.exportDatabaseCopy()
+            let exportDir = try BackupService.exportDatabaseCopy(modelContext: modelContext)
             let panel = NSSavePanel()
             panel.title = "Save Database Backup"
             panel.nameFieldStringValue = exportDir.lastPathComponent

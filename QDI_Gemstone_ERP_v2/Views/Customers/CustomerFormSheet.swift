@@ -13,7 +13,8 @@ struct CustomerFormSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
-    @FocusState private var isFirstNameFocused: Bool
+    enum FormField: Hashable { case firstName, lastName, company, email, phone, address, city, country, zip, notes }
+    @FocusState private var focusedField: FormField?
     @State private var firstName = ""
     @State private var lastName = ""
     @State private var company = ""

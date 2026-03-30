@@ -36,20 +36,21 @@ final class RFIDCoordinator {
         pendingTid = ""
     }
 
-    /// Assign the pending tag to a gemstone.
+    /// Assign the pending tag to a gemstone, routing through RFIDScanService for uniqueness checks.
     func assignTag(to stone: Gemstone, modelContext: ModelContext) throws {
-        let tag = RFIDTag(
-            epcCurrent: pendingEpc,
-            tidLastVerified: pendingTid.isEmpty ? nil : pendingTid,
-            assignedStone: stone,
-            status: .assigned
+        let result = RFIDScanService.assignTagToStone(
+            epc: pendingEpc,
+            tid: pendingTid.isEmpty ? nil : pendingTid,
+            stone: stone,
+            replaceExisting: true,
+            modelContext: modelContext
         )
-        stone.rfidEpc = pendingEpc
-        stone.rfidTid = pendingTid
-        stone.rfidAssignedAt = Date()
-        modelContext.insert(tag)
-        try modelContext.save()
-        dismissAssignSheet()
+        switch result {
+        case .assigned, .replaced:
+            dismissAssignSheet()
+        case .conflict(let message):
+            lastError = message
+        }
     }
 }
 
