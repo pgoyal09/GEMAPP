@@ -38,6 +38,7 @@ final class DashboardViewModel {
     var recentActivity: [RecentActivityItem] = []
     var oldestOpenMemos: [OldestMemoItem] = []
     var inventorySnapshot = InventorySnapshot()
+    var overdueMemoCount: Int = 0
 
     func load(modelContext: ModelContext) {
         loadInventoryMetrics(modelContext: modelContext)
@@ -45,6 +46,7 @@ final class DashboardViewModel {
         loadSalesMetrics(modelContext: modelContext)
         recentActivity = fetchRecentActivity(modelContext: modelContext)
         oldestOpenMemos = fetchOldestOpenMemos(modelContext: modelContext)
+        loadOverdueMemoCount(modelContext: modelContext)
     }
 
     // MARK: - Private
@@ -159,5 +161,17 @@ final class DashboardViewModel {
                 openAmount: memo.openMemoAmount
             )
         }
+    }
+
+    private func loadOverdueMemoCount(modelContext: ModelContext) {
+        let onMemoStatus = MemoStatus.onMemo
+        let descriptor = FetchDescriptor<Memo>(
+            predicate: #Predicate<Memo> { $0.status == onMemoStatus }
+        )
+        guard let memos = try? modelContext.fetch(descriptor) else {
+            overdueMemoCount = 0
+            return
+        }
+        overdueMemoCount = memos.filter { $0.ageInDays > 60 }.count
     }
 }

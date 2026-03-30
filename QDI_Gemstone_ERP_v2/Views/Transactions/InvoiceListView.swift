@@ -15,7 +15,7 @@ struct InvoiceListView: View {
     }
 
     private var toolbar: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: AppSpacing.cozy) {
             GlassSearchField(text: $viewModel.searchText, placeholder: "Search invoices…")
                 .frame(maxWidth: 300)
             statusPills
@@ -24,7 +24,6 @@ struct InvoiceListView: View {
                 Label("New Invoice", systemImage: "plus")
             }
             .buttonStyle(.gradient)
-            .keyboardShortcut("n", modifiers: .command)
         }
         .padding(.horizontal, AppSpacing.l)
         .padding(.vertical, AppSpacing.m)
@@ -76,15 +75,25 @@ struct InvoiceListView: View {
 
     private var headerRow: some View {
         HStack(spacing: 0) {
-            TableHeader(title: "Invoice #", width: TableColumn.invoice)
-            TableHeader(title: "Customer", width: TableColumn.customer)
-            TableHeader(title: "Date", width: TableColumn.date)
-            TableHeader(title: "Total", width: TableColumn.price)
-            TableHeader(title: "Status", width: TableColumn.status)
+            invoiceSortableHeader("Invoice #", key: "reference", width: TableColumn.invoice)
+            invoiceSortableHeader("Customer", key: "customer", width: TableColumn.customer)
+            invoiceSortableHeader("Date", key: "date", width: TableColumn.date)
+            invoiceSortableHeader("Total", key: "total", width: TableColumn.price)
+            invoiceSortableHeader("Status", key: "status", width: TableColumn.status)
             Spacer()
         }
         .padding(.horizontal, AppSpacing.m)
         .padding(.vertical, AppSpacing.s)
+    }
+
+    private func invoiceSortableHeader(_ title: String, key: String, width: CGFloat) -> TableHeader {
+        TableHeader(
+            title: title,
+            width: width,
+            isSorted: viewModel.sortKey == key,
+            ascending: viewModel.sortAscending,
+            onTap: { viewModel.toggleSort(key) }
+        )
     }
 
     private func invoiceRow(_ invoice: Invoice) -> some View {

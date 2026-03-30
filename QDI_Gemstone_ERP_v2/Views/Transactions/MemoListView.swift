@@ -15,7 +15,7 @@ struct MemoListView: View {
     }
 
     private var toolbar: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: AppSpacing.cozy) {
             GlassSearchField(text: $viewModel.searchText, placeholder: "Search memos…")
                 .frame(maxWidth: 300)
             statusPills
@@ -24,7 +24,6 @@ struct MemoListView: View {
                 Label("New Memo", systemImage: "plus")
             }
             .buttonStyle(.gradient)
-            .keyboardShortcut("n", modifiers: .command)
         }
         .padding(.horizontal, AppSpacing.l)
         .padding(.vertical, AppSpacing.m)
@@ -80,16 +79,26 @@ struct MemoListView: View {
 
     private var headerRow: some View {
         HStack(spacing: 0) {
-            TableHeader(title: "Memo #", width: TableColumn.memo)
-            TableHeader(title: "Customer", width: TableColumn.customer)
-            TableHeader(title: "Date", width: TableColumn.date)
+            memoSortableHeader("Memo #", key: "reference", width: TableColumn.memo)
+            memoSortableHeader("Customer", key: "customer", width: TableColumn.customer)
+            memoSortableHeader("Date", key: "date", width: TableColumn.date)
             TableHeader(title: "Age", width: TableColumn.quantity)
-            TableHeader(title: "Amount", width: TableColumn.price)
-            TableHeader(title: "Status", width: TableColumn.status)
+            memoSortableHeader("Amount", key: "total", width: TableColumn.price)
+            memoSortableHeader("Status", key: "status", width: TableColumn.status)
             Spacer()
         }
         .padding(.horizontal, AppSpacing.m)
         .padding(.vertical, AppSpacing.s)
+    }
+
+    private func memoSortableHeader(_ title: String, key: String, width: CGFloat) -> TableHeader {
+        TableHeader(
+            title: title,
+            width: width,
+            isSorted: viewModel.sortKey == key,
+            ascending: viewModel.sortAscending,
+            onTap: { viewModel.toggleSort(key) }
+        )
     }
 
     private func memoRow(_ memo: Memo) -> some View {
@@ -115,7 +124,7 @@ struct MemoListView: View {
                 .frame(width: TableColumn.date, alignment: .leading)
             Text("\(memo.ageInDays)d")
                 .font(AppTypography.caption)
-                .foregroundStyle(AppColors.inkSubtle)
+                .foregroundStyle(memoAgingColor(days: memo.ageInDays))
                 .lineLimit(1)
                 .frame(width: TableColumn.quantity, alignment: .leading)
             Text(memo.totalAmount.asCurrency)
@@ -139,6 +148,15 @@ struct MemoListView: View {
         case .sold: .success
         }
         return StatusBadge(title: status.rawValue, tone: tone)
+    }
+
+    private func memoAgingColor(days: Int) -> Color {
+        switch days {
+        case ..<30: return AppColors.success
+        case 30..<60: return AppColors.warning
+        case 60..<90: return Color.orange
+        default: return AppColors.danger
+        }
     }
 
     private func createNewMemo() {

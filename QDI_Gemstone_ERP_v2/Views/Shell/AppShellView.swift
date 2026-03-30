@@ -10,6 +10,8 @@ struct AppShellView: View {
     @State private var pendingRoute: NavigationItem?
     @State private var showLeaveAlert = false
     @State private var navigationGuard = NavigationGuard()
+    @State private var showSidebar: Bool = true
+    @State private var showAddStoneFromMenu = false
 
     // Persistent scanner/reconcile VMs so session state survives route changes.
     @State private var scannerVM: ScannerViewModel?
@@ -32,8 +34,11 @@ struct AppShellView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            SidebarView(selectedItem: routeBinding)
-                .frame(width: 240)
+            if showSidebar {
+                SidebarView(selectedItem: routeBinding)
+                    .frame(width: 240)
+                    .transition(.move(edge: .leading))
+            }
 
             VStack(spacing: 0) {
                 headerBar
@@ -83,6 +88,22 @@ struct AppShellView: View {
         .onChange(of: rfidCoordinator != nil) { _, isNonNil in
             if isNonNil { createSharedVMs() }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .menuNewMemo)) { _ in
+            routeBinding.wrappedValue = .memos
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuNewInvoice)) { _ in
+            routeBinding.wrappedValue = .invoices
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuNewStone)) { _ in
+            routeBinding.wrappedValue = .quickIntake
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuToggleSidebar)) { _ in
+            withAnimation(.easeInOut(duration: 0.2)) { showSidebar.toggle() }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuOpenSettings)) { _ in
+            routeBinding.wrappedValue = .settings
+        }
+        .animation(.easeInOut(duration: 0.2), value: showSidebar)
     }
 
     // MARK: - Header
@@ -99,7 +120,7 @@ struct AppShellView: View {
                     .foregroundStyle(AppColors.inkSubtle)
             }
             Spacer()
-            HStack(spacing: 12) {
+            HStack(spacing: AppSpacing.cozy) {
                 Button(action: {}) {
                     Image(systemName: "bell")
                         .font(.system(size: 14))
@@ -128,8 +149,8 @@ struct AppShellView: View {
                 }
             }
         }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 16)
+        .padding(.horizontal, AppSpacing.section)
+        .padding(.vertical, AppSpacing.standard)
     }
 
     // MARK: - Content Router
@@ -161,6 +182,8 @@ struct AppShellView: View {
                 CustomerListView()
             case .accounting:
                 AccountingView()
+            case .settings:
+                CompanySettingsView()
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -173,8 +196,8 @@ struct AppShellView: View {
                 )
         )
         .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous))
-        .padding(.horizontal, 16)
-        .padding(.bottom, 16)
+        .padding(.horizontal, AppSpacing.standard)
+        .padding(.bottom, AppSpacing.standard)
     }
 
     private func createSharedVMs() {

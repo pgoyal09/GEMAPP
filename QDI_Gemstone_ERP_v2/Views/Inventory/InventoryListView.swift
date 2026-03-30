@@ -242,21 +242,32 @@ struct InventoryListView: View {
 
     private var tableHeader: some View {
         HStack(spacing: 0) {
-            TableHeader(title: "SKU", width: TableColumn.sku, alignment: .leading)
-            TableHeader(title: "Type", width: TableColumn.type, alignment: .leading)
-            TableHeader(title: "Shape", width: TableColumn.shape, alignment: .leading)
-            TableHeader(title: "Carats", width: TableColumn.carat, alignment: .trailing)
+            sortableHeader("SKU", key: "sku", width: TableColumn.sku, alignment: .leading)
+            sortableHeader("Type", key: "type", width: TableColumn.type, alignment: .leading)
+            sortableHeader("Shape", key: "shape", width: TableColumn.shape, alignment: .leading)
+            sortableHeader("Carats", key: "carats", width: TableColumn.carat, alignment: .trailing)
             TableHeader(title: "Color", width: TableColumn.color, alignment: .leading)
             TableHeader(title: "Clarity", width: TableColumn.clarity, alignment: .leading)
-            TableHeader(title: "Price", width: TableColumn.price, alignment: .trailing)
+            sortableHeader("Price", key: "price", width: TableColumn.price, alignment: .trailing)
             if mode == .sold {
                 TableHeader(title: "Sold To", width: TableColumn.customer, alignment: .leading)
             }
-            TableHeader(title: "Status", width: TableColumn.status, alignment: .center)
+            sortableHeader("Status", key: "status", width: TableColumn.status, alignment: .center)
             Spacer()
         }
         .padding(.horizontal, AppSpacing.m)
         .padding(.vertical, AppSpacing.s)
+    }
+
+    private func sortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment) -> TableHeader {
+        TableHeader(
+            title: title,
+            width: width,
+            alignment: alignment,
+            isSorted: viewModel.sortKey == key,
+            ascending: viewModel.sortAscending,
+            onTap: { viewModel.toggleSort(key) }
+        )
     }
 
     private func stoneRow(_ stone: Gemstone) -> some View {
@@ -337,10 +348,6 @@ struct InventoryListView: View {
     }
 
     private func formattedPrice(_ price: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        formatter.maximumFractionDigits = 0
-        return formatter.string(from: price as NSDecimalNumber) ?? "$0"
+        price.asCurrency
     }
 }

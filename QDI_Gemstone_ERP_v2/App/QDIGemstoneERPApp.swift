@@ -1,6 +1,16 @@
 import SwiftUI
 import SwiftData
 
+// MARK: - Menu Command Notifications
+
+extension Notification.Name {
+    static let menuNewMemo = Notification.Name("menuNewMemo")
+    static let menuNewInvoice = Notification.Name("menuNewInvoice")
+    static let menuNewStone = Notification.Name("menuNewStone")
+    static let menuToggleSidebar = Notification.Name("menuToggleSidebar")
+    static let menuOpenSettings = Notification.Name("menuOpenSettings")
+}
+
 @main
 struct QDIGemstoneERPApp: App {
     @State private var rfidManager = RFIDManager()
@@ -71,6 +81,36 @@ struct QDIGemstoneERPApp: App {
                 }
         }
         .modelContainer(sharedModelContainer)
+        .commands {
+            CommandGroup(replacing: .newItem) {
+                Button("New Memo") {
+                    NotificationCenter.default.post(name: .menuNewMemo, object: nil)
+                }
+                .keyboardShortcut("n", modifiers: .command)
+
+                Button("New Invoice") {
+                    NotificationCenter.default.post(name: .menuNewInvoice, object: nil)
+                }
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+
+                Button("New Stone") {
+                    NotificationCenter.default.post(name: .menuNewStone, object: nil)
+                }
+                .keyboardShortcut("n", modifiers: [.command, .option])
+            }
+            CommandGroup(after: .sidebar) {
+                Button("Toggle Sidebar") {
+                    NotificationCenter.default.post(name: .menuToggleSidebar, object: nil)
+                }
+                .keyboardShortcut("s", modifiers: [.command, .option])
+            }
+            CommandGroup(replacing: .appSettings) {
+                Button("Settings…") {
+                    NotificationCenter.default.post(name: .menuOpenSettings, object: nil)
+                }
+                .keyboardShortcut(",", modifiers: .command)
+            }
+        }
 
         // Memo document windows
         WindowGroup("Memo", id: "memo", for: PersistentIdentifier.self) { $memoID in

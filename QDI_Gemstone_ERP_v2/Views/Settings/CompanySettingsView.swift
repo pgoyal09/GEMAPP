@@ -1,0 +1,134 @@
+import SwiftUI
+import AppKit
+
+struct CompanySettingsView: View {
+    @AppStorage("companyName") private var companyName: String = ""
+    @AppStorage("companyAddress") private var companyAddress: String = ""
+    @AppStorage("companyPhone") private var companyPhone: String = ""
+    @AppStorage("companyEmail") private var companyEmail: String = ""
+    @State private var logoData: Data? = UserDefaults.standard.data(forKey: PDFService.companyLogoUserDefaultsKey)
+    @State private var showSavedToast = false
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                SectionHeader(title: "Company Branding")
+
+                VStack(alignment: .leading, spacing: 16) {
+                    fieldRow(label: "Company Name") {
+                        TextField("e.g. Quality Diajewels Inc.", text: $companyName)
+                            .textFieldStyle(.roundedBorder)
+                    }
+
+                    fieldRow(label: "Address") {
+                        TextEditor(text: $companyAddress)
+                            .font(.body)
+                            .frame(height: 60)
+                            .padding(4)
+                            .background(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(Color.white.opacity(0.05))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .strokeBorder(Color.white.opacity(0.10), lineWidth: 1)
+                                    )
+                            )
+                            .scrollContentBackground(.hidden)
+                    }
+
+                    fieldRow(label: "Phone") {
+                        TextField("e.g. +1 212-555-0100", text: $companyPhone)
+                            .textFieldStyle(.roundedBorder)
+                    }
+
+                    fieldRow(label: "Email") {
+                        TextField("e.g. info@company.com", text: $companyEmail)
+                            .textFieldStyle(.roundedBorder)
+                    }
+
+                    fieldRow(label: "Logo") {
+                        HStack(spacing: 12) {
+                            if let data = logoData, let nsImage = NSImage(data: data) {
+                                Image(nsImage: nsImage)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(maxHeight: 56)
+                                    .clipShape(RoundedRectangle(cornerRadius: 6))
+
+                                Button("Remove") {
+                                    logoData = nil
+                                    UserDefaults.standard.removeObject(forKey: PDFService.companyLogoUserDefaultsKey)
+                                }
+                                .buttonStyle(.plain)
+                                .foregroundStyle(AppColors.danger)
+                                .font(AppTypography.caption)
+                            }
+
+                            Button("Choose Image…") { pickLogo() }
+                                .buttonStyle(.outline)
+                        }
+                    }
+                }
+                .padding(20)
+                .background(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                        .fill(Color.white.opacity(0.04))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                                .strokeBorder(Color.white.opacity(0.07), lineWidth: 1)
+                        )
+                )
+
+                if showSavedToast {
+                    HStack(spacing: 6) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundStyle(AppColors.success)
+                        Text("Settings saved automatically")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.inkMuted)
+                    }
+                    .transition(.opacity)
+                }
+
+                Text("These details appear on generated PDF invoices and memos.")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+
+                Spacer()
+            }
+            .padding(24)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            // Show saved toast briefly
+            if !companyName.isEmpty {
+                showSavedToast = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    withAnimation { showSavedToast = false }
+                }
+            }
+        }
+    }
+
+    private func fieldRow<Content: View>(label: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+            content()
+        }
+    }
+
+    private func pickLogo() {
+        let panel = NSOpenPanel()
+        panel.title = "Choose Company Logo"
+        panel.allowedContentTypes = [.png, .jpeg, .heic]
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = false
+
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        guard let data = try? Data(contentsOf: url) else { return }
+        logoData = data
+        PDFService.saveCompanyLogo(data)
+    }
+}

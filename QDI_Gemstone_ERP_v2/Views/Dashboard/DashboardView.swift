@@ -14,14 +14,16 @@ struct DashboardView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: AppSpacing.section) {
                     KPICardRow(viewModel: viewModel)
                     QuickActionsGrid(navigateTo: $navigateTo, onAddStone: { showAddStoneSheet = true })
                     RecentActivityList(items: viewModel.recentActivity)
+                    #if DEBUG
                     resetDataButton
+                    #endif
                     Spacer(minLength: AppSpacing.xl)
                 }
-                .padding(24)
+                .padding(AppSpacing.section)
             }
             .frame(maxWidth: .infinity)
 
@@ -55,12 +57,12 @@ struct DashboardView: View {
 
     private var resetDataButton: some View {
         Button { showResetConfirm = true } label: {
-            HStack(spacing: 8) {
+            HStack(spacing: AppSpacing.compact) {
                 Image(systemName: "arrow.clockwise.circle").font(.system(size: 13))
                 Text("Generate New Mock Data").font(AppTypography.body)
             }
             .foregroundStyle(AppColors.inkSubtle)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, AppSpacing.standard)
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)

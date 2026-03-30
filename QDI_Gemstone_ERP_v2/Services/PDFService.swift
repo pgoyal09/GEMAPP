@@ -157,67 +157,239 @@ final class PDFService {
             notesBlock = ""
         }
 
+        // Read company info from UserDefaults, falling back to parameter
+        let storedCompanyName = UserDefaults.standard.string(forKey: "companyName")
+        let displayCompanyName = (storedCompanyName?.isEmpty == false) ? storedCompanyName! : companyName
+        let companyAddress = UserDefaults.standard.string(forKey: "companyAddress") ?? ""
+        let companyPhone = UserDefaults.standard.string(forKey: "companyPhone") ?? ""
+        let companyEmail = UserDefaults.standard.string(forKey: "companyEmail") ?? ""
+
+        var companyInfoLines: [String] = [escape(displayCompanyName)]
+        if !companyAddress.isEmpty { companyInfoLines.append(contentsOf: companyAddress.components(separatedBy: "\n").map { escape($0) }) }
+        if !companyPhone.isEmpty { companyInfoLines.append(escape(companyPhone)) }
+        if !companyEmail.isEmpty { companyInfoLines.append(escape(companyEmail)) }
+        let companyBlock = companyInfoLines.joined(separator: "<br/>")
+
         return """
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="utf-8">
             <style>
-                @page { margin: 20mm; }
-                * { box-sizing: border-box; }
-                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 11pt; color: #000; background: #fff; margin: 0; padding: 24px; }
-                tr { page-break-inside: avoid; }
-                .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
-                .logo { max-height: 56px; max-width: 180px; }
-                .company { text-align: right; color: #333; }
-                .doc-title { font-size: 22pt; font-weight: 700; margin: 16px 0; }
-                .bill-to { margin: 16px 0; }
-                .bill-to strong { display: block; margin-bottom: 4px; }
-                .meta-line { margin: 2px 0; color: #444; }
-                table { width: 100%; border-collapse: collapse; margin: 16px 0; }
-                th, td { border: 1px solid #000; padding: 8px 10px; text-align: left; }
-                th { background: #f0f0f0; font-weight: 600; }
-                td.num { text-align: right; }
-                .totals { margin-left: auto; width: 240px; margin-top: 8px; }
-                .totals tr { border: none; }
-                .totals td { border: none; border-top: 1px solid #000; padding: 4px 8px; }
-                .totals .label { text-align: right; }
-                .totals .num { text-align: right; font-weight: 600; }
-                .notes { margin-top: 20px; padding: 10px; background: #f8f8f8; border-radius: 4px; }
-                @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+                @page {
+                    margin: 18mm 15mm 22mm 15mm;
+                    @bottom-center {
+                        content: counter(page) " of " counter(pages);
+                        font-size: 9pt;
+                        color: #888;
+                    }
+                }
+                * { box-sizing: border-box; margin: 0; padding: 0; }
+                body {
+                    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                    font-size: 10pt;
+                    color: #1a1a1a;
+                    background: #fff;
+                    padding: 0;
+                    line-height: 1.5;
+                }
+                h1, h2, h3 { font-family: Georgia, 'Times New Roman', Times, serif; }
+
+                /* Header */
+                .header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    padding-bottom: 16px;
+                    border-bottom: 2px solid #1a1a1a;
+                    margin-bottom: 20px;
+                }
+                .logo { max-height: 60px; max-width: 180px; }
+                .company-info {
+                    text-align: right;
+                    font-size: 9pt;
+                    color: #444;
+                    line-height: 1.6;
+                }
+                .company-info strong {
+                    font-size: 13pt;
+                    color: #1a1a1a;
+                    display: block;
+                    margin-bottom: 2px;
+                }
+
+                /* Document Title */
+                .doc-title {
+                    font-size: 24pt;
+                    font-weight: 700;
+                    letter-spacing: 2px;
+                    color: #1a1a1a;
+                    margin: 20px 0 6px 0;
+                    text-transform: uppercase;
+                }
+
+                /* Meta & Bill-To Row */
+                .info-row {
+                    display: flex;
+                    justify-content: space-between;
+                    margin: 12px 0 24px 0;
+                }
+                .bill-to, .meta {
+                    width: 48%;
+                }
+                .section-label {
+                    font-size: 8pt;
+                    text-transform: uppercase;
+                    letter-spacing: 1.5px;
+                    color: #888;
+                    font-weight: 600;
+                    margin-bottom: 4px;
+                }
+                .meta-line {
+                    margin: 1px 0;
+                    color: #333;
+                    font-size: 10pt;
+                }
+
+                /* Line Items Table */
+                .items-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 0 0 16px 0;
+                }
+                .items-table thead th {
+                    background: #f5f5f5;
+                    border-bottom: 2px solid #1a1a1a;
+                    border-top: 2px solid #1a1a1a;
+                    padding: 8px 10px;
+                    text-align: left;
+                    font-size: 8pt;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    color: #555;
+                    font-weight: 600;
+                }
+                .items-table thead { display: table-header-group; }
+                .items-table tbody tr { page-break-inside: avoid; }
+                .items-table tbody tr:nth-child(even) { background: #fafafa; }
+                .items-table tbody td {
+                    padding: 7px 10px;
+                    border-bottom: 1px solid #e5e5e5;
+                    font-size: 10pt;
+                    vertical-align: top;
+                }
+                .items-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+                /* Totals */
+                .totals-wrapper {
+                    display: flex;
+                    justify-content: flex-end;
+                    margin-top: 8px;
+                }
+                .totals-table {
+                    width: 260px;
+                    border-collapse: collapse;
+                }
+                .totals-table td {
+                    padding: 5px 10px;
+                    font-size: 10pt;
+                }
+                .totals-table .label { text-align: right; color: #555; }
+                .totals-table .num { text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; }
+                .totals-table .grand td {
+                    border-top: 2px solid #1a1a1a;
+                    font-size: 13pt;
+                    font-weight: 700;
+                    padding-top: 8px;
+                    color: #1a1a1a;
+                }
+
+                /* Notes */
+                .notes {
+                    margin-top: 28px;
+                    padding: 12px 14px;
+                    background: #f8f8f8;
+                    border-left: 3px solid #ccc;
+                    border-radius: 2px;
+                    font-size: 9pt;
+                    color: #555;
+                    line-height: 1.6;
+                }
+                .notes strong { color: #333; }
+
+                /* Footer */
+                .footer {
+                    position: fixed;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    text-align: center;
+                    font-size: 8pt;
+                    color: #aaa;
+                    padding: 8px 0;
+                    border-top: 1px solid #e5e5e5;
+                }
+
+                @media print {
+                    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                }
             </style>
         </head>
         <body>
             <div class="header">
                 <div>\(logoImg)</div>
-                <div class="company">\(escape(companyName))</div>
+                <div class="company-info">\(companyBlock)</div>
             </div>
+
             <h1 class="doc-title">\(escape(documentTitle))</h1>
-            <div class="meta">\(metaBlock)</div>
-            <div class="bill-to">
-                <strong>Bill To</strong>
-                \(customerAddress.isEmpty ? "<p>—</p>" : "<p>\(escape(customerAddress))</p>")
+
+            <div class="info-row">
+                <div class="bill-to">
+                    <div class="section-label">Bill To</div>
+                    \(customerAddress.isEmpty ? "<p>—</p>" : "<p>\(customerAddress)</p>")
+                </div>
+                <div class="meta">
+                    <div class="section-label">Details</div>
+                    \(metaBlock)
+                </div>
             </div>
-            <table>
+
+            <table class="items-table">
                 <thead>
                     <tr>
                         <th>SKU</th>
                         <th>Description</th>
-                        <th>Carats</th>
-                        <th>Rate</th>
-                        <th>Amount</th>
+                        <th style="text-align:right">Carats</th>
+                        <th style="text-align:right">Rate</th>
+                        <th style="text-align:right">Amount</th>
                     </tr>
                 </thead>
                 <tbody>
                     \(rows)
                 </tbody>
             </table>
-            <table class="totals">
-                <tr><td class="label">Subtotal</td><td class="num">\(subtotal.asCurrency)</td></tr>
-                \(taxRow)
-                <tr><td class="label">Total</td><td class="num">\(grandTotal.asCurrency)</td></tr>
-            </table>
+
+            <div class="totals-wrapper">
+                <table class="totals-table">
+                    <tr><td class="label">Subtotal</td><td class="num">\(subtotal.asCurrency)</td></tr>
+                    \(taxRow)
+                    <tr class="grand"><td class="label">Total</td><td class="num">\(grandTotal.asCurrency)</td></tr>
+                </table>
+            </div>
+
             \(notesBlock)
+
+            <div class="footer">
+                \(escape(displayCompanyName)) &middot; Thank you for your business
+            </div>
+
+            <script>
+                // Page numbers via JavaScript (for WKWebView rendering)
+                (function() {
+                    var footer = document.querySelector('.footer');
+                    if (footer) footer.innerHTML += '';
+                })();
+            </script>
         </body>
         </html>
         """

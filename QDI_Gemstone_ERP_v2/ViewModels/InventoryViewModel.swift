@@ -49,12 +49,8 @@ enum ActiveFilterPill: Equatable {
             if min <= 0 && max < 9999 { return String(format: "< %.2f ct", max) }
             return String(format: "%.2f–%.2f ct", min, max)
         case .sellRange(let min, let max):
-            let fmt = NumberFormatter()
-            fmt.numberStyle = .currency
-            fmt.currencyCode = "USD"
-            fmt.maximumFractionDigits = 0
-            let fmtMin = fmt.string(from: min as NSDecimalNumber) ?? "\(min)"
-            let fmtMax = fmt.string(from: max as NSDecimalNumber) ?? "\(max)"
+            let fmtMin = min.asCurrency
+            let fmtMax = max.asCurrency
             if min > 0 && max < 999_999 { return "\(fmtMin)–\(fmtMax)" }
             if min > 0 { return "Sell > \(fmtMin)" }
             return "Sell < \(fmtMax)"
@@ -69,6 +65,11 @@ enum ActiveFilterPill: Equatable {
 @MainActor
 @Observable
 final class InventoryViewModel {
+
+    // MARK: - Sort State
+
+    var sortKey: String = "createdAt"
+    var sortAscending: Bool = false
 
     // MARK: - Filter State
 
@@ -259,6 +260,40 @@ final class InventoryViewModel {
             result = result.filter { $0.stoneType == .diamond && $0.clarity.lowercased().contains(clarity) }
         }
 
-        return result
+        return sorted(result)
+    }
+
+    // MARK: - Sorting
+
+    func toggleSort(_ key: String) {
+        if sortKey == key {
+            sortAscending.toggle()
+        } else {
+            sortKey = key
+            sortAscending = true
+        }
+    }
+
+    private func sorted(_ stones: [Gemstone]) -> [Gemstone] {
+        stones.sorted { a, b in
+            let result: Bool
+            switch sortKey {
+            case "sku":
+                result = a.sku.localizedCompare(b.sku) == .orderedAscending
+            case "type":
+                result = a.stoneType.rawValue.localizedCompare(b.stoneType.rawValue) == .orderedAscending
+            case "shape":
+                result = a.shape.localizedCompare(b.shape) == .orderedAscending
+            case "carats":
+                result = a.caratWeight < b.caratWeight
+            case "price":
+                result = a.sellPrice < b.sellPrice
+            case "status":
+                result = a.status.rawValue.localizedCompare(b.status.rawValue) == .orderedAscending
+            default:
+                result = a.createdAt < b.createdAt
+            }
+            return sortAscending ? result : !result
+        }
     }
 }

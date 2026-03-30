@@ -89,7 +89,7 @@ final class Gemstone {
     @Relationship(deleteRule: .cascade, inverse: \LotTransaction.gemstone)
     var lotTransactions: [LotTransaction] = []
 
-    @Relationship(deleteRule: .cascade, inverse: \HistoryEvent.gemstone)
+    @Relationship(deleteRule: .nullify, inverse: \HistoryEvent.gemstone)
     var events: [HistoryEvent] = []
 
     // MARK: - Init

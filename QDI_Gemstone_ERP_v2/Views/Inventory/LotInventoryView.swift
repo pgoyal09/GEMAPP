@@ -386,11 +386,7 @@ struct LotInventoryView: View {
     }
 
     private func formattedPrice(_ price: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        formatter.maximumFractionDigits = 0
-        return formatter.string(from: price as NSDecimalNumber) ?? "$0"
+        price.asCurrency
     }
 
     private func formattedDate(_ date: Date) -> String {

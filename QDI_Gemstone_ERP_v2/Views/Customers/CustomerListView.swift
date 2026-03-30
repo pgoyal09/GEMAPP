@@ -10,7 +10,7 @@ struct CustomerListView: View {
         HStack(spacing: 0) {
             // Left: list
             VStack(spacing: 0) {
-                HStack(spacing: 12) {
+                HStack(spacing: AppSpacing.cozy) {
                     GlassSearchField(text: $viewModel.searchText, placeholder: "Search customers…")
                         .frame(maxWidth: 300)
                     Spacer()
@@ -45,7 +45,7 @@ struct CustomerListView: View {
         return ScrollView([.horizontal, .vertical]) {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
-                    TableHeader(title: "Name", width: TableColumn.customer)
+                    customerSortableHeader("Name", key: "name", width: TableColumn.customer)
                     TableHeader(title: "Contact", width: TableColumn.description)
                     TableHeader(title: "Open Memos", width: TableColumn.quantity)
                     TableHeader(title: "Status", width: TableColumn.status)
@@ -121,5 +121,15 @@ struct CustomerListView: View {
         .glassTable()
         .padding(.horizontal, AppSpacing.l)
         .padding(.bottom, AppSpacing.l)
+    }
+
+    private func customerSortableHeader(_ title: String, key: String, width: CGFloat) -> TableHeader {
+        TableHeader(
+            title: title,
+            width: width,
+            isSorted: viewModel.sortKey == key,
+            ascending: viewModel.sortAscending,
+            onTap: { viewModel.toggleSort(key) }
+        )
     }
 }
