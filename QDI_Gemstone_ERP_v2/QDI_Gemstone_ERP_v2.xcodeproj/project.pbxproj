@@ -61,6 +61,7 @@
 		4CDFD38B6F9916CC5D3C7FBB /* APIServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D682A424EF5064E67BF38856 /* APIServer.swift */; };
 		5041255737768DE30B3309AD /* HoverRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA238D2CE296E7F838340CCD /* HoverRow.swift */; };
 		5230523037E4A195FA18008D /* StoneFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DCDE31D32F68887B83C97E2 /* StoneFormView.swift */; };
+		5314BCD3CD1F70801DB53110 /* ShareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007E008692CAF273468B3771 /* ShareService.swift */; };
 		57B36C9037EA951332C0C6C7 /* ReconcileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AD0042F0425A31D03D81B15 /* ReconcileViewModel.swift */; };
 		58D4B1FEBCB4D268F7209011 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7220B21A25317D921736B773 /* EmptyStateView.swift */; };
 		5A35814DAD47C9CDE9833234 /* InventoryRoutes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565A4EA28FA3E61AE96AF9A5 /* InventoryRoutes.swift */; };
@@ -106,6 +107,7 @@
 		ADE644F1B38D59234715CA9B /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82D39A3810995F0A808EB202 /* SectionHeader.swift */; };
 		AEB120D968D7BF9F4F12AA4B /* InventoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10E5E8CE863390404948AA94 /* InventoryViewModel.swift */; };
 		B02FE4C6341F52FB20F7C3A6 /* MemoWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E32BF5EC574469A8D3977C5F /* MemoWindowView.swift */; };
+		B15F66E68D3C2F70256ADFF0 /* BatchPDFExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B347B683BC41A381BAA1F00 /* BatchPDFExporter.swift */; };
 		B34DB3A3FF936FA5FFC60998 /* InvoiceListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB2959E2E58627DBE83E661 /* InvoiceListViewModel.swift */; };
 		B5E0D52AD619ABC57EB872A5 /* Memo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07EA69C23F35D6BFA7DBF3A /* Memo.swift */; };
 		B665C2DFE7620630DAC22AA2 /* AppSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C50CA93426BCF5FD29E8332 /* AppSpacing.swift */; };
@@ -135,6 +137,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		007E008692CAF273468B3771 /* ShareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareService.swift; sourceTree = "<group>"; };
 		02CB667D10C57F1B9EB42D6F /* GlassBackgroundModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassBackgroundModifier.swift; sourceTree = "<group>"; };
 		037857AF7FF32943A3CBC483 /* NavigationGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationGuard.swift; sourceTree = "<group>"; };
 		039BCEED1B46423BA633D16A /* DashboardRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardRoutes.swift; sourceTree = "<group>"; };
@@ -149,6 +152,7 @@
 		10E5E8CE863390404948AA94 /* InventoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryViewModel.swift; sourceTree = "<group>"; };
 		149AAED5205BD92D1632662A /* HistoryEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryEvent.swift; sourceTree = "<group>"; };
 		173E223EE059F1CF750C3941 /* MemoStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoStatus.swift; sourceTree = "<group>"; };
+		1B347B683BC41A381BAA1F00 /* BatchPDFExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchPDFExporter.swift; sourceTree = "<group>"; };
 		1BB4A70485C8693503BFC503 /* RFIDService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDService.swift; sourceTree = "<group>"; };
 		1C64C9459C79A0894AC0F0F0 /* StoneDescriptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneDescriptionBuilder.swift; sourceTree = "<group>"; };
 		1DCDE31D32F68887B83C97E2 /* StoneFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneFormView.swift; sourceTree = "<group>"; };
@@ -415,6 +419,7 @@
 			isa = PBXGroup;
 			children = (
 				A9A597AF32983A1D01C6D562 /* BackupService.swift */,
+				1B347B683BC41A381BAA1F00 /* BatchPDFExporter.swift */,
 				90E295BFAC2A9465729BDF0A /* DemoDataService.swift */,
 				32D6DC60F80D7FC541834613 /* HistoryLogger.swift */,
 				0F92992A54A6B3F94585D300 /* InvoiceService.swift */,
@@ -423,6 +428,7 @@
 				DD9E6F4BB3CB6A102CD30AEB /* PDFService.swift */,
 				986AD062E8ECA39F9679B057 /* RapNetExportService.swift */,
 				F5EC08686561C814F4638EFB /* ReferenceNumberGenerator.swift */,
+				007E008692CAF273468B3771 /* ShareService.swift */,
 				32D04B1F807ECBF7399A1576 /* SKUGenerator.swift */,
 				1C64C9459C79A0894AC0F0F0 /* StoneDescriptionBuilder.swift */,
 				839D3C084D42E8BF25F18F4B /* TransactionService.swift */,
@@ -709,6 +715,7 @@
 				B665C2DFE7620630DAC22AA2 /* AppSpacing.swift in Sources */,
 				22F23D9F8E802FBD936767BE /* AppTypography.swift in Sources */,
 				E0ADB3F0BDDB5B5F9A549701 /* BackupService.swift in Sources */,
+				B15F66E68D3C2F70256ADFF0 /* BatchPDFExporter.swift in Sources */,
 				3F9372EEFCB919D59C09C959 /* CompanySettingsView.swift in Sources */,
 				FF2A553EE82E73075D6FB33A /* CurrencyFormatter.swift in Sources */,
 				43387DB5F7418C1F49F5CAD8 /* Customer.swift in Sources */,
@@ -802,6 +809,7 @@
 				832F16AE8FFC3D579CCCFD2B /* ScannerView.swift in Sources */,
 				11FE247A849C307366FBD722 /* ScannerViewModel.swift in Sources */,
 				ADE644F1B38D59234715CA9B /* SectionHeader.swift in Sources */,
+				5314BCD3CD1F70801DB53110 /* ShareService.swift in Sources */,
 				1CD0AE33C4EAFD6907195D3F /* SidebarView.swift in Sources */,
 				046BD734F3EFBCFEDF38AF56 /* SoldInventoryView.swift in Sources */,
 				76146595A695A198CD2574FC /* SortableViewModel.swift in Sources */,
