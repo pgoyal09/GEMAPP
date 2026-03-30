@@ -3,7 +3,16 @@ import SwiftData
 
 struct ReviewQueueView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \Gemstone.createdAt, order: .reverse) private var allGemstones: [Gemstone]
+    @Query private var allGemstones: [Gemstone]
+
+    init() {
+        let soldStatus = GemstoneStatus.sold
+        _allGemstones = Query(
+            filter: #Predicate<Gemstone> { $0.status != soldStatus },
+            sort: \Gemstone.createdAt,
+            order: .reverse
+        )
+    }
 
     @State private var selectedStoneID: PersistentIdentifier?
     @State private var showEditSheet = false

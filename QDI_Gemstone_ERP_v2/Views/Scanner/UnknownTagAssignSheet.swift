@@ -7,7 +7,17 @@ struct UnknownTagAssignSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(\.rfidCoordinator) private var rfidCoordinator
-    @Query(sort: \Gemstone.sku) private var allGemstones: [Gemstone]
+    @Query private var allGemstones: [Gemstone]
+
+    init(epc: String, tid: String) {
+        self.epc = epc
+        self.tid = tid
+        let availableStatus = GemstoneStatus.available
+        _allGemstones = Query(
+            filter: #Predicate<Gemstone> { $0.status == availableStatus },
+            sort: \Gemstone.sku
+        )
+    }
     @State private var searchText = ""
     @State private var selectedStoneID: PersistentIdentifier?
     @State private var errorMessage: String?

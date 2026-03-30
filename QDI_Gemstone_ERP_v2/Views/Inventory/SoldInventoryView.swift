@@ -4,7 +4,16 @@ import SwiftData
 struct SoldInventoryView: View {
     @Environment(\.modelContext) private var modelContext
 
-    @Query(sort: \Gemstone.createdAt, order: .reverse) private var allStones: [Gemstone]
+    @Query private var allStones: [Gemstone]
+
+    init() {
+        let soldStatus = GemstoneStatus.sold
+        _allStones = Query(
+            filter: #Predicate<Gemstone> { $0.status == soldStatus },
+            sort: \Gemstone.createdAt,
+            order: .reverse
+        )
+    }
 
     @State private var searchText = ""
     @State private var selectedStoneID: PersistentIdentifier?
@@ -29,12 +38,8 @@ struct SoldInventoryView: View {
 
     // MARK: - Computed
 
-    private var soldStones: [Gemstone] {
-        allStones.filter { $0.status == .sold }
-    }
-
     private var filteredStones: [Gemstone] {
-        var result = soldStones
+        var result = Array(allStones)
 
         switch typeToggle {
         case .all: break
