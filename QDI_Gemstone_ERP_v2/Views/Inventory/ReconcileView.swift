@@ -60,16 +60,25 @@ struct ReconcileView: View {
                     }
                 }
 
-                if viewModel.isScanning {
-                    Button {
-                        viewModel.stopScanning()
-                    } label: {
-                        Label("Stop", systemImage: "stop.fill")
-                    }
-                    .buttonStyle(.outline(AppColors.danger))
-                } else {
-                    GradientButton(title: "Start Scan", icon: "antenna.radiowaves.left.and.right") {
-                        viewModel.startScanning()
+                // Manual mode toggle
+                Toggle("Manual Mode", isOn: $viewModel.isManualMode)
+                    .toggleStyle(.switch)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkMuted)
+                    .help("Check off stones physically without RFID scanning")
+
+                if !viewModel.isManualMode {
+                    if viewModel.isScanning {
+                        Button {
+                            viewModel.stopScanning()
+                        } label: {
+                            Label("Stop", systemImage: "stop.fill")
+                        }
+                        .buttonStyle(.outline(AppColors.danger))
+                    } else {
+                        GradientButton(title: "Start Scan", icon: "antenna.radiowaves.left.and.right") {
+                            viewModel.startScanning()
+                        }
                     }
                 }
 
@@ -166,9 +175,21 @@ struct ReconcileView: View {
         ) {
             ForEach(viewModel.missingStones, id: \.persistentModelID) { stone in
                 HStack(spacing: AppSpacing.s) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 12))
-                        .foregroundStyle(AppColors.warning)
+                    if viewModel.isManualMode {
+                        Button {
+                            viewModel.toggleManualVerification(for: stone)
+                        } label: {
+                            Image(systemName: "circle")
+                                .font(.system(size: 14))
+                                .foregroundStyle(AppColors.inkSubtle)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Mark \(stone.sku) as verified")
+                    } else {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 12))
+                            .foregroundStyle(AppColors.warning)
+                    }
                     Text(stone.sku)
                         .font(AppTypography.mono)
                         .foregroundStyle(AppColors.ink)

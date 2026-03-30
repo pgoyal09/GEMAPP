@@ -12,6 +12,7 @@ final class Customer {
     var city: String
     var country: String
     var zip: String
+    var notes: String
     var createdAt: Date
 
     @Relationship(deleteRule: .deny, inverse: \Memo.customer)
@@ -30,6 +31,7 @@ final class Customer {
         city: String = "",
         country: String = "",
         zip: String = "",
+        notes: String = "",
         createdAt: Date = Date()
     ) {
         self.firstName = firstName
@@ -41,6 +43,7 @@ final class Customer {
         self.city = city
         self.country = country
         self.zip = zip
+        self.notes = notes
         self.createdAt = createdAt
     }
 

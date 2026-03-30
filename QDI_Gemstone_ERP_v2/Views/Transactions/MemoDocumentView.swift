@@ -39,12 +39,17 @@ struct MemoDocumentView: View {
         .onChange(of: memo.lineItems.count) { _, _ in totalRefreshID = UUID() }
         .sheet(isPresented: $showInventorySheet) {
             InventorySelectSheet { stones in
+                var zeroPriceSkus: [String] = []
                 for stone in stones {
                     do {
                         try TransactionService.addStone(stone, to: memo, modelContext: modelContext)
+                        if stone.sellPrice == 0 { zeroPriceSkus.append(stone.sku) }
                     } catch {
                         showToast("Failed to add stone: \(error.localizedDescription)", isError: true)
                     }
+                }
+                if !zeroPriceSkus.isEmpty {
+                    showToast("⚠️ Zero price: \(zeroPriceSkus.joined(separator: ", "))", isError: false)
                 }
                 markDirty()
             }

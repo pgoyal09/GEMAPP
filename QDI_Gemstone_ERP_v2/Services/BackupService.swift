@@ -92,6 +92,15 @@ enum BackupService {
         }
         try csv.write(to: exportDir.appendingPathComponent("invoices.csv"), atomically: true, encoding: .utf8)
 
+        // Invoice Line Items (per-invoice detail)
+        let allLineItems = try modelContext.fetch(FetchDescriptor<LineItem>())
+        csv = "Invoice Ref,SKU,Description,Stone Type,Carats,Rate,Amount,Status,Kind\n"
+        for item in allLineItems {
+            let invoiceRef = item.invoice?.referenceNumber ?? item.memo?.referenceNumber ?? ""
+            csv += "\(esc(invoiceRef)),\(esc(item.displaySku)),\(esc(item.displayName)),\(esc(item.stoneTypeDisplay)),\(item.carats),\(item.rate),\(item.amount),\(esc(item.status.rawValue)),\(esc(item.kind.rawValue))\n"
+        }
+        try csv.write(to: exportDir.appendingPathComponent("line_items.csv"), atomically: true, encoding: .utf8)
+
         return exportDir
     }
 

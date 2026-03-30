@@ -16,6 +16,10 @@ final class ReconcileViewModel {
     var modelContext: ModelContext?
     var lastReconciliationDate: Date?
 
+    /// Manual reconciliation: set of stone IDs physically verified without RFID.
+    var manuallyVerifiedIDs: Set<PersistentIdentifier> = []
+    var isManualMode: Bool = false
+
     init(rfidService: RFIDService, rfidCoordinator: RFIDCoordinator? = nil) {
         self.rfidService = rfidService
         self.rfidCoordinator = rfidCoordinator
@@ -55,12 +59,23 @@ final class ReconcileViewModel {
         scannedTagIDs.removeAll()
         foundTagIDs.removeAll()
         extraScanReasons.removeAll()
+        manuallyVerifiedIDs.removeAll()
+    }
+
+    func toggleManualVerification(for stone: Gemstone) {
+        if manuallyVerifiedIDs.contains(stone.persistentModelID) {
+            manuallyVerifiedIDs.remove(stone.persistentModelID)
+        } else {
+            manuallyVerifiedIDs.insert(stone.persistentModelID)
+        }
     }
 
     // MARK: - Comparison Results
 
     var missingStones: [Gemstone] {
         availableStones.filter { stone in
+            // Manual mode: checked off stones are "found"
+            if manuallyVerifiedIDs.contains(stone.persistentModelID) { return false }
             guard let tag = stone.rfidEpc else { return true }
             return !foundTagIDs.contains(tag)
         }
@@ -68,6 +83,7 @@ final class ReconcileViewModel {
 
     var foundStones: [Gemstone] {
         availableStones.filter { stone in
+            if manuallyVerifiedIDs.contains(stone.persistentModelID) { return true }
             guard let tag = stone.rfidEpc else { return false }
             return foundTagIDs.contains(tag)
         }

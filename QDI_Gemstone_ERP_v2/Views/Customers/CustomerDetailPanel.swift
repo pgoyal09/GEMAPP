@@ -10,6 +10,7 @@ struct CustomerDetailPanel: View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppSpacing.l) {
                 headerCard
+                customerNotesSection
                 onMemoSection
                 pastPurchasesSection
             }
@@ -51,6 +52,22 @@ struct CustomerDetailPanel: View {
                     DetailRow(label: "Address", value: addr)
                 }
                 DetailRow(label: "Exposure", value: customer.openExposure.asCurrency)
+            }
+        }
+    }
+
+    private var customerNotesSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.s) {
+            SectionHeader(title: "Notes")
+            if customer.notes.isEmpty {
+                Text("No notes")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+            } else {
+                Text(customer.notes)
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.inkMuted)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }

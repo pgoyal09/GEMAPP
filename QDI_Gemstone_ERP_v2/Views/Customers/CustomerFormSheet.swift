@@ -23,6 +23,7 @@ struct CustomerFormSheet: View {
     @State private var city = ""
     @State private var country = ""
     @State private var zip = ""
+    @State private var notes = ""
 
     var body: some View {
         VStack(spacing: 0) {
@@ -36,6 +37,7 @@ struct CustomerFormSheet: View {
                 VStack(alignment: .leading, spacing: AppSpacing.l) {
                     contactSection
                     addressSection
+                    notesSection
                 }
                 .padding(.horizontal, AppSpacing.l)
             }
@@ -124,6 +126,28 @@ struct CustomerFormSheet: View {
         }
     }
 
+    private var notesSection: some View {
+        GlassCard(padding: AppSpacing.m) {
+            VStack(alignment: .leading, spacing: AppSpacing.s) {
+                SectionHeader(title: "Notes")
+                TextEditor(text: $notes)
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.ink)
+                    .scrollContentBackground(.hidden)
+                    .frame(minHeight: 60)
+                    .padding(4)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(Color.white.opacity(0.05))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .strokeBorder(Color.white.opacity(0.10), lineWidth: 1)
+                            )
+                    )
+            }
+        }
+    }
+
     private func loadExisting() {
         guard case .edit(let c) = mode else { return }
         firstName = c.firstName
@@ -135,6 +159,7 @@ struct CustomerFormSheet: View {
         city = c.city
         country = c.country
         zip = c.zip
+        notes = c.notes
     }
 
     private func save() {
@@ -146,7 +171,8 @@ struct CustomerFormSheet: View {
             let customer = Customer(
                 firstName: firstName.trimmed, lastName: lastName.trimmed,
                 company: company.trimmed, email: email.trimmed, phone: phone.trimmed,
-                address: address.trimmed, city: city.trimmed, country: country.trimmed, zip: zip.trimmed
+                address: address.trimmed, city: city.trimmed, country: country.trimmed, zip: zip.trimmed,
+                notes: notes.trimmed
             )
             modelContext.insert(customer)
             do {
@@ -165,6 +191,7 @@ struct CustomerFormSheet: View {
             c.city = city.trimmed
             c.country = country.trimmed
             c.zip = zip.trimmed
+            c.notes = notes.trimmed
             do {
                 try modelContext.save()
             } catch {
