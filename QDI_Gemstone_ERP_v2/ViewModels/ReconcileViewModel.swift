@@ -39,9 +39,12 @@ final class ReconcileViewModel {
 
     func load(modelContext: ModelContext) {
         self.modelContext = modelContext
-        let descriptor = FetchDescriptor<Gemstone>(sortBy: [SortDescriptor(\.sku)])
-        let all = (try? modelContext.fetch(descriptor)) ?? []
-        availableStones = all.filter { $0.status == .available }
+        let availableStatus = GemstoneStatus.available
+        let descriptor = FetchDescriptor<Gemstone>(
+            predicate: #Predicate<Gemstone> { $0.status == availableStatus },
+            sortBy: [SortDescriptor(\.sku)]
+        )
+        availableStones = (try? modelContext.fetch(descriptor)) ?? []
     }
 
     func startScanning() {

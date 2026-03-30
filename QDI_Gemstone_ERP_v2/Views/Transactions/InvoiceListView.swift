@@ -5,7 +5,6 @@ import AppKit
 struct InvoiceListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
-    @Query(sort: \Invoice.invoiceDate, order: .reverse) private var allInvoices: [Invoice]
     @State private var viewModel = InvoiceListViewModel()
     @State private var isExportingBatch = false
     @State private var batchToastMessage: String?
@@ -13,11 +12,14 @@ struct InvoiceListView: View {
     @State private var batchCompleted = 0
     @State private var batchFailed = 0
 
+    private var allInvoices: [Invoice] { viewModel.fetchedInvoices }
+
     var body: some View {
         VStack(spacing: 0) {
             toolbar
             invoiceTable
         }
+        .onAppear { viewModel.fetchPage(context: modelContext) }
         .overlay {
             if let msg = batchToastMessage {
                 ToastOverlay(message: msg, isError: batchToastIsError)
@@ -67,7 +69,7 @@ struct InvoiceListView: View {
     private var invoiceTable: some View {
         let filtered = viewModel.filtered(from: allInvoices)
         return ScrollView([.horizontal, .vertical]) {
-            VStack(spacing: 0) {
+            LazyVStack(spacing: 0) {
                 headerRow
                 Divider().background(AppColors.cardStroke)
                 if filtered.isEmpty {
@@ -75,14 +77,18 @@ struct InvoiceListView: View {
                         .frame(minWidth: invoiceTableMinWidth)
                         .frame(height: 200)
                 } else {
-                    VStack(spacing: 2) {
+                    LazyVStack(spacing: 2) {
                         ForEach(filtered) { invoice in
                             invoiceRow(invoice)
+                                .onAppear {
+                                    if invoice.id == filtered.last?.id && viewModel.hasMore {
+                                        viewModel.loadMore(context: modelContext)
+                                    }
+                                }
                         }
                     }
                     .padding(.vertical, AppSpacing.xs)
 
-                    // Summary footer
                     invoiceSummaryFooter(filtered)
                 }
             }

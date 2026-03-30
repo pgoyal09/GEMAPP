@@ -39,6 +39,14 @@ struct DemoDataService {
 
     // MARK: - Seed All Demo Data
 
+    /// Creates demo data using a background context for better performance.
+    /// Falls back to the provided context if container is not available.
+    static func seedDemoDataInBackground(container: ModelContainer) throws {
+        let bgContext = ModelContext(container)
+        bgContext.autosaveEnabled = false
+        try seedDemoData(modelContext: bgContext)
+    }
+
     /// Creates 10 customers, 30 gemstones, 8 lot stones, 12 memos, 10 invoices,
     /// history events, and lot transactions.
     static func seedDemoData(modelContext: ModelContext) throws {

@@ -4,7 +4,6 @@ import SwiftData
 struct MemoListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
-    @Query(sort: \Memo.createdAt, order: .reverse) private var allMemos: [Memo]
     @State private var viewModel = MemoListViewModel()
     @State private var toastMessage: String?
     @State private var toastIsError = false
@@ -14,6 +13,7 @@ struct MemoListView: View {
             toolbar
             memoTable
         }
+        .onAppear { viewModel.fetchPage(context: modelContext) }
         .overlay {
             if let msg = toastMessage {
                 ToastOverlay(message: msg, isError: toastIsError)
@@ -63,9 +63,9 @@ struct MemoListView: View {
         + TableColumn.quantity + TableColumn.price + TableColumn.status + 60
 
     private var memoTable: some View {
-        let filtered = viewModel.filtered(from: allMemos)
+        let filtered = viewModel.filtered(from: viewModel.fetchedMemos)
         return ScrollView([.horizontal, .vertical]) {
-            VStack(spacing: 0) {
+            LazyVStack(spacing: 0) {
                 headerRow
                 Divider().background(AppColors.cardStroke)
                 if filtered.isEmpty {
@@ -73,14 +73,18 @@ struct MemoListView: View {
                         .frame(minWidth: memoTableMinWidth)
                         .frame(height: 200)
                 } else {
-                    VStack(spacing: 2) {
+                    LazyVStack(spacing: 2) {
                         ForEach(filtered) { memo in
                             memoRow(memo)
+                                .onAppear {
+                                    if memo.id == filtered.last?.id && viewModel.hasMore {
+                                        viewModel.loadMore(context: modelContext)
+                                    }
+                                }
                         }
                     }
                     .padding(.vertical, AppSpacing.xs)
 
-                    // Summary footer
                     memoSummaryFooter(filtered)
                 }
             }

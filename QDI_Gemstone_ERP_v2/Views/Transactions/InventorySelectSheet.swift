@@ -4,8 +4,8 @@ import SwiftData
 struct InventorySelectSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \Gemstone.sku) private var allGemstones: [Gemstone]
 
+    @State private var fetchedStones: [Gemstone] = []
     @State private var selectedIDs: Set<PersistentIdentifier> = []
     @State private var searchText = ""
     @State private var typeFilter: StoneType? = nil
@@ -14,9 +14,7 @@ struct InventorySelectSheet: View {
     var onSelect: ([Gemstone]) -> Void
 
     private var filteredStones: [Gemstone] {
-        allGemstones.filter { stone in
-            if availableOnly && stone.status != .available { return false }
-            if stone.grouping == .lot { return false }
+        fetchedStones.filter { stone in
             if let type = typeFilter, stone.stoneType != type { return false }
             let q = searchText.lowercased()
             if !q.isEmpty {
@@ -85,7 +83,7 @@ struct InventorySelectSheet: View {
                 Spacer()
                 Button("Cancel") { dismiss() }.buttonStyle(.outline)
                 Button("Add \(selectedIDs.count) Stone\(selectedIDs.count == 1 ? "" : "s")") {
-                    let stones = allGemstones.filter { selectedIDs.contains($0.persistentModelID) }
+                    let stones = fetchedStones.filter { selectedIDs.contains($0.persistentModelID) }
                     onSelect(stones)
                     dismiss()
                 }
@@ -95,5 +93,25 @@ struct InventorySelectSheet: View {
             .padding(AppSpacing.m)
         }
         .frame(minWidth: 720, minHeight: 420)
+        .onAppear { fetchStones() }
+        .onChange(of: availableOnly) { _, _ in fetchStones() }
+    }
+
+    private func fetchStones() {
+        let lotGrouping = StoneGrouping.lot
+        let availableStatus = GemstoneStatus.available
+        let descriptor: FetchDescriptor<Gemstone>
+        if availableOnly {
+            descriptor = FetchDescriptor<Gemstone>(
+                predicate: #Predicate<Gemstone> { $0.grouping != lotGrouping && $0.status == availableStatus },
+                sortBy: [SortDescriptor(\.sku)]
+            )
+        } else {
+            descriptor = FetchDescriptor<Gemstone>(
+                predicate: #Predicate<Gemstone> { $0.grouping != lotGrouping },
+                sortBy: [SortDescriptor(\.sku)]
+            )
+        }
+        fetchedStones = (try? modelContext.fetch(descriptor)) ?? []
     }
 }

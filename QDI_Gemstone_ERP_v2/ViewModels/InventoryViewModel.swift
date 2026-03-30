@@ -89,6 +89,34 @@ final class InventoryViewModel: SortableViewModel {
     var colorFilter: String? = nil
     var clarityFilter: String? = nil
 
+    // MARK: - Pagination
+
+    private(set) var fetchedStones: [Gemstone] = []
+    private(set) var hasMore = true
+    private let pageSize = 50
+    private var currentOffset = 0
+
+    func fetchPage(context: ModelContext, mode: InventoryListMode = .current) {
+        currentOffset = 0
+        hasMore = true
+        var descriptor = FetchDescriptor<Gemstone>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        descriptor.fetchLimit = pageSize
+        fetchedStones = (try? context.fetch(descriptor)) ?? []
+        currentOffset = fetchedStones.count
+        hasMore = fetchedStones.count == pageSize
+    }
+
+    func loadMore(context: ModelContext) {
+        guard hasMore else { return }
+        var descriptor = FetchDescriptor<Gemstone>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        descriptor.fetchLimit = pageSize
+        descriptor.fetchOffset = currentOffset
+        let page = (try? context.fetch(descriptor)) ?? []
+        fetchedStones.append(contentsOf: page)
+        currentOffset += page.count
+        hasMore = page.count == pageSize
+    }
+
     // MARK: - Selection
 
     var selectedStoneID: PersistentIdentifier? = nil

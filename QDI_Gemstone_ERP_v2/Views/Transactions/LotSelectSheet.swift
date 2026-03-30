@@ -3,8 +3,9 @@ import SwiftData
 
 struct LotSelectSheet: View {
     @Environment(\.dismiss) private var dismiss
-    @Query(sort: \Gemstone.sku) private var allGemstones: [Gemstone]
+    @Environment(\.modelContext) private var modelContext
 
+    @State private var fetchedLots: [Gemstone] = []
     @State private var selectedLotID: PersistentIdentifier?
     @State private var caratsText = ""
     @State private var searchText = ""
@@ -13,7 +14,7 @@ struct LotSelectSheet: View {
     var onSelect: (Gemstone, Double) -> Void
 
     private var lots: [Gemstone] {
-        allGemstones.filter { $0.grouping == .lot && $0.effectiveRemainingCarats > 0 }
+        fetchedLots.filter { $0.effectiveRemainingCarats > 0 }
             .filter { lot in
                 let q = searchText.lowercased()
                 guard !q.isEmpty else { return true }
@@ -102,6 +103,16 @@ struct LotSelectSheet: View {
             .padding(AppSpacing.m)
         }
         .frame(minWidth: 680, minHeight: 460)
+        .onAppear { fetchLots() }
+    }
+
+    private func fetchLots() {
+        let lotGrouping = StoneGrouping.lot
+        let descriptor = FetchDescriptor<Gemstone>(
+            predicate: #Predicate<Gemstone> { $0.grouping == lotGrouping },
+            sortBy: [SortDescriptor(\.sku)]
+        )
+        fetchedLots = (try? modelContext.fetch(descriptor)) ?? []
     }
 
     private func confirmSelection() {

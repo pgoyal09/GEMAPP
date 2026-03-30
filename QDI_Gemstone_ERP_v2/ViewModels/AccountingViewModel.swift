@@ -113,10 +113,8 @@ final class AccountingViewModel {
         let startDate = dateRange.startDate
         let endDate = dateRange.endDate
         let filtered = fetchFilteredInvoices(startDate: startDate, endDate: endDate, modelContext: modelContext)
-        computeRevenueAndCost(from: filtered)
+        computeAll(from: filtered)
         loadAgedReceivables(modelContext: modelContext)
-        computeSalesByStoneType(from: filtered)
-        computeMonthlySales(from: filtered)
     }
 
     // MARK: - CSV Export
@@ -135,20 +133,39 @@ final class AccountingViewModel {
 
     // MARK: - Private
 
-    private func computeRevenueAndCost(from invoices: [Invoice]) {
-        totalRevenue = invoices.reduce(Decimal.zero) { $0 + $1.totalAmount }
+    /// Single-pass aggregation: revenue, cost, stone type breakdown, and monthly sales.
+    private func computeAll(from invoices: [Invoice]) {
+        let fmt = DateFormatter()
+        fmt.dateFormat = "yyyy-MM"
 
-        totalCost = invoices.reduce(Decimal.zero) { sum, inv in
-            sum + inv.lineItems.reduce(Decimal.zero) { lineSum, item in
+        var revenue: Decimal = 0
+        var cost: Decimal = 0
+        var stoneTypeMap: [String: Decimal] = [:]
+        var monthlyMap: [String: Decimal] = [:]
+
+        for inv in invoices {
+            revenue += inv.totalAmount
+            let monthKey = fmt.string(from: inv.invoiceDate)
+            monthlyMap[monthKey, default: 0] += inv.totalAmount
+
+            for item in inv.lineItems {
+                stoneTypeMap[item.stoneTypeDisplay, default: 0] += item.amount
                 if let stone = item.gemstone {
                     if item.isLotLineItem {
-                        return lineSum + (item.lockedCostPerCarat ?? stone.effectiveAverageCost) * Decimal(item.carats)
+                        cost += (item.lockedCostPerCarat ?? stone.effectiveAverageCost) * Decimal(item.carats)
+                    } else {
+                        cost += stone.costPrice
                     }
-                    return lineSum + stone.costPrice
                 }
-                return lineSum
             }
         }
+
+        totalRevenue = revenue
+        totalCost = cost
+        salesByStoneType = stoneTypeMap.map { SalesByStoneType(id: $0.key, stoneType: $0.key, revenue: $0.value) }
+            .sorted { $0.revenue > $1.revenue }
+        monthlySales = monthlyMap.map { MonthlySales(id: $0.key, month: $0.key, revenue: $0.value) }
+            .sorted { $0.id < $1.id }
     }
 
     /// Shared helper to fetch paid/sent invoices within a date range.
@@ -212,32 +229,5 @@ final class AccountingViewModel {
         }
 
         agedReceivables = buckets
-    }
-
-    private func computeSalesByStoneType(from invoices: [Invoice]) {
-        var map: [String: Decimal] = [:]
-        for inv in invoices {
-            for item in inv.lineItems {
-                let type = item.stoneTypeDisplay
-                map[type, default: 0] += item.amount
-            }
-        }
-
-        salesByStoneType = map.map { SalesByStoneType(id: $0.key, stoneType: $0.key, revenue: $0.value) }
-            .sorted { $0.revenue > $1.revenue }
-    }
-
-    private func computeMonthlySales(from invoices: [Invoice]) {
-        let fmt = DateFormatter()
-        fmt.dateFormat = "yyyy-MM"
-
-        var map: [String: Decimal] = [:]
-        for inv in invoices {
-            let key = fmt.string(from: inv.invoiceDate)
-            map[key, default: 0] += inv.totalAmount
-        }
-
-        monthlySales = map.map { MonthlySales(id: $0.key, month: $0.key, revenue: $0.value) }
-            .sorted { $0.id < $1.id }
     }
 }

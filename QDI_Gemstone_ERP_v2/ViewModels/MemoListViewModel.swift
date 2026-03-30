@@ -10,6 +10,34 @@ final class MemoListViewModel: SortableViewModel {
     var sortKey: String = "date"
     var sortAscending: Bool = false
 
+    // MARK: - Pagination
+
+    private(set) var fetchedMemos: [Memo] = []
+    private(set) var hasMore = true
+    private let pageSize = 50
+    private var currentOffset = 0
+
+    func fetchPage(context: ModelContext) {
+        currentOffset = 0
+        hasMore = true
+        var descriptor = FetchDescriptor<Memo>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        descriptor.fetchLimit = pageSize
+        fetchedMemos = (try? context.fetch(descriptor)) ?? []
+        currentOffset = fetchedMemos.count
+        hasMore = fetchedMemos.count == pageSize
+    }
+
+    func loadMore(context: ModelContext) {
+        guard hasMore else { return }
+        var descriptor = FetchDescriptor<Memo>(sortBy: [SortDescriptor(\.createdAt, order: .reverse)])
+        descriptor.fetchLimit = pageSize
+        descriptor.fetchOffset = currentOffset
+        let page = (try? context.fetch(descriptor)) ?? []
+        fetchedMemos.append(contentsOf: page)
+        currentOffset += page.count
+        hasMore = page.count == pageSize
+    }
+
     func filtered(from memos: [Memo]) -> [Memo] {
         var result = memos
 

@@ -14,7 +14,6 @@ struct InventoryListView: View {
     let mode: InventoryListMode
 
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \Gemstone.createdAt, order: .reverse) private var allGemstones: [Gemstone]
 
     @State var viewModel = InventoryViewModel()
     @State private var showEditSheet = false
@@ -26,6 +25,8 @@ struct InventoryListView: View {
     @Environment(\.openWindow) private var openWindow
 
     // MARK: - Computed
+
+    private var allGemstones: [Gemstone] { viewModel.fetchedStones }
 
     private var baseStones: [Gemstone] {
         switch mode {
@@ -74,6 +75,7 @@ struct InventoryListView: View {
                 .frame(width: 296)
             }
         }
+        .onAppear { viewModel.fetchPage(context: modelContext, mode: mode) }
         .animation(.easeInOut(duration: 0.2), value: viewModel.showFiltersPanel)
         .animation(.easeInOut(duration: 0.2), value: selectedStone?.persistentModelID)
         .overlay(alignment: .bottom) {
@@ -238,7 +240,7 @@ struct InventoryListView: View {
 
     private var tableContent: some View {
         ScrollView([.horizontal, .vertical]) {
-            VStack(spacing: 0) {
+            LazyVStack(spacing: 0) {
                 tableHeader
                 Divider().background(AppColors.cardStroke)
 
@@ -250,14 +252,18 @@ struct InventoryListView: View {
                     )
                     .frame(minWidth: tableMinWidth)
                 } else {
-                    VStack(spacing: 2) {
+                    LazyVStack(spacing: 2) {
                         ForEach(filteredStones, id: \.persistentModelID) { stone in
                             stoneRow(stone)
+                                .onAppear {
+                                    if stone.persistentModelID == filteredStones.last?.persistentModelID && viewModel.hasMore {
+                                        viewModel.loadMore(context: modelContext)
+                                    }
+                                }
                         }
                     }
                     .padding(.vertical, AppSpacing.xs)
 
-                    // Summary footer
                     summaryFooter
                 }
             }
