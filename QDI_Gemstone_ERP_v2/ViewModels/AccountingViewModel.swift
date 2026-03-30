@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import os
 
 // MARK: - Data Types
 
@@ -122,7 +123,13 @@ final class AccountingViewModel {
         let descriptor = FetchDescriptor<Invoice>(
             predicate: #Predicate<Invoice> { $0.status == paidStatus || $0.status == sentStatus }
         )
-        let allInvoices = (try? modelContext.fetch(descriptor)) ?? []
+        let allInvoices: [Invoice]
+        do {
+            allInvoices = try modelContext.fetch(descriptor)
+        } catch {
+            AppLogger.data.error("Accounting fetch failed: \(error.localizedDescription, privacy: .public)")
+            allInvoices = []
+        }
 
         // Date-filtered subset for revenue/cost/breakdown
         let startDate = dateRange.startDate

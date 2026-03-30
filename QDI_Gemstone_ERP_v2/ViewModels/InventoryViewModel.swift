@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import os
 
 // MARK: - Filter Types
 
@@ -106,7 +107,12 @@ final class InventoryViewModel: SortableViewModel {
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
         descriptor.fetchLimit = pageSize
-        fetchedStones = (try? context.fetch(descriptor)) ?? []
+        do {
+            fetchedStones = try context.fetch(descriptor)
+        } catch {
+            AppLogger.data.error("Inventory fetch failed: \(error.localizedDescription, privacy: .public)")
+            fetchedStones = []
+        }
         currentOffset = fetchedStones.count
         hasMore = fetchedStones.count == pageSize
     }
@@ -119,7 +125,13 @@ final class InventoryViewModel: SortableViewModel {
         )
         descriptor.fetchLimit = pageSize
         descriptor.fetchOffset = currentOffset
-        let page = (try? context.fetch(descriptor)) ?? []
+        let page: [Gemstone]
+        do {
+            page = try context.fetch(descriptor)
+        } catch {
+            AppLogger.data.error("Inventory loadMore failed: \(error.localizedDescription, privacy: .public)")
+            return
+        }
         fetchedStones.append(contentsOf: page)
         currentOffset += page.count
         hasMore = page.count == pageSize

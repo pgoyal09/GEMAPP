@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import os
 
 @MainActor
 @Observable
@@ -25,7 +26,12 @@ final class MemoListViewModel: SortableViewModel {
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
         descriptor.fetchLimit = pageSize
-        fetchedMemos = (try? context.fetch(descriptor)) ?? []
+        do {
+            fetchedMemos = try context.fetch(descriptor)
+        } catch {
+            AppLogger.data.error("Memo fetch failed: \(error.localizedDescription, privacy: .public)")
+            fetchedMemos = []
+        }
         currentOffset = fetchedMemos.count
         hasMore = fetchedMemos.count == pageSize
     }
@@ -38,7 +44,13 @@ final class MemoListViewModel: SortableViewModel {
         )
         descriptor.fetchLimit = pageSize
         descriptor.fetchOffset = currentOffset
-        let page = (try? context.fetch(descriptor)) ?? []
+        let page: [Memo]
+        do {
+            page = try context.fetch(descriptor)
+        } catch {
+            AppLogger.data.error("Memo loadMore failed: \(error.localizedDescription, privacy: .public)")
+            return
+        }
         fetchedMemos.append(contentsOf: page)
         currentOffset += page.count
         hasMore = page.count == pageSize

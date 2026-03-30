@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import os
 
 @MainActor
 @Observable
@@ -25,7 +26,12 @@ final class InvoiceListViewModel: SortableViewModel {
             sortBy: [SortDescriptor(\.invoiceDate, order: .reverse)]
         )
         descriptor.fetchLimit = pageSize
-        fetchedInvoices = (try? context.fetch(descriptor)) ?? []
+        do {
+            fetchedInvoices = try context.fetch(descriptor)
+        } catch {
+            AppLogger.data.error("Invoice fetch failed: \(error.localizedDescription, privacy: .public)")
+            fetchedInvoices = []
+        }
         currentOffset = fetchedInvoices.count
         hasMore = fetchedInvoices.count == pageSize
     }
@@ -38,7 +44,13 @@ final class InvoiceListViewModel: SortableViewModel {
         )
         descriptor.fetchLimit = pageSize
         descriptor.fetchOffset = currentOffset
-        let page = (try? context.fetch(descriptor)) ?? []
+        let page: [Invoice]
+        do {
+            page = try context.fetch(descriptor)
+        } catch {
+            AppLogger.data.error("Invoice loadMore failed: \(error.localizedDescription, privacy: .public)")
+            return
+        }
         fetchedInvoices.append(contentsOf: page)
         currentOffset += page.count
         hasMore = page.count == pageSize

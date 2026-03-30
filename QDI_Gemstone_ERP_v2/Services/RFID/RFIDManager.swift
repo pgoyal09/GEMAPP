@@ -53,6 +53,15 @@ struct TagScan {
 ///   Get Version -> Boot Firmware -> Get UID (optional) -> Start Async Inventory.
 ///
 /// UID is non-fatal: if Version + Boot succeed but UID times out, startup continues.
+///
+/// ## Threading Model
+/// - `@Published` properties are only mutated on the main thread (via `DispatchQueue.main.async`).
+/// - Serial I/O runs on `queue` (a dedicated serial DispatchQueue).
+/// - `fileDescriptor` is guarded by `iolock` (os_unfair_lock).
+/// - `frameBuffer` is guarded by `frameBufferLock` (NSLock).
+/// - `seenTagIDsThisSession` is guarded by `sessionLock` (NSLock).
+/// - `@unchecked Sendable` is intentional: the class manages its own synchronization
+///   across the serial port read queue and main thread callbacks.
 final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortDelegate, @unchecked Sendable {
 
     // MARK: - RFIDService Callbacks
@@ -325,13 +334,6 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
     }
 
     // MARK: - Security-Scoped Resource Helpers
-
-    private func acquireSecurityScopedAccess(for url: URL) {
-        guard !hasSecurityScopedAccess else { return }
-        if url.startAccessingSecurityScopedResource() {
-            hasSecurityScopedAccess = true
-        }
-    }
 
     private func relinquishSecurityScopedAccess() {
         // Only stop if we previously started.
@@ -856,17 +858,6 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
         let prefix = Self.asyncAckDataPrefix
         guard payload.count >= prefix.count else { return false }
         return prefix.enumerated().allSatisfy { payload[$0.offset] == $0.element }
-    }
-
-    private func frameTypeLabel(cmd: UInt8, isAsyncAck: Bool) -> String {
-        if isAsyncAck { return "async-ack" }
-        switch cmd {
-        case 0x03: return "version"
-        case 0x04: return "boot"
-        case 0x10: return "uid"
-        case 0xAA: return "tag-event"
-        default:   return "control"
-        }
     }
 
     /// Tag events: cmd 0xAA with EPC-sized payload, NOT the async ack.
