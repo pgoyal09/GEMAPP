@@ -193,7 +193,7 @@ struct CustomerFormSheet: View {
                 dismiss()
             } catch {
                 toastIsError = true
-                withAnimation { toastMessage = "Failed to save customer: \(error.localizedDescription)" }
+                withAnimation { toastMessage = "Failed to save customer: \(ErrorMapper.userMessage(from: error))" }
             }
         case .edit(let c):
             c.firstName = firstName.trimmed
@@ -212,7 +212,7 @@ struct CustomerFormSheet: View {
                 dismiss()
             } catch {
                 toastIsError = true
-                withAnimation { toastMessage = "Failed to save customer: \(error.localizedDescription)" }
+                withAnimation { toastMessage = "Failed to save customer: \(ErrorMapper.userMessage(from: error))" }
             }
         }
     }

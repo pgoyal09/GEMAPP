@@ -26,7 +26,7 @@ final class APIServer: @unchecked Sendable {
     func start() throws {
         guard !isRunning else { return }
         let params = NWParameters.tcp
-        let nwPort = NWEndpoint.Port(rawValue: port) ?? NWEndpoint.Port(rawValue: 8847)!
+        guard let nwPort = NWEndpoint.Port(rawValue: port) ?? NWEndpoint.Port(rawValue: 8847) else { return }
         listener = try NWListener(using: params, on: nwPort)
 
         listener?.stateUpdateHandler = { [weak self] state in

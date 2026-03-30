@@ -239,7 +239,7 @@ final class TransactionEditorViewModel {
                 try MemoService.returnItems([item], modelContext: modelContext)
                 lastRFIDMessage = "Returned to stock: \(stone.sku)"
             } catch {
-                lastRFIDMessage = "Failed to return stone: \(error.localizedDescription)"
+                lastRFIDMessage = "Failed to return stone: \(ErrorMapper.userMessage(from: error))"
             }
         case .sold:
             lastRFIDMessage = "Stone already sold: \(stone.sku)"
