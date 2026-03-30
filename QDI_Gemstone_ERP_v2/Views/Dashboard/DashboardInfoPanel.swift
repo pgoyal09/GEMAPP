@@ -7,11 +7,16 @@ struct DashboardInfoPanel: View {
     @AppStorage("memoAgingYellow") private var memoAgingYellow: Int = 14
     @AppStorage("memoAgingOrange") private var memoAgingOrange: Int = 30
 
+    private var backupScheduler = BackupScheduler()
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppSpacing.l) {
                 oldestOpenMemosSection
                 inventorySnapshotSection
+                if backupScheduler.isEnabled {
+                    autoBackupSection
+                }
             }
             .padding(AppSpacing.l)
         }
@@ -95,6 +100,24 @@ struct DashboardInfoPanel: View {
                     .help("Consignment agreement allowing customer to review stones before buying")
                 snapshotChip("Sold", viewModel.inventorySnapshot.soldCount, color: AppColors.inkMuted)
             }
+        }
+    }
+
+    // MARK: - Auto Backup Status
+
+    private var autoBackupSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.compact) {
+            SectionHeader(title: "Auto Backup")
+            HStack(spacing: 6) {
+                Image(systemName: "externaldrive.fill.badge.checkmark")
+                    .font(.system(size: 11))
+                    .foregroundStyle(AppColors.success)
+                Text("Last: \(backupScheduler.lastBackupAgo)")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkMuted)
+            }
+            .padding(.horizontal, AppSpacing.s)
+            .padding(.vertical, AppSpacing.compact)
         }
     }
 

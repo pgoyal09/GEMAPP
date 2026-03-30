@@ -73,7 +73,7 @@ struct InvoiceListView: View {
     }
 
     private let invoiceTableMinWidth: CGFloat =
-        TableColumn.invoice + TableColumn.customer + TableColumn.date
+        TableColumn.invoice + TableColumn.customer + TableColumn.salesperson + TableColumn.date
         + TableColumn.price + TableColumn.status + 60
 
     private var invoiceTable: some View {
@@ -114,6 +114,7 @@ struct InvoiceListView: View {
         HStack(spacing: 0) {
             invoiceSortableHeader("Invoice #", key: "reference", width: TableColumn.invoice)
             invoiceSortableHeader("Customer", key: "customer", width: TableColumn.customer)
+            invoiceSortableHeader("Salesperson", key: "salesperson", width: TableColumn.salesperson)
             invoiceSortableHeader("Date", key: "date", width: TableColumn.date)
             invoiceSortableHeader("Total", key: "total", width: TableColumn.price)
             invoiceSortableHeader("Status", key: "status", width: TableColumn.status)
@@ -149,6 +150,11 @@ struct InvoiceListView: View {
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .frame(width: TableColumn.customer, alignment: .leading)
+            Text(invoice.salesperson ?? "—")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+                .lineLimit(1)
+                .frame(width: TableColumn.salesperson, alignment: .leading)
             Text(invoice.invoiceDate.formatted(date: .abbreviated, time: .omitted))
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkSubtle)

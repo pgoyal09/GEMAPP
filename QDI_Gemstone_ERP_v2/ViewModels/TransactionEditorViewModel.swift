@@ -261,6 +261,8 @@ final class TransactionEditorViewModel {
             }
         case .sold:
             lastRFIDMessage = "Stone already sold: \(stone.sku)"
+        case .atLab, .reserved, .inTransit, .consignment:
+            lastRFIDMessage = "Stone status: \(stone.status.rawValue) — \(stone.sku)"
         }
     }
 }

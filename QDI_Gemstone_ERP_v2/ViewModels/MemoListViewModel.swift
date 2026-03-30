@@ -82,7 +82,8 @@ final class MemoListViewModel: SortableViewModel {
         if !q.isEmpty {
             result = result.filter { memo in
                 memo.referenceNumber.lowercased().contains(q) ||
-                (memo.customer?.displayName ?? "").lowercased().contains(q)
+                (memo.customer?.displayName ?? "").lowercased().contains(q) ||
+                (memo.salesperson ?? "").lowercased().contains(q)
             }
         }
 
@@ -99,6 +100,8 @@ final class MemoListViewModel: SortableViewModel {
                 result = a.referenceNumber.localizedCompare(b.referenceNumber) == .orderedAscending
             case "customer":
                 result = (a.customer?.displayName ?? "").localizedCompare(b.customer?.displayName ?? "") == .orderedAscending
+            case "salesperson":
+                result = (a.salesperson ?? "").localizedCompare(b.salesperson ?? "") == .orderedAscending
             case "status":
                 result = a.status.rawValue.localizedCompare(b.status.rawValue) == .orderedAscending
             case "total":

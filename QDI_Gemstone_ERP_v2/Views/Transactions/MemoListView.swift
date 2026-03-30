@@ -69,7 +69,7 @@ struct MemoListView: View {
     }
 
     private let memoTableMinWidth: CGFloat =
-        TableColumn.memo + TableColumn.customer + TableColumn.date
+        TableColumn.memo + TableColumn.customer + TableColumn.salesperson + TableColumn.date
         + TableColumn.quantity + TableColumn.price + TableColumn.status + 60
 
     private var memoTable: some View {
@@ -110,6 +110,7 @@ struct MemoListView: View {
         HStack(spacing: 0) {
             memoSortableHeader("Memo #", key: "reference", width: TableColumn.memo)
             memoSortableHeader("Customer", key: "customer", width: TableColumn.customer)
+            memoSortableHeader("Salesperson", key: "salesperson", width: TableColumn.salesperson)
             memoSortableHeader("Date", key: "date", width: TableColumn.date)
             TableHeader(title: "Age", width: TableColumn.quantity)
             memoSortableHeader("Amount", key: "total", width: TableColumn.price)
@@ -147,6 +148,11 @@ struct MemoListView: View {
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .frame(width: TableColumn.customer, alignment: .leading)
+            Text(memo.salesperson ?? "—")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+                .lineLimit(1)
+                .frame(width: TableColumn.salesperson, alignment: .leading)
             Text(memo.dateAssigned?.formatted(date: .abbreviated, time: .omitted) ?? "—")
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkSubtle)

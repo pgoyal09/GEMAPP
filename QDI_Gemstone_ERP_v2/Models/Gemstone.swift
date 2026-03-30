@@ -334,9 +334,13 @@ final class Gemstone {
     /// Human-readable location: "Safe", customer name, or "Sold".
     var currentLocation: String {
         switch status {
-        case .available: return "Safe"
-        case .onMemo:    return memo?.customer?.displayName ?? "On Memo"
-        case .sold:      return "Sold"
+        case .available:    return "Safe"
+        case .onMemo:       return memo?.customer?.displayName ?? "On Memo"
+        case .sold:         return "Sold"
+        case .atLab:        return "At Lab"
+        case .reserved:     return "Reserved"
+        case .inTransit:    return "In Transit"
+        case .consignment:  return "Consignment"
         }
     }
 

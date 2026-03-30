@@ -8,6 +8,8 @@ final class Memo {
     var dateCompleted: Date?
     var notes: String
     var createdAt: Date
+    var salesperson: String?
+
     @Attribute(.unique)
     var referenceNumber: String
 
@@ -27,7 +29,8 @@ final class Memo {
         notes: String = "",
         createdAt: Date = Date(),
         referenceNumber: String = "",
-        customer: Customer? = nil
+        customer: Customer? = nil,
+        salesperson: String? = nil
     ) {
         self.status = status
         self.dateAssigned = dateAssigned
@@ -36,6 +39,7 @@ final class Memo {
         self.createdAt = createdAt
         self.referenceNumber = referenceNumber
         self.customer = customer
+        self.salesperson = salesperson
     }
 
     // MARK: - Computed

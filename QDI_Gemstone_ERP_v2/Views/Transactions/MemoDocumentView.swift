@@ -140,6 +140,15 @@ struct MemoDocumentView: View {
                         ), displayedComponents: .date)
                         .labelsHidden()
                     }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Salesperson").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                        TextField("Salesperson name", text: Binding(
+                            get: { memo.salesperson ?? "" },
+                            set: { memo.salesperson = $0.isEmpty ? nil : $0; markDirty() }
+                        ))
+                        .glassField()
+                        .frame(width: 160)
+                    }
                 }
             }
         }

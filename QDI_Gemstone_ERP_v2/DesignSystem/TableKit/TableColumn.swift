@@ -23,4 +23,5 @@ enum TableColumn {
     static let availability: CGFloat = 100
     static let days: CGFloat = 60
     static let origin: CGFloat = 100
+    static let salesperson: CGFloat = 110
 }

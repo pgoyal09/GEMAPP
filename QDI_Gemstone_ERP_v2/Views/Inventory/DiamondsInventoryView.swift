@@ -18,6 +18,9 @@ struct DiamondsInventoryView: View {
     @State private var toastIsError = false
     @State private var showExportConfirm = false
     @State private var includeMemoStones = false
+    @State private var showCSVImportPreview = false
+    @State private var csvImportRows: [CSVImportService.ImportRow] = []
+    @State private var csvImportError: String?
 
     // MARK: - Sort State
 
@@ -165,6 +168,14 @@ struct DiamondsInventoryView: View {
         } message: {
             Text("Export \(exportableStones.count) diamond\(exportableStones.count == 1 ? "" : "s") to RapNet CSV?")
         }
+        .sheet(isPresented: $showCSVImportPreview) {
+            CSVImportPreviewSheet(rows: csvImportRows)
+        }
+        .alert("CSV Import Error", isPresented: .constant(csvImportError != nil)) {
+            Button("OK") { csvImportError = nil }
+        } message: {
+            Text(csvImportError ?? "")
+        }
     }
 
     // MARK: - Top Bar
@@ -181,6 +192,8 @@ struct DiamondsInventoryView: View {
                 .toggleStyle(.checkbox)
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
+            Button("Import CSV") { pickCSVFile() }
+                .buttonStyle(.outline)
             Button("Export for RapNet") {
                 showExportConfirm = true
             }
@@ -430,13 +443,31 @@ struct DiamondsInventoryView: View {
         }
     }
 
+    private func pickCSVFile() {
+        let panel = NSOpenPanel()
+        panel.title = "Import Supplier Price List"
+        panel.allowedContentTypes = [.commaSeparatedText]
+        panel.allowsMultipleSelection = false
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            csvImportRows = try CSVImportService.parse(url: url)
+            showCSVImportPreview = true
+        } catch {
+            csvImportError = error.localizedDescription
+        }
+    }
+
     // MARK: - Helpers
 
     private func statusBadge(for status: GemstoneStatus) -> StatusBadge {
         switch status {
-        case .available: return StatusBadge(title: "Available", tone: .success)
-        case .onMemo:    return StatusBadge(title: "On Memo", tone: .warning)
-        case .sold:      return StatusBadge(title: "Sold", tone: .accent)
+        case .available:    return StatusBadge(title: "Available", tone: .success)
+        case .onMemo:       return StatusBadge(title: "On Memo", tone: .warning)
+        case .sold:         return StatusBadge(title: "Sold", tone: .accent)
+        case .atLab:        return StatusBadge(title: "At Lab", tone: .accent)
+        case .reserved:     return StatusBadge(title: "Reserved", tone: .warning)
+        case .inTransit:    return StatusBadge(title: "In Transit", tone: .accent)
+        case .consignment:  return StatusBadge(title: "Consignment", tone: .neutral)
         }
     }
 }

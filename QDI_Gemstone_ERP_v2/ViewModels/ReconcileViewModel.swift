@@ -153,6 +153,8 @@ final class ReconcileViewModel {
                 extraScanReasons[epc] = "Sold"
             case .onMemo:
                 extraScanReasons[epc] = "On memo"
+            case .atLab, .reserved, .inTransit, .consignment:
+                extraScanReasons[epc] = stone.status.rawValue
             }
         case .unknownTag(let epc, let tid):
             scannedTagIDs.append(epc)

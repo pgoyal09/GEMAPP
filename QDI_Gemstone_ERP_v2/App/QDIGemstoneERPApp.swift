@@ -22,6 +22,7 @@ struct QDIGemstoneERPApp: App {
     @State private var showMigrationFailureAlert = false
     @State private var migrationError: String = ""
     @State private var apiServer: APIServer?
+    @State private var backupScheduler = BackupScheduler()
 
     private static let storeURL = URL.applicationSupportDirectory.appending(path: "QDIGemstoneERP_v2.store")
     private static let schema = Schema([
@@ -33,6 +34,7 @@ struct QDIGemstoneERPApp: App {
         LotTransaction.self,
         HistoryEvent.self,
         RFIDTag.self,
+        Payment.self,
     ])
 
     /// Flag set when the initial container creation fails, so the app can show an alert.
@@ -72,6 +74,7 @@ struct QDIGemstoneERPApp: App {
                     setupRFID()
                     startAPIServer()
                     runPhase2Migrations()
+                    backupScheduler.configure(container: sharedModelContainer)
                     #if DEBUG
                     // Only seed demo data in debug builds — production starts with empty database
                     do {

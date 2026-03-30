@@ -198,9 +198,13 @@ struct GemstoneDetailPanel: View {
 
     private func statusBadge(for status: GemstoneStatus) -> StatusBadge {
         switch status {
-        case .available: return StatusBadge(title: "Available", tone: .success)
-        case .onMemo:    return StatusBadge(title: "On Memo", tone: .warning)
-        case .sold:      return StatusBadge(title: "Sold", tone: .accent)
+        case .available:    return StatusBadge(title: "Available", tone: .success)
+        case .onMemo:       return StatusBadge(title: "On Memo", tone: .warning)
+        case .sold:         return StatusBadge(title: "Sold", tone: .accent)
+        case .atLab:        return StatusBadge(title: "At Lab", tone: .accent)
+        case .reserved:     return StatusBadge(title: "Reserved", tone: .warning)
+        case .inTransit:    return StatusBadge(title: "In Transit", tone: .accent)
+        case .consignment:  return StatusBadge(title: "Consignment", tone: .neutral)
         }
     }
 

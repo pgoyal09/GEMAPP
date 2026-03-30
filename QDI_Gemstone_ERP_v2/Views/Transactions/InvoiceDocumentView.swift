@@ -36,6 +36,7 @@ struct InvoiceDocumentView: View {
                     headerSection
                     lineItemsSection
                     totalsSection
+                    PaymentListView(invoice: invoice, onDirty: { markDirty() })
                     notesSection
                 }
                 .padding(AppSpacing.l)
@@ -171,6 +172,16 @@ struct InvoiceDocumentView: View {
                         .accessibilityLabel("Payment Terms")
                         .disabled(!isEditable)
                         .onChange(of: invoice.terms) { _, _ in markDirty() }
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Salesperson").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                        TextField("Salesperson name", text: Binding(
+                            get: { invoice.salesperson ?? "" },
+                            set: { invoice.salesperson = $0.isEmpty ? nil : $0; markDirty() }
+                        ))
+                        .glassField()
+                        .frame(width: 160)
+                        .disabled(!isEditable)
                     }
                 }
             }

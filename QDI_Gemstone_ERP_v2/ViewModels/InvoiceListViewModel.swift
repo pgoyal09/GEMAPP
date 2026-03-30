@@ -84,7 +84,8 @@ final class InvoiceListViewModel: SortableViewModel {
         if !q.isEmpty {
             result = result.filter { inv in
                 inv.referenceNumber.lowercased().contains(q) ||
-                (inv.customer?.displayName ?? "").lowercased().contains(q)
+                (inv.customer?.displayName ?? "").lowercased().contains(q) ||
+                (inv.salesperson ?? "").lowercased().contains(q)
             }
         }
 
@@ -101,6 +102,8 @@ final class InvoiceListViewModel: SortableViewModel {
                 result = a.referenceNumber.localizedCompare(b.referenceNumber) == .orderedAscending
             case "customer":
                 result = (a.customer?.displayName ?? "").localizedCompare(b.customer?.displayName ?? "") == .orderedAscending
+            case "salesperson":
+                result = (a.salesperson ?? "").localizedCompare(b.salesperson ?? "") == .orderedAscending
             case "status":
                 result = a.status.rawValue.localizedCompare(b.status.rawValue) == .orderedAscending
             case "total":

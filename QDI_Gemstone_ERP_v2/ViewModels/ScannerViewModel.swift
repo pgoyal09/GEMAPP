@@ -119,6 +119,8 @@ final class ScannerViewModel {
                 returnStoneFromMemo(stone: stone, modelContext: modelContext)
             case .sold:
                 lastProcessResult = "Stone already sold"
+            case .atLab, .reserved, .inTransit, .consignment:
+                lastProcessResult = "Stone status: \(stone.status.rawValue)"
             }
         case .unknownTag(let epc, let tid):
             lastProcessResult = "Unknown tag"

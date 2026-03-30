@@ -17,6 +17,8 @@ final class Invoice {
     /// Tax rate as a percentage (e.g. 8.5 for 8.5%).
     var taxRate: Decimal
 
+    var salesperson: String?
+
     @Relationship
     var customer: Customer?
     /// When non-nil, this invoice was created by converting items from a memo.
@@ -25,6 +27,9 @@ final class Invoice {
 
     @Relationship(deleteRule: .cascade, inverse: \LineItem.invoice)
     var lineItems: [LineItem] = []
+
+    @Relationship(deleteRule: .cascade, inverse: \Payment.invoice)
+    var payments: [Payment] = []
 
     init(
         invoiceDate: Date = Date(),
@@ -37,7 +42,8 @@ final class Invoice {
         customer: Customer? = nil,
         originMemo: Memo? = nil,
         discountAmount: Decimal = 0,
-        taxRate: Decimal = 0
+        taxRate: Decimal = 0,
+        salesperson: String? = nil
     ) {
         self.invoiceDate = invoiceDate
         self.dueDate = dueDate
@@ -50,6 +56,7 @@ final class Invoice {
         self.originMemo = originMemo
         self.discountAmount = discountAmount
         self.taxRate = taxRate
+        self.salesperson = salesperson
     }
 
     // MARK: - Computed
@@ -77,4 +84,14 @@ final class Invoice {
 
     /// Legacy accessor — returns grandTotal for backward compatibility.
     var totalAmount: Decimal { grandTotal }
+
+    /// Sum of all recorded payments.
+    var totalPaid: Decimal {
+        payments.reduce(Decimal.zero) { $0 + $1.amount }
+    }
+
+    /// Remaining balance: grandTotal minus payments received.
+    var balanceDue: Decimal {
+        grandTotal - totalPaid
+    }
 }

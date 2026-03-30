@@ -18,6 +18,7 @@ struct CompanySettingsView: View {
     @State private var backupIsError = false
     @State private var showRestoreConfirm = false
     @State private var pendingRestoreURL: URL?
+    @State private var backupScheduler = BackupScheduler()
 
     var body: some View {
         ScrollView {
@@ -148,6 +149,63 @@ struct CompanySettingsView: View {
                 Text("These details appear on generated PDF invoices and memos.")
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.inkSubtle)
+
+                // MARK: - Auto Backup
+
+                SectionHeader(title: "Automatic Backup")
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Toggle("Enable scheduled backups", isOn: $backupScheduler.isEnabled)
+                        .toggleStyle(.checkbox)
+
+                    if backupScheduler.isEnabled {
+                        HStack(spacing: 12) {
+                            Text("Interval (hours)")
+                                .font(AppTypography.body)
+                                .foregroundStyle(AppColors.inkMuted)
+                            TextField("", value: $backupScheduler.intervalHours, format: .number)
+                                .frame(width: 60)
+                                .textFieldStyle(.roundedBorder)
+                                .multilineTextAlignment(.center)
+                        }
+
+                        HStack(spacing: 12) {
+                            Text("Backup folder")
+                                .font(AppTypography.body)
+                                .foregroundStyle(AppColors.inkMuted)
+                            Text(backupScheduler.backupDirectory?.path ?? "Not set")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.inkSubtle)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                            Spacer()
+                            Button("Choose…") { pickBackupDirectory() }
+                                .buttonStyle(.outline)
+                        }
+
+                        HStack(spacing: 6) {
+                            Image(systemName: "clock")
+                                .font(.system(size: 11))
+                                .foregroundStyle(AppColors.inkSubtle)
+                            Text("Last backup: \(backupScheduler.lastBackupAgo)")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.inkMuted)
+                            Spacer()
+                            Button("Backup Now") { backupScheduler.performBackupNow() }
+                                .buttonStyle(.outline)
+                                .disabled(backupScheduler.backupDirectory == nil)
+                        }
+                    }
+                }
+                .padding(20)
+                .background(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                        .fill(Color.white.opacity(0.04))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                                .strokeBorder(Color.white.opacity(0.07), lineWidth: 1)
+                        )
+                )
 
                 // MARK: - Backup & Export
 
@@ -294,6 +352,16 @@ struct CompanySettingsView: View {
             backupIsError = true
             backupMessage = "Restore failed: \(ErrorMapper.userMessage(from: error))"
         }
+    }
+
+    private func pickBackupDirectory() {
+        let panel = NSOpenPanel()
+        panel.title = "Choose Automatic Backup Folder"
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.canCreateDirectories = true
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        backupScheduler.backupDirectory = url
     }
 
     private func pickLogo() {
