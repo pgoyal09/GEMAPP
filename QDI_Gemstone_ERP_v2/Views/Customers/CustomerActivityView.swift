@@ -54,6 +54,12 @@ struct CustomerActivityView: View {
             .reduce(Decimal.zero) { $0 + $1.grandTotal }
     }
 
+    private var totalLifetimeValue: Decimal {
+        customer.invoices
+            .filter { $0.status == .paid }
+            .reduce(Decimal.zero) { $0 + $1.grandTotal }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.s) {
             SectionHeader(title: "Activity Log")
@@ -75,6 +81,17 @@ struct CustomerActivityView: View {
                         Text(outstandingBalance.asCurrency)
                             .font(AppTypography.mono)
                             .foregroundStyle(AppColors.danger)
+                    }
+                }
+                if totalLifetimeValue > 0 {
+                    HStack {
+                        Text("Lifetime Value")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.inkSubtle)
+                        Spacer()
+                        Text(totalLifetimeValue.asCurrency)
+                            .font(AppTypography.mono)
+                            .foregroundStyle(AppColors.success)
                     }
                 }
             }

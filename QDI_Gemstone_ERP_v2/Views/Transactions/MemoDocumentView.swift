@@ -23,6 +23,7 @@ struct MemoDocumentView: View {
     @State private var toastIsError = false
     @State private var totalRefreshID = UUID()
     @State private var showUnsavedAlert = false
+    @State private var duplicateWarning: String?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -43,19 +44,35 @@ struct MemoDocumentView: View {
         .sheet(isPresented: $showInventorySheet) {
             InventorySelectSheet { stones in
                 var zeroPriceSkus: [String] = []
+                var duplicateMessages: [String] = []
                 for stone in stones {
                     do {
                         try TransactionService.addStone(stone, to: memo, modelContext: modelContext)
                         if stone.sellPrice == 0 { zeroPriceSkus.append(stone.sku) }
+                    } catch let error as TransactionError {
+                        switch error {
+                        case .stoneAlreadyOnMemo, .duplicateStone:
+                            duplicateMessages.append(error.localizedDescription)
+                        default:
+                            showToast("Failed to add stone: \(error.localizedDescription)", isError: true)
+                        }
                     } catch {
                         showToast("Failed to add stone: \(ErrorMapper.userMessage(from: error))", isError: true)
                     }
                 }
+                if !duplicateMessages.isEmpty {
+                    duplicateWarning = duplicateMessages.joined(separator: "\n")
+                }
                 if !zeroPriceSkus.isEmpty {
-                    showToast("⚠️ Zero price: \(zeroPriceSkus.joined(separator: ", "))", isError: false)
+                    showToast("Zero price: \(zeroPriceSkus.joined(separator: ", "))", isError: false)
                 }
                 markDirty()
             }
+        }
+        .alert("Duplicate Stone Warning", isPresented: .constant(duplicateWarning != nil)) {
+            Button("OK") { duplicateWarning = nil }
+        } message: {
+            Text(duplicateWarning ?? "")
         }
         .sheet(isPresented: $showLotSheet) {
             LotSelectSheet { lot, carats in

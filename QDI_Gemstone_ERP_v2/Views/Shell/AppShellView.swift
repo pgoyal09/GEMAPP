@@ -214,6 +214,8 @@ struct AppShellView: View {
                 SoldInventoryView()
             case .quickIntake:
                 StoneFormView(mode: .intake, navigateTo: routeBinding)
+            case .quickEntry:
+                QuickEntryView()
             case .reviewQueue:
                 ReviewQueueView()
             case .scanner:

@@ -7,6 +7,7 @@ enum NavigationItem: String, CaseIterable {
     case lots = "Lots"
     case sold = "Sold"
     case quickIntake = "Quick Intake"
+    case quickEntry = "Quick Entry"
     case reviewQueue = "Review Queue"
     case scanner = "Scanner"
     case reconcile = "Reconcile"
@@ -24,6 +25,7 @@ enum NavigationItem: String, CaseIterable {
         case .lots:       return "cube.box.fill"
         case .sold:       return "tag.fill"
         case .quickIntake: return "plus.circle.fill"
+        case .quickEntry: return "tablecells.fill"
         case .reviewQueue: return "list.bullet.clipboard"
         case .scanner:    return "antenna.radiowaves.left.and.right"
         case .reconcile:  return "checkmark.circle"
@@ -39,7 +41,7 @@ enum NavigationItem: String, CaseIterable {
         ("Get Started", [.dashboard, .scanner]),
         ("Sales", [.memos, .invoices, .customers]),
         ("Accounting", [.accounting]),
-        ("Inventory", [.diamonds, .gemstones, .lots, .sold, .quickIntake, .reviewQueue, .reconcile]),
+        ("Inventory", [.diamonds, .gemstones, .lots, .sold, .quickIntake, .quickEntry, .reviewQueue, .reconcile]),
         ("System", [.settings]),
     ]
 }
