@@ -1,4 +1,0 @@
-module ORSSerial {
-umbrella "/Users/qdioffice/Library/Developer/Xcode/DerivedData/QDI_Gemstone_ERP-gytycjgjbfzmshcportkzuxnajcw/SourcePackages/checkouts/ORSSerialPort/Source"
-export *
-}
