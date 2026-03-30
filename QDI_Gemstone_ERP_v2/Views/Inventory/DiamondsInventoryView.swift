@@ -377,7 +377,7 @@ struct DiamondsInventoryView: View {
             selectedStones.removeAll()
             openWindow(id: "memo", value: memo.persistentModelID)
         } catch {
-            toastIsError = true; withAnimation { toastMessage = "Failed: \(error.localizedDescription)" }
+            toastIsError = true; withAnimation { toastMessage = "Failed: \(ErrorMapper.userMessage(from: error))" }
         }
     }
 
@@ -390,7 +390,7 @@ struct DiamondsInventoryView: View {
             selectedStones.removeAll()
             openWindow(id: "invoice", value: invoice.persistentModelID)
         } catch {
-            toastIsError = true; withAnimation { toastMessage = "Failed: \(error.localizedDescription)" }
+            toastIsError = true; withAnimation { toastMessage = "Failed: \(ErrorMapper.userMessage(from: error))" }
         }
     }
 
@@ -406,7 +406,7 @@ struct DiamondsInventoryView: View {
                 try csv.write(to: url, atomically: true, encoding: .utf8)
                 toastIsError = false; withAnimation { toastMessage = "Exported \(stones.count) diamonds" }
             } catch {
-                toastIsError = true; withAnimation { toastMessage = "Export failed: \(error.localizedDescription)" }
+                toastIsError = true; withAnimation { toastMessage = "Export failed: \(ErrorMapper.userMessage(from: error))" }
             }
         }
     }
@@ -422,7 +422,7 @@ struct DiamondsInventoryView: View {
                 try csv.write(to: url, atomically: true, encoding: .utf8)
                 toastIsError = false; withAnimation { toastMessage = "Exported \(exportableStones.count) diamonds" }
             } catch {
-                toastIsError = true; withAnimation { toastMessage = "Export failed: \(error.localizedDescription)" }
+                toastIsError = true; withAnimation { toastMessage = "Export failed: \(ErrorMapper.userMessage(from: error))" }
             }
         }
     }

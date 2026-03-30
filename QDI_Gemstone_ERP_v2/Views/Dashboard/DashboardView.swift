@@ -87,7 +87,7 @@ struct DashboardView: View {
                 viewModel.load(modelContext: modelContext)
                 toastMessage = "Demo data reset successfully."
             } catch {
-                toastMessage = "Error: \(error.localizedDescription)"
+                toastMessage = "Error: \(ErrorMapper.userMessage(from: error))"
             }
             isResetting = false
             try? await Task.sleep(for: .seconds(2.5))
