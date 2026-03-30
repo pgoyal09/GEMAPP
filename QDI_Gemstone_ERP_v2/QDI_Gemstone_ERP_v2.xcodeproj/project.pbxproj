@@ -34,6 +34,7 @@
 		1ED84C0E9FD45192AA89D070 /* MemoListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FC22A075D95D822A554438 /* MemoListView.swift */; };
 		216D6C68138124D12036364A /* Date+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489F9C807B253C5094D7363 /* Date+Formatting.swift */; };
 		220119E875D04B6378A1498D /* StoneGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3DCED9AB17D0D229DE8F7A1 /* StoneGrouping.swift */; };
+		224164B0761903768AB32148 /* AgingBucketDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33DC9506698175A88F4F4652 /* AgingBucketDetailSheet.swift */; };
 		22B743D4CDCC2F75AB7F865C /* MemoRoutes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E2B071BCC76EE4FED2E41FA /* MemoRoutes.swift */; };
 		22F0D123BC129C779B9FA8FE /* Date+Relative.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA586950C6BEDF816ADF42D7 /* Date+Relative.swift */; };
 		22F23D9F8E802FBD936767BE /* AppTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F57C93F3894AAE530F52820 /* AppTypography.swift */; };
@@ -57,6 +58,7 @@
 		43387DB5F7418C1F49F5CAD8 /* Customer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A771D99AF395E25A383305 /* Customer.swift */; };
 		436F99D45D27661335B549B6 /* DiamondsInventoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5831C493F0619CB48CD8EA23 /* DiamondsInventoryView.swift */; };
 		438CB430621BF2CE8D98529F /* SystemRoutes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A289416B00D8AAD14EABADF /* SystemRoutes.swift */; };
+		4AA03722527B59077F9F5F76 /* CustomerActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C8229F5E0621428EC77070 /* CustomerActivityView.swift */; };
 		4B2BE11085FE92583CC52B7D /* CustomerListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8694EA6DA5A3AF102B5B6 /* CustomerListView.swift */; };
 		4CDFD38B6F9916CC5D3C7FBB /* APIServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D682A424EF5064E67BF38856 /* APIServer.swift */; };
 		5041255737768DE30B3309AD /* HoverRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA238D2CE296E7F838340CCD /* HoverRow.swift */; };
@@ -76,6 +78,7 @@
 		6AA436000DB086EE953682C6 /* LotTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E2B54397410243BBF48929 /* LotTransaction.swift */; };
 		6D6FA2C068306A4AA0754718 /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5CDFA11A960E91FB0A818F3 /* StatusBadge.swift */; };
 		6E9460794A680AD3E74BE51D /* Gemstone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 865F7818A0D127059D5F79E6 /* Gemstone.swift */; };
+		704EA8B88F9067AFFABB8960 /* GlossaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A8AAC8B96F94CF3DABE9258 /* GlossaryView.swift */; };
 		717CAAB020950BAFFAC34D41 /* DashboardRoutes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 039BCEED1B46423BA633D16A /* DashboardRoutes.swift */; };
 		72AD8359D7575C77CFE5B1CF /* MemoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62E27E8FE9B3748CF06DC50 /* MemoService.swift */; };
 		72DDA78BD6DCEBA65A238C75 /* LineItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816074071ED96F056B1712EA /* LineItem.swift */; };
@@ -132,6 +135,7 @@
 		F0AC6557A35E1C3E15C169E2 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C611B9AA323E95C9B384F701 /* DashboardViewModel.swift */; };
 		F76E8FCAA742119E0D9A183D /* HistoryLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D6DC60F80D7FC541834613 /* HistoryLogger.swift */; };
 		F91A9927D6C94C662EACDE6F /* HistoryEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 149AAED5205BD92D1632662A /* HistoryEvent.swift */; };
+		F936F24EF660226730503D41 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 543D37A0F441617A309A7682 /* OnboardingView.swift */; };
 		FA8502A655774E79FC240E64 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B0F11EF531CE6C3EF6C5CC /* AppColors.swift */; };
 		FF2A553EE82E73075D6FB33A /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B86ED4CBE9430761895C822 /* CurrencyFormatter.swift */; };
 /* End PBXBuildFile section */
@@ -159,15 +163,18 @@
 		22407FE0A483A38E0B420584 /* GlassTableModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassTableModifier.swift; sourceTree = "<group>"; };
 		230BF8E5988671BEFE23C0E0 /* Invoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Invoice.swift; sourceTree = "<group>"; };
 		25CDDAACE2FF674CA40DBD20 /* LotInventoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotInventoryView.swift; sourceTree = "<group>"; };
+		2A8AAC8B96F94CF3DABE9258 /* GlossaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlossaryView.swift; sourceTree = "<group>"; };
 		2E2B071BCC76EE4FED2E41FA /* MemoRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoRoutes.swift; sourceTree = "<group>"; };
 		2ECF159A5FC31BBD9D068E1C /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		314343D6A92F0E3A4BB66BBB /* GradientButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientButton.swift; sourceTree = "<group>"; };
 		325C18F3512961657BDAD856 /* GradientButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientButtonStyle.swift; sourceTree = "<group>"; };
 		32D04B1F807ECBF7399A1576 /* SKUGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SKUGenerator.swift; sourceTree = "<group>"; };
 		32D6DC60F80D7FC541834613 /* HistoryLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryLogger.swift; sourceTree = "<group>"; };
+		33DC9506698175A88F4F4652 /* AgingBucketDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgingBucketDetailSheet.swift; sourceTree = "<group>"; };
 		34629E578B52CC028F17E132 /* RFIDRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDRoutes.swift; sourceTree = "<group>"; };
 		35FA9BB5D29646A37FED67D4 /* String+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Helpers.swift"; sourceTree = "<group>"; };
 		37BDB32F92A33062485FDE23 /* OutlineButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutlineButtonStyle.swift; sourceTree = "<group>"; };
+		37C8229F5E0621428EC77070 /* CustomerActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerActivityView.swift; sourceTree = "<group>"; };
 		37D603B8B6A476C98E66B400 /* LineItemKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineItemKind.swift; sourceTree = "<group>"; };
 		3A9555B15E90483AC30BCFAC /* StoneTypeBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneTypeBadge.swift; sourceTree = "<group>"; };
 		3AC2C8DCD1516CDC38886FFC /* RFIDTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDTag.swift; sourceTree = "<group>"; };
@@ -177,6 +184,7 @@
 		4F57C93F3894AAE530F52820 /* AppTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTypography.swift; sourceTree = "<group>"; };
 		51E9AFFB3AAD9F806B0F2A13 /* GemstonesInventoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GemstonesInventoryView.swift; sourceTree = "<group>"; };
 		53978275BA1221231FE9B922 /* MemoListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoListViewModel.swift; sourceTree = "<group>"; };
+		543D37A0F441617A309A7682 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		565A4EA28FA3E61AE96AF9A5 /* InventoryRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryRoutes.swift; sourceTree = "<group>"; };
 		5831C493F0619CB48CD8EA23 /* DiamondsInventoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiamondsInventoryView.swift; sourceTree = "<group>"; };
 		5A289416B00D8AAD14EABADF /* SystemRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemRoutes.swift; sourceTree = "<group>"; };
@@ -314,6 +322,7 @@
 			children = (
 				4C520DBB8403C8EC32DDD058 /* AppShellView.swift */,
 				4A40AC13F11AC3673A4A1587 /* NavigationItem.swift */,
+				543D37A0F441617A309A7682 /* OnboardingView.swift */,
 				2ECF159A5FC31BBD9D068E1C /* SidebarView.swift */,
 			);
 			path = Shell;
@@ -339,6 +348,7 @@
 			isa = PBXGroup;
 			children = (
 				E5FBD15DCE21EE1BD176D04F /* AccountingView.swift */,
+				33DC9506698175A88F4F4652 /* AgingBucketDetailSheet.swift */,
 			);
 			path = Accounting;
 			sourceTree = "<group>";
@@ -368,6 +378,7 @@
 			isa = PBXGroup;
 			children = (
 				9C951A2C6D4936DCB60254A7 /* CompanySettingsView.swift */,
+				2A8AAC8B96F94CF3DABE9258 /* GlossaryView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -581,6 +592,7 @@
 		BE38E5168CFD4FEABBD25751 /* Customers */ = {
 			isa = PBXGroup;
 			children = (
+				37C8229F5E0621428EC77070 /* CustomerActivityView.swift */,
 				C836FB999C2771AA1719CA14 /* CustomerDetailPanel.swift */,
 				C0D3AC4AEFD6246352AEA546 /* CustomerFormSheet.swift */,
 				75E8694EA6DA5A3AF102B5B6 /* CustomerListView.swift */,
@@ -708,6 +720,7 @@
 				4CDFD38B6F9916CC5D3C7FBB /* APIServer.swift in Sources */,
 				75DCAB009D62E00D1737C994 /* AccountingView.swift in Sources */,
 				0D03B2B204E8B94FD9BE5B47 /* AccountingViewModel.swift in Sources */,
+				224164B0761903768AB32148 /* AgingBucketDetailSheet.swift in Sources */,
 				FA8502A655774E79FC240E64 /* AppColors.swift in Sources */,
 				E56A8D662F2E1D90E871A970 /* AppConstants.swift in Sources */,
 				2F513ACE5EF0CD69A1C7B7D1 /* AppLogger.swift in Sources */,
@@ -719,6 +732,7 @@
 				3F9372EEFCB919D59C09C959 /* CompanySettingsView.swift in Sources */,
 				FF2A553EE82E73075D6FB33A /* CurrencyFormatter.swift in Sources */,
 				43387DB5F7418C1F49F5CAD8 /* Customer.swift in Sources */,
+				4AA03722527B59077F9F5F76 /* CustomerActivityView.swift in Sources */,
 				C57428D589CE37362E11A2CF /* CustomerDetailPanel.swift in Sources */,
 				3EAD38A014DAAD9ECA8D116F /* CustomerFormSheet.swift in Sources */,
 				4B2BE11085FE92583CC52B7D /* CustomerListView.swift in Sources */,
@@ -748,6 +762,7 @@
 				16356103918657A1C69BC698 /* GlassFieldModifier.swift in Sources */,
 				A2514E098351502ACF15BA47 /* GlassSearchField.swift in Sources */,
 				E2F00AFDAA6FD58267E75D7E /* GlassTableModifier.swift in Sources */,
+				704EA8B88F9067AFFABB8960 /* GlossaryView.swift in Sources */,
 				0D837AC79FC1183B054378DD /* GradientButton.swift in Sources */,
 				0E499D6C15EA875729D18B9A /* GradientButtonStyle.swift in Sources */,
 				F91A9927D6C94C662EACDE6F /* HistoryEvent.swift in Sources */,
@@ -787,6 +802,7 @@
 				B02FE4C6341F52FB20F7C3A6 /* MemoWindowView.swift in Sources */,
 				EB9A2DCD8E6BCCAC13026227 /* NavigationGuard.swift in Sources */,
 				63CD328302DF899DDE94627F /* NavigationItem.swift in Sources */,
+				F936F24EF660226730503D41 /* OnboardingView.swift in Sources */,
 				8445D20A1BA1A80DA0B7384E /* OutlineButtonStyle.swift in Sources */,
 				1D3823E437D7D660EE2A4797 /* PDFService.swift in Sources */,
 				983E49E5F8888D2FC01A3A1B /* QDIGemstoneERPApp.swift in Sources */,

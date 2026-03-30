@@ -7,6 +7,8 @@ struct AccountingView: View {
     @State private var viewModel = AccountingViewModel()
     @State private var selectedTab = 0
     @State private var showExportSuccess = false
+    @State private var showAgingDetail = false
+    @State private var selectedAgingBucket: String?
     @State private var customStartDate = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
     @State private var customEndDate = Date()
 
@@ -155,25 +157,39 @@ struct AccountingView: View {
                 SectionHeader(title: "Aged Receivables")
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
                     ForEach(viewModel.agedReceivables) { bucket in
-                        VStack(spacing: 4) {
-                            Text(bucket.amount.asCurrency)
-                                .font(AppTypography.subheading)
-                                .foregroundStyle(AppColors.ink)
-                            Text(bucket.label)
-                                .font(AppTypography.caption)
-                                .foregroundStyle(AppColors.inkSubtle)
-                            Text("\(bucket.count) invoice\(bucket.count == 1 ? "" : "s")")
-                                .font(.system(size: 10))
-                                .foregroundStyle(AppColors.inkSubtle)
+                        Button {
+                            selectedAgingBucket = bucket.id
+                            showAgingDetail = true
+                        } label: {
+                            VStack(spacing: 4) {
+                                Text(bucket.amount.asCurrency)
+                                    .font(AppTypography.subheading)
+                                    .foregroundStyle(AppColors.ink)
+                                Text(bucket.label)
+                                    .font(AppTypography.caption)
+                                    .foregroundStyle(AppColors.inkSubtle)
+                                Text("\(bucket.count) invoice\(bucket.count == 1 ? "" : "s")")
+                                    .font(.system(size: 10))
+                                    .foregroundStyle(AppColors.inkSubtle)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, AppSpacing.s)
+                            .background(
+                                RoundedRectangle(cornerRadius: AppCornerRadius.s, style: .continuous)
+                                    .fill(Color.white.opacity(0.03))
+                            )
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, AppSpacing.s)
-                        .background(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.s, style: .continuous)
-                                .fill(Color.white.opacity(0.03))
-                        )
+                        .buttonStyle(.plain)
                     }
                 }
+            }
+        }
+        .sheet(isPresented: $showAgingDetail) {
+            if let bucketID = selectedAgingBucket {
+                AgingBucketDetailSheet(
+                    bucketID: bucketID,
+                    invoices: viewModel.invoicesForAgingBucket(bucketID)
+                )
             }
         }
     }

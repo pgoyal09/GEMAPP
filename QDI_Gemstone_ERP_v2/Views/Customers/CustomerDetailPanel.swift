@@ -11,6 +11,7 @@ struct CustomerDetailPanel: View {
             VStack(alignment: .leading, spacing: AppSpacing.l) {
                 headerCard
                 customerNotesSection
+                CustomerActivityView(customer: customer)
                 onMemoSection
                 pastPurchasesSection
             }

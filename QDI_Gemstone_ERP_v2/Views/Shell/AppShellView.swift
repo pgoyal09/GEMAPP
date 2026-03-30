@@ -13,6 +13,9 @@ struct AppShellView: View {
     @State private var showSidebar: Bool = true
     @State private var showAddStoneFromMenu = false
     @AppStorage("appAppearance") private var appAppearance: String = "dark"
+    @AppStorage("onboardingComplete") private var onboardingComplete: Bool = false
+    @AppStorage("companyName") private var companyName: String = ""
+    @State private var showGlossary = false
 
     private var resolvedColorScheme: ColorScheme? {
         switch appAppearance {
@@ -41,7 +44,28 @@ struct AppShellView: View {
         )
     }
 
+    private var needsOnboarding: Bool {
+        !onboardingComplete && companyName.isEmpty
+    }
+
     var body: some View {
+        Group {
+            if needsOnboarding {
+                OnboardingView()
+            } else {
+                mainContent
+            }
+        }
+        .environment(\.navigationGuard, navigationGuard)
+        .appBackground()
+        .frame(minWidth: 1000, minHeight: 700)
+        .preferredColorScheme(resolvedColorScheme)
+        .sheet(isPresented: $showGlossary) {
+            GlossaryView()
+        }
+    }
+
+    private var mainContent: some View {
         HStack(spacing: 0) {
             if showSidebar {
                 SidebarView(selectedItem: routeBinding)
@@ -55,10 +79,6 @@ struct AppShellView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .environment(\.navigationGuard, navigationGuard)
-        .appBackground()
-        .frame(minWidth: 1000, minHeight: 700)
-        .preferredColorScheme(resolvedColorScheme)
         .alert("Leave without saving?", isPresented: $showLeaveAlert) {
             Button("Keep Editing", role: .cancel) { pendingRoute = nil }
             Button("Discard and leave", role: .destructive) {
@@ -120,6 +140,9 @@ struct AppShellView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .menuOpenSettings)) { _ in
             routeBinding.wrappedValue = .settings
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuOpenGlossary)) { _ in
+            showGlossary = true
         }
         .animation(.easeInOut(duration: 0.2), value: showSidebar)
     }

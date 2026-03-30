@@ -12,6 +12,7 @@ extension Notification.Name {
     static let menuNewLot = Notification.Name("menuNewLot")
     static let menuToggleSidebar = Notification.Name("menuToggleSidebar")
     static let menuOpenSettings = Notification.Name("menuOpenSettings")
+    static let menuOpenGlossary = Notification.Name("menuOpenGlossary")
 }
 
 @main
@@ -150,6 +151,13 @@ struct QDIGemstoneERPApp: App {
                     NotificationCenter.default.post(name: .menuNewInvoice, object: nil)
                 }
                 .keyboardShortcut("i", modifiers: .command)
+            }
+
+            // Help → Glossary
+            CommandGroup(replacing: .help) {
+                Button("Gemstone Glossary") {
+                    NotificationCenter.default.post(name: .menuOpenGlossary, object: nil)
+                }
             }
 
             CommandGroup(replacing: .appSettings) {
