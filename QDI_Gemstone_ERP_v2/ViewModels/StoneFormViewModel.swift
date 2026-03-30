@@ -48,6 +48,37 @@ final class StoneFormViewModel {
     var polish: String = ""
     var symmetry: String = ""
     var fluorescence: String = ""
+    var depthPctText: String = ""
+    var tablePctText: String = ""
+    var fluorescenceIntensity: String = ""
+    var fluorescenceColor: String = ""
+    var fancyColor: String = ""
+    var fancyColorIntensity: String = ""
+    var fancyColorOvertone: String = ""
+    var eyeClean: String = ""
+    var rapNetPriceText: String = ""
+    var rapNetDiscountPctText: String = ""
+    var cashPriceText: String = ""
+    var cashDiscountPctText: String = ""
+
+    // MARK: - Gemstone-specific
+
+    var primaryColorVendor: String = ""
+    var colorIntensityVendor: String = ""
+    var colorModifiersVendor: String = ""
+    var colorDescription: String = ""
+    var treatmentType2: String = ""
+    var treatmentType3: String = ""
+    var treatmentNotes: String = ""
+    var numberOfStonesText: String = ""
+
+    // MARK: - Shared RapNet
+
+    var availability: String = ""
+    var stoneCountry: String = ""
+    var stoneState: String = ""
+    var stoneCity: String = ""
+    var videoUrl: String = ""
 
     // MARK: - Lot-specific
 
@@ -221,6 +252,31 @@ final class StoneFormViewModel {
         polish = stone.polish
         symmetry = stone.symmetry
         fluorescence = stone.fluorescence
+        depthPctText = stone.depthPct.map { "\($0)" } ?? ""
+        tablePctText = stone.tablePct.map { "\($0)" } ?? ""
+        fluorescenceIntensity = stone.fluorescenceIntensity ?? ""
+        fluorescenceColor = stone.fluorescenceColor ?? ""
+        fancyColor = stone.fancyColor ?? ""
+        fancyColorIntensity = stone.fancyColorIntensity ?? ""
+        fancyColorOvertone = stone.fancyColorOvertone ?? ""
+        eyeClean = stone.eyeClean ?? ""
+        rapNetPriceText = stone.rapNetPrice.map { "\($0)" } ?? ""
+        rapNetDiscountPctText = stone.rapNetDiscountPct.map { "\($0)" } ?? ""
+        cashPriceText = stone.cashPrice.map { "\($0)" } ?? ""
+        cashDiscountPctText = stone.cashDiscountPct.map { "\($0)" } ?? ""
+        primaryColorVendor = stone.primaryColorVendor ?? ""
+        colorIntensityVendor = stone.colorIntensityVendor ?? ""
+        colorModifiersVendor = stone.colorModifiersVendor ?? ""
+        colorDescription = stone.colorDescription ?? ""
+        treatmentType2 = stone.treatmentType2 ?? ""
+        treatmentType3 = stone.treatmentType3 ?? ""
+        treatmentNotes = stone.treatmentNotes ?? ""
+        numberOfStonesText = stone.numberOfStones.map { "\($0)" } ?? ""
+        availability = stone.availability ?? ""
+        stoneCountry = stone.stoneCountry ?? ""
+        stoneState = stone.stoneState ?? ""
+        stoneCity = stone.stoneCity ?? ""
+        videoUrl = stone.videoUrl ?? ""
         size = stone.size ?? ""
         quality = stone.quality ?? ""
         hasCert = stone.hasCert
@@ -256,11 +312,63 @@ final class StoneFormViewModel {
             stone.polish = polish
             stone.symmetry = symmetry
             stone.fluorescence = fluorescence
+            stone.depthPct = Double(depthPctText)
+            stone.tablePct = Double(tablePctText)
+            stone.fluorescenceIntensity = fluorescenceIntensity.nilIfEmpty
+            stone.fluorescenceColor = fluorescenceColor.nilIfEmpty
+            stone.fancyColor = fancyColor.nilIfEmpty
+            stone.fancyColorIntensity = fancyColorIntensity.nilIfEmpty
+            stone.fancyColorOvertone = fancyColorOvertone.nilIfEmpty
+            stone.eyeClean = eyeClean.nilIfEmpty
+            stone.rapNetPrice = Decimal(string: rapNetPriceText)
+            stone.rapNetDiscountPct = Double(rapNetDiscountPctText)
+            stone.cashPrice = Decimal(string: cashPriceText)
+            stone.cashDiscountPct = Double(cashDiscountPctText)
         } else {
             stone.polish = ""
             stone.symmetry = ""
             stone.fluorescence = ""
+            stone.depthPct = nil
+            stone.tablePct = nil
+            stone.fluorescenceIntensity = nil
+            stone.fluorescenceColor = nil
+            stone.fancyColor = nil
+            stone.fancyColorIntensity = nil
+            stone.fancyColorOvertone = nil
+            stone.eyeClean = nil
+            stone.rapNetPrice = nil
+            stone.rapNetDiscountPct = nil
+            stone.cashPrice = nil
+            stone.cashDiscountPct = nil
         }
+
+        // Gemstone-specific
+        if !isDiamond {
+            stone.primaryColorVendor = primaryColorVendor.nilIfEmpty
+            stone.colorIntensityVendor = colorIntensityVendor.nilIfEmpty
+            stone.colorModifiersVendor = colorModifiersVendor.nilIfEmpty
+            stone.colorDescription = colorDescription.nilIfEmpty
+            stone.treatmentType2 = treatmentType2.nilIfEmpty
+            stone.treatmentType3 = treatmentType3.nilIfEmpty
+            stone.treatmentNotes = treatmentNotes.nilIfEmpty
+            stone.numberOfStones = Int(numberOfStonesText)
+        } else {
+            stone.primaryColorVendor = nil
+            stone.colorIntensityVendor = nil
+            stone.colorModifiersVendor = nil
+            stone.colorDescription = nil
+            stone.treatmentType2 = nil
+            stone.treatmentType3 = nil
+            stone.treatmentNotes = nil
+            stone.numberOfStones = nil
+        }
+
+        // Shared RapNet
+        stone.availability = availability.nilIfEmpty
+        stone.stoneCountry = stoneCountry.nilIfEmpty
+        stone.stoneState = stoneState.nilIfEmpty
+        stone.stoneCity = stoneCity.nilIfEmpty
+        stone.videoUrl = videoUrl.nilIfEmpty
 
         // Lot-specific
         stone.size = isLot ? size : nil
@@ -303,6 +411,31 @@ final class StoneFormViewModel {
         polish = ""
         symmetry = ""
         fluorescence = ""
+        depthPctText = ""
+        tablePctText = ""
+        fluorescenceIntensity = ""
+        fluorescenceColor = ""
+        fancyColor = ""
+        fancyColorIntensity = ""
+        fancyColorOvertone = ""
+        eyeClean = ""
+        rapNetPriceText = ""
+        rapNetDiscountPctText = ""
+        cashPriceText = ""
+        cashDiscountPctText = ""
+        primaryColorVendor = ""
+        colorIntensityVendor = ""
+        colorModifiersVendor = ""
+        colorDescription = ""
+        treatmentType2 = ""
+        treatmentType3 = ""
+        treatmentNotes = ""
+        numberOfStonesText = ""
+        availability = ""
+        stoneCountry = ""
+        stoneState = ""
+        stoneCity = ""
+        videoUrl = ""
         size = ""
         quality = ""
         hasCert = false

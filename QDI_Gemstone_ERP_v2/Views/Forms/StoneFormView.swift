@@ -18,10 +18,12 @@ struct StoneFormView: View {
                     identitySection
                     gradingSection
                     if viewModel.isDiamond { diamondSection }
+                    if !viewModel.isDiamond { gemstoneSection }
                     if viewModel.isLot { lotSection }
                     certificationSection
                     dimensionsSection
                     pricingSection
+                    rapNetSection
                 }
                 .padding(AppSpacing.l)
             }
@@ -131,6 +133,56 @@ struct StoneFormView: View {
                     field("Symmetry", $viewModel.symmetry)
                     field("Fluorescence", $viewModel.fluorescence)
                 }
+                HStack(spacing: AppSpacing.m) {
+                    field("Fluor. Intensity", $viewModel.fluorescenceIntensity)
+                    field("Fluor. Color", $viewModel.fluorescenceColor)
+                    field("Eye Clean", $viewModel.eyeClean)
+                }
+                HStack(spacing: AppSpacing.m) {
+                    field("Depth %", $viewModel.depthPctText)
+                    field("Table %", $viewModel.tablePctText)
+                }
+                HStack(spacing: AppSpacing.m) {
+                    field("Fancy Color", $viewModel.fancyColor)
+                    field("Fancy Intensity", $viewModel.fancyColorIntensity)
+                    field("Fancy Overtone", $viewModel.fancyColorOvertone)
+                }
+                HStack(spacing: AppSpacing.m) {
+                    field("RapNet Price", $viewModel.rapNetPriceText)
+                    field("RapNet Disc %", $viewModel.rapNetDiscountPctText)
+                    field("Cash Price", $viewModel.cashPriceText)
+                    field("Cash Disc %", $viewModel.cashDiscountPctText)
+                }
+            }
+        }
+    }
+
+    // MARK: - Gemstone-Specific
+
+    private var gemstoneSection: some View {
+        GlassCard(padding: AppSpacing.m) {
+            VStack(alignment: .leading, spacing: AppSpacing.s) {
+                SectionHeader(title: "Gemstone Grading")
+                HStack(spacing: AppSpacing.m) {
+                    field("Color", $viewModel.color)
+                    field("Clarity", $viewModel.clarity)
+                }
+                HStack(spacing: AppSpacing.m) {
+                    field("Primary Color", $viewModel.primaryColorVendor)
+                    field("Color Intensity", $viewModel.colorIntensityVendor)
+                }
+                HStack(spacing: AppSpacing.m) {
+                    field("Color Modifiers", $viewModel.colorModifiersVendor)
+                    field("Color Description", $viewModel.colorDescription)
+                }
+                HStack(spacing: AppSpacing.m) {
+                    field("Treatment 2", $viewModel.treatmentType2)
+                    field("Treatment 3", $viewModel.treatmentType3)
+                }
+                HStack(spacing: AppSpacing.m) {
+                    field("Treatment Notes", $viewModel.treatmentNotes)
+                    field("# of Stones", $viewModel.numberOfStonesText)
+                }
             }
         }
     }
@@ -201,6 +253,25 @@ struct StoneFormView: View {
                 HStack(spacing: AppSpacing.m) {
                     field("Cost Price", $viewModel.costPriceText)
                     field("Sell Price", $viewModel.sellPriceText)
+                }
+            }
+        }
+    }
+
+    // MARK: - RapNet / Listing
+
+    private var rapNetSection: some View {
+        GlassCard(padding: AppSpacing.m) {
+            VStack(alignment: .leading, spacing: AppSpacing.s) {
+                SectionHeader(title: "Listing Details")
+                HStack(spacing: AppSpacing.m) {
+                    field("Availability", $viewModel.availability)
+                    field("Video URL", $viewModel.videoUrl)
+                }
+                HStack(spacing: AppSpacing.m) {
+                    field("Country", $viewModel.stoneCountry)
+                    field("State", $viewModel.stoneState)
+                    field("City", $viewModel.stoneCity)
                 }
             }
         }
