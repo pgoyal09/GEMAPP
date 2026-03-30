@@ -25,7 +25,7 @@ enum AppColors {
 
     static let ink              = Color.white.opacity(0.90)
     static let inkMuted         = Color.white.opacity(0.65)
-    static let inkSubtle        = Color.white.opacity(0.45)
+    static let inkSubtle        = Color.white.opacity(0.40)
 
     // MARK: - Surfaces & Effects
 

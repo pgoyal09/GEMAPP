@@ -12,6 +12,15 @@ struct AppShellView: View {
     @State private var navigationGuard = NavigationGuard()
     @State private var showSidebar: Bool = true
     @State private var showAddStoneFromMenu = false
+    @AppStorage("appAppearance") private var appAppearance: String = "dark"
+
+    private var resolvedColorScheme: ColorScheme? {
+        switch appAppearance {
+        case "light": return .light
+        case "dark": return .dark
+        default: return nil // system
+        }
+    }
 
     // Persistent scanner/reconcile VMs so session state survives route changes.
     @State private var scannerVM: ScannerViewModel?
@@ -49,7 +58,7 @@ struct AppShellView: View {
         .environment(\.navigationGuard, navigationGuard)
         .appBackground()
         .frame(minWidth: 1000, minHeight: 700)
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(resolvedColorScheme)
         .alert("Leave without saving?", isPresented: $showLeaveAlert) {
             Button("Keep Editing", role: .cancel) { pendingRoute = nil }
             Button("Discard and leave", role: .destructive) {

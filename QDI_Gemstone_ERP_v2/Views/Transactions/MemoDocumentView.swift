@@ -329,6 +329,10 @@ struct MemoDocumentView: View {
                 .disabled(isGeneratingPDF)
                 .keyboardShortcut("p", modifiers: .command)
                 .help("Generate a PDF document for printing or emailing")
+            Button("Email PDF") { emailMemoPDF() }
+                .buttonStyle(.outline)
+                .disabled(isGeneratingPDF)
+                .help("Generate PDF and open email compose with attachment")
             Button("Cancel") {
                 dismiss()
             }
@@ -377,6 +381,31 @@ struct MemoDocumentView: View {
                             }
                         }
                         PDFService.shared.cleanupTempFile(at: tempURL)
+                    }
+                case .failure(let error):
+                    showToast("PDF generation failed: \(error.localizedDescription)", isError: true)
+                }
+            }
+        }
+    }
+
+    private func emailMemoPDF() {
+        isGeneratingPDF = true
+        PDFService.shared.generatePDF(memo: memo) { result in
+            DispatchQueue.main.async {
+                isGeneratingPDF = false
+                switch result {
+                case .success(let tempURL):
+                    let service = NSSharingService(named: .composeEmail)
+                    if let service = service {
+                        service.recipients = [memo.customer?.email].compactMap { $0?.isEmpty == false ? $0 : nil }
+                        service.subject = "Memo \(memo.referenceNumber)"
+                        service.perform(withItems: [tempURL])
+                    } else {
+                        let picker = NSSharingServicePicker(items: [tempURL])
+                        if let window = NSApp.keyWindow, let contentView = window.contentView {
+                            picker.show(relativeTo: .zero, of: contentView, preferredEdge: .minY)
+                        }
                     }
                 case .failure(let error):
                     showToast("PDF generation failed: \(error.localizedDescription)", isError: true)

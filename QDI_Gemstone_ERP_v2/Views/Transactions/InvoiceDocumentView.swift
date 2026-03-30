@@ -323,6 +323,11 @@ struct InvoiceDocumentView: View {
                 .keyboardShortcut("p", modifiers: .command)
                 .help("Generate a PDF document for printing or emailing")
 
+            Button("Email PDF") { emailPDF() }
+                .buttonStyle(.outline)
+                .disabled(isGeneratingPDF)
+                .help("Generate PDF and open email compose with attachment")
+
             Button("Cancel") { dismiss() }
                 .buttonStyle(.outline)
 
@@ -368,6 +373,32 @@ struct InvoiceDocumentView: View {
                             }
                         }
                         PDFService.shared.cleanupTempFile(at: tempURL)
+                    }
+                case .failure(let error):
+                    pdfError = "PDF generation failed: \(error.localizedDescription)"
+                }
+            }
+        }
+    }
+
+    private func emailPDF() {
+        isGeneratingPDF = true
+        PDFService.shared.generatePDF(invoice: invoice) { result in
+            DispatchQueue.main.async {
+                isGeneratingPDF = false
+                switch result {
+                case .success(let tempURL):
+                    let service = NSSharingService(named: .composeEmail)
+                    if let service = service {
+                        service.recipients = [invoice.customer?.email].compactMap { $0?.isEmpty == false ? $0 : nil }
+                        service.subject = "Invoice \(invoice.referenceNumber)"
+                        service.perform(withItems: [tempURL])
+                    } else {
+                        // Fallback to share picker
+                        let picker = NSSharingServicePicker(items: [tempURL])
+                        if let window = NSApp.keyWindow, let contentView = window.contentView {
+                            picker.show(relativeTo: .zero, of: contentView, preferredEdge: .minY)
+                        }
                     }
                 case .failure(let error):
                     pdfError = "PDF generation failed: \(error.localizedDescription)"

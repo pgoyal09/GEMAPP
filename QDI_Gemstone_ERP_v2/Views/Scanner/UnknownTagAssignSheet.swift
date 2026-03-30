@@ -79,7 +79,7 @@ struct UnknownTagAssignSheet: View {
             }
         }
         .appBackground()
-        .preferredColorScheme(.dark)
+        
     }
 
     private func assignTag() {

@@ -51,7 +51,7 @@ struct CustomerFormSheet: View {
         }
         .frame(minWidth: 480, minHeight: 400)
         .appBackground()
-        .preferredColorScheme(.dark)
+        
         .onAppear {
             loadExisting()
             isFirstNameFocused = true

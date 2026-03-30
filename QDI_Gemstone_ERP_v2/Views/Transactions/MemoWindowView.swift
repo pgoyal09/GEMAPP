@@ -18,7 +18,7 @@ struct MemoWindowView: View {
         .environment(\.documentDirtyTracker, dirtyTracker)
         .frame(minWidth: 1100, minHeight: 760)
         .appBackground()
-        .preferredColorScheme(.dark)
+        
         .onDisappear {
             cleanupEmptyMemo()
         }

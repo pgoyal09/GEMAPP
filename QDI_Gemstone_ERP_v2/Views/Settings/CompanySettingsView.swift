@@ -10,6 +10,7 @@ struct CompanySettingsView: View {
     @AppStorage("companyEmail") private var companyEmail: String = ""
     @State private var logoData: Data? = UserDefaults.standard.data(forKey: PDFService.companyLogoUserDefaultsKey)
     @State private var showSavedToast = false
+    @AppStorage("appAppearance") private var appAppearance: String = "dark"
     @State private var backupMessage: String?
     @State private var backupIsError = false
 
@@ -93,6 +94,29 @@ struct CompanySettingsView: View {
                     }
                     .transition(.opacity)
                 }
+
+                // MARK: - Appearance
+
+                SectionHeader(title: "Appearance")
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Picker("Theme", selection: $appAppearance) {
+                        Text("Dark").tag("dark")
+                        Text("Light").tag("light")
+                        Text("System").tag("system")
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(maxWidth: 300)
+                }
+                .padding(20)
+                .background(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                        .fill(Color.white.opacity(0.04))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                                .strokeBorder(Color.white.opacity(0.07), lineWidth: 1)
+                        )
+                )
 
                 Text("These details appear on generated PDF invoices and memos.")
                     .font(AppTypography.caption)

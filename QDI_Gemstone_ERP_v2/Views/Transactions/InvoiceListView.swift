@@ -1,16 +1,26 @@
 import SwiftUI
 import SwiftData
+import AppKit
 
 struct InvoiceListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
     @Query(sort: \Invoice.invoiceDate, order: .reverse) private var allInvoices: [Invoice]
     @State private var viewModel = InvoiceListViewModel()
+    @State private var isExportingBatch = false
+    @State private var batchToastMessage: String?
+    @State private var batchToastIsError = false
 
     var body: some View {
         VStack(spacing: 0) {
             toolbar
             invoiceTable
+        }
+        .overlay {
+            if let msg = batchToastMessage {
+                ToastOverlay(message: msg, isError: batchToastIsError)
+                    .animation(.easeInOut, value: batchToastMessage)
+            }
         }
     }
 
@@ -20,6 +30,12 @@ struct InvoiceListView: View {
                 .frame(maxWidth: 300)
             statusPills
             Spacer()
+
+            Button("Export All PDFs") { batchExportPDFs() }
+                .buttonStyle(.outline)
+                .disabled(isExportingBatch || allInvoices.isEmpty)
+                .help("Export all visible invoices as individual PDF files")
+
             Button { createNewInvoice() } label: {
                 Label("New Invoice", systemImage: "plus")
             }
@@ -162,6 +178,52 @@ struct InvoiceListView: View {
         case .void: .danger
         }
         return StatusBadge(title: status.rawValue, tone: tone)
+    }
+
+    private func batchExportPDFs() {
+        let panel = NSOpenPanel()
+        panel.title = "Choose Export Folder"
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.canCreateDirectories = true
+        guard panel.runModal() == .OK, let folder = panel.url else { return }
+
+        let filtered = viewModel.filtered(from: allInvoices)
+        guard !filtered.isEmpty else { return }
+        isExportingBatch = true
+        var completed = 0
+        let total = filtered.count
+
+        for invoice in filtered {
+            PDFService.shared.generatePDF(invoice: invoice) { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let tempURL):
+                        let destURL = folder.appendingPathComponent("Invoice-\(invoice.referenceNumber).pdf")
+                        do {
+                            if FileManager.default.fileExists(atPath: destURL.path) {
+                                try FileManager.default.removeItem(at: destURL)
+                            }
+                            try FileManager.default.copyItem(at: tempURL, to: destURL)
+                        } catch {
+                            print("Batch PDF export error: \(error.localizedDescription)")
+                        }
+                        PDFService.shared.cleanupTempFile(at: tempURL)
+                    case .failure(let error):
+                        print("Batch PDF generation error: \(error.localizedDescription)")
+                    }
+                    completed += 1
+                    if completed == total {
+                        isExportingBatch = false
+                        batchToastIsError = false
+                        batchToastMessage = "Exported \(total) invoice PDF\(total == 1 ? "" : "s")"
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            withAnimation { batchToastMessage = nil }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private func createNewInvoice() {
