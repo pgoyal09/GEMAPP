@@ -70,6 +70,7 @@
 		5D4252BCD24FFD3E613925DB /* LotSelectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C830FBAB085D765E82A476A2 /* LotSelectSheet.swift */; };
 		5F3BE4F310544777811FC6D1 /* ReviewQueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F515C70472941C4AA201004D /* ReviewQueueView.swift */; };
 		60C579DAE5AF53817B68B7CE /* CustomerRoutes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47C7B47FF4216140BA21E5A /* CustomerRoutes.swift */; };
+		6190D114C77309087D80EF3C /* AppAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED693A192ADD983C01E381E /* AppAnimation.swift */; };
 		625E118C5D6B61E937EDD8D4 /* DemoDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90E295BFAC2A9465729BDF0A /* DemoDataService.swift */; };
 		63CD328302DF899DDE94627F /* NavigationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A40AC13F11AC3673A4A1587 /* NavigationItem.swift */; };
 		655199E393D8F081A7941A84 /* RFIDLifecycleStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D30989C55A226CF4F6D747 /* RFIDLifecycleStatus.swift */; };
@@ -250,6 +251,7 @@
 		D6A64976B35617FA1A3757B4 /* SoldInventoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoldInventoryView.swift; sourceTree = "<group>"; };
 		DBD18A2A4E61A928E95DB592 /* GemstoneStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GemstoneStatus.swift; sourceTree = "<group>"; };
 		DD9E6F4BB3CB6A102CD30AEB /* PDFService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFService.swift; sourceTree = "<group>"; };
+		DED693A192ADD983C01E381E /* AppAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAnimation.swift; sourceTree = "<group>"; };
 		DF52535A188C64A84EADF9EE /* EditableLineItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableLineItemRow.swift; sourceTree = "<group>"; };
 		E32BF5EC574469A8D3977C5F /* MemoWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoWindowView.swift; sourceTree = "<group>"; };
 		E5FBD15DCE21EE1BD176D04F /* AccountingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountingView.swift; sourceTree = "<group>"; };
@@ -648,6 +650,7 @@
 		F4F166D943784F271A3D4611 /* Theme */ = {
 			isa = PBXGroup;
 			children = (
+				DED693A192ADD983C01E381E /* AppAnimation.swift */,
 				F0B0F11EF531CE6C3EF6C5CC /* AppColors.swift */,
 				0C50CA93426BCF5FD29E8332 /* AppSpacing.swift */,
 				4F57C93F3894AAE530F52820 /* AppTypography.swift */,
@@ -721,6 +724,7 @@
 				75DCAB009D62E00D1737C994 /* AccountingView.swift in Sources */,
 				0D03B2B204E8B94FD9BE5B47 /* AccountingViewModel.swift in Sources */,
 				224164B0761903768AB32148 /* AgingBucketDetailSheet.swift in Sources */,
+				6190D114C77309087D80EF3C /* AppAnimation.swift in Sources */,
 				FA8502A655774E79FC240E64 /* AppColors.swift in Sources */,
 				E56A8D662F2E1D90E871A970 /* AppConstants.swift in Sources */,
 				2F513ACE5EF0CD69A1C7B7D1 /* AppLogger.swift in Sources */,
