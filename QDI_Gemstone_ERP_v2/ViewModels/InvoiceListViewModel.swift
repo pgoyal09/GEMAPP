@@ -3,7 +3,7 @@ import SwiftData
 
 @MainActor
 @Observable
-final class InvoiceListViewModel {
+final class InvoiceListViewModel: SortableViewModel {
     var searchText: String = ""
     var statusFilter: InvoiceStatus? = nil
     var selectedInvoiceID: PersistentIdentifier? = nil
@@ -29,15 +29,6 @@ final class InvoiceListViewModel {
     }
 
     // MARK: - Sorting
-
-    func toggleSort(_ key: String) {
-        if sortKey == key {
-            sortAscending.toggle()
-        } else {
-            sortKey = key
-            sortAscending = true
-        }
-    }
 
     private func sorted(_ invoices: [Invoice]) -> [Invoice] {
         invoices.sorted { a, b in

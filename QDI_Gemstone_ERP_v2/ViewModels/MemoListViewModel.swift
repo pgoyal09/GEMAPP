@@ -3,7 +3,7 @@ import SwiftData
 
 @MainActor
 @Observable
-final class MemoListViewModel {
+final class MemoListViewModel: SortableViewModel {
     var searchText: String = ""
     var statusFilter: MemoStatus? = nil
     var selectedMemoID: PersistentIdentifier? = nil
@@ -29,15 +29,6 @@ final class MemoListViewModel {
     }
 
     // MARK: - Sorting
-
-    func toggleSort(_ key: String) {
-        if sortKey == key {
-            sortAscending.toggle()
-        } else {
-            sortKey = key
-            sortAscending = true
-        }
-    }
 
     private func sorted(_ memos: [Memo]) -> [Memo] {
         memos.sorted { a, b in

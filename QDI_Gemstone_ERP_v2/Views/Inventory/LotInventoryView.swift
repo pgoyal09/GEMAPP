@@ -299,7 +299,7 @@ struct LotInventoryView: View {
                     do {
                         try viewModel.addQuantity(to: lot, modelContext: modelContext)
                     } catch {
-                        print("Failed to add quantity: \(error.localizedDescription)")
+                        AppLogger.data.error("Failed to add quantity: \(error.localizedDescription)")
                     }
                 }
             }

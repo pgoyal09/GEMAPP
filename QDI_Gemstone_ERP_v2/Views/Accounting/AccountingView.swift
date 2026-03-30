@@ -213,7 +213,7 @@ struct AccountingView: View {
                         showExportSuccess = false
                     }
                 } catch {
-                    print("Failed to export CSV: \(error.localizedDescription)")
+                    AppLogger.data.error("Failed to export CSV: \(error.localizedDescription)")
                 }
             }
         }

@@ -6,11 +6,23 @@ struct MemoListView: View {
     @Environment(\.openWindow) private var openWindow
     @Query(sort: \Memo.createdAt, order: .reverse) private var allMemos: [Memo]
     @State private var viewModel = MemoListViewModel()
+    @State private var toastMessage: String?
+    @State private var toastIsError = false
 
     var body: some View {
         VStack(spacing: 0) {
             toolbar
             memoTable
+        }
+        .overlay {
+            if let msg = toastMessage {
+                ToastOverlay(message: msg, isError: toastIsError)
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            withAnimation { toastMessage = nil }
+                        }
+                    }
+            }
         }
     }
 
@@ -187,7 +199,8 @@ struct MemoListView: View {
             let memo = try TransactionService.createMemo(modelContext: modelContext)
             openWindow(id: "memo", value: memo.persistentModelID)
         } catch {
-            print("[MemoListView] Failed to create memo: \(error.localizedDescription)")
+            toastIsError = true
+            withAnimation { toastMessage = "Failed to create memo: \(error.localizedDescription)" }
         }
     }
 }

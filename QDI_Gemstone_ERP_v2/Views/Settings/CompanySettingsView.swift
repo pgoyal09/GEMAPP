@@ -230,7 +230,7 @@ struct CompanySettingsView: View {
             logoData = data
             PDFService.saveCompanyLogo(data)
         } catch {
-            print("Failed to load logo image: \(error.localizedDescription)")
+            AppLogger.ui.error("Failed to load logo image: \(error.localizedDescription)")
         }
     }
 }

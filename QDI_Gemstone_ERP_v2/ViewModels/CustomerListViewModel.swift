@@ -3,7 +3,7 @@ import SwiftData
 
 @MainActor
 @Observable
-final class CustomerListViewModel {
+final class CustomerListViewModel: SortableViewModel {
     var searchText: String = ""
     var selectedCustomerID: PersistentIdentifier? = nil
     var showAddCustomerSheet: Bool = false
@@ -24,15 +24,6 @@ final class CustomerListViewModel {
     }
 
     // MARK: - Sorting
-
-    func toggleSort(_ key: String) {
-        if sortKey == key {
-            sortAscending.toggle()
-        } else {
-            sortKey = key
-            sortAscending = true
-        }
-    }
 
     private func sorted(_ customers: [Customer]) -> [Customer] {
         customers.sorted { a, b in

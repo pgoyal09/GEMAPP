@@ -64,7 +64,7 @@ enum ActiveFilterPill: Equatable {
 
 @MainActor
 @Observable
-final class InventoryViewModel {
+final class InventoryViewModel: SortableViewModel {
 
     // MARK: - Sort State
 
@@ -229,15 +229,6 @@ final class InventoryViewModel {
     }
 
     // MARK: - Sorting
-
-    func toggleSort(_ key: String) {
-        if sortKey == key {
-            sortAscending.toggle()
-        } else {
-            sortKey = key
-            sortAscending = true
-        }
-    }
 
     private func sorted(_ stones: [Gemstone]) -> [Gemstone] {
         stones.sorted { a, b in

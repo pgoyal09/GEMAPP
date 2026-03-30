@@ -111,15 +111,15 @@ final class ReconcileViewModel {
         lines.append("Status,SKU,Stone Type,Carats,RFID EPC,Reason")
 
         for stone in foundStones {
-            lines.append("Found,\(stone.sku),\(stone.stoneType.rawValue),\(String(format: "%.2f", stone.caratWeight)),\(stone.rfidEpc ?? "N/A"),Matched")
+            lines.append("Found,\(stone.sku.csvEscaped),\(stone.stoneType.rawValue.csvEscaped),\(String(format: "%.2f", stone.caratWeight)),\(stone.rfidEpc?.csvEscaped ?? "N/A"),Matched")
         }
 
         for stone in missingStones {
-            lines.append("Missing,\(stone.sku),\(stone.stoneType.rawValue),\(String(format: "%.2f", stone.caratWeight)),\(stone.rfidEpc ?? "No tag"),Not scanned")
+            lines.append("Missing,\(stone.sku.csvEscaped),\(stone.stoneType.rawValue.csvEscaped),\(String(format: "%.2f", stone.caratWeight)),\(stone.rfidEpc?.csvEscaped ?? "No tag"),Not scanned")
         }
 
         for scan in extraScans {
-            lines.append("Extra,\(scan.tagID),,,\(scan.reason)")
+            lines.append("Extra,\(scan.tagID.csvEscaped),,,\(scan.reason.csvEscaped)")
         }
 
         return lines.joined(separator: "\n")

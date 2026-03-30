@@ -29,7 +29,7 @@ struct MemoWindowView: View {
         do {
             return try modelContext.fetch(descriptor).first { $0.persistentModelID == memoID }
         } catch {
-            print("Failed to fetch memo: \(error.localizedDescription)")
+            AppLogger.data.error("Failed to fetch memo: \(error.localizedDescription)")
             return nil
         }
     }
@@ -41,7 +41,7 @@ struct MemoWindowView: View {
             do {
                 try modelContext.save()
             } catch {
-                print("Failed to cleanup empty memo: \(error.localizedDescription)")
+                AppLogger.data.error("Failed to cleanup empty memo: \(error.localizedDescription)")
             }
         }
     }

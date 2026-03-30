@@ -61,7 +61,7 @@ struct QuickActionsGrid: View {
                             let memo = try TransactionService.createMemo(modelContext: modelContext)
                             openWindow(id: "memo", value: memo.persistentModelID)
                         } catch {
-                            print("Failed to create memo: \(error.localizedDescription)")
+                            AppLogger.ui.error("Failed to create memo: \(error.localizedDescription)")
                         }
                     }
                     QuickActionCard(title: "New Invoice", icon: "doc.richtext.fill", gradient: AppColors.roseGradient) {
@@ -69,7 +69,7 @@ struct QuickActionsGrid: View {
                             let inv = try TransactionService.createInvoice(modelContext: modelContext)
                             openWindow(id: "invoice", value: inv.persistentModelID)
                         } catch {
-                            print("Failed to create invoice: \(error.localizedDescription)")
+                            AppLogger.ui.error("Failed to create invoice: \(error.localizedDescription)")
                         }
                     }
                     QuickActionCard(title: "Inventory", icon: "square.grid.2x2.fill", gradient: AppColors.primaryGradient) {

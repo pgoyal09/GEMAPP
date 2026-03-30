@@ -21,6 +21,7 @@ struct MemoDocumentView: View {
     @State private var toastMessage: String?
     @State private var toastIsError = false
     @State private var totalRefreshID = UUID()
+    @State private var showUnsavedAlert = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -339,7 +340,11 @@ struct MemoDocumentView: View {
                 .disabled(isGeneratingPDF)
                 .help("Generate PDF and open email compose with attachment")
             Button("Cancel") {
-                dismiss()
+                if hasUnsavedEdits {
+                    showUnsavedAlert = true
+                } else {
+                    dismiss()
+                }
             }
             .buttonStyle(.outline)
             Button("Save") {
@@ -351,6 +356,12 @@ struct MemoDocumentView: View {
         .padding(AppSpacing.m)
         .background(Color.white.opacity(0.02))
         .overlay(alignment: .top) { Divider().background(Color.white.opacity(0.06)) }
+        .alert("Unsaved Changes", isPresented: $showUnsavedAlert) {
+            Button("Keep Editing", role: .cancel) {}
+            Button("Discard", role: .destructive) { dismiss() }
+        } message: {
+            Text("You have unsaved changes. Discard them?")
+        }
     }
 
     private func saveMemo() {
@@ -360,7 +371,7 @@ struct MemoDocumentView: View {
             dirtyTracker.clearDirty()
             NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
         } catch {
-            // Save error handled by modelContext
+            showToast("Failed to save memo: \(error.localizedDescription)", isError: true)
         }
     }
 
@@ -411,6 +422,10 @@ struct MemoDocumentView: View {
                         if let window = NSApp.keyWindow, let contentView = window.contentView {
                             picker.show(relativeTo: .zero, of: contentView, preferredEdge: .minY)
                         }
+                    }
+                    // Cleanup temp file after a delay to allow sharing service to finish
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 60) {
+                        PDFService.shared.cleanupTempFile(at: tempURL)
                     }
                 case .failure(let error):
                     showToast("PDF generation failed: \(error.localizedDescription)", isError: true)

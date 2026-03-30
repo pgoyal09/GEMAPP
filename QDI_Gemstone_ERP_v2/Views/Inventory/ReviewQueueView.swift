@@ -198,7 +198,7 @@ struct ReviewQueueView: View {
         do {
             try modelContext.save()
         } catch {
-            print("Failed to save review: \(error.localizedDescription)")
+            AppLogger.data.error("Failed to save review: \(error.localizedDescription)")
         }
 
         guard let idx = currentIndex, idx + 1 < reviewStones.count else {

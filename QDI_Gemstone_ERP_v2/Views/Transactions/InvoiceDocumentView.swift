@@ -21,6 +21,8 @@ struct InvoiceDocumentView: View {
     @State private var toastMessage: String?
     @State private var toastIsError = false
     @State private var totalRefreshID = UUID()
+    @State private var hasUnsavedEdits = false
+    @State private var showUnsavedAlert = false
 
     private var isEditable: Bool {
         invoice.status == .draft && isEditingEnabled
@@ -333,7 +335,13 @@ struct InvoiceDocumentView: View {
                 .disabled(isGeneratingPDF)
                 .help("Generate PDF and open email compose with attachment")
 
-            Button("Cancel") { dismiss() }
+            Button("Cancel") {
+                if hasUnsavedEdits {
+                    showUnsavedAlert = true
+                } else {
+                    dismiss()
+                }
+            }
                 .buttonStyle(.outline)
 
             Button("Save") { saveInvoice() }
@@ -343,6 +351,12 @@ struct InvoiceDocumentView: View {
         .padding(AppSpacing.m)
         .background(Color.white.opacity(0.02))
         .overlay(alignment: .top) { Divider().background(Color.white.opacity(0.06)) }
+        .alert("Unsaved Changes", isPresented: $showUnsavedAlert) {
+            Button("Keep Editing", role: .cancel) {}
+            Button("Discard", role: .destructive) { dismiss() }
+        } message: {
+            Text("You have unsaved changes. Discard them?")
+        }
     }
 
     private func saveInvoice() {
@@ -351,9 +365,12 @@ struct InvoiceDocumentView: View {
         InvoiceService.markLotItemsAsSold(invoice: invoice, modelContext: modelContext)
         do {
             try modelContext.save()
+            hasUnsavedEdits = false
             dirtyTracker.clearDirty()
             NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
-        } catch {}
+        } catch {
+            showToast("Failed to save invoice: \(error.localizedDescription)", isError: true)
+        }
     }
 
     private func exportPDF() {
@@ -399,11 +416,14 @@ struct InvoiceDocumentView: View {
                         service.subject = "Invoice \(invoice.referenceNumber)"
                         service.perform(withItems: [tempURL])
                     } else {
-                        // Fallback to share picker
                         let picker = NSSharingServicePicker(items: [tempURL])
                         if let window = NSApp.keyWindow, let contentView = window.contentView {
                             picker.show(relativeTo: .zero, of: contentView, preferredEdge: .minY)
                         }
+                    }
+                    // Cleanup temp file after a delay to allow sharing service to finish
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 60) {
+                        PDFService.shared.cleanupTempFile(at: tempURL)
                     }
                 case .failure(let error):
                     pdfError = "PDF generation failed: \(error.localizedDescription)"
@@ -413,6 +433,7 @@ struct InvoiceDocumentView: View {
     }
 
     private func markDirty() {
+        hasUnsavedEdits = true
         dirtyTracker.markDirty()
     }
 

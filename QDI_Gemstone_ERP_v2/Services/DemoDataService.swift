@@ -24,16 +24,16 @@ struct DemoDataService {
 
     // MARK: - Delete All
 
-    /// Deletes all entities in dependency-safe order.
+    /// Deletes all entities in dependency-safe order using batch delete.
     static func deleteAllData(modelContext: ModelContext) throws {
-        for txn in try modelContext.fetch(FetchDescriptor<LotTransaction>()) { modelContext.delete(txn) }
-        for event in try modelContext.fetch(FetchDescriptor<HistoryEvent>()) { modelContext.delete(event) }
-        for item in try modelContext.fetch(FetchDescriptor<LineItem>()) { modelContext.delete(item) }
-        for inv in try modelContext.fetch(FetchDescriptor<Invoice>()) { modelContext.delete(inv) }
-        for memo in try modelContext.fetch(FetchDescriptor<Memo>()) { modelContext.delete(memo) }
-        for tag in try modelContext.fetch(FetchDescriptor<RFIDTag>()) { modelContext.delete(tag) }
-        for stone in try modelContext.fetch(FetchDescriptor<Gemstone>()) { modelContext.delete(stone) }
-        for cust in try modelContext.fetch(FetchDescriptor<Customer>()) { modelContext.delete(cust) }
+        try modelContext.delete(model: LotTransaction.self)
+        try modelContext.delete(model: HistoryEvent.self)
+        try modelContext.delete(model: LineItem.self)
+        try modelContext.delete(model: Invoice.self)
+        try modelContext.delete(model: Memo.self)
+        try modelContext.delete(model: RFIDTag.self)
+        try modelContext.delete(model: Gemstone.self)
+        try modelContext.delete(model: Customer.self)
         try modelContext.save()
     }
 

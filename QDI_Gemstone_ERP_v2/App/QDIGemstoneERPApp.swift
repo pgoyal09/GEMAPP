@@ -41,7 +41,7 @@ struct QDIGemstoneERPApp: App {
         } catch {
             // Migration failed — don't silently delete user data.
             // Create a minimal in-memory container so the app can launch and show the alert.
-            print("[App] ModelContainer failed (\(error)). Will prompt user for action.")
+            AppLogger.data.error("ModelContainer failed: \(error.localizedDescription)")
             migrationDidFail = true
             migrationErrorMessage = error.localizedDescription
             // Return an in-memory container so the app can at least render UI
@@ -66,7 +66,7 @@ struct QDIGemstoneERPApp: App {
                     do {
                         try DemoDataService.seedIfNeeded(modelContext: sharedModelContainer.mainContext)
                     } catch {
-                        print("[App] Failed to seed demo data: \(error.localizedDescription)")
+                        AppLogger.data.error("Failed to seed demo data: \(error.localizedDescription)")
                     }
                     #endif
                     if Self.migrationDidFail {
@@ -83,7 +83,7 @@ struct QDIGemstoneERPApp: App {
                         do {
                             try FileManager.default.removeItem(at: Self.storeURL)
                         } catch {
-                            print("[App] Failed to delete store file: \(error.localizedDescription)")
+                            AppLogger.data.error("Failed to delete store file: \(error.localizedDescription)")
                         }
                         // Relaunch after reset
                         NSApplication.shared.terminate(nil)

@@ -10,6 +10,8 @@ struct InvoiceListView: View {
     @State private var isExportingBatch = false
     @State private var batchToastMessage: String?
     @State private var batchToastIsError = false
+    @State private var batchCompleted = 0
+    @State private var batchFailed = 0
 
     var body: some View {
         VStack(spacing: 0) {
@@ -191,32 +193,40 @@ struct InvoiceListView: View {
         let filtered = viewModel.filtered(from: allInvoices)
         guard !filtered.isEmpty else { return }
         isExportingBatch = true
-        var completed = 0
+        batchCompleted = 0
+        batchFailed = 0
         let total = filtered.count
 
         for invoice in filtered {
+            let refNum = invoice.referenceNumber
             PDFService.shared.generatePDF(invoice: invoice) { result in
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     switch result {
                     case .success(let tempURL):
-                        let destURL = folder.appendingPathComponent("Invoice-\(invoice.referenceNumber).pdf")
+                        let destURL = folder.appendingPathComponent("Invoice-\(refNum).pdf")
                         do {
                             if FileManager.default.fileExists(atPath: destURL.path) {
                                 try FileManager.default.removeItem(at: destURL)
                             }
                             try FileManager.default.copyItem(at: tempURL, to: destURL)
                         } catch {
-                            print("Batch PDF export error: \(error.localizedDescription)")
+                            batchFailed += 1
                         }
                         PDFService.shared.cleanupTempFile(at: tempURL)
-                    case .failure(let error):
-                        print("Batch PDF generation error: \(error.localizedDescription)")
+                    case .failure:
+                        batchFailed += 1
                     }
-                    completed += 1
-                    if completed == total {
+                    batchCompleted += 1
+                    if batchCompleted == total {
                         isExportingBatch = false
-                        batchToastIsError = false
-                        batchToastMessage = "Exported \(total) invoice PDF\(total == 1 ? "" : "s")"
+                        let exported = total - batchFailed
+                        if batchFailed > 0 {
+                            batchToastIsError = true
+                            batchToastMessage = "Exported \(exported) of \(total) (\(batchFailed) failed)"
+                        } else {
+                            batchToastIsError = false
+                            batchToastMessage = "Exported \(total) invoice PDF\(total == 1 ? "" : "s")"
+                        }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                             withAnimation { batchToastMessage = nil }
                         }
@@ -231,7 +241,8 @@ struct InvoiceListView: View {
             let inv = try TransactionService.createInvoice(modelContext: modelContext)
             openWindow(id: "invoice", value: inv.persistentModelID)
         } catch {
-            print("[InvoiceListView] Failed to create invoice: \(error.localizedDescription)")
+            batchToastIsError = true
+            withAnimation { batchToastMessage = "Failed to create invoice: \(error.localizedDescription)" }
         }
     }
 }

@@ -20,6 +20,8 @@ struct InventoryListView: View {
     @State private var showEditSheet = false
     @State private var editingStone: Gemstone?
     @State private var selectedStones: Set<PersistentIdentifier> = []
+    @State private var toastMessage: String?
+    @State private var toastIsError = false
 
     @Environment(\.openWindow) private var openWindow
 
@@ -81,6 +83,20 @@ struct InventoryListView: View {
                     .animation(.easeInOut(duration: 0.25), value: selectedStones.isEmpty)
             }
         }
+        .overlay {
+            if let msg = toastMessage {
+                ToastOverlay(message: msg, isError: toastIsError)
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            withAnimation { toastMessage = nil }
+                        }
+                    }
+            }
+        }
+        .onChange(of: viewModel.searchText) { _, _ in selectedStones.removeAll() }
+        .onChange(of: viewModel.statusFilter) { _, _ in selectedStones.removeAll() }
+        .onChange(of: viewModel.stoneTypeFilter) { _, _ in selectedStones.removeAll() }
+        .onChange(of: viewModel.shapeFilter) { _, _ in selectedStones.removeAll() }
         .sheet(isPresented: $showEditSheet) {
             if let stone = editingStone {
                 StoneFormView(mode: .edit(stone))
@@ -461,7 +477,8 @@ struct InventoryListView: View {
             selectedStones.removeAll()
             openWindow(id: "memo", value: memo.persistentModelID)
         } catch {
-            print("Failed to create memo with selected stones: \(error.localizedDescription)")
+            toastIsError = true
+            withAnimation { toastMessage = "Failed to create memo: \(error.localizedDescription)" }
         }
     }
 
@@ -476,7 +493,8 @@ struct InventoryListView: View {
             selectedStones.removeAll()
             openWindow(id: "invoice", value: invoice.persistentModelID)
         } catch {
-            print("Failed to create invoice with selected stones: \(error.localizedDescription)")
+            toastIsError = true
+            withAnimation { toastMessage = "Failed to create invoice: \(error.localizedDescription)" }
         }
     }
 }

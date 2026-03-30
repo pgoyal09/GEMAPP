@@ -25,6 +25,8 @@ struct CustomerFormSheet: View {
     @State private var country = ""
     @State private var zip = ""
     @State private var notes = ""
+    @State private var toastMessage: String?
+    @State private var toastIsError = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -54,10 +56,19 @@ struct CustomerFormSheet: View {
         }
         .frame(minWidth: 480, minHeight: 400)
         .appBackground()
-        
+        .overlay {
+            if let msg = toastMessage {
+                ToastOverlay(message: msg, isError: toastIsError)
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            withAnimation { toastMessage = nil }
+                        }
+                    }
+            }
+        }
         .onAppear {
             loadExisting()
-            isFirstNameFocused = true
+            focusedField = .firstName
         }
     }
 
@@ -76,7 +87,7 @@ struct CustomerFormSheet: View {
                         TextField("First", text: $firstName)
                             .glassField()
                             .textContentType(.givenName)
-                            .focused($isFirstNameFocused)
+                            .focused($focusedField, equals: .firstName)
                     }
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Last Name").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
@@ -178,10 +189,12 @@ struct CustomerFormSheet: View {
             modelContext.insert(customer)
             do {
                 try modelContext.save()
+                onSave?(customer)
+                dismiss()
             } catch {
-                print("Failed to save new customer: \(error.localizedDescription)")
+                toastIsError = true
+                withAnimation { toastMessage = "Failed to save customer: \(error.localizedDescription)" }
             }
-            onSave?(customer)
         case .edit(let c):
             c.firstName = firstName.trimmed
             c.lastName = lastName.trimmed
@@ -195,11 +208,12 @@ struct CustomerFormSheet: View {
             c.notes = notes.trimmed
             do {
                 try modelContext.save()
+                onSave?(c)
+                dismiss()
             } catch {
-                print("Failed to save customer edits: \(error.localizedDescription)")
+                toastIsError = true
+                withAnimation { toastMessage = "Failed to save customer: \(error.localizedDescription)" }
             }
-            onSave?(c)
         }
-        dismiss()
     }
 }

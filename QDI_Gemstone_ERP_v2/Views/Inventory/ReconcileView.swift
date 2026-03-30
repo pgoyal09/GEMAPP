@@ -123,7 +123,7 @@ struct ReconcileView: View {
                         showExportSuccess = false
                     }
                 } catch {
-                    print("Failed to export reconciliation report: \(error.localizedDescription)")
+                    AppLogger.data.error("Failed to export reconciliation report: \(error.localizedDescription)")
                 }
             }
         }

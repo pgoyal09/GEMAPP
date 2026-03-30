@@ -209,6 +209,7 @@ struct GemstoneDetailPanel: View {
         case .sentToCustomer:       return AppColors.warning
         case .returnedFromCustomer: return AppColors.success
         case .sold:                 return AppColors.accentRose
+        case .priceUpdated:         return AppColors.inkMuted
         }
     }
 

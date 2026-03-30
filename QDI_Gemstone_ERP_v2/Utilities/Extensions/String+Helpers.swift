@@ -11,4 +11,18 @@ extension String {
     var trimmed: String {
         trimmingCharacters(in: .whitespacesAndNewlines)
     }
+
+    /// Escape a CSV field: wrap in quotes if it contains commas, quotes, or newlines.
+    /// Prepends a single quote if the field starts with a formula-injection character.
+    var csvEscaped: String {
+        var value = self
+        // Guard against CSV formula injection
+        if let first = value.first, "=+\u{2d}@".contains(first) {
+            value = "'" + value
+        }
+        if value.contains(",") || value.contains("\"") || value.contains("\n") {
+            return "\"\(value.replacingOccurrences(of: "\"", with: "\"\""))\""
+        }
+        return value
+    }
 }

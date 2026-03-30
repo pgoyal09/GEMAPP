@@ -29,7 +29,7 @@ struct InvoiceWindowView: View {
         do {
             return try modelContext.fetch(descriptor).first { $0.persistentModelID == invoiceID }
         } catch {
-            print("Failed to fetch invoice: \(error.localizedDescription)")
+            AppLogger.data.error("Failed to fetch invoice: \(error.localizedDescription)")
             return nil
         }
     }
@@ -42,7 +42,7 @@ struct InvoiceWindowView: View {
             do {
                 try modelContext.save()
             } catch {
-                print("Failed to cleanup empty invoice: \(error.localizedDescription)")
+                AppLogger.data.error("Failed to cleanup empty invoice: \(error.localizedDescription)")
             }
         }
     }

@@ -23,12 +23,36 @@ enum BackupService {
         URL.applicationSupportDirectory.appending(path: "QDIGemstoneERP_v2.store")
     }
 
+    // MARK: - Temp Cleanup
+
+    /// Removes stale QDI_Backup_* and QDI_CSV_* directories from NSTemporaryDirectory older than 1 hour.
+    static func cleanupStaleTempDirs() {
+        let fm = FileManager.default
+        let tempDir = fm.temporaryDirectory
+        guard let contents = try? fm.contentsOfDirectory(
+            at: tempDir, includingPropertiesForKeys: [.creationDateKey], options: .skipsHiddenFiles
+        ) else { return }
+        let oneHourAgo = Date().addingTimeInterval(-3600)
+        for url in contents {
+            let name = url.lastPathComponent
+            guard name.hasPrefix("QDI_Backup_") || name.hasPrefix("QDI_CSV_") else { continue }
+            if let attrs = try? fm.attributesOfItem(atPath: url.path),
+               let created = attrs[.creationDate] as? Date,
+               created < oneHourAgo {
+                try? fm.removeItem(at: url)
+            }
+        }
+    }
+
     // MARK: - Database Copy
 
     /// Copies the SwiftData store file to a temporary location for user export.
     /// Saves the model context first to flush WAL data.
+    /// Note: SwiftData does not expose raw SQL, so PRAGMA wal_checkpoint(TRUNCATE) cannot be issued.
+    /// The modelContext.save() call flushes pending changes; WAL files are copied alongside the store.
     @MainActor
     static func exportDatabaseCopy(modelContext: ModelContext) throws -> URL {
+        cleanupStaleTempDirs()
         try modelContext.save()
         return try copyStoreFiles()
     }
@@ -58,6 +82,7 @@ enum BackupService {
     /// Exports gemstones, customers, memos, and invoices to CSV files in a temporary directory.
     @MainActor
     static func exportCSVBundle(modelContext: ModelContext) throws -> URL {
+        cleanupStaleTempDirs()
         let fm = FileManager.default
         let exportDir = fm.temporaryDirectory.appendingPathComponent("QDI_CSV_\(timestamp())")
         try fm.createDirectory(at: exportDir, withIntermediateDirectories: true)
@@ -119,11 +144,8 @@ enum BackupService {
         return f.string(from: Date())
     }
 
-    /// Escape a CSV field: wrap in quotes if it contains commas, quotes, or newlines.
-    private static func esc(_ value: String) -> String {
-        if value.contains(",") || value.contains("\"") || value.contains("\n") {
-            return "\"\(value.replacingOccurrences(of: "\"", with: "\"\""))\""
-        }
-        return value
+    /// Escape a CSV field using the shared csvEscaped extension.
+    static func esc(_ value: String) -> String {
+        value.csvEscaped
     }
 }

@@ -100,8 +100,43 @@ final class PDFService {
     }
 
     /// Call from UI after user picks a logo image to store it for PDF generation.
+    /// Resizes to max 1024px dimension and compresses to JPEG ≤512KB.
     static func saveCompanyLogo(_ imageData: Data) {
-        UserDefaults.standard.set(imageData, forKey: companyLogoUserDefaultsKey)
+        let capped = capLogoImage(imageData)
+        UserDefaults.standard.set(capped, forKey: companyLogoUserDefaultsKey)
+    }
+
+    /// Resize image to max 1024px dimension and compress to JPEG ≤512KB.
+    private static func capLogoImage(_ data: Data) -> Data {
+        guard let nsImage = NSImage(data: data) else { return data }
+        var size = nsImage.size
+        let maxDim: CGFloat = 1024
+        if size.width > maxDim || size.height > maxDim {
+            let scale = min(maxDim / size.width, maxDim / size.height)
+            size = NSSize(width: size.width * scale, height: size.height * scale)
+        }
+        guard let bitmapRep = NSBitmapImageRep(
+            bitmapDataPlanes: nil, pixelsWide: Int(size.width), pixelsHigh: Int(size.height),
+            bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true,
+            isPlanar: false, colorSpaceName: .calibratedRGB,
+            bytesPerRow: 0, bitsPerPixel: 0
+        ) else { return data }
+        bitmapRep.size = size
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: bitmapRep)
+        nsImage.draw(in: NSRect(origin: .zero, size: size))
+        NSGraphicsContext.restoreGraphicsState()
+
+        // Try decreasing quality until ≤512KB
+        let maxBytes = 512 * 1024
+        for quality in stride(from: 0.9, through: 0.3, by: -0.1) {
+            if let jpegData = bitmapRep.representation(using: .jpeg, properties: [.compressionFactor: quality]),
+               jpegData.count <= maxBytes {
+                return jpegData
+            }
+        }
+        // Last resort: lowest quality
+        return bitmapRep.representation(using: .jpeg, properties: [.compressionFactor: 0.2]) ?? data
     }
 
     // MARK: - HTML Template
@@ -125,7 +160,7 @@ final class PDFService {
             logoImg = ""
         }
 
-        let metaBlock = metaLines.map { "<p class=\"meta-line\">\($0)</p>" }.joined(separator: "\n")
+        let metaBlock = metaLines.map { "<p class=\"meta-line\">\(escape($0))</p>" }.joined(separator: "\n")
         let rows = lineItems.map { item in
             """
             <tr>
@@ -159,7 +194,7 @@ final class PDFService {
 
         // Read company info from UserDefaults, falling back to parameter
         let storedCompanyName = UserDefaults.standard.string(forKey: "companyName")
-        let displayCompanyName = (storedCompanyName?.isEmpty == false) ? storedCompanyName! : companyName
+        let displayCompanyName = storedCompanyName.flatMap { $0.isEmpty ? nil : $0 } ?? companyName
         let companyAddress = UserDefaults.standard.string(forKey: "companyAddress") ?? ""
         let companyPhone = UserDefaults.standard.string(forKey: "companyPhone") ?? ""
         let companyEmail = UserDefaults.standard.string(forKey: "companyEmail") ?? ""
@@ -406,13 +441,13 @@ final class PDFService {
     private func formatAddress(_ customer: Customer?) -> String {
         guard let c = customer else { return "" }
         var parts: [String] = []
-        let name = c.displayName
+        let name = escape(c.displayName)
         if !name.isEmpty { parts.append(name) }
-        if !c.company.isEmpty { parts.append(c.company) }
-        if !c.address.isEmpty { parts.append(c.address) }
-        let cityZip = [c.city, c.zip].filter { !$0.isEmpty }
+        if !c.company.isEmpty { parts.append(escape(c.company)) }
+        if !c.address.isEmpty { parts.append(escape(c.address)) }
+        let cityZip = [c.city, c.zip].filter { !$0.isEmpty }.map { escape($0) }
         if !cityZip.isEmpty { parts.append(cityZip.joined(separator: " ")) }
-        if !c.country.isEmpty { parts.append(c.country) }
+        if !c.country.isEmpty { parts.append(escape(c.country)) }
         return parts.joined(separator: "<br/>")
     }
 
