@@ -21,9 +21,9 @@ struct DashboardInfoPanel: View {
             .padding(AppSpacing.l)
         }
         .frame(width: 296)
-        .background(Color.white.opacity(0.02))
+        .background(AppColors.panelBackground)
         .overlay(alignment: .leading) {
-            Divider().background(Color.white.opacity(0.06))
+            Divider().background(AppColors.cardElevated)
         }
     }
 
@@ -36,16 +36,16 @@ struct DashboardInfoPanel: View {
                 HStack(spacing: 6) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.system(size: 11))
-                        .foregroundStyle(Color.orange)
+                        .foregroundStyle(AppColors.warningDeep)
                     Text("\(viewModel.overdueMemoCount) memo\(viewModel.overdueMemoCount == 1 ? "" : "s") over 60 days")
                         .font(AppTypography.caption)
-                        .foregroundStyle(Color.orange)
+                        .foregroundStyle(AppColors.warningDeep)
                 }
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
                 .background(
-                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                        .fill(Color.orange.opacity(0.12))
+                    RoundedRectangle(cornerRadius: AppCornerRadius.sm, style: .continuous)
+                        .fill(AppColors.warningDeep.opacity(0.12))
                 )
             }
             if viewModel.oldestOpenMemos.isEmpty {
@@ -124,7 +124,7 @@ struct DashboardInfoPanel: View {
     private func agingColor(days: Int) -> Color {
         if days < memoAgingGreen { return AppColors.success }
         if days < memoAgingYellow { return AppColors.warning }
-        if days < memoAgingOrange { return Color.orange }
+        if days < memoAgingOrange { return AppColors.warningDeep }
         return AppColors.danger
     }
 
@@ -142,10 +142,10 @@ struct DashboardInfoPanel: View {
         .padding(.vertical, 10)
         .background(
             RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                .fill(Color.white.opacity(0.04))
+                .fill(AppColors.panelBackground)
                 .overlay(
                     RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                        .strokeBorder(Color.white.opacity(0.07), lineWidth: 1)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                 )
         )
     }

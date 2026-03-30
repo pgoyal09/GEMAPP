@@ -153,10 +153,10 @@ struct CustomerFormSheet: View {
                     .frame(minHeight: 60)
                     .padding(4)
                     .background(
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(Color.white.opacity(0.05))
+                        RoundedRectangle(cornerRadius: AppCornerRadius.sm)
+                            .fill(AppColors.cardBackground)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 6)
+                                RoundedRectangle(cornerRadius: AppCornerRadius.sm)
                                     .strokeBorder(Color.white.opacity(0.10), lineWidth: 1)
                             )
                     )

@@ -381,8 +381,8 @@ struct StoneFormView: View {
             .keyboardShortcut("s", modifiers: .command)
         }
         .padding(AppSpacing.m)
-        .background(Color.white.opacity(0.02))
-        .overlay(alignment: .top) { Divider().background(Color.white.opacity(0.06)) }
+        .background(AppColors.panelBackground)
+        .overlay(alignment: .top) { Divider().background(AppColors.cardElevated) }
     }
 
     // MARK: - Helper

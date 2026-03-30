@@ -26,10 +26,10 @@ struct QuickActionCard: View {
             .padding(12)
             .background(
                 RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                    .fill(Color.white.opacity(0.03))
+                    .fill(AppColors.softHighlight)
                     .overlay(
                         RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                            .strokeBorder(Color.white.opacity(0.05), lineWidth: 1)
+                            .strokeBorder(AppColors.cardBackground, lineWidth: 1)
                     )
             )
         }

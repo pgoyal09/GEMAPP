@@ -66,7 +66,7 @@ struct LotSelectSheet: View {
             // Bottom panel
             if let lot = selectedLot {
                 VStack(spacing: 12) {
-                    Divider().background(Color.white.opacity(0.06))
+                    Divider().background(AppColors.cardElevated)
                     HStack(spacing: 16) {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Selected: \(lot.sku)").font(AppTypography.body.weight(.medium)).foregroundStyle(AppColors.ink)

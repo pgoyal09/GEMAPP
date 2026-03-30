@@ -37,10 +37,10 @@ struct CompanySettingsView: View {
                             .frame(height: 60)
                             .padding(4)
                             .background(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color.white.opacity(0.05))
+                                RoundedRectangle(cornerRadius: AppCornerRadius.sm)
+                                    .fill(AppColors.cardBackground)
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: 6)
+                                        RoundedRectangle(cornerRadius: AppCornerRadius.sm)
                                             .strokeBorder(Color.white.opacity(0.10), lineWidth: 1)
                                     )
                             )
@@ -64,7 +64,7 @@ struct CompanySettingsView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(maxHeight: 56)
-                                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm))
 
                                 Button("Remove") {
                                     logoData = nil
@@ -80,13 +80,13 @@ struct CompanySettingsView: View {
                         }
                     }
                 }
-                .padding(20)
+                .padding(AppSpacing.l)
                 .background(
                     RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                        .fill(Color.white.opacity(0.04))
+                        .fill(AppColors.panelBackground)
                         .overlay(
                             RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                                .strokeBorder(Color.white.opacity(0.07), lineWidth: 1)
+                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                         )
                 )
 
@@ -114,13 +114,13 @@ struct CompanySettingsView: View {
                     .pickerStyle(.segmented)
                     .frame(maxWidth: 300)
                 }
-                .padding(20)
+                .padding(AppSpacing.l)
                 .background(
                     RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                        .fill(Color.white.opacity(0.04))
+                        .fill(AppColors.panelBackground)
                         .overlay(
                             RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                                .strokeBorder(Color.white.opacity(0.07), lineWidth: 1)
+                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                         )
                 )
 
@@ -136,13 +136,13 @@ struct CompanySettingsView: View {
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.inkSubtle)
                 }
-                .padding(20)
+                .padding(AppSpacing.l)
                 .background(
                     RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                        .fill(Color.white.opacity(0.04))
+                        .fill(AppColors.panelBackground)
                         .overlay(
                             RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                                .strokeBorder(Color.white.opacity(0.07), lineWidth: 1)
+                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                         )
                 )
 
@@ -197,13 +197,13 @@ struct CompanySettingsView: View {
                         }
                     }
                 }
-                .padding(20)
+                .padding(AppSpacing.l)
                 .background(
                     RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                        .fill(Color.white.opacity(0.04))
+                        .fill(AppColors.panelBackground)
                         .overlay(
                             RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                                .strokeBorder(Color.white.opacity(0.07), lineWidth: 1)
+                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                         )
                 )
 
@@ -235,13 +235,13 @@ struct CompanySettingsView: View {
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.inkSubtle)
                 }
-                .padding(20)
+                .padding(AppSpacing.l)
                 .background(
                     RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                        .fill(Color.white.opacity(0.04))
+                        .fill(AppColors.panelBackground)
                         .overlay(
                             RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                                .strokeBorder(Color.white.opacity(0.07), lineWidth: 1)
+                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                         )
                 )
 

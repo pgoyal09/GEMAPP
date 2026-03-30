@@ -29,7 +29,7 @@ struct ScannerView: View {
             HStack(spacing: AppSpacing.m) {
                 ZStack {
                     Circle()
-                        .fill(viewModel.isScanning ? AppColors.success.opacity(0.2) : Color.white.opacity(0.06))
+                        .fill(viewModel.isScanning ? AppColors.success.opacity(0.2) : AppColors.cardElevated)
                         .frame(width: 48, height: 48)
                     Circle()
                         .fill(viewModel.isScanning ? AppColors.success : AppColors.inkSubtle)

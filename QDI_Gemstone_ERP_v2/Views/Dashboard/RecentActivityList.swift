@@ -39,7 +39,7 @@ struct RecentActivityList: View {
                                 }
                                 .padding(.vertical, 10)
                                 .overlay(alignment: .bottom) {
-                                    Divider().background(Color.white.opacity(0.04))
+                                    Divider().background(AppColors.panelBackground)
                                 }
                             }
                             .buttonStyle(.plain)

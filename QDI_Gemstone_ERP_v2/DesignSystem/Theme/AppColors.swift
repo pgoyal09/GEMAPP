@@ -20,6 +20,7 @@ enum AppColors {
     static let success          = Color(red: 0.20, green: 0.83, blue: 0.60)       // #34d399
     static let warning          = Color(red: 0.98, green: 0.75, blue: 0.14)       // #fbbf24
     static let danger           = Color(red: 0.96, green: 0.25, blue: 0.37)       // #f43f5e
+    static let warningDeep      = Color(red: 0.96, green: 0.58, blue: 0.12)       // #f5940f (aging orange)
 
     // MARK: - Text Hierarchy
 

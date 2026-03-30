@@ -172,10 +172,10 @@ struct AppShellView: View {
                         .frame(width: 36, height: 36)
                         .background(
                             RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                                .fill(Color.white.opacity(0.06))
+                                .fill(AppColors.cardElevated)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                                        .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)
+                                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                                 )
                         )
                 }
@@ -235,10 +235,10 @@ struct AppShellView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
             RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous)
-                .fill(Color.white.opacity(0.04))
+                .fill(AppColors.panelBackground)
                 .overlay(
                     RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous)
-                        .strokeBorder(Color.white.opacity(0.07), lineWidth: 1)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                 )
         )
         .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous))

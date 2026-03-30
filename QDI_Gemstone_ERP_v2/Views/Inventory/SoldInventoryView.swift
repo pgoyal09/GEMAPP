@@ -218,7 +218,7 @@ struct SoldInventoryView: View {
             Spacer()
         }
         .padding(.horizontal, AppSpacing.m).padding(.vertical, AppSpacing.s)
-        .background(Color.white.opacity(0.03))
+        .background(AppColors.softHighlight)
     }
 
     // MARK: - Helpers

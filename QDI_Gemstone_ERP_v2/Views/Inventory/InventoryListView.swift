@@ -169,11 +169,11 @@ struct InventoryListView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
             .background(
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(viewModel.showFiltersPanel ? AppColors.primary.opacity(0.15) : Color.white.opacity(0.04))
+                RoundedRectangle(cornerRadius: AppCornerRadius.sm, style: .continuous)
+                    .fill(viewModel.showFiltersPanel ? AppColors.primary.opacity(0.15) : AppColors.panelBackground)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .strokeBorder(viewModel.showFiltersPanel ? AppColors.primary.opacity(0.20) : Color.white.opacity(0.06), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: AppCornerRadius.sm, style: .continuous)
+                            .strokeBorder(viewModel.showFiltersPanel ? AppColors.primary.opacity(0.20) : AppColors.cardElevated, lineWidth: 1)
                     )
             )
         }
@@ -207,7 +207,7 @@ struct InventoryListView: View {
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
                         .background(
-                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            RoundedRectangle(cornerRadius: AppCornerRadius.sm, style: .continuous)
                                 .fill(AppColors.primary.opacity(0.12))
                         )
                     }
@@ -414,7 +414,7 @@ struct InventoryListView: View {
         }
         .padding(.horizontal, AppSpacing.m)
         .padding(.vertical, AppSpacing.s)
-        .background(Color.white.opacity(0.03))
+        .background(AppColors.softHighlight)
     }
 
     // MARK: - Helpers

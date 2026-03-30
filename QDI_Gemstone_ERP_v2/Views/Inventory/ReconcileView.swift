@@ -148,10 +148,10 @@ struct ReconcileView: View {
             }
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 4, style: .continuous)
-                        .fill(Color.white.opacity(0.06))
+                    RoundedRectangle(cornerRadius: AppCornerRadius.xs, style: .continuous)
+                        .fill(AppColors.cardElevated)
                         .frame(height: 6)
-                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.xs, style: .continuous)
                         .fill(AppColors.primaryGradient)
                         .frame(width: geo.size.width * progress, height: 6)
                         .animation(.easeInOut(duration: 0.3), value: progress)

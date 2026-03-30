@@ -39,7 +39,7 @@ struct SidebarView: View {
                     Text("Settings")
                         .font(AppTypography.smallValue)
                 }
-                .foregroundStyle(selectedItem == .settings ? Color.white : AppColors.inkSubtle)
+                .foregroundStyle(selectedItem == .settings ? AppColors.ink : AppColors.inkSubtle)
                 .padding(.horizontal, AppSpacing.standard)
                 .padding(.vertical, AppSpacing.cozy)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -48,15 +48,15 @@ struct SidebarView: View {
             .buttonStyle(.plain)
             .accessibilityLabel("Settings")
             .overlay(alignment: .top) {
-                Divider().background(Color.white.opacity(0.06))
+                Divider().background(AppColors.cardElevated)
             }
         }
         .background(
             RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous)
-                .fill(Color.white.opacity(0.04))
+                .fill(AppColors.panelBackground)
                 .overlay(
                     RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous)
-                        .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                 )
                 .padding(AppSpacing.compact)
         )
@@ -67,7 +67,7 @@ struct SidebarView: View {
     private var sidebarHeader: some View {
         HStack(spacing: AppSpacing.cozy) {
             ZStack {
-                RoundedRectangle(cornerRadius: 11, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.s, style: .continuous)
                     .fill(AppColors.primaryGradient)
                     .frame(width: 36, height: 36)
                     .shadow(color: AppColors.primary.opacity(0.20), radius: 6, y: 2)
@@ -89,7 +89,7 @@ struct SidebarView: View {
         .padding(.top, AppSpacing.l)
         .padding(.bottom, AppSpacing.standard)
         .overlay(alignment: .bottom) {
-            Divider().background(Color.white.opacity(0.06))
+            Divider().background(AppColors.cardElevated)
         }
     }
 
@@ -107,7 +107,7 @@ struct SidebarView: View {
                 Text(item.rawValue)
                     .font(AppTypography.smallValue)
             }
-            .foregroundStyle(isActive ? Color.white : AppColors.inkMuted)
+            .foregroundStyle(isActive ? AppColors.ink : AppColors.inkMuted)
             .padding(.horizontal, AppSpacing.cozy)
             .padding(.vertical, AppSpacing.compact)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -118,7 +118,7 @@ struct SidebarView: View {
                             .fill(Color.white.opacity(0.10))
                             .overlay(
                                 RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                                    .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)
+                                    .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                             )
                     }
                 }

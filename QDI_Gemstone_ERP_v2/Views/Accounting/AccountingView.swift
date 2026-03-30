@@ -197,7 +197,7 @@ struct AccountingView: View {
                             .padding(.vertical, AppSpacing.s)
                             .background(
                                 RoundedRectangle(cornerRadius: AppCornerRadius.s, style: .continuous)
-                                    .fill(Color.white.opacity(0.03))
+                                    .fill(AppColors.softHighlight)
                             )
                         }
                         .buttonStyle(.plain)

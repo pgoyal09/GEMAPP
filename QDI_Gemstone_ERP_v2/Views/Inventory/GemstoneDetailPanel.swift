@@ -38,7 +38,7 @@ struct GemstoneDetailPanel: View {
                         .padding(.horizontal, AppSpacing.s)
                         .padding(.vertical, AppSpacing.xxs)
                         .background(
-                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            RoundedRectangle(cornerRadius: AppCornerRadius.sm, style: .continuous)
                                 .fill(AppColors.primary.opacity(0.12))
                         )
 

@@ -18,10 +18,10 @@ struct CustomerDetailPanel: View {
             .padding(AppSpacing.l)
         }
         .frame(width: 296)
-        .background(Color.white.opacity(0.02))
+        .background(AppColors.panelBackground)
         .accessibilityIdentifier("CustomerDetailPanel")
         .overlay(alignment: .leading) {
-            Divider().background(Color.white.opacity(0.06))
+            Divider().background(AppColors.cardElevated)
         }
         .sheet(isPresented: $showEditSheet) {
             CustomerFormSheet(mode: .edit(customer))

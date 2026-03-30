@@ -156,7 +156,7 @@ struct ReviewQueueView: View {
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(
-                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        RoundedRectangle(cornerRadius: AppCornerRadius.xs, style: .continuous)
                             .fill(chipColor(for: field).opacity(0.15))
                     )
             }

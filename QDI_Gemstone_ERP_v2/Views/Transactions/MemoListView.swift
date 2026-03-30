@@ -215,14 +215,14 @@ struct MemoListView: View {
         }
         .padding(.horizontal, AppSpacing.m)
         .padding(.vertical, AppSpacing.s)
-        .background(Color.white.opacity(0.03))
+        .background(AppColors.softHighlight)
     }
 
     private func memoAgingColor(days: Int) -> Color {
         switch days {
         case ..<30: return AppColors.success
         case 30..<60: return AppColors.warning
-        case 60..<90: return Color.orange
+        case 60..<90: return AppColors.warningDeep
         default: return AppColors.danger
         }
     }

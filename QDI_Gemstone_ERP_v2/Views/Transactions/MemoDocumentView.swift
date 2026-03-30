@@ -371,8 +371,8 @@ struct MemoDocumentView: View {
             .keyboardShortcut("s", modifiers: .command)
         }
         .padding(AppSpacing.m)
-        .background(Color.white.opacity(0.02))
-        .overlay(alignment: .top) { Divider().background(Color.white.opacity(0.06)) }
+        .background(AppColors.panelBackground)
+        .overlay(alignment: .top) { Divider().background(AppColors.cardElevated) }
         .alert("Unsaved Changes", isPresented: $showUnsavedAlert) {
             Button("Keep Editing", role: .cancel) {}
             Button("Discard", role: .destructive) { dismiss() }

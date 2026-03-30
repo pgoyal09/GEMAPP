@@ -245,7 +245,7 @@ struct DiamondsInventoryView: View {
             .accessibilityLabel("Remove \(label) filter")
         }
         .padding(.horizontal, 10).padding(.vertical, 5)
-        .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(AppColors.primary.opacity(0.12)))
+        .background(RoundedRectangle(cornerRadius: AppCornerRadius.sm, style: .continuous).fill(AppColors.primary.opacity(0.12)))
     }
 
     private func clearAllFilters() {
@@ -356,7 +356,7 @@ struct DiamondsInventoryView: View {
             Spacer()
         }
         .padding(.horizontal, AppSpacing.m).padding(.vertical, AppSpacing.s)
-        .background(Color.white.opacity(0.03))
+        .background(AppColors.softHighlight)
     }
 
     // MARK: - Multi-Select
