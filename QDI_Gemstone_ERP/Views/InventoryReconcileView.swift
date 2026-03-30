@@ -14,8 +14,8 @@ struct InventoryReconcileView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 Text("Inventory Reconcile")
-                    .font(.largeTitle)
-                    .fontWeight(.semibold)
+                    .font(AppTypography.title)
+                    .foregroundStyle(AppColors.ink)
                 
                 HStack(spacing: 12) {
                     Button(viewModel.isScanning ? "Stop Scan" : "Start Scan") {
@@ -25,46 +25,45 @@ struct InventoryReconcileView: View {
                             viewModel.startScanning()
                         }
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(viewModel.isScanning ? AppColors.accent : AppColors.primary)
+                    .buttonStyle(GradientButtonStyle(gradient: viewModel.isScanning
+                        ? LinearGradient(colors: [AppColors.danger, AppColors.danger.opacity(0.7)], startPoint: .leading, endPoint: .trailing)
+                        : AppColors.primaryGradient))
                     
                     Button("Reset") {
                         viewModel.resetScan()
                     }
+                    .buttonStyle(OutlineGlassButtonStyle())
                 }
                 
                 if viewModel.isScanning {
                     Label("Listening for tags…", systemImage: "antenna.radiowaves.left.and.right")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkMuted)
                 }
                 
                 HStack(alignment: .top, spacing: 20) {
-                    // Missing: .available but NOT scanned (Pastel Red)
                     listCard(
                         title: "Missing (\(viewModel.missingStones.count))",
                         subtitle: "In safe but not scanned",
-                        color: AppColors.accent,
+                        color: AppColors.danger,
                         rows: viewModel.missingStones.map { stone in
                             RowContent(sku: stone.sku, detail: "\(stone.stoneType.rawValue) · \(stone.displayCarats) ct")
                         }
                     )
                     
-                    // Found: .available and scanned (Pastel Blue)
                     listCard(
                         title: "Found (\(viewModel.foundStones.count))",
                         subtitle: "Scanned and matched",
-                        color: AppColors.primary,
+                        color: AppColors.success,
                         rows: viewModel.foundStones.map { stone in
                             RowContent(sku: stone.sku, detail: "\(stone.stoneType.rawValue) · \(stone.displayCarats) ct")
                         }
                     )
                     
-                    // Extra: scanned but not in DB or sold (Pastel Red)
                     listCard(
                         title: "Extra (\(viewModel.extraScans.count))",
                         subtitle: "Not in DB or not available",
-                        color: AppColors.accent,
+                        color: AppColors.warning,
                         rows: viewModel.extraScans.map { RowContent(sku: $0.tagID, detail: $0.reason) }
                     )
                 }
@@ -89,14 +88,15 @@ struct InventoryReconcileView: View {
     private func listCard(title: String, subtitle: String, color: Color, rows: [RowContent]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.headline)
+                .font(AppTypography.heading)
+                .foregroundStyle(AppColors.ink)
             Text(subtitle)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
             if rows.isEmpty {
                 Text("None")
-                    .font(.subheadline)
-                    .foregroundStyle(.tertiary)
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.inkSubtle)
                     .padding(.vertical, 8)
             } else {
                 ScrollView {
@@ -104,15 +104,16 @@ struct InventoryReconcileView: View {
                         ForEach(rows, id: \.sku) { row in
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(row.sku)
-                                    .font(.system(.body, design: .monospaced))
+                                    .font(AppTypography.mono)
+                                    .foregroundStyle(AppColors.ink)
                                 Text(row.detail)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                    .font(AppTypography.caption)
+                                    .foregroundStyle(AppColors.inkMuted)
                             }
                             .padding(.vertical, 6)
-                            .padding(.horizontal, 4)
+                            .padding(.horizontal, AppSpacing.s)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(color.opacity(0.25))
+                            .background(color.opacity(0.10))
                         }
                     }
                 }
@@ -121,12 +122,13 @@ struct InventoryReconcileView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(white: 0.98))
-        .cornerRadius(12)
+        .background(AppColors.heroCardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(color.opacity(0.5), lineWidth: 1)
+            RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous)
+                .strokeBorder(color.opacity(0.30), lineWidth: 1)
         )
+        .shadow(color: color.opacity(0.08), radius: 8, y: 4)
     }
 }
 

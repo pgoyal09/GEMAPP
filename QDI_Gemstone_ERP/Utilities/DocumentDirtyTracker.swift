@@ -6,6 +6,8 @@ import SwiftUI
 final class DocumentDirtyTracker {
     var hasUnsavedMemo: Bool = false
     var hasUnsavedInvoice: Bool = false
+    /// Set by memo/invoice document views so the window can invoke "Save and Close" from its Esc alert.
+    var onSaveAndClose: (() -> Void)?
 
     var hasAnyDirty: Bool { hasUnsavedMemo || hasUnsavedInvoice }
 }

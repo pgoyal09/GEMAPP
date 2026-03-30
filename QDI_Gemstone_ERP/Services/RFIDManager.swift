@@ -2,7 +2,6 @@ import Foundation
 import Darwin
 import Darwin.POSIX
 import os
-import Combine
 import SwiftUI
 import ORSSerial
 import AppKit

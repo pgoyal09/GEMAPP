@@ -57,7 +57,7 @@ struct UnknownTagAssignSheet: View {
                 HStack(spacing: 8) {
                     Text("Tag EPC:")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppColors.inkMuted)
                     Text(epc)
                         .font(AppTypography.mono)
                         .foregroundStyle(AppColors.ink)
@@ -69,9 +69,8 @@ struct UnknownTagAssignSheet: View {
             }
             .padding()
 
-            Divider()
+            Divider().overlay(AppColors.cardStroke)
 
-            // Search
             HStack {
                 TextField("Search SKU, type, color…", text: $searchText)
                      .appSearchField()
@@ -82,7 +81,7 @@ struct UnknownTagAssignSheet: View {
             if let err = errorMessage {
                 Text(err)
                     .font(.caption)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(AppColors.danger)
                     .padding(.horizontal)
             }
 
@@ -94,38 +93,38 @@ struct UnknownTagAssignSheet: View {
                 Table(filteredStones, selection: $selectedStoneID) {
                     TableColumn("") { stone in
                         Image(systemName: selectedStoneID == stone.id ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(selectedStoneID == stone.id ? Color.accentColor : .secondary)
+                            .foregroundStyle(selectedStoneID == stone.id ? AppColors.primary : AppColors.inkSubtle)
                     }
                     .width(28)
                     TableColumn("SKU") { Text($0.sku).font(AppTypography.mono)
                         .foregroundStyle(AppColors.ink) }
                     .width(100)
-                    TableColumn("Type") { Text($0.stoneType.rawValue) }
+                    TableColumn("Type") { Text($0.stoneType.rawValue).foregroundStyle(AppColors.ink) }
                     .width(90)
-                    TableColumn("Carat") { Text(String(format: "%.2f", $0.caratWeight)).monospacedDigit() }
+                    TableColumn("Carat") { Text(String(format: "%.2f", $0.caratWeight)).monospacedDigit().foregroundStyle(AppColors.ink) }
                     .width(70)
-                    TableColumn("Color") { Text($0.color) }
+                    TableColumn("Color") { Text($0.color).foregroundStyle(AppColors.ink) }
                     .width(80)
-                    TableColumn("Shape") { Text($0.shape ?? $0.cut) }
+                    TableColumn("Shape") { Text($0.shape ?? $0.cut).foregroundStyle(AppColors.ink) }
                     .width(90)
                     TableColumn("RFID") { stone in
                         let hasRfid = stone.effectiveRfidEpc != nil
                         Text(hasRfid ? "Assigned" : "—")
-                            .foregroundStyle(hasRfid ? .orange : .secondary)
+                            .foregroundStyle(hasRfid ? AppColors.warning : AppColors.inkMuted)
                     }
                     .width(80)
                 }
+                .glassTable()
                 .frame(minHeight: 200, maxHeight: 320)
             }
 
-            Divider()
+            Divider().overlay(AppColors.cardStroke)
 
-            // Buttons
             HStack {
                 Spacer()
                 if assignSuccess {
                     Text("Assigned successfully")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(AppColors.success)
                         .font(.subheadline)
                     Spacer()
                 }
@@ -133,12 +132,13 @@ struct UnknownTagAssignSheet: View {
                     onDismiss()
                     dismiss()
                 }
+                .buttonStyle(OutlineGlassButtonStyle())
                 .keyboardShortcut(.cancelAction)
                 Button("Assign") {
                     attemptAssign()
                 }
                 .disabled(selectedStone == nil)
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(GradientButtonStyle())
                 .keyboardShortcut(.defaultAction)
             }
             .padding()

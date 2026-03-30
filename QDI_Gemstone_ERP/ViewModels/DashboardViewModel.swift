@@ -15,7 +15,6 @@ struct OldestMemoItem: Identifiable {
     let ageDays: Int
     let totalAmount: Decimal
     let status: MemoStatus
-    let memo: Memo
 }
 
 /// Inventory snapshot counts for info panel.
@@ -106,8 +105,7 @@ final class DashboardViewModel {
                 customerName: customer,
                 ageDays: ageDays,
                 totalAmount: memo.totalAmount,
-                status: memo.status,
-                memo: memo
+                status: memo.status
             )
         }
     }

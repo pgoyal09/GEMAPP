@@ -61,7 +61,50 @@ final class Gemstone {
     var polish: String?
     var symmetry: String?
     var fluorescence: String?
+    /// For diamond lots: free-text size (e.g. "0.50-0.70 ct").
+    var size: String?
+    /// For non-diamond lots: quality grade (e.g. "AAA", "Commercial").
+    var quality: String?
+
+    // MARK: - Lot Inventory Fields
+
+    /// For lot stones: currently available carats (decremented when sent on memo/sold).
+    /// Nil for non-lot stones. Defaults to caratWeight on first use via effectiveRemainingCarats.
+    var remainingCarats: Double?
+    /// Weighted-average cost per carat, recalculated each time quantity is added.
+    var averageCostPerCarat: Decimal?
+
+    @Relationship(deleteRule: .nullify, inverse: \LotTransaction.gemstone)
+    var lotTransactions: [LotTransaction] = []
     
+    // MARK: - Rapaport Price Fields
+    /// Rapaport list price per carat at time of listing.
+    var rapPrice: Decimal?
+    /// Discount from Rapaport list (e.g. -15 means 15% below Rap).
+    var rapDiscount: Double?
+
+    // MARK: - Per-Stone P&L Fields
+    /// Actual price the stone was sold for (set when status changes to .sold).
+    var soldPrice: Decimal?
+    /// Date the stone was sold.
+    var soldDate: Date?
+
+    // MARK: - Multi-Currency Support
+    /// Currency code for original purchase (e.g. "INR", "USD").
+    var purchaseCurrency: String?
+    /// Original purchase amount in purchaseCurrency.
+    var purchaseAmount: Decimal?
+    /// Exchange rate to USD at time of purchase.
+    var exchangeRate: Double?
+
+    // MARK: - GIA Report
+    /// GIA report number for certificate lookup.
+    var giaReportNumber: String?
+
+    // MARK: - Stone Photography
+    /// Binary image data for primary stone photo.
+    var imageData: Data?
+
     /// Path/URL reference to certificate image file.
     var certificateImagePath: String?
     /// JSON-encoded array of file paths for media assets.
@@ -97,7 +140,9 @@ final class Gemstone {
         height2: Double? = nil,
         polish: String? = nil,
         symmetry: String? = nil,
-        fluorescence: String? = nil
+        fluorescence: String? = nil,
+        size: String? = nil,
+        quality: String? = nil
     ) {
         self.sku = sku
         self.stoneType = stoneType
@@ -126,8 +171,25 @@ final class Gemstone {
         self.polish = polish
         self.symmetry = symmetry
         self.fluorescence = fluorescence
+        self.size = size
+        self.quality = quality
     }
     
+    /// True if this stone is a lot (grouping == "L").
+    var isLot: Bool { grouping == "L" }
+
+    /// Effective remaining carats for lots. Falls back to caratWeight if not yet set.
+    var effectiveRemainingCarats: Double {
+        get { remainingCarats ?? caratWeight }
+        set { remainingCarats = newValue }
+    }
+
+    /// Effective average cost per carat. Falls back to costPrice (total, not per-carat) if not set.
+    /// Note: for lots costPrice is total cost for the initial lot; averageCostPerCarat is derived.
+    var effectiveAverageCost: Decimal {
+        averageCostPerCarat ?? (caratWeight > 0 ? costPrice / Decimal(caratWeight) : costPrice)
+    }
+
     /// Use in UI and filters; existing stones without status count as .available.
     var effectiveStatus: GemstoneStatus {
         status ?? .available
@@ -159,6 +221,41 @@ final class Gemstone {
         set {
             mediaPathsJson = (try? JSONEncoder().encode(newValue)).flatMap { String(data: $0, encoding: .utf8) }
         }
+    }
+
+    // MARK: - Rapaport Computed Properties
+
+    /// Calculated Rapaport price per carat after discount.
+    var rapPricePerCarat: Decimal? {
+        guard let rap = rapPrice, let discount = rapDiscount else { return nil }
+        return rap * (1 - Decimal(discount / 100))
+    }
+
+    /// Calculated total Rapaport price.
+    var rapTotalPrice: Decimal? {
+        guard let ppc = rapPricePerCarat else { return nil }
+        return ppc * Decimal(caratWeight)
+    }
+
+    // MARK: - Per-Stone P&L Computed Properties
+
+    /// Profit margin (sold price - cost price).
+    var margin: Decimal? {
+        guard let sold = soldPrice else { return nil }
+        return sold - costPrice
+    }
+
+    /// Return on investment as percentage ((sold - cost) / cost * 100).
+    var roi: Double? {
+        guard let sold = soldPrice, costPrice > 0 else { return nil }
+        let m = sold - costPrice
+        return NSDecimalNumber(decimal: m / costPrice * 100).doubleValue
+    }
+
+    /// Days held from creation to sold date (or to now if not yet sold).
+    var daysHeld: Int {
+        let endDate = soldDate ?? Date()
+        return Calendar.current.dateComponents([.day], from: createdAt, to: endDate).day ?? 0
     }
 
     /// "Safe" when available; customer name when on memo; "Sold" when sold. Use in lists and detail.

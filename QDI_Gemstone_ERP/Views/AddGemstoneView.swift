@@ -14,43 +14,68 @@ struct AddGemstoneView: View {
     @State private var origin = ""
     @State private var costPrice = ""
     @State private var sellPrice = ""
+    @State private var saveError: String?
     
     var body: some View {
         Form {
-            Section("Identification") {
+            Section {
                 TextField("SKU", text: $sku)
+                    .glassField()
                 Picker("Type", selection: $stoneType) {
                     ForEach(StoneType.allCases, id: \.self) { type in
                         Text(type.rawValue).tag(type)
                     }
                 }
+            } header: {
+                Text("IDENTIFICATION")
+                    .sectionLabel()
             }
-            
-            Section("Specifications") {
+
+            Section {
                 TextField("Carat Weight", text: $caratWeight)
-                    .textFieldStyle(.roundedBorder)
+                    .glassField()
                 TextField("Color", text: $color)
+                    .glassField()
                 TextField("Clarity", text: $clarity)
+                    .glassField()
                 TextField("Cut", text: $cut)
+                    .glassField()
                 TextField("Origin", text: $origin)
+                    .glassField()
+            } header: {
+                Text("SPECIFICATIONS")
+                    .sectionLabel()
             }
-            
-            Section("Pricing") {
+
+            Section {
                 TextField("Cost Price ($)", text: $costPrice)
-                    .textFieldStyle(.roundedBorder)
+                    .glassField()
                 TextField("Sell Price ($)", text: $sellPrice)
-                    .textFieldStyle(.roundedBorder)
+                    .glassField()
+            } header: {
+                Text("PRICING")
+                    .sectionLabel()
             }
         }
         .formStyle(.grouped)
+        .scrollContentBackground(.hidden)
+        .foregroundStyle(AppColors.ink)
         .frame(minWidth: 400, minHeight: 450)
+        .background(AppColors.background)
         .navigationTitle("Add Gemstone")
+        .alert("Save Error", isPresented: Binding(get: { saveError != nil }, set: { if !$0 { saveError = nil } })) {
+            Button("OK", role: .cancel) { saveError = nil }
+        } message: {
+            Text(saveError ?? "An unknown error occurred.")
+        }
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") { dismiss() }
+                    .foregroundStyle(Color.white.opacity(0.40))
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button("Save") { saveStone() }
+                    .buttonStyle(GradientButtonStyle())
                     .disabled(!isValid)
             }
         }
@@ -86,7 +111,7 @@ struct AddGemstoneView: View {
             try modelContext.save()
             dismiss()
         } catch {
-            print("Failed to save gemstone: \(error)")
+            saveError = "Failed to save gemstone: \(error.localizedDescription)"
         }
     }
 }

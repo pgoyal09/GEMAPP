@@ -10,15 +10,16 @@ enum TransactionMode {
 struct TransactionEditorView: View {
     let mode: TransactionMode
     
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) var modelContext
     @Environment(\.rfidService) private var rfidService
     
-    @State private var viewModel = TransactionViewModel()
-    @State private var showInventorySheet = false
-    @State private var showAddCustomerSheet = false
+    @State var viewModel = TransactionViewModel()
+    @State var showInventorySheet = false
+    @State var showAddCustomerSheet = false
+    @State var saveErrorMessage: String?
     
-    @Query(sort: \Customer.lastName) private var customers: [Customer]
+    @Query(sort: \Customer.lastName) var customers: [Customer]
     
     private var title: String {
         switch mode {
@@ -33,20 +34,6 @@ struct TransactionEditorView: View {
         case .invoice: return "Save"
         case .memo: return "Create"
         case .editMemo: return "Save"
-        }
-    }
-    
-    private var referenceLabel: String {
-        switch mode {
-        case .invoice: return "Reference"
-        case .memo, .editMemo: return "Memo Number"
-        }
-    }
-    
-    private var referencePlaceholder: String {
-        switch mode {
-        case .invoice: return "Optional"
-        case .memo, .editMemo: return "1001"
         }
     }
     
@@ -81,7 +68,7 @@ struct TransactionEditorView: View {
         }
         .sheet(isPresented: $showAddCustomerSheet) {
             NavigationStack {
-                AddCustomerSheet { newCustomer in
+                CustomerFormSheet(mode: .add) { newCustomer in
                     viewModel.customer = newCustomer
                 }
             }
@@ -120,302 +107,10 @@ struct TransactionEditorView: View {
         .onDisappear {
             rfidService?.onTagDiscovered = nil
         }
-    }
-    
-    private var headerSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top, spacing: 24) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Customer")
-                        .font(.caption)
-                        .foregroundStyle(AppColors.inkSubtle)
-                    HStack(spacing: 8) {
-                        Picker("", selection: $viewModel.customer) {
-                            Text("Select customer…").tag(nil as Customer?)
-                            ForEach(customers, id: \.id) { customer in
-                                Text(customer.displayName).tag(customer as Customer?)
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        .frame(width: 220)
-                        Button {
-                            showAddCustomerSheet = true
-                        } label: {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.title3)
-                                .foregroundStyle(AppColors.primary)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Date")
-                        .font(.caption)
-                        .foregroundStyle(AppColors.inkSubtle)
-                    DatePicker("", selection: $viewModel.date, displayedComponents: .date)
-                        .labelsHidden()
-                        .frame(width: 140)
-                }
-                if case .invoice = mode {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Terms")
-                            .font(.caption)
-                            .foregroundStyle(AppColors.inkSubtle)
-                        Picker("", selection: $viewModel.terms) {
-                            Text("Net 30").tag("Net 30")
-                            Text("Net 60").tag("Net 60")
-                            Text("Due on receipt").tag("Due on receipt")
-                            Text("COD").tag("COD")
-                        }
-                        .pickerStyle(.menu)
-                        .frame(width: 140)
-                    }
-                }
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(referenceLabel)
-                        .font(.caption)
-                        .foregroundStyle(AppColors.inkSubtle)
-                    TextField(referencePlaceholder, text: $viewModel.referenceNumber)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(width: 120)
-                }
-            }
-        }
-    }
-    
-    private var lineItemsSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("Line Items")
-                    .font(AppTypography.heading)
-                Spacer()
-            }
-
-            if viewModel.items.isEmpty {
-                Text("No line items. Use \"Add Line\" to add from inventory or add a custom line (e.g. Shipping).")
-                    .font(.subheadline)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .frame(maxWidth: .infinity)
-                    .padding(32)
-            } else {
-                VStack(alignment: .leading, spacing: 0) {
-                    lineItemHeader
-                    Divider()
-                    List(Array(viewModel.items.enumerated()), id: \.element.id) { index, item in
-                        TransactionLineRowView(
-                            item: item,
-                            index: index,
-                            viewModel: viewModel,
-                            formatCurrency: formatCurrency
-                        )
-                    }
-                    .listStyle(.plain)
-                    .frame(minHeight: 120)
-                }
-            }
-            HStack(spacing: AppSpacing.m) {
-                Button("+ From Inventory") { showInventorySheet = true }
-                    .buttonStyle(.borderless)
-                Button("+ Brokered Stone") { viewModel.addBrokeredLine() }
-                    .buttonStyle(.borderless)
-                Button("+ Custom Line") { viewModel.addServiceLine() }
-                    .buttonStyle(.borderless)
-            }
-            .font(.subheadline)
-            .foregroundStyle(AppColors.primary)
-        }
-    }
-    
-    private var footerSection: some View {
-        HStack {
-            Spacer()
-            VStack(alignment: .trailing, spacing: 6) {
-                HStack {
-                    Text("Subtotal")
-                        .foregroundStyle(AppColors.inkSubtle)
-                    Text(formatCurrency(viewModel.subtotal))
-                        .frame(width: 100, alignment: .trailing)
-                }
-                .font(.subheadline)
-                if viewModel.tax > 0 {
-                    HStack {
-                        Text("Tax")
-                            .foregroundStyle(AppColors.inkSubtle)
-                        Text(formatCurrency(viewModel.tax))
-                            .frame(width: 100, alignment: .trailing)
-                    }
-                    .font(.subheadline)
-                }
-                HStack {
-                    Text("Total")
-                        .fontWeight(.semibold)
-                    Text(formatCurrency(viewModel.total))
-                        .fontWeight(.semibold)
-                        .frame(width: 100, alignment: .trailing)
-                }
-            }
-        }
-        .padding(.top, 4)
-    }
-    
-    private var lineItemHeader: some View {
-        HStack(alignment: .center, spacing: 8) {
-            Text("SKU").frame(width: 80, alignment: .leading)
-            Text("Description").frame(minWidth: 180, alignment: .leading)
-            Text("Carats").frame(width: 60, alignment: .trailing)
-            Text("Rate").frame(width: 80, alignment: .trailing)
-            Text("Amount").frame(width: 80, alignment: .trailing)
-            Spacer().frame(width: 32)
-        }
-        .font(.caption)
-        .foregroundStyle(AppColors.inkSubtle)
-        .padding(.vertical, 4)
-    }
-    
-    private func formatCurrency(_ value: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: value as NSDecimalNumber) ?? "$0"
-    }
-    
-    private func saveInvoice() {
-        guard let customer = viewModel.customer else { return }
-        
-        let invoice = Invoice(
-            invoiceDate: viewModel.date,
-            dueDate: viewModel.dueDate,
-            terms: viewModel.terms,
-            referenceNumber: viewModel.referenceNumber.isEmpty ? nil : viewModel.referenceNumber,
-            notes: viewModel.notes.isEmpty ? nil : viewModel.notes,
-            customer: customer
-        )
-        modelContext.insert(invoice)
-        
-        for draft in viewModel.lineItems {
-            let amount = draft.isService ? draft.rate : draft.rate * Decimal(draft.carats)
-            let item = LineItem(
-                sku: draft.sku,
-                itemDescription: draft.description,
-                carats: draft.carats,
-                rate: draft.rate,
-                amount: amount,
-                gemstone: draft.gemstone,
-                isService: draft.isService
-            )
-            modelContext.insert(item)
-            item.invoice = invoice
-            
-            if let stone = draft.gemstone {
-                stone.memo = nil
-                stone.status = .sold
-                logEvent(stone: stone, type: .sold, message: "Sold to \(customer.displayName)", modelContext: modelContext)
-            }
-        }
-        #if DEBUG
-        // Safety: Gemstones must NEVER be deleted in invoice flow; only status is updated to .sold.
-        let stoneCount = viewModel.lineItems.compactMap(\.gemstone).count
-        if stoneCount > 0 {
-            print("[Invoice] Saved \(stoneCount) gemstone(s) with status=Sold; no gemstones deleted.")
-        }
-        #endif
-        do {
-            try modelContext.save()
-            NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
-            viewModel.reset()
-            dismiss()
-        } catch {
-            print("Failed to save invoice: \(error)")
-        }
-    }
-    
-    private func saveMemo() {
-        guard let customer = viewModel.customer else { return }
-        
-        let memo = Memo(
-            status: .onMemo,
-            dateAssigned: viewModel.date,
-            notes: viewModel.notes.isEmpty ? nil : viewModel.notes,
-            referenceNumber: viewModel.referenceNumber.isEmpty ? nil : viewModel.referenceNumber,
-            customer: customer
-        )
-        modelContext.insert(memo)
-        
-        for draft in viewModel.lineItems {
-            let amount = draft.isService ? draft.rate : draft.rate * Decimal(draft.carats)
-            let item = LineItem(
-                sku: draft.sku,
-                itemDescription: draft.description,
-                carats: draft.carats,
-                rate: draft.rate,
-                amount: amount,
-                gemstone: draft.gemstone,
-                isService: draft.isService
-            )
-            modelContext.insert(item)
-            item.memo = memo
-            
-            if let stone = draft.gemstone {
-                stone.memo = memo
-                stone.status = .onMemo
-                logEvent(stone: stone, type: .sentToCustomer, message: "Sent to \(customer.displayName)", modelContext: modelContext)
-            }
-        }
-        
-        do {
-            try modelContext.save()
-            NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
-            viewModel.reset()
-            dismiss()
-        } catch {
-            print("Failed to save memo: \(error)")
-        }
-    }
-    
-    private func saveEditedMemo(_ memo: Memo) {
-        guard let customer = viewModel.customer else { return }
-        
-        memo.customer = customer
-        memo.dateAssigned = viewModel.date
-        memo.notes = viewModel.notes.isEmpty ? nil : viewModel.notes
-        memo.referenceNumber = viewModel.referenceNumber.isEmpty ? nil : viewModel.referenceNumber
-        
-        let existingItems = Array(memo.lineItems)
-        for existing in existingItems {
-            if let stone = existing.gemstone {
-                stone.memo = nil
-                stone.status = .available
-            }
-            modelContext.delete(existing)
-        }
-        
-        for draft in viewModel.lineItems {
-            let amount = draft.isService ? draft.rate : draft.rate * Decimal(draft.carats)
-            let item = LineItem(
-                sku: draft.sku,
-                itemDescription: draft.description,
-                carats: draft.carats,
-                rate: draft.rate,
-                amount: amount,
-                gemstone: draft.gemstone,
-                isService: draft.isService
-            )
-            modelContext.insert(item)
-            item.memo = memo
-            
-            if let stone = draft.gemstone {
-                stone.memo = memo
-                logEvent(stone: stone, type: .sentToCustomer, message: "Sent to \(customer.displayName)", modelContext: modelContext)
-            }
-        }
-        
-        do {
-            try modelContext.save()
-            NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
-            viewModel.reset()
-            dismiss()
-        } catch {
-            print("Failed to save memo: \(error)")
+        .alert("Save Error", isPresented: Binding(get: { saveErrorMessage != nil }, set: { if !$0 { saveErrorMessage = nil } })) {
+            Button("OK", role: .cancel) { saveErrorMessage = nil }
+        } message: {
+            Text(saveErrorMessage ?? "An unknown error occurred.")
         }
     }
 }
@@ -426,17 +121,31 @@ struct TransactionLineRowView: View {
     let item: DraftLineItem
     let index: Int
     @Bindable var viewModel: TransactionViewModel
-    let formatCurrency: (Decimal) -> String
     
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
             Text(item.displaySku)
                 .frame(width: 80, alignment: .leading)
+            if item.isBrokered {
+                Picker("", selection: Binding(
+                    get: { viewModel.items.indices.contains(index) ? viewModel.items[index].brokeredStoneType : "" },
+                    set: { viewModel.updateBrokeredStoneType(at: index, $0) }
+                )) {
+                    Text("Type…").tag("").foregroundStyle(AppColors.inkSubtle)
+                    ForEach(StoneType.allCases, id: \.self) { type in
+                        Text(type.rawValue).tag(type.rawValue)
+                    }
+                }
+                .pickerStyle(.menu)
+                .labelsHidden()
+                .frame(width: 90)
+            }
             TextField("Description", text: Binding(
                 get: { viewModel.items.indices.contains(index) ? viewModel.items[index].description : "" },
                 set: { viewModel.updateDescription(at: index, $0) }
             ))
-            .textFieldStyle(.roundedBorder)
+            .textFieldStyle(.plain)
+            .glassField()
             .frame(minWidth: 180, alignment: .leading)
             Group {
                 if item.isService {
@@ -450,7 +159,8 @@ struct TransactionLineRowView: View {
                         },
                         set: { viewModel.updateCarats(at: index, Double($0) ?? 0) }
                     ))
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(.plain)
+                    .glassField()
                     .multilineTextAlignment(.trailing)
                 }
             }
@@ -494,7 +204,8 @@ struct RateEditCell: View {
     
     var body: some View {
         TextField("Rate", text: $rate)
-            .textFieldStyle(.roundedBorder)
+            .textFieldStyle(.plain)
+            .glassField()
             .frame(minWidth: 70)
             .multilineTextAlignment(.trailing)
     }
@@ -506,7 +217,8 @@ struct AmountEditCell: View {
     
     var body: some View {
         TextField("Amount", text: $amount)
-            .textFieldStyle(.roundedBorder)
+            .textFieldStyle(.plain)
+            .glassField()
             .frame(minWidth: 70)
             .multilineTextAlignment(.trailing)
     }

@@ -15,7 +15,15 @@ final class Customer {
     var country: String?
     var zip: String?
     var createdAt: Date
-    
+
+    // MARK: - Customer Preferences
+    /// Comma-separated preferred shapes (e.g. "Round,Oval,Cushion").
+    var preferredShapes: String?
+    /// Comma-separated preferred colors (e.g. "D,E,F").
+    var preferredColors: String?
+    /// Budget range as string (e.g. "$5,000 - $50,000").
+    var budgetRange: String?
+
     @Relationship(inverse: \Memo.customer)
     var memos: [Memo]?
     
@@ -67,9 +75,15 @@ final class Customer {
     var openExposure: Decimal {
         activeMemos.reduce(Decimal(0)) { $0 + $1.openMemoAmount }
     }
-    
-    /// Memos where stones were sold (status == Sold)
-    var purchaseHistory: [Memo] {
-        memos?.filter { $0.status == .sold } ?? []
+
+    /// Multi-line formatted address. Returns nil if no address fields are set.
+    var formattedAddress: String? {
+        var lines: [String] = []
+        if let a = address, !a.isEmpty { lines.append(a) }
+        let cityZipCountry = [city, zip, country]
+            .compactMap { $0?.isEmpty == false ? $0 : nil }
+            .joined(separator: ", ")
+        if !cityZipCountry.isEmpty { lines.append(cityZipCountry) }
+        return lines.isEmpty ? nil : lines.joined(separator: "\n")
     }
 }

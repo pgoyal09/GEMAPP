@@ -103,7 +103,7 @@ enum SKUGenerator {
         return ensureUnique(generateSKU(type: type, shape: shape, grouping: grouping, modelContext: modelContext), modelContext: modelContext)
     }
 
-    /// Generate next sequence for TYPE-SHAPE-GROUP prefix. Fetches existing SKUs and increments.
+    /// Generate next sequence for TYPE-SHAPE-GROUP prefix. Uses predicate to fetch only matching SKUs.
     static func nextSequence(
         type: StoneType,
         shape: IntakeShape,
@@ -111,9 +111,12 @@ enum SKUGenerator {
         modelContext: ModelContext
     ) -> Int {
         let prefix = "\(stoneTypeCode(type))-\(shapeCode(shape))-\(groupingCode(grouping))-"
-        let descriptor = FetchDescriptor<Gemstone>()
-        let all = (try? modelContext.fetch(descriptor)) ?? []
-        let matching = all.filter { $0.sku.starts(with: prefix) }
+        let descriptor = FetchDescriptor<Gemstone>(
+            predicate: #Predicate<Gemstone> { gem in
+                gem.sku.starts(with: prefix)
+            }
+        )
+        let matching = (try? modelContext.fetch(descriptor)) ?? []
         let nums = matching.compactMap { s -> Int? in
             let suffix = String(s.sku.dropFirst(prefix.count))
             return Int(suffix)
@@ -149,12 +152,6 @@ enum SKUGenerator {
     /// Ensure SKU is unique; if not, increment sequence until unique.
     /// Pass excludingID to ignore a stone (e.g. current stone when editing).
     static func ensureUnique(_ sku: String, excludingID: PersistentIdentifier? = nil, modelContext: ModelContext) -> String {
-        let descriptor = FetchDescriptor<Gemstone>()
-        var all = (try? modelContext.fetch(descriptor)) ?? []
-        if let id = excludingID {
-            all = all.filter { $0.id != id }
-        }
-        let existingSKUs = Set(all.map(\.sku))
         var candidate = sku.trimmingCharacters(in: .whitespaces)
         if candidate.isEmpty { candidate = "TMP-OT-S-001" }
         let parts = candidate.split(separator: "-")
@@ -162,7 +159,9 @@ enum SKUGenerator {
         var seq = (parts.count >= 4 ? Int(parts[3]) : nil) ?? 1
         for _ in 0..<10_000 {
             candidate = base + String(format: "%03d", seq)
-            if !existingSKUs.contains(candidate) { return candidate }
+            if !skuExists(sku: candidate, excludingID: excludingID, modelContext: modelContext) {
+                return candidate
+            }
             seq += 1
         }
         return candidate

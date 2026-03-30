@@ -9,11 +9,12 @@ enum InventoryListMode {
 struct InventoryListView: View {
     @Binding var selectedNavigationItem: NavigationItem
     var mode: InventoryListMode = .current
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.modelContext) var modelContext
+    @Environment(\.openWindow) var openWindow
     @Query(sort: \Gemstone.sku) private var allGemstones: [Gemstone]
-    @State private var viewModel = InventoryViewModel()
-    @State private var selectedStoneID: PersistentIdentifier?
-    @State private var showEditSheet = false
+    @State var viewModel = InventoryViewModel()
+    @State var selectedStoneID: PersistentIdentifier?
+    @State var showEditSheet = false
     @State private var showColorColumn = false
     #if DEBUG
     @State private var skuMismatchAlert: String?
@@ -22,13 +23,13 @@ struct InventoryListView: View {
     private var baseGemstones: [Gemstone] {
         switch mode {
         case .current:
-            return allGemstones.filter { $0.effectiveStatus != .sold }
+            return allGemstones.filter { $0.effectiveStatus != .sold && !$0.isLot }
         case .sold:
-            return allGemstones.filter { $0.effectiveStatus == .sold }
+            return allGemstones.filter { $0.effectiveStatus == .sold && !$0.isLot }
         }
     }
 
-    private var filteredGemstones: [Gemstone] {
+    var filteredGemstones: [Gemstone] {
         viewModel.filtered(from: baseGemstones)
     }
 
@@ -79,7 +80,7 @@ struct InventoryListView: View {
             }
             .frame(minWidth: InspectorWidth.ideal, maxWidth: InspectorWidth.ideal, maxHeight: .infinity)
             .fixedSize(horizontal: true, vertical: false)
-            .background(AppColors.background)
+            .background(Color.white.opacity(0.02))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(AppColors.background)
@@ -99,6 +100,24 @@ struct InventoryListView: View {
             }
         }
         .searchable(text: $viewModel.searchText, prompt: "Search inventory")
+        // MARK: - Keyboard shortcuts
+        .background {
+            Group {
+                // Space / Return → open edit sheet for selected stone
+                Button("") { if selectedStone != nil { showEditSheet = true } }
+                    .keyboardShortcut(.space, modifiers: [])
+                Button("") { if selectedStone != nil { showEditSheet = true } }
+                    .keyboardShortcut(.return, modifiers: [])
+                // Cmd+E → edit selected
+                Button("") { if selectedStone != nil { showEditSheet = true } }
+                    .keyboardShortcut("e", modifiers: .command)
+                // Cmd+N → go to Quick Intake
+                Button("") { selectedNavigationItem = .quickIntake }
+                    .keyboardShortcut("n", modifiers: .command)
+            }
+            .frame(width: 0, height: 0)
+            .opacity(0)
+        }
         #if DEBUG
         .alert("SKU Check", isPresented: Binding(get: { skuMismatchAlert != nil }, set: { if !$0 { skuMismatchAlert = nil } })) {
             Button("OK", role: .cancel) { skuMismatchAlert = nil }
@@ -110,7 +129,7 @@ struct InventoryListView: View {
 
     private var headerRow: some View {
         HStack {
-            Text(mode == .sold ? "Sold Inventory" : "Current Inventory")
+            Text(mode == .sold ? "Sold Singles & Pairs" : "Single & Pair Inventory")
                 .font(AppTypography.title)
                 .foregroundStyle(AppColors.ink)
                 #if DEBUG
@@ -126,22 +145,17 @@ struct InventoryListView: View {
                 #endif
             Spacer()
             if mode == .current {
-                Button("Quick Intake") { selectedNavigationItem = .quickIntake }
-                Button("Review Queue") { selectedNavigationItem = .reviewQueue }
+                GradientButton(title: "Quick Intake", icon: "plus.circle") { selectedNavigationItem = .quickIntake }
+                GradientButton(title: "Review Queue", icon: "tray") { selectedNavigationItem = .reviewQueue }
             }
         }
         .padding()
     }
 
     private var searchRow: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(.secondary)
-            TextField("Search by SKU, type, color, clarity, cert no, origin", text: $viewModel.searchText)
-                .appSearchField()
-        }
-        .padding(.horizontal)
-        .padding(.bottom, AppSpacing.s)
+        GlassSearchField(text: $viewModel.searchText, placeholder: "Search by SKU, type, color, clarity, cert no, origin")
+            .padding(.horizontal)
+            .padding(.bottom, AppSpacing.s)
     }
 
     private var statusAndStoneTypeRow: some View {
@@ -157,23 +171,14 @@ struct InventoryListView: View {
             } else {
                 Text("Sold items")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppColors.inkSubtle)
             }
 
             HStack(spacing: AppSpacing.xs) {
                 ForEach(InventoryStoneTypeFilter.allCases, id: \.self) { type in
-                    Button {
+                    FilterPill(title: type.rawValue, isActive: viewModel.stoneTypeFilter == type) {
                         viewModel.stoneTypeFilter = type
-                    } label: {
-                        Text(type.rawValue)
-                            .font(.caption)
-                            .padding(.horizontal, AppSpacing.s)
-                            .padding(.vertical, 4)
-                            .background(viewModel.stoneTypeFilter == type ? AppColors.primary.opacity(0.2) : Color.clear)
-                            .foregroundStyle(viewModel.stoneTypeFilter == type ? AppColors.ink : AppColors.inkMuted)
-                            .clipShape(Capsule(style: .continuous))
                     }
-                    .buttonStyle(.plain)
                 }
             }
         }
@@ -193,7 +198,7 @@ struct InventoryListView: View {
                     viewModel.clearAllFilters()
                 }
                 .buttonStyle(.borderless)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppColors.inkMuted)
             }
 
             Spacer()
@@ -201,9 +206,10 @@ struct InventoryListView: View {
                 showColorColumn.toggle()
             }
             .buttonStyle(.borderless)
+            .foregroundStyle(AppColors.inkMuted)
             Text("\(filteredGemstones.count) shown")
                 .font(.caption)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(AppColors.inkSubtle)
         }
         .padding(.horizontal)
         .padding(.bottom, AppSpacing.s)
@@ -216,166 +222,29 @@ struct InventoryListView: View {
                     HStack(spacing: 4) {
                         Text(pill.label)
                             .font(.caption)
+                            .foregroundStyle(AppColors.inkMuted)
                         Button {
                             viewModel.removePill(pill)
                         } label: {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.caption2)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(AppColors.inkSubtle)
                         }
                         .buttonStyle(.plain)
                     }
                     .padding(.horizontal, AppSpacing.s)
                     .padding(.vertical, 4)
-                    .background(Color.primary.opacity(0.08))
+                    .background(Color.white.opacity(0.06))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .strokeBorder(Color.white.opacity(0.06), lineWidth: 1)
+                    )
                     .cornerRadius(8)
                 }
             }
         }
         .padding(.horizontal)
         .padding(.bottom, AppSpacing.s)
-    }
-
-    private var inlineFilterPanel: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.m) {
-            Divider()
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: AppSpacing.m) {
-                // Shape
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Shape")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    TextField("Any", text: Binding(
-                        get: { viewModel.shapeFilter ?? "" },
-                        set: { viewModel.shapeFilter = $0.isEmpty ? nil : $0 }
-                    ))
-                    .appSearchField()
-                }
-
-                // Certified
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Certified")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Picker("", selection: $viewModel.certifiedFilter) {
-                        ForEach(CertifiedFilter.allCases, id: \.self) { f in
-                            Text(f.rawValue).tag(f)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .labelsHidden()
-                }
-
-                // Treatment
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Treatment")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    TextField("Any", text: Binding(
-                        get: { viewModel.treatmentFilter ?? "" },
-                        set: { viewModel.treatmentFilter = $0.isEmpty ? nil : $0 }
-                    ))
-                    .appSearchField()
-                }
-
-                // Single / Pair / Lot
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Single / Pair / Lot")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Picker("", selection: Binding(
-                        get: { viewModel.groupingFilter ?? "" },
-                        set: { viewModel.groupingFilter = $0.isEmpty ? nil : $0 }
-                    )) {
-                        Text("Any").tag("")
-                        Text("Single").tag("S")
-                        Text("Pair").tag("P")
-                        Text("Lot").tag("L")
-                    }
-                    .pickerStyle(.menu)
-                    .labelsHidden()
-                }
-
-                // Carat min
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Carat min")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    TextField("0", text: Binding(
-                        get: { viewModel.caratMin.map { String(format: "%.2f", $0) } ?? "" },
-                        set: { viewModel.caratMin = Double($0) }
-                    ))
-                    .appSearchField()
-                }
-
-                // Carat max
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Carat max")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    TextField("Any", text: Binding(
-                        get: { viewModel.caratMax.map { String(format: "%.2f", $0) } ?? "" },
-                        set: { viewModel.caratMax = $0.isEmpty ? nil : Double($0) }
-                    ))
-                    .appSearchField()
-                }
-
-                // Sell min
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Sell min")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    TextField("0", text: Binding(
-                        get: { viewModel.sellMin.map { "\($0)" } ?? "" },
-                        set: { viewModel.sellMin = Decimal(string: $0) }
-                    ))
-                    .appSearchField()
-                }
-
-                // Sell max
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Sell max")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    TextField("Any", text: Binding(
-                        get: { viewModel.sellMax.map { "\($0)" } ?? "" },
-                        set: { viewModel.sellMax = Decimal(string: $0) }
-                    ))
-                    .appSearchField()
-                }
-
-                // Diamond-only: Color
-                if viewModel.showDiamondFilters {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Color")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        TextField("e.g. D-F", text: Binding(
-                            get: { viewModel.colorFilter ?? "" },
-                            set: { viewModel.colorFilter = $0.isEmpty ? nil : $0 }
-                        ))
-                        .appSearchField()
-                    }
-                }
-
-                // Diamond-only: Clarity
-                if viewModel.showDiamondFilters {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Clarity")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        TextField("e.g. VS1+", text: Binding(
-                            get: { viewModel.clarityFilter ?? "" },
-                            set: { viewModel.clarityFilter = $0.isEmpty ? nil : $0 }
-                        ))
-                        .appSearchField()
-                    }
-                }
-            }
-            .padding(.horizontal)
-            Divider()
-        }
-        .padding(.vertical, AppSpacing.s)
     }
 
     private var summaryStrip: some View {
@@ -390,11 +259,17 @@ struct InventoryListView: View {
             Spacer()
         }
         .font(.caption)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(AppColors.inkMuted)
         .padding(.horizontal)
         .padding(.vertical, AppSpacing.s)
-        .background(AppColors.cardBackground.opacity(0.6))
-        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous))
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                .fill(AppColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                )
+        )
         .padding(.horizontal)
     }
 
@@ -403,7 +278,7 @@ struct InventoryListView: View {
             Text(label)
             Text(value)
                 .fontWeight(.medium)
-                .foregroundStyle(.primary)
+                .foregroundStyle(AppColors.ink)
         }
     }
 
@@ -430,19 +305,6 @@ struct InventoryListView: View {
         }
     }
 
-    private func soldToCustomer(for stone: Gemstone) -> String {
-        let sku = stone.sku
-        var descriptor = FetchDescriptor<LineItem>(
-            predicate: #Predicate<LineItem> { item in
-                item.invoice != nil && item.gemstone?.sku == sku
-            }
-        )
-        descriptor.fetchLimit = 1
-        guard let items = try? modelContext.fetch(descriptor),
-              let customer = items.first?.invoice?.customer else { return "—" }
-        return customer.displayName
-    }
-
     @ViewBuilder
     private var inventoryTable: some View {
         if mode == .sold {
@@ -454,61 +316,4 @@ struct InventoryListView: View {
         }
     }
 
-    private var soldInventoryTable: some View {
-        AppSurfaceCard(padding: AppSpacing.s) {
-            Table(filteredGemstones, selection: $selectedStoneID) {
-                TableColumn("SKU") { stone in Text(stone.sku).lineLimit(1).truncationMode(.tail) }
-                TableColumn("Type") { stone in Text(stone.stoneType.rawValue).lineLimit(1).truncationMode(.tail) }
-                TableColumn("Status") { stone in Text(stone.effectiveStatus.rawValue).lineLimit(1).truncationMode(.tail) }
-                TableColumn("Sold To") { stone in Text(soldToCustomer(for: stone)).lineLimit(1).truncationMode(.tail) }
-                TableColumn("Carat") { stone in Text(String(format: "%.2f", stone.caratWeight)) }
-                TableColumn("Color") { stone in Text(stone.color).lineLimit(1).truncationMode(.tail) }
-                TableColumn("Sell") { stone in Text(formatCurrency(stone.sellPrice)) }
-            }
-            .tableStyle(.inset(alternatesRowBackgrounds: true))
-            .contextMenu(forSelectionType: PersistentIdentifier.self) { _ in
-                Button("Edit...") { showEditSheet = true }
-            } primaryAction: { _ in showEditSheet = true }
-        }
-    }
-
-    private var currentInventoryTableWithColor: some View {
-        AppSurfaceCard(padding: AppSpacing.s) {
-            Table(filteredGemstones, selection: $selectedStoneID) {
-                TableColumn("SKU") { stone in Text(stone.sku).lineLimit(1).truncationMode(.tail) }
-                TableColumn("Type") { stone in Text(stone.stoneType.rawValue).lineLimit(1).truncationMode(.tail) }
-                TableColumn("Status") { stone in Text(stone.effectiveStatus.rawValue).lineLimit(1).truncationMode(.tail) }
-                TableColumn("Carat") { stone in Text(String(format: "%.2f", stone.caratWeight)) }
-                TableColumn("Color") { stone in Text(stone.color).lineLimit(1).truncationMode(.tail) }
-                TableColumn("Sell") { stone in Text(formatCurrency(stone.sellPrice)) }
-            }
-            .tableStyle(.inset(alternatesRowBackgrounds: true))
-            .contextMenu(forSelectionType: PersistentIdentifier.self) { _ in
-                Button("Edit...") { showEditSheet = true }
-            } primaryAction: { _ in showEditSheet = true }
-        }
-    }
-
-    private var currentInventoryTable: some View {
-        AppSurfaceCard(padding: AppSpacing.s) {
-            Table(filteredGemstones, selection: $selectedStoneID) {
-                TableColumn("SKU") { stone in Text(stone.sku).lineLimit(1).truncationMode(.tail) }
-                TableColumn("Type") { stone in Text(stone.stoneType.rawValue).lineLimit(1).truncationMode(.tail) }
-                TableColumn("Status") { stone in Text(stone.effectiveStatus.rawValue).lineLimit(1).truncationMode(.tail) }
-                TableColumn("Carat") { stone in Text(String(format: "%.2f", stone.caratWeight)) }
-                TableColumn("Sell") { stone in Text(formatCurrency(stone.sellPrice)) }
-            }
-            .tableStyle(.inset(alternatesRowBackgrounds: true))
-            .contextMenu(forSelectionType: PersistentIdentifier.self) { _ in
-                Button("Edit...") { showEditSheet = true }
-            } primaryAction: { _ in showEditSheet = true }
-        }
-    }
-
-    private func formatCurrency(_ value: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: value as NSDecimalNumber) ?? "$0"
-    }
 }

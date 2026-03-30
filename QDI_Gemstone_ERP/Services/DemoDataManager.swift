@@ -11,8 +11,9 @@ struct DemoDataManager {
         try seedDemoData(modelContext: modelContext)
     }
 
-    /// Deletes all Gemstone, Customer, Memo, Invoice, LineItem, HistoryEvent.
+    /// Deletes all Gemstone, Customer, Memo, Invoice, LineItem, HistoryEvent, LotTransaction.
     static func deleteAllData(modelContext: ModelContext) throws {
+        for txn in try modelContext.fetch(FetchDescriptor<LotTransaction>()) { modelContext.delete(txn) }
         for event in try modelContext.fetch(FetchDescriptor<HistoryEvent>()) { modelContext.delete(event) }
         for item in try modelContext.fetch(FetchDescriptor<LineItem>()) { modelContext.delete(item) }
         for inv in try modelContext.fetch(FetchDescriptor<Invoice>()) { modelContext.delete(inv) }
@@ -22,13 +23,15 @@ struct DemoDataManager {
         try modelContext.save()
     }
 
-    /// Inserts a new Style 1 dataset: 10 customers, 30 gemstones, 12 memos, 10 invoices.
+    /// Inserts a new Style 1 dataset: 10 customers, 30 gemstones, 8 lot stones, 12 memos, 10 invoices.
     static func seedDemoData(modelContext: ModelContext) throws {
         let customers = seedCustomers(modelContext: modelContext)
         let gemstones = seedGemstones(modelContext: modelContext)
+        let lotStones = seedLotStones(modelContext: modelContext)
         let (openMemos, _) = seedMemos(modelContext: modelContext, customers: customers, gemstones: gemstones)
         seedInvoices(modelContext: modelContext, customers: customers, gemstones: gemstones, openMemos: openMemos)
         seedHistoryEvents(modelContext: modelContext, gemstones: gemstones)
+        seedLotTransactions(modelContext: modelContext, lotStones: lotStones, customers: customers)
         try modelContext.save()
     }
 
@@ -322,6 +325,114 @@ struct DemoDataManager {
                 )
                 modelContext.insert(e3)
             }
+        }
+    }
+
+    // MARK: - Lot Stones (8: 2 diamond lots, 2 ruby lots, 2 sapphire lots, 2 emerald lots)
+
+    @discardableResult
+    private static func seedLotStones(modelContext: ModelContext) -> [Gemstone] {
+        var result: [Gemstone] = []
+        let baseDate = Date().addingTimeInterval(-86400 * 200)
+
+        // (sku, type, totalCarats, color, clarity, shape, costTotal, sellPerCarat, quality/size)
+        let specs: [(String, StoneType, Double, String, String, String, Decimal, Decimal, String, Bool)] = [
+            // Diamond lots (use 'size' field)
+            ("DLOT001", .diamond, 25.0, "G-H",  "SI1-SI2", "Round",   50000, 3500, "0.10-0.19 ct", true),
+            ("DLOT002", .diamond, 18.5, "D-F",  "VS1-VS2", "Princess", 74000, 5200, "0.20-0.30 ct", true),
+            // Ruby lots
+            ("RLOT001", .ruby,    30.0, "Red",  "Eye Clean", "Oval",   21000, 900,  "AAA",           false),
+            ("RLOT002", .ruby,    15.0, "Pigeon Blood", "VVS", "Cushion", 27000, 2200, "Premium",    false),
+            // Sapphire lots
+            ("SLOT001", .sapphire, 22.0, "Royal Blue", "VS", "Cushion", 17600, 1100, "AAA",          false),
+            ("SLOT002", .sapphire, 40.0, "Yellow",  "Eye Clean", "Oval", 16000, 550, "Commercial",   false),
+            // Emerald lots
+            ("ELOT001", .emerald, 20.0, "Green",   "Eye Clean", "Oval",  14000, 950, "AA",           false),
+            ("ELOT002", .emerald, 12.0, "Deep Green", "VS",     "Cushion", 19200, 2000, "Premium",   false),
+        ]
+
+        for (i, (sku, type, totalCarats, color, clarity, shape, costTotal, sellPerCarat, descriptor, isDiamond)) in specs.enumerated() {
+            let avgCostPerCarat = totalCarats > 0 ? costTotal / Decimal(totalCarats) : costTotal
+            let stone = Gemstone(
+                sku: sku,
+                stoneType: type,
+                caratWeight: totalCarats,
+                color: color,
+                clarity: clarity,
+                cut: "",
+                origin: ["India", "Myanmar", "Sri Lanka", "Colombia"][i % 4],
+                costPrice: costTotal,
+                sellPrice: sellPerCarat,
+                createdAt: baseDate.addingTimeInterval(Double(i) * 86400),
+                status: .available,
+                shape: shape,
+                grouping: "L",
+                size: isDiamond ? descriptor : nil,
+                quality: isDiamond ? nil : descriptor
+            )
+            stone.remainingCarats = totalCarats
+            stone.averageCostPerCarat = avgCostPerCarat
+            modelContext.insert(stone)
+            result.append(stone)
+        }
+        return result
+    }
+
+    // MARK: - Lot Transactions
+
+    private static func seedLotTransactions(modelContext: ModelContext, lotStones: [Gemstone], customers: [Customer]) {
+        let cal = Calendar.current
+        let now = Date()
+
+        for lot in lotStones {
+            // Initial acquisition entry (6 months ago)
+            let initialDate = now.addingTimeInterval(-86400 * 180)
+            let initialCost = lot.averageCostPerCarat ?? (lot.costPrice / Decimal(lot.caratWeight))
+            let initialTxn = LotTransaction(
+                type: .added,
+                carats: lot.caratWeight * 0.6,
+                date: initialDate,
+                pricePerCarat: initialCost,
+                totalPrice: initialCost * Decimal(lot.caratWeight * 0.6),
+                notes: "Initial lot acquisition",
+                gemstone: lot
+            )
+            modelContext.insert(initialTxn)
+
+            // Second batch added (3 months ago)
+            let secondDate = now.addingTimeInterval(-86400 * 90)
+            let secondCostPerCarat = initialCost * Decimal(floatLiteral: 1.05)
+            let secondCarats = lot.caratWeight * 0.4
+            let secondTxn = LotTransaction(
+                type: .added,
+                carats: secondCarats,
+                date: secondDate,
+                pricePerCarat: secondCostPerCarat,
+                totalPrice: secondCostPerCarat * Decimal(secondCarats),
+                notes: "Replenishment batch",
+                gemstone: lot
+            )
+            modelContext.insert(secondTxn)
+
+            // Some sales history (1-2 months ago)
+            let saleCarats = lot.caratWeight * 0.15
+            let saleDate = now.addingTimeInterval(-86400 * Double.random(in: 20...60))
+            let salePricePerCarat = lot.sellPrice
+            let lockedCost = lot.averageCostPerCarat ?? initialCost
+            let saleTxn = LotTransaction(
+                type: .sold,
+                carats: saleCarats,
+                date: saleDate,
+                pricePerCarat: salePricePerCarat,
+                totalPrice: salePricePerCarat * Decimal(saleCarats),
+                lockedCostPerCarat: lockedCost,
+                notes: "Sold to \(customers[Int.random(in: 0..<customers.count)].displayName)",
+                gemstone: lot
+            )
+            modelContext.insert(saleTxn)
+
+            // Adjust remaining carats to reflect the sale
+            lot.effectiveRemainingCarats -= saleCarats
         }
     }
 }

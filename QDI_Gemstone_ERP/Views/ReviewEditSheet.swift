@@ -22,44 +22,74 @@ struct ReviewEditSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Cert") {
+                Section {
                     TextField("Cert Lab", text: $certLab)
+                        .glassField()
                     TextField("Cert No", text: $certNo)
+                        .glassField()
+                } header: {
+                    Text("CERT")
+                        .sectionLabel()
                 }
-                Section("Dimensions") {
+                Section {
                     HStack {
                         TextField("L", text: $lengthText)
+                            .glassField()
                         TextField("W", text: $widthText)
+                            .glassField()
                         TextField("H", text: $heightText)
+                            .glassField()
                     }
+                } header: {
+                    Text("DIMENSIONS")
+                        .sectionLabel()
                 }
                 if stone.stoneType == .diamond {
-                    Section("Diamond Grading") {
+                    Section {
                         TextField("Color", text: $color)
+                            .glassField()
                         TextField("Clarity", text: $clarity)
+                            .glassField()
                         TextField("Cut", text: $cut)
+                            .glassField()
                         TextField("Polish", text: $polish)
+                            .glassField()
                         TextField("Symmetry", text: $symmetry)
+                            .glassField()
                         TextField("Fluorescence", text: $fluorescence)
+                            .glassField()
+                    } header: {
+                        Text("DIAMOND GRADING")
+                            .sectionLabel()
                     }
                 }
-                Section("Pricing") {
+                Section {
                     TextField("Cost", text: $costText)
+                        .glassField()
                     TextField("Sell Price", text: $sellText)
+                        .glassField()
+                } header: {
+                    Text("PRICING")
+                        .sectionLabel()
                 }
             }
             .formStyle(.grouped)
+            .scrollContentBackground(.hidden)
+            .foregroundStyle(AppColors.ink)
             .frame(minWidth: 400, minHeight: 400)
+            .background(AppColors.background)
             .navigationTitle("Complete: \(stone.sku)")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { onDismiss() }
+                        .foregroundStyle(Color.white.opacity(0.40))
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         save()
                         onDismiss()
                     }
+                    .buttonStyle(GradientButtonStyle())
                 }
             }
             .onAppear {

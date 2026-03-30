@@ -1,3 +1,4 @@
+
 import Foundation
 import SwiftData
 
@@ -33,11 +34,6 @@ final class Memo {
         self.customer = customer
     }
     
-    /// Gemstones on this memo (from line items that have a gemstone)
-    var gemstones: [Gemstone] {
-        lineItems.compactMap { $0.gemstone }
-    }
-    
     /// Sum of all line item amounts (for display).
     var totalAmount: Decimal {
         lineItems.reduce(Decimal(0)) { $0 + $1.amount }
@@ -53,24 +49,9 @@ final class Memo {
         openLineItems.reduce(Decimal(0)) { $0 + $1.amount }
     }
 
-    /// True if any line items are still on memo.
-    var hasOpenItems: Bool {
-        !openLineItems.isEmpty
-    }
-
     /// True if all line items are resolved (returned or invoiced).
     var isClosed: Bool {
         openLineItems.isEmpty
-    }
-
-    /// Customer display name for sorting.
-    var customerDisplayName: String {
-        customer?.displayName ?? ""
-    }
-
-    /// Customer open exposure for sorting.
-    var customerOpenExposure: Decimal {
-        customer?.openExposure ?? 0
     }
 }
 

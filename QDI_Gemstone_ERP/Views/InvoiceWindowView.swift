@@ -8,6 +8,9 @@ struct InvoiceWindowView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.documentDirtyTracker) private var documentDirtyTracker
     @State private var showLeaveWithoutSavingAlert = false
+    @State private var hostWindow: NSWindow?
+
+    private func closeWindow() { hostWindow?.close() }
 
     var body: some View {
         Group {
@@ -24,6 +27,8 @@ struct InvoiceWindowView: View {
             }
         }
         .frame(minWidth: 1100, minHeight: 760)
+        .background(AppColors.background)
+        .preferredColorScheme(.dark)
         .background {
             Button("") {
                 let isDirty = modelContext.hasChanges || (documentDirtyTracker?.hasUnsavedInvoice ?? false)
@@ -31,7 +36,7 @@ struct InvoiceWindowView: View {
                     showLeaveWithoutSavingAlert = true
                 } else {
                     modelContext.rollback()
-                    NSApp.keyWindow?.close()
+                    closeWindow()
                 }
             }
             .keyboardShortcut(.escape, modifiers: [])
@@ -40,13 +45,18 @@ struct InvoiceWindowView: View {
         }
         .alert("Leave without saving?", isPresented: $showLeaveWithoutSavingAlert) {
             Button("Keep Editing", role: .cancel) {}
-            Button("Discard", role: .destructive) {
+            Button("Save and Close") { documentDirtyTracker?.onSaveAndClose?() }
+            Button("Discard edits and leave", role: .destructive) {
                 documentDirtyTracker?.hasUnsavedInvoice = false
                 modelContext.rollback()
-                NSApp.keyWindow?.close()
+                closeWindow()
             }
         } message: {
             Text("Your changes will not be saved.")
+        }
+        .onAppear {
+            hostWindow = NSApp.keyWindow
+            DispatchQueue.main.async { NSApp.keyWindow?.makeFirstResponder(nil) }
         }
     }
 

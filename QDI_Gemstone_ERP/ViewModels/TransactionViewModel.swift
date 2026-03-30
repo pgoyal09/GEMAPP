@@ -7,42 +7,104 @@ private let appTransactionLog = Logger(subsystem: "com.qdi.gemapp", category: "i
 // MARK: - Stone description builder
 
 /// Builds line item descriptions from stone characteristics per spec.
-/// Non-diamond order: [Certified] [Treatment] [Stone Type] [Shape] [single/pair/lot] [if lot: color] \n [Dimensions] [Lab] [Cert No]
-/// Diamond: same structure plus color, clarity, cut where applicable. Omit fields that are not entered.
+/// Diamond: lot = [type][color][carat value][clarity]; single/pair = [type][Carat][Color][clarity]([cut][polish][symmetry])-[Fluorescence] newline [Cert Lab] [Cert No] when certified.
+/// Non-diamond: [Certified] [Treatment] [Stone Type] [Shape] [single/pair/lot] [if lot: color] \n [Dimensions] [Lab] [Cert No]
 enum StoneDescriptionBuilder {
     static func buildDescription(for stone: Gemstone) -> String {
+        if stone.stoneType == .diamond {
+            return buildDiamondDescription(for: stone)
+        }
+        return buildNonDiamondDescription(for: stone)
+    }
+
+    /// Diamond lot: [color] [size] [clarity]
+    /// Diamond single/pair: [stone type] [Carat] [Color] [clarity] ([cut][polish][symmetry])-[Fluorescence] newline [Cert Lab] [Cert No] when certified.
+    private static func buildDiamondDescription(for stone: Gemstone) -> String {
+        let grouping = (stone.grouping ?? "S").uppercased()
+        let typeStr = stone.stoneType.rawValue
+        let colorStr = stone.color.trimmingCharacters(in: .whitespaces)
+        let colorVal = (colorStr.isEmpty || colorStr == "-") ? "" : colorStr
+        let caratVal = stone.caratWeight
+        let caratStr = caratVal.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int(caratVal))" : "\(caratVal)"
+        let clarityStr = stone.clarity.trimmingCharacters(in: .whitespaces)
+        let clarityVal = (clarityStr.isEmpty || clarityStr == "-") ? "" : clarityStr
+
+        if grouping == "L" {
+            let sizeVal = (stone.size ?? "").trimmingCharacters(in: .whitespaces)
+            let parts = [colorVal, sizeVal, clarityVal].filter { !$0.isEmpty }
+            return parts.joined(separator: " ")
+        }
+
+        // Single or Pair: [Carat] [Color] [clarity] [cut] [polish] [symmetry] [Fluorescence]
+        // newline [Cert Lab] [Cert No] when certified
+        let cut = (stone.cut ?? "").trimmingCharacters(in: .whitespaces)
+        let polish = (stone.polish ?? "").trimmingCharacters(in: .whitespaces)
+        let symmetry = (stone.symmetry ?? "").trimmingCharacters(in: .whitespaces)
+        let fluo = (stone.fluorescence ?? "").trimmingCharacters(in: .whitespaces)
+        let fluoVal = (fluo.isEmpty || fluo == "-") ? "" : fluo
+        let cutVal = (cut.isEmpty || cut == "-") ? "" : cut
+        let polishVal = (polish.isEmpty || polish == "-") ? "" : polish
+        let symmetryVal = (symmetry.isEmpty || symmetry == "-") ? "" : symmetry
+        let line1Parts = [caratStr, colorVal, clarityVal, cutVal, polishVal, symmetryVal, fluoVal].filter { !$0.isEmpty }
+        var result = line1Parts.joined(separator: " ")
+        if stone.hasCert == true {
+            var certLine: [String] = []
+            if let lab = stone.certLab?.trimmingCharacters(in: .whitespaces), !lab.isEmpty {
+                certLine.append(lab)
+            }
+            if let no = stone.certNo?.trimmingCharacters(in: .whitespaces), !no.isEmpty {
+                certLine.append(no)
+            }
+            if !certLine.isEmpty {
+                result += "\n" + certLine.joined(separator: " ")
+            }
+        }
+        return result.trimmingCharacters(in: .whitespaces)
+    }
+
+    private static func buildNonDiamondDescription(for stone: Gemstone) -> String {
+        let grouping = (stone.grouping ?? "S").uppercased()
+        let typeStr = stone.stoneType.rawValue
+        let shape = (stone.shape ?? stone.cut).trimmingCharacters(in: .whitespaces)
+
+        if grouping == "L" {
+            // Lot format: [Shape] ([L]x[W]mm) [Quality]
+            // Partial dimensions: if only one measurement exists, show just that value + mm
+            let fmt = { (v: Double) -> String in
+                let s = "\(v)"
+                return s.hasSuffix(".0") ? String(s.dropLast(2)) : s
+            }
+            var parts: [String] = []
+            if !shape.isEmpty { parts.append(shape) }
+            let l = stone.length
+            let w = stone.width
+            if let l, let w {
+                parts.append("(\(fmt(l))x\(fmt(w))mm)")
+            } else if let l {
+                parts.append("(\(fmt(l))mm)")
+            } else if let w {
+                parts.append("(\(fmt(w))mm)")
+            }
+            if let q = stone.quality?.trimmingCharacters(in: .whitespaces), !q.isEmpty {
+                parts.append(q)
+            }
+            return parts.joined(separator: " ")
+        }
+
+        // Single / Pair: original descriptive format
         var lines: [String] = []
         var topParts: [String] = []
         if stone.hasCert == true { topParts.append("Certified") }
         if let t = stone.treatment, !t.trimmingCharacters(in: .whitespaces).isEmpty {
             topParts.append(t.trimmingCharacters(in: .whitespaces))
         }
-        topParts.append(stone.stoneType.rawValue)
-        if stone.stoneType == .diamond {
-            if !stone.color.isEmpty && stone.color != "-" { topParts.append(stone.color) }
-            if !stone.clarity.isEmpty && stone.clarity != "-" { topParts.append(stone.clarity) }
-            if !stone.cut.isEmpty && stone.cut != "-" { topParts.append(stone.cut) }
-        }
-        let shape = (stone.shape ?? stone.cut).trimmingCharacters(in: .whitespaces)
+        topParts.append(typeStr)
         if !shape.isEmpty { topParts.append(shape) }
-        let grouping = (stone.grouping ?? "S").uppercased()
-        switch grouping {
-        case "P": topParts.append("Pair")
-        case "L":
-            topParts.append("Lot")
-            if stone.stoneType != .diamond {
-                let c = stone.color.trimmingCharacters(in: .whitespaces)
-                if !c.isEmpty && c != "-" { topParts.append(c) }
-            }
-        default: topParts.append("Single")
-        }
+        topParts.append(grouping == "P" ? "Pair" : "Single")
         if !topParts.isEmpty { lines.append(topParts.joined(separator: " ")) }
         var bottomParts: [String] = []
         if let l = stone.length, let w = stone.width, let h = stone.height {
             bottomParts.append(formatDimensions(l: l, w: w, h: h))
-        }
-        if grouping == "L", let l2 = stone.length2, let w2 = stone.width2, let h2 = stone.height2 {
-            bottomParts.append(formatDimensions(l: l2, w: w2, h: h2))
         }
         if let lab = stone.certLab, !lab.trimmingCharacters(in: .whitespaces).isEmpty {
             bottomParts.append(lab.trimmingCharacters(in: .whitespaces))
@@ -75,6 +137,8 @@ struct DraftLineItem: Identifiable {
     var rate: Decimal
     var gemstone: Gemstone?
     var isService: Bool
+    /// Stone type label for manually-entered (brokered) lines (not linked to a Gemstone)
+    var brokeredStoneType: String = ""
     
     var isInventory: Bool { gemstone != nil }
     var isBrokered: Bool { gemstone == nil && !isService }
@@ -95,18 +159,11 @@ struct DraftLineItem: Identifiable {
         isService ? "—" : String(format: "%.2f", carats)
     }
     var displayPrice: String {
-        DraftLineItem.currencyFormatter.string(from: rate as NSDecimalNumber) ?? "$0"
+        rate.asCurrency
     }
     var displayAmount: String {
-        DraftLineItem.currencyFormatter.string(from: amount as NSDecimalNumber) ?? "$0"
+        amount.asCurrency
     }
-    
-    fileprivate static let currencyFormatter: NumberFormatter = {
-        let f = NumberFormatter()
-        f.numberStyle = .currency
-        f.currencyCode = "USD"
-        return f
-    }()
 }
 
 // MARK: - Transaction ViewModel (all logic here; view only binds)
@@ -249,6 +306,11 @@ final class TransactionViewModel {
         guard lineItems.indices.contains(index) else { return }
         lineItems[index].description = value
     }
+
+    func updateBrokeredStoneType(at index: Int, _ value: String) {
+        guard lineItems.indices.contains(index) else { return }
+        lineItems[index].brokeredStoneType = value
+    }
     
     func updateCarats(at index: Int, _ value: Double) {
         guard lineItems.indices.contains(index) else { return }
@@ -311,7 +373,8 @@ final class TransactionViewModel {
 
     /// Creates a new blank invoice (standalone, no origin memo), inserts it, and saves. Use for "New Invoice" document flow.
     static func createNewInvoice(modelContext: ModelContext) -> Invoice {
-        let invoice = Invoice(invoiceDate: Date(), terms: "Net 30", status: .draft, customer: nil)
+        let ref = generateNextInvoiceNumber(modelContext: modelContext)
+        let invoice = Invoice(invoiceDate: Date(), terms: "Net 30", referenceNumber: ref, status: .draft, customer: nil)
         modelContext.insert(invoice)
         do {
             try modelContext.save()
@@ -332,25 +395,35 @@ final class TransactionViewModel {
         let next = (maxNum ?? 1000) + 1
         return "\(max(next, 1001))"
     }
-    // Add this inside the TransactionViewModel class
 
-    /// Converts selected memo line items to an invoice. Keeps permanent history on the memo:
-    /// creates a *copy* of each line item for the invoice; marks the original memo line item as .sold.
+    /// Next invoice number: max(existing numeric ref) + 1, or 2001 if none. Handles "INV-2001" or "2001" style refs.
+    static func generateNextInvoiceNumber(modelContext: ModelContext) -> String {
+        let descriptor = FetchDescriptor<Invoice>()
+        guard let invoices = try? modelContext.fetch(descriptor) else { return "2001" }
+        let maxNum = invoices.compactMap { inv -> Int? in
+            guard let ref = inv.referenceNumber?.trimmingCharacters(in: .whitespacesAndNewlines), !ref.isEmpty else { return nil }
+            let s = ref.hasPrefix("INV-") ? String(ref.dropFirst(4)) : ref
+            return Int(s)
+        }.max()
+        let next = (maxNum ?? 2000) + 1
+        return "\(max(next, 2001))"
+    }
+
+    /// Converts selected memo line items to an invoice. Creates invoice and line item copies but does NOT save and does NOT mark stones/memo items as sold. Caller opens the invoice window; when user saves the invoice, markConvertedLineItemsAsSold is used to mark originals and stones sold.
     static func convertMemoToInvoice(memo: Memo, selectedLineItems: [LineItem], modelContext: ModelContext) -> Invoice? {
         guard let customer = memo.customer, !selectedLineItems.isEmpty else { return nil }
         
+        let ref = generateNextInvoiceNumber(modelContext: modelContext)
         let newInvoice = Invoice(
             invoiceDate: Date(),
             terms: "Net 30",
+            referenceNumber: ref,
             customer: customer,
             originMemo: memo
         )
         modelContext.insert(newInvoice)
         
-        let memoRef = memo.referenceNumber ?? "?"
-        
         for original in selectedLineItems {
-            // Create a copy for the invoice (same data, new LineItem instance)
             let copy = LineItem(
                 sku: original.sku,
                 itemDescription: original.itemDescription,
@@ -365,34 +438,47 @@ final class TransactionViewModel {
             )
             copy.invoice = newInvoice
             copy.memo = nil
+            copy.originLineItem = original
             modelContext.insert(copy)
-            
-            // Mark the original memo line item as sold (keep it on the memo for history)
+            // Do NOT mark original as sold or update stone; that happens when the invoice is saved.
+        }
+        // Do not save here; invoice is a draft until user saves.
+        return newInvoice
+    }
+    
+    /// Call when saving an invoice that may contain line items converted from a memo. Marks each origin line item and linked gemstone as sold and logs the event.
+    static func markConvertedLineItemsAsSold(invoice: Invoice, modelContext: ModelContext) {
+        let custName = invoice.customer?.displayName ?? "Unknown"
+        for item in invoice.lineItems {
+            guard let original = item.originLineItem else { continue }
             original.status = .sold
             original.soldDate = Date()
             original.invoice = nil
-            // original.memo stays as memo
-            
-            // Update linked gemstone (NEVER delete; only update status to .sold)
-            if let stone = original.gemstone {
-                stone.status = .sold
-                stone.memo = nil
-                let custName = memo.customer?.displayName ?? "Unknown"
-                logEvent(
-                    stone: stone,
-                    type: .sold,
-                    message: "Sold to \(custName)",
-                    modelContext: modelContext
-                )
+            if let stone = item.gemstone {
+                if item.isLotLineItem || original.isLotLineItem {
+                    // Lot: lock cost and record sale; don't change stone status
+                    let lockedCost = original.lockedCostPerCarat ?? stone.effectiveAverageCost
+                    item.lockedCostPerCarat = lockedCost
+                    original.lockedCostPerCarat = lockedCost
+                    let txn = LotTransaction(
+                        type: .sold,
+                        carats: item.carats,
+                        date: Date(),
+                        pricePerCarat: item.rate,
+                        totalPrice: item.amount,
+                        lockedCostPerCarat: lockedCost,
+                        notes: "Converted from Memo — Sold to \(custName)",
+                        gemstone: stone
+                    )
+                    modelContext.insert(txn)
+                    logEvent(stone: stone, type: .sold, message: "Lot sold to \(custName)", modelContext: modelContext)
+                } else {
+                    stone.status = .sold
+                    stone.memo = nil
+                    logEvent(stone: stone, type: .sold, message: "Sold to \(custName)", modelContext: modelContext)
+                }
             }
         }
-        do {
-            try modelContext.save()
-            NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
-        } catch {
-            appTransactionLog.error("Failed to convert memo to invoice: \(error.localizedDescription, privacy: .public)")
-        }
-        return newInvoice
     }
     
     /// Add a gemstone from inventory to an existing memo.
@@ -541,12 +627,17 @@ final class TransactionViewModel {
     }
 
     /// Voids an invoice: sets status to .void and restores linked gemstones to .available.
+    /// For lot line items, restores carats instead of changing stone status.
     static func voidInvoice(_ invoice: Invoice, modelContext: ModelContext) {
         invoice.status = .void
         for item in invoice.lineItems {
             if let stone = item.gemstone {
-                stone.status = .available
-                stone.memo = nil
+                if item.isLotLineItem {
+                    stone.effectiveRemainingCarats += item.carats
+                } else {
+                    stone.status = .available
+                    stone.memo = nil
+                }
             }
         }
         do {
@@ -557,11 +648,16 @@ final class TransactionViewModel {
     }
 
     /// Deletes an invoice: restores stones to available, deletes line items and invoice. Use for draft/unpaid invoices.
+    /// For lot line items, restores carats instead of changing stone status.
     static func deleteInvoice(_ invoice: Invoice, modelContext: ModelContext) {
         for item in invoice.lineItems {
             if let stone = item.gemstone {
-                stone.status = .available
-                stone.memo = nil
+                if item.isLotLineItem {
+                    stone.effectiveRemainingCarats += item.carats
+                } else {
+                    stone.status = .available
+                    stone.memo = nil
+                }
             }
             modelContext.delete(item)
         }
@@ -574,27 +670,149 @@ final class TransactionViewModel {
     }
 
     /// Returns selected items from a memo to stock: marks line items as .returned, sets gemstones to .available.
+    /// For lot line items, restores the carats to remainingCarats instead of changing stone status.
     static func returnItemsFromMemo(items: [LineItem], modelContext: ModelContext) {
         for item in items {
             item.status = .returned
             item.returnedDate = Date()
-            
+
             if let stone = item.gemstone {
-                stone.status = .available
-                stone.memo = nil
                 let memoRef = item.memo?.referenceNumber ?? "?"
-                logEvent(
-                    stone: stone,
-                    type: .returnedFromCustomer,
-                    message: "Returned from Memo #\(memoRef)",
-                    modelContext: modelContext
-                )
+                if item.isLotLineItem {
+                    // Restore carats for lot line items; status stays .available
+                    stone.effectiveRemainingCarats += item.carats
+                    let txn = LotTransaction(
+                        type: .returned,
+                        carats: item.carats,
+                        date: Date(),
+                        pricePerCarat: item.rate,
+                        totalPrice: item.amount,
+                        notes: "Returned from Memo #\(memoRef)",
+                        gemstone: stone
+                    )
+                    modelContext.insert(txn)
+                    logEvent(stone: stone, type: .returnedFromCustomer,
+                             message: "Lot returned from Memo #\(memoRef)", modelContext: modelContext)
+                } else {
+                    stone.status = .available
+                    stone.memo = nil
+                    logEvent(stone: stone, type: .returnedFromCustomer,
+                             message: "Returned from Memo #\(memoRef)", modelContext: modelContext)
+                }
             }
         }
         do {
             try modelContext.save()
         } catch {
             appTransactionLog.error("Failed to persist transaction mutation: \(error.localizedDescription, privacy: .public)")
+        }
+    }
+
+    // MARK: - Lot-Specific Methods
+
+    /// Add a partial lot allocation to an existing memo (carats deducted from lot's remainingCarats).
+    static func addLotToMemo(_ lot: Gemstone, carats: Double, memo: Memo, modelContext: ModelContext, persistImmediately: Bool = true) {
+        guard carats > 0, lot.isLot else { return }
+        let rate = lot.sellPrice
+        let amount = rate * Decimal(carats)
+        let desc = StoneDescriptionBuilder.buildDescription(for: lot)
+        let item = LineItem(
+            sku: lot.sku,
+            itemDescription: desc.isEmpty ? "\(lot.stoneType.rawValue) \(lot.color) \(lot.clarity)" : desc,
+            carats: carats,
+            rate: rate,
+            amount: amount,
+            gemstone: lot,
+            isService: false,
+            isLotLineItem: true,
+            lockedCostPerCarat: lot.effectiveAverageCost
+        )
+        modelContext.insert(item)
+        item.memo = memo
+        lot.effectiveRemainingCarats -= carats
+        let custName = memo.customer?.displayName ?? "Unknown"
+        let txn = LotTransaction(
+            type: .onMemo,
+            carats: carats,
+            date: Date(),
+            pricePerCarat: rate,
+            totalPrice: amount,
+            notes: "On memo to \(custName)",
+            gemstone: lot
+        )
+        modelContext.insert(txn)
+        logEvent(stone: lot, type: .sentToCustomer, message: "Lot on memo to \(custName)", modelContext: modelContext)
+        if persistImmediately {
+            do { try modelContext.save() } catch {
+                appTransactionLog.error("Failed to persist lot memo line: \(error.localizedDescription, privacy: .public)")
+            }
+        }
+    }
+
+    /// Add a partial lot allocation directly to an existing invoice (carats deducted from lot's remainingCarats).
+    static func addLotToInvoice(_ lot: Gemstone, carats: Double, invoice: Invoice, modelContext: ModelContext, persistImmediately: Bool = true) {
+        guard carats > 0, lot.isLot else { return }
+        let rate = lot.sellPrice
+        let amount = rate * Decimal(carats)
+        let desc = StoneDescriptionBuilder.buildDescription(for: lot)
+        let lockedCost = lot.effectiveAverageCost
+        let item = LineItem(
+            sku: lot.sku,
+            itemDescription: desc.isEmpty ? "\(lot.stoneType.rawValue) \(lot.color) \(lot.clarity)" : desc,
+            carats: carats,
+            rate: rate,
+            amount: amount,
+            gemstone: lot,
+            isService: false,
+            isLotLineItem: true,
+            lockedCostPerCarat: lockedCost,
+            status: .sold
+        )
+        modelContext.insert(item)
+        item.invoice = invoice
+        lot.effectiveRemainingCarats -= carats
+        let custName = invoice.customer?.displayName ?? "Unknown"
+        let txn = LotTransaction(
+            type: .sold,
+            carats: carats,
+            date: Date(),
+            pricePerCarat: rate,
+            totalPrice: amount,
+            lockedCostPerCarat: lockedCost,
+            notes: "Sold to \(custName)",
+            gemstone: lot
+        )
+        modelContext.insert(txn)
+        logEvent(stone: lot, type: .sold, message: "Lot sold to \(custName)", modelContext: modelContext)
+        if persistImmediately {
+            do { try modelContext.save() } catch {
+                appTransactionLog.error("Failed to persist lot invoice line: \(error.localizedDescription, privacy: .public)")
+            }
+        }
+    }
+
+    /// Called when invoice is saved/paid: marks lot line items as sold and records LotTransaction(.sold).
+    static func markLotLineItemsAsSold(invoice: Invoice, modelContext: ModelContext) {
+        let custName = invoice.customer?.displayName ?? "Unknown"
+        for item in invoice.lineItems where item.isLotLineItem {
+            guard let lot = item.gemstone else { continue }
+            item.status = .sold
+            item.soldDate = Date()
+            let lockedCost = item.lockedCostPerCarat ?? lot.effectiveAverageCost
+            item.lockedCostPerCarat = lockedCost
+            // Record the sale in lot history
+            let txn = LotTransaction(
+                type: .sold,
+                carats: item.carats,
+                date: Date(),
+                pricePerCarat: item.rate,
+                totalPrice: item.amount,
+                lockedCostPerCarat: lockedCost,
+                notes: "Sold to \(custName) via Invoice \(invoice.referenceNumber ?? "")",
+                gemstone: lot
+            )
+            modelContext.insert(txn)
+            logEvent(stone: lot, type: .sold, message: "Lot sold to \(custName)", modelContext: modelContext)
         }
     }
 }

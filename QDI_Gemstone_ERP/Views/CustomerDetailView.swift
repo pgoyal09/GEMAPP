@@ -4,109 +4,248 @@ import SwiftData
 struct CustomerDetailView: View {
     let customer: Customer
     @Environment(\.openWindow) private var openWindow
-    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \Memo.createdAt, order: .reverse) private var allMemos: [Memo]
+    @Query(sort: \Invoice.invoiceDate, order: .reverse) private var allInvoices: [Invoice]
 
-    private var fetchedActiveMemos: [Memo] {
-        let desc = FetchDescriptor<Memo>(sortBy: [SortDescriptor(\.dateAssigned, order: .reverse)])
-        let all = (try? modelContext.fetch(desc)) ?? []
-        let customerID = customer.persistentModelID
-        return all.filter { $0.status == .onMemo && $0.customer?.persistentModelID == customerID }
+    private var customerMemos: [Memo] {
+        allMemos.filter { $0.customer?.persistentModelID == customer.persistentModelID }
     }
 
-    private var fetchedInvoices: [Invoice] {
-        let desc = FetchDescriptor<Invoice>(sortBy: [SortDescriptor(\.invoiceDate, order: .reverse)])
-        let all = (try? modelContext.fetch(desc)) ?? []
-        let customerID = customer.persistentModelID
-        return all.filter { $0.customer?.persistentModelID == customerID }
+    private var customerInvoices: [Invoice] {
+        allInvoices.filter { $0.customer?.persistentModelID == customer.persistentModelID }
     }
+
+    private var activeMemosForCustomer: [Memo] {
+        customerMemos.filter { !$0.isClosed }
+    }
+
+    private var invoicesForCustomer: [Invoice] { customerInvoices }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 0) {
+            // Header info
+            VStack(alignment: .leading, spacing: 6) {
                 Text(customer.displayName)
-                    .font(.title)
-                    .fontWeight(.semibold)
+                    .font(AppTypography.title)
+                    .foregroundStyle(AppColors.ink)
                     .lineLimit(1)
-                    .truncationMode(.tail)
-
-                if let email = customer.email {
-                    Text(email)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                if let co = customer.company, !co.isEmpty {
+                    Text(co)
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.inkMuted)
                         .lineLimit(1)
-                        .truncationMode(.tail)
                 }
-
-                // On Memo
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("On Memo")
-                        .font(.headline)
-                    if fetchedActiveMemos.isEmpty {
-                        Text("No stones currently on memo")
-                            .foregroundStyle(.secondary)
-                            .padding()
-                    } else {
-                        Table(onMemoRows) {
-                            TableColumn("Memo #") { row in
-                                Button(row.memoRef) { openWindow(id: "memo", value: row.memoID) }
-                                    .buttonStyle(.borderless)
-                            }
-                            .width(80)
-                            TableColumn("Stone descriptor") { Text($0.descriptor).lineLimit(2) }
-                                .width(min: 200)
-                            TableColumn("Transaction date") { Text($0.date, style: .date) }
-                                .width(120)
-                            TableColumn("Stone value") { Text($0.value, format: .currency(code: "USD")) }
-                                .width(100)
-                        }
-                        .tableStyle(.bordered(alternatesRowBackgrounds: true))
-                        .frame(maxWidth: .infinity)
-                    }
+                if let email = customer.email, !email.isEmpty {
+                    Text(email)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkMuted)
+                        .lineLimit(1)
                 }
-                .padding()
-                .background(Color(.controlBackgroundColor))
-                .cornerRadius(8)
-
-                // Past Purchases
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Past Purchases")
-                        .font(.headline)
-                    if pastPurchaseRows.isEmpty {
-                        Text("No past purchases")
-                            .foregroundStyle(.secondary)
-                            .padding()
-                    } else {
-                        Table(pastPurchaseRows) {
-                            TableColumn("Invoice #") { row in
-                                Button(row.invoiceRef) { openWindow(id: "invoice", value: row.invoiceID) }
-                                    .buttonStyle(.borderless)
-                            }
-                            .width(80)
-                            TableColumn("Stone descriptor") { Text($0.descriptor).lineLimit(2) }
-                                .width(min: 200)
-                            TableColumn("Transaction date") { Text($0.date, style: .date) }
-                                .width(120)
-                            TableColumn("Stone value") { Text($0.value, format: .currency(code: "USD")) }
-                                .width(100)
-                        }
-                        .tableStyle(.bordered(alternatesRowBackgrounds: true))
-                        .frame(maxWidth: .infinity)
-                    }
+                if let phone = customer.phone, !phone.isEmpty {
+                    Text(phone)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkMuted)
                 }
-                .padding()
-                .background(Color(.controlBackgroundColor))
-                .cornerRadius(8)
+                if let addr = customer.formattedAddress {
+                    Text(addr)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkMuted)
+                }
             }
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(AppSpacing.l)
+
+            Divider().background(AppColors.cardStroke)
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    // Preferences section
+                    if hasPreferences {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("PREFERENCES")
+                                .sectionLabel(tracking: 1)
+                                .padding(.horizontal, AppSpacing.l)
+                            VStack(alignment: .leading, spacing: AppSpacing.s) {
+                                if let shapes = customer.preferredShapes, !shapes.isEmpty {
+                                    HStack(alignment: .top, spacing: AppSpacing.m) {
+                                        Text("Shapes")
+                                            .font(AppTypography.caption)
+                                            .foregroundStyle(AppColors.inkSubtle)
+                                            .frame(width: 70, alignment: .leading)
+                                        Text(shapes)
+                                            .font(AppTypography.body)
+                                            .foregroundStyle(AppColors.ink)
+                                    }
+                                }
+                                if let colors = customer.preferredColors, !colors.isEmpty {
+                                    HStack(alignment: .top, spacing: AppSpacing.m) {
+                                        Text("Colors")
+                                            .font(AppTypography.caption)
+                                            .foregroundStyle(AppColors.inkSubtle)
+                                            .frame(width: 70, alignment: .leading)
+                                        Text(colors)
+                                            .font(AppTypography.body)
+                                            .foregroundStyle(AppColors.ink)
+                                    }
+                                }
+                                if let budget = customer.budgetRange, !budget.isEmpty {
+                                    HStack(alignment: .top, spacing: AppSpacing.m) {
+                                        Text("Budget")
+                                            .font(AppTypography.caption)
+                                            .foregroundStyle(AppColors.inkSubtle)
+                                            .frame(width: 70, alignment: .leading)
+                                        Text(budget)
+                                            .font(AppTypography.body)
+                                            .foregroundStyle(AppColors.ink)
+                                    }
+                                }
+                            }
+                            .padding(AppSpacing.m)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(AppColors.cardBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(AppColors.cardStroke, lineWidth: 1))
+                            .padding(.horizontal, AppSpacing.l)
+                        }
+                    }
+
+                    // On Memo section
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("ON MEMO (\(onMemoRows(from: activeMemosForCustomer).count))")
+                            .sectionLabel(tracking: 1)
+                            .padding(.horizontal, AppSpacing.l)
+
+                        if activeMemosForCustomer.isEmpty {
+                            Text("No stones currently on memo")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.inkMuted)
+                                .padding(.horizontal, AppSpacing.l)
+                        } else {
+                            VStack(spacing: 0) {
+                                // header
+                                HStack(spacing: 0) {
+                                    Text("MEMO #").frame(width: 70, alignment: .leading).padding(.horizontal, 4)
+                                    Text("DESCRIPTION").frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4)
+                                    Text("DATE").frame(width: 80, alignment: .leading).padding(.horizontal, 4)
+                                    Text("VALUE").frame(width: 80, alignment: .trailing).padding(.horizontal, 4)
+                                }
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundStyle(AppColors.inkSubtle)
+                                .tracking(0.5)
+                                .padding(.horizontal, AppSpacing.l)
+                                .padding(.vertical, 5)
+                                .background(Color.white.opacity(0.03))
+                                ForEach(onMemoRows(from: activeMemosForCustomer)) { row in
+                                    HStack(spacing: 0) {
+                                        Button(row.memoRef) { openWindow(id: "memo", value: row.memoID) }
+                                            .buttonStyle(.borderless)
+                                            .foregroundStyle(AppColors.primary)
+                                            .font(.system(size: 12, design: .monospaced))
+                                            .frame(width: 70, alignment: .leading)
+                                            .padding(.horizontal, 4)
+                                        Text(row.descriptor)
+                                            .font(.system(size: 12))
+                                            .foregroundStyle(AppColors.ink)
+                                            .lineLimit(2)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .padding(.horizontal, 4)
+                                        Text(row.date, style: .date)
+                                            .font(.system(size: 12))
+                                            .foregroundStyle(AppColors.inkMuted)
+                                            .frame(width: 80, alignment: .leading)
+                                            .padding(.horizontal, 4)
+                                        Text(row.value, format: .currency(code: "USD"))
+                                            .font(.system(size: 12))
+                                            .foregroundStyle(AppColors.ink)
+                                            .frame(width: 80, alignment: .trailing)
+                                            .padding(.horizontal, 4)
+                                    }
+                                    .padding(.horizontal, AppSpacing.l)
+                                    .padding(.vertical, 7)
+                                    Divider().background(Color.white.opacity(0.04))
+                                }
+                            }
+                            .background(AppColors.cardBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(AppColors.cardStroke, lineWidth: 1))
+                            .padding(.horizontal, AppSpacing.l)
+                        }
+                    }
+
+                    // Past Purchases section
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("PAST PURCHASES (\(pastPurchaseRows(from: invoicesForCustomer).count))")
+                            .sectionLabel(tracking: 1)
+                            .padding(.horizontal, AppSpacing.l)
+
+                        if invoicesForCustomer.isEmpty {
+                            Text("No past purchases")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.inkMuted)
+                                .padding(.horizontal, AppSpacing.l)
+                        } else {
+                            VStack(spacing: 0) {
+                                HStack(spacing: 0) {
+                                    Text("INV #").frame(width: 70, alignment: .leading).padding(.horizontal, 4)
+                                    Text("DESCRIPTION").frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 4)
+                                    Text("DATE").frame(width: 80, alignment: .leading).padding(.horizontal, 4)
+                                    Text("AMOUNT").frame(width: 80, alignment: .trailing).padding(.horizontal, 4)
+                                }
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundStyle(AppColors.inkSubtle)
+                                .tracking(0.5)
+                                .padding(.horizontal, AppSpacing.l)
+                                .padding(.vertical, 5)
+                                .background(Color.white.opacity(0.03))
+                                ForEach(pastPurchaseRows(from: invoicesForCustomer)) { row in
+                                    HStack(spacing: 0) {
+                                        Button(row.invoiceRef) { openWindow(id: "invoice", value: row.invoiceID) }
+                                            .buttonStyle(.borderless)
+                                            .foregroundStyle(AppColors.primary)
+                                            .font(.system(size: 12, design: .monospaced))
+                                            .frame(width: 70, alignment: .leading)
+                                            .padding(.horizontal, 4)
+                                        Text(row.descriptor)
+                                            .font(.system(size: 12))
+                                            .foregroundStyle(AppColors.ink)
+                                            .lineLimit(2)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .padding(.horizontal, 4)
+                                        Text(row.date, style: .date)
+                                            .font(.system(size: 12))
+                                            .foregroundStyle(AppColors.inkMuted)
+                                            .frame(width: 80, alignment: .leading)
+                                            .padding(.horizontal, 4)
+                                        Text(row.value, format: .currency(code: "USD"))
+                                            .font(.system(size: 12))
+                                            .foregroundStyle(AppColors.ink)
+                                            .frame(width: 80, alignment: .trailing)
+                                            .padding(.horizontal, 4)
+                                    }
+                                    .padding(.horizontal, AppSpacing.l)
+                                    .padding(.vertical, 7)
+                                    Divider().background(Color.white.opacity(0.04))
+                                }
+                            }
+                            .background(AppColors.cardBackground)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(AppColors.cardStroke, lineWidth: 1))
+                            .padding(.horizontal, AppSpacing.l)
+                        }
+                    }
+                }
+                .padding(.vertical, AppSpacing.l)
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .frame(minWidth: InspectorWidth.min)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(AppColors.background)
     }
 
-    private var pastPurchases: [Invoice] {
-        fetchedInvoices
-            .sorted { $0.invoiceDate > $1.invoiceDate }
+
+    private var hasPreferences: Bool {
+        let shapes = customer.preferredShapes ?? ""
+        let colors = customer.preferredColors ?? ""
+        let budget = customer.budgetRange ?? ""
+        return !shapes.isEmpty || !colors.isEmpty || !budget.isEmpty
     }
 
     private struct OnMemoRow: Identifiable {
@@ -118,8 +257,8 @@ struct CustomerDetailView: View {
         let value: Decimal
     }
 
-    private var onMemoRows: [OnMemoRow] {
-        fetchedActiveMemos.flatMap { memo in
+    private func onMemoRows(from memos: [Memo]) -> [OnMemoRow] {
+        memos.flatMap { memo in
             memo.openLineItems.map { item in
                 OnMemoRow(
                     id: "\(memo.id)-\(item.id)",
@@ -142,8 +281,8 @@ struct CustomerDetailView: View {
         let value: Decimal
     }
 
-    private var pastPurchaseRows: [PastPurchaseRow] {
-        pastPurchases.flatMap { inv in
+    private func pastPurchaseRows(from invoices: [Invoice]) -> [PastPurchaseRow] {
+        invoices.flatMap { inv in
             inv.lineItems.map { item in
                 PastPurchaseRow(
                     id: "\(inv.id)-\(item.id)",
@@ -158,70 +297,3 @@ struct CustomerDetailView: View {
     }
 }
 
-struct InvoiceCard: View {
-    let invoice: Invoice
-
-    private var total: Decimal {
-        invoice.lineItems.reduce(Decimal(0)) { $0 + $1.amount }
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(invoice.referenceNumber != nil ? "Invoice #\(invoice.referenceNumber!)" : "Invoice")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                Spacer()
-                Text(invoice.effectiveStatus.rawValue)
-                    .font(.caption)
-                    .foregroundStyle(invoice.effectiveStatus == .paid ? Color.green : Color.secondary)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-            }
-            HStack {
-                Text(invoice.invoiceDate, style: .date)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(total, format: .currency(code: "USD"))
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-            }
-        }
-        .padding()
-        .background(Color(.controlBackgroundColor))
-        .cornerRadius(8)
-    }
-}
-
-struct MemoCard: View {
-    let memo: Memo
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(memo.status.rawValue)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                Spacer()
-                if let date = memo.dateAssigned {
-                    Text(date, style: .date)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            Text(memo.lineItems.map { $0.displayName }.joined(separator: ", "))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(2)
-                .truncationMode(.tail)
-        }
-        .padding()
-        .background(Color(.controlBackgroundColor))
-        .cornerRadius(8)
-    }
-}

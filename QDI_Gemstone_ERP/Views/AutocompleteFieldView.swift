@@ -48,7 +48,7 @@ struct AutocompleteFieldView: View {
             if showLabel && !label.isEmpty {
                 Text(label)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppColors.inkSubtle)
             }
             HStack(spacing: 4) {
                 inlineHintField
@@ -56,7 +56,7 @@ struct AutocompleteFieldView: View {
                     showSuggestions.toggle()
                 } label: {
                     Image(systemName: "chevron.down.circle")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppColors.inkMuted)
                         .font(.system(size: 14))
                 }
                 .buttonStyle(.plain)
@@ -77,7 +77,8 @@ struct AutocompleteFieldView: View {
 
     private var inlineHintField: some View {
         TextField(placeholder, text: $text)
-            .textFieldStyle(.roundedBorder)
+            .textFieldStyle(.plain)
+            .glassField()
             .focused($isFocused)
             .onSubmit { commitAndAdvance() }
             .onExitCommand { showSuggestions = false }
@@ -86,8 +87,7 @@ struct AutocompleteFieldView: View {
                     HStack(spacing: 0) {
                         Color.clear.frame(width: typedTextWidth + 8)
                         Text(completionSuffix)
-                            .foregroundStyle(.secondary)
-                            .opacity(0.6)
+                            .foregroundStyle(AppColors.inkSubtle)
                             .lineLimit(1)
                             .allowsHitTesting(false)
                     }
@@ -114,11 +114,12 @@ struct AutocompleteFieldView: View {
                 } label: {
                     HStack {
                         Text(opt)
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(Color.white.opacity(0.80))
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 6)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
@@ -126,13 +127,13 @@ struct AutocompleteFieldView: View {
         .frame(minWidth: 140, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color(nsColor: .windowBackgroundColor))
+                .fill(AppColors.cardElevated)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.primary.opacity(0.15), lineWidth: 1)
+                .stroke(AppColors.cardStroke, lineWidth: 1)
         )
-        .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 2)
+        .shadow(color: Color.black.opacity(0.4), radius: 12, x: 0, y: 4)
         .padding(.top, 28)
         .zIndex(1000)
     }

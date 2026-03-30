@@ -6,7 +6,7 @@ struct InvoiceListView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.documentDirtyTracker) private var documentDirtyTracker
     @Environment(\.navigationGuard) private var navigationGuard
-    @State private var viewModel = InvoicesViewModel()
+    @Query(sort: \Invoice.invoiceDate, order: .reverse) private var invoices: [Invoice]
     @State private var selectedInvoiceID: PersistentIdentifier?
 
     var body: some View {
@@ -21,81 +21,116 @@ struct InvoiceListView: View {
                     let invoice = TransactionViewModel.createNewInvoice(modelContext: modelContext)
                     openWindow(id: "invoice", value: invoice.id)
                 } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(AppColors.primary)
+                    HStack(spacing: 6) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: 13, weight: .medium))
+                        Text("New Invoice")
+                            .font(.system(size: 13, weight: .medium))
+                    }
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(AppColors.primaryGradient, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .shadow(color: AppColors.primary.opacity(0.20), radius: 8, y: 4)
                 }
                 .buttonStyle(.plain)
+                .keyboardShortcut("n", modifiers: .command)
                 Button("Open") {
                     openSelectedInvoice()
                 }
+                .foregroundStyle(AppColors.primary)
                 .disabled(selectedInvoiceID == nil)
                 .keyboardShortcut("o", modifiers: .command)
             }
             .padding()
-            if viewModel.invoices.isEmpty {
+            if invoices.isEmpty {
                 ContentUnavailableView(
                     "No Invoices",
                     systemImage: "dollarsign.circle",
                     description: Text("Invoices will appear here when you create them from memos or the transaction editor.")
                 )
+                .foregroundStyle(Color.white.opacity(0.40))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                Table(viewModel.invoices, selection: $selectedInvoiceID) {
-                    TableColumn("Invoice #") { inv in
-                        Text(inv.referenceNumber ?? "—")
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    TableColumn("Customer") { inv in
-                        Text(inv.customer?.displayName ?? "—")
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    TableColumn("Date") { inv in
-                        Text(inv.invoiceDate, style: .date)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    TableColumn("Total") { inv in
-                        Text(formatTotal(inv))
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                    }
-                    TableColumn("Status") { inv in
-                        StatusLabel(status: inv.effectiveStatus)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                }
-                .tableStyle(.bordered(alternatesRowBackgrounds: true))
-                .contextMenu(forSelectionType: PersistentIdentifier.self) { items in
-                    if !items.isEmpty {
-                        Button("Open") {
-                            if let id = items.first {
-                                openWindow(id: "invoice", value: id)
+                GlassCard(padding: 0) {
+                    VStack(spacing: 0) {
+                        AppTableHeader(columns: [
+                            .init("INVOICE #", width: 120),
+                            .init("CUSTOMER"),
+                            .init("DATE", width: 100),
+                            .init("TOTAL", width: 110, alignment: .trailing),
+                            .init("STATUS", width: 80)
+                        ])
+                        Divider().overlay(AppColors.cardStroke)
+                        ScrollView {
+                            LazyVStack(spacing: 0) {
+                                ForEach(invoices) { inv in
+                                    AppTableHoverRow(
+                                        isSelected: selectedInvoiceID == inv.id,
+                                        onTap: {
+                                            selectedInvoiceID = inv.id
+                                            openWindow(id: "invoice", value: inv.id)
+                                        }
+                                    ) {
+                                        HStack(spacing: 0) {
+                                            Text(inv.referenceNumber ?? "—")
+                                                .font(.system(size: 13, design: .monospaced))
+                                                .foregroundStyle(AppColors.ink)
+                                                .lineLimit(1)
+                                                .frame(width: 120, alignment: .leading)
+                                                .padding(.horizontal, 4)
+                                            Text(inv.customer?.displayName ?? "—")
+                                                .font(.system(size: 13))
+                                                .foregroundStyle(AppColors.ink)
+                                                .lineLimit(1)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                .padding(.horizontal, 4)
+                                            Text(inv.invoiceDate, style: .date)
+                                                .font(.system(size: 13))
+                                                .foregroundStyle(AppColors.inkMuted)
+                                                .frame(width: 100, alignment: .leading)
+                                                .padding(.horizontal, 4)
+                                            Text(formatTotal(inv))
+                                                .font(.system(size: 13))
+                                                .foregroundStyle(AppColors.ink)
+                                                .monospacedDigit()
+                                                .frame(width: 110, alignment: .trailing)
+                                                .padding(.horizontal, 4)
+                                            InvoiceStatusBadge(status: inv.effectiveStatus)
+                                                .frame(width: 80, alignment: .leading)
+                                                .padding(.horizontal, 4)
+                                        }
+                                        .padding(.horizontal, AppSpacing.l)
+                                    }
+                                    .contextMenu {
+                                        Button("Open") { openWindow(id: "invoice", value: inv.id) }
+                                    }
+                                    Divider().overlay(AppColors.cardStroke)
+                                }
                             }
                         }
                     }
-                } primaryAction: { items in
-                    if let id = items.first {
-                        openWindow(id: "invoice", value: id)
-                    }
                 }
+                .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous))
+                .padding(.horizontal, AppSpacing.l)
+                .padding(.bottom, AppSpacing.l)
+                
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(AppColors.shellGradient)
+        .background(Color.clear)
+        // Return → open selected invoice
+        .background {
+            Button("") { openSelectedInvoice() }
+                .keyboardShortcut(.return, modifiers: [])
+                .frame(width: 0, height: 0)
+                .opacity(0)
+        }
         .onAppear {
-            viewModel.load(modelContext: modelContext)
-            if let id = selectedInvoiceID, !viewModel.invoices.contains(where: { $0.id == id }) {
+            if let id = selectedInvoiceID, !invoices.contains(where: { $0.id == id }) {
                 selectedInvoiceID = nil
             }
             navigationGuard?.reportDirty(documentDirtyTracker?.hasUnsavedInvoice ?? false)
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .memoOrInvoiceDidSave)) { _ in
-            viewModel.load(modelContext: modelContext)
         }
         .onChange(of: documentDirtyTracker?.hasUnsavedInvoice ?? false) { _, dirty in
             navigationGuard?.reportDirty(dirty)
@@ -111,23 +146,25 @@ struct InvoiceListView: View {
     }
 
     private func formatTotal(_ invoice: Invoice) -> String {
-        let total = invoice.lineItems.reduce(Decimal(0)) { $0 + $1.amount }
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: total as NSDecimalNumber) ?? "$0"
+        invoice.lineItems.reduce(Decimal(0)) { $0 + $1.amount }.asCurrency
     }
 }
 
-// MARK: - Status badge (Paid = green, others = gray)
+// MARK: - Status badge (Paid = emerald, Outstanding = amber, Overdue = rose)
 
-private struct StatusLabel: View {
+private struct InvoiceStatusBadge: View {
     let status: InvoiceStatus
 
+    private var tone: AppStatusBadge.Tone {
+        switch status {
+        case .paid:  return .success
+        case .void:  return .danger
+        case .draft: return .neutral
+        case .sent:  return .warning
+        }
+    }
+
     var body: some View {
-        Text(status.rawValue)
-            .font(.caption)
-            .fontWeight(.medium)
-            .foregroundStyle(status == .paid ? Color.green : Color.secondary)
+        AppStatusBadge(title: status.rawValue, tone: tone)
     }
 }

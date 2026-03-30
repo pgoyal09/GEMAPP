@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import AppKit
 
 struct GemstoneDetailView: View {
     let stone: Gemstone
@@ -12,10 +13,16 @@ struct GemstoneDetailView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.l) {
             headerCard
+            if stone.effectiveStatus == .onMemo, let memo = stone.memo, let customer = memo.customer {
+                Text("On Memo To \(customer.displayName)")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+            }
             overviewSection
             characteristicsSection
             dimensionsSection
             pricingSection
+            photoSection
             rfidSection
             certificateSection
             mediaSection
@@ -28,26 +35,30 @@ struct GemstoneDetailView: View {
 
     private var headerCard: some View {
         AppSurfaceCard(padding: AppSpacing.m, accent: AppColors.accent) {
-            Text(stone.sku)
-                .font(.system(size: 24, weight: .semibold, design: .rounded))
-                .foregroundStyle(AppColors.ink)
-            HStack(spacing: AppSpacing.s) {
-                if stone.effectiveStatus == .onMemo, let memo = stone.memo {
-                    Button {
-                        openWindow(id: "memo", value: memo.id)
-                    } label: {
+            VStack(alignment: .leading, spacing: AppSpacing.s) {
+                Text(stone.sku)
+                    .font(.system(size: 24, weight: .semibold, design: .rounded))
+                    .foregroundStyle(AppColors.ink)
+                HStack(spacing: AppSpacing.s) {
+                    if stone.effectiveStatus == .onMemo, let memo = stone.memo {
+                        Button {
+                            openWindow(id: "memo", value: memo.id)
+                        } label: {
+                            AppStatusBadge(title: stone.effectiveStatus.rawValue, tone: statusTone)
+                        }
+                        .buttonStyle(.plain)
+                    } else {
                         AppStatusBadge(title: stone.effectiveStatus.rawValue, tone: statusTone)
                     }
-                    .buttonStyle(.plain)
-                } else {
-                    AppStatusBadge(title: stone.effectiveStatus.rawValue, tone: statusTone)
+                    AppStatusBadge(title: stone.stoneType.rawValue, tone: .accent)
+                    Text("\(String(format: "%.2f", stone.caratWeight)) ct")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkSubtle)
                 }
-                AppStatusBadge(title: stone.stoneType.rawValue, tone: .accent)
-                Text("\(String(format: "%.2f", stone.caratWeight)) ct")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var statusTone: AppStatusBadge.Tone {
@@ -98,8 +109,36 @@ struct GemstoneDetailView: View {
     private var pricingSection: some View {
         detailSection(title: "Pricing") {
             VStack(alignment: .leading, spacing: AppSpacing.m) {
-                DetailRow(label: "Cost", value: formatCurrency(stone.costPrice))
-                DetailRow(label: "Sell", value: formatCurrency(stone.sellPrice))
+                DetailRow(label: "Cost", value: stone.costPrice.asCurrency)
+                DetailRow(label: "Sell", value: stone.sellPrice.asCurrency)
+                if let rap = stone.rapPrice {
+                    DetailRow(label: "Rap Price", value: rap.asCurrency)
+                }
+                if let discount = stone.rapDiscount {
+                    DetailRow(label: "Rap Discount", value: String(format: "%.1f%%", discount))
+                }
+                if let ppc = stone.rapPricePerCarat {
+                    DetailRow(label: "Rap $/ct", value: ppc.asCurrency)
+                }
+                if stone.purchaseCurrency != nil && stone.purchaseCurrency != "USD" {
+                    if let amt = stone.purchaseAmount {
+                        DetailRow(label: "Purchase (\(stone.purchaseCurrency ?? ""))", value: "\(amt)")
+                    }
+                    if let rate = stone.exchangeRate {
+                        DetailRow(label: "Exchange Rate", value: String(format: "%.4f", rate))
+                    }
+                }
+                if let sold = stone.soldPrice {
+                    Divider().background(AppColors.cardStroke)
+                    DetailRow(label: "Sold Price", value: sold.asCurrency)
+                    if let m = stone.margin {
+                        DetailRow(label: "Margin", value: m.asCurrency)
+                    }
+                    if let r = stone.roi {
+                        DetailRow(label: "ROI", value: String(format: "%.1f%%", r))
+                    }
+                    DetailRow(label: "Days Held", value: "\(stone.daysHeld)")
+                }
             }
         }
     }
@@ -112,6 +151,29 @@ struct GemstoneDetailView: View {
                 DetailRow(label: "State", value: stone.rfidStatus ?? "unassigned")
                 if let seen = stone.rfidLastSeenAt {
                     DetailRow(label: "Last Seen", value: seen.formatted(date: .abbreviated, time: .shortened))
+                }
+                Divider().background(AppColors.cardStroke)
+                HStack(spacing: AppSpacing.m) {
+                    Text("Tag Printer")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkSubtle)
+                        .frame(width: 86, alignment: .leading)
+                    PrintTagButton(gemstone: stone, style: .pill)
+                }
+                PrinterConfigView()
+            }
+        }
+    }
+
+    private var photoSection: some View {
+        Group {
+            if let data = stone.imageData, let nsImage = NSImage(data: data) {
+                detailSection(title: "Photo") {
+                    Image(nsImage: nsImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxHeight: 200)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
             }
         }
@@ -126,6 +188,9 @@ struct GemstoneDetailView: View {
                 }
                 if let no = stone.certNo, !no.isEmpty {
                     DetailRow(label: "Cert No", value: no)
+                }
+                if let gia = stone.giaReportNumber, !gia.isEmpty {
+                    DetailRow(label: "GIA Report #", value: gia)
                 }
                 if let path = stone.certificateImagePath, !path.isEmpty {
                     DetailRow(label: "Certificate Image", value: (path as NSString).lastPathComponent)
@@ -158,15 +223,20 @@ struct GemstoneDetailView: View {
                     Text("No history events")
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.inkSubtle)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             } else {
                 VStack(alignment: .leading, spacing: AppSpacing.s) {
                     ForEach(sortedEvents, id: \.id) { event in
                         HistoryRow(event: event)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func detailSection<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
@@ -176,21 +246,17 @@ struct GemstoneDetailView: View {
                 .foregroundStyle(AppColors.ink)
             AppSurfaceCard(padding: AppSpacing.m) {
                 content()
-                    .frame(minHeight: 52, alignment: .topLeading)
+                    .frame(maxWidth: .infinity, minHeight: 52, alignment: .topLeading)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func formatDim(_ v: Double) -> String {
         String(format: "%.2f", v)
     }
 
-    private func formatCurrency(_ value: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: value as NSDecimalNumber) ?? "$0"
-    }
 }
 
 struct DetailRow: View {
@@ -205,7 +271,7 @@ struct DetailRow: View {
                 .frame(width: 86, alignment: .leading)
             Text(value.isEmpty ? "—" : value)
                 .font(AppTypography.body)
-                .foregroundStyle(AppColors.ink)
+                .foregroundStyle(Color.white.opacity(0.70))
                 .lineLimit(2)
                 .truncationMode(.tail)
         }
@@ -223,9 +289,11 @@ struct HistoryRow: View {
                     .frame(width: 8, height: 8)
                     .padding(.top, 6)
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(event.eventDescription)
+                    Text(event.eventDescription.isEmpty ? event.eventType.rawValue : event.eventDescription)
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.ink)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
                     Text(event.eventType.rawValue)
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.inkSubtle)

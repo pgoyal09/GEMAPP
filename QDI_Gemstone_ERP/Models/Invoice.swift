@@ -54,8 +54,4 @@ final class Invoice {
     var totalAmount: Decimal {
         lineItems.reduce(Decimal(0)) { $0 + $1.amount }
     }
-
-    var customerDisplayName: String {
-        customer?.displayName ?? ""
-    }
 }

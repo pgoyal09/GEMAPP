@@ -12,28 +12,55 @@ struct ScannerView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.l) {
-            AppSurfaceCard(accent: viewModel.isScanning ? AppColors.success : AppColors.warning) {
+            HeroCard {
                 HStack {
-                    VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                        Text("RFID Scanner")
-                            .font(AppTypography.title)
-                            .foregroundStyle(AppColors.ink)
-                        AppStatusBadge(
-                            title: viewModel.isScanning ? "Active scan" : "Paused",
-                            tone: viewModel.isScanning ? .success : .warning
-                        )
+                    HStack(spacing: AppSpacing.m) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(
+                                    viewModel.isScanning
+                                        ? LinearGradient(colors: [AppColors.success, Color(red: 0.10, green: 0.65, blue: 0.45)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                        : LinearGradient(colors: [AppColors.warning, .orange], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                )
+                                .frame(width: 40, height: 40)
+                            Image(systemName: "antenna.radiowaves.left.and.right")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundStyle(.white)
+                        }
+                        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                            Text("RFID Scanner")
+                                .font(AppTypography.title)
+                                .foregroundStyle(AppColors.ink)
+                            AppStatusBadge(
+                                title: viewModel.isScanning ? "Active scan" : "Paused",
+                                tone: viewModel.isScanning ? .success : .warning
+                            )
+                        }
                     }
                     Spacer()
                     HStack(spacing: AppSpacing.s) {
-                        Button(viewModel.isScanning ? "Stop Scanning" : "Start Scanning") {
-                            if viewModel.isScanning {
+                        if viewModel.isScanning {
+                            Button {
                                 viewModel.stopScanning()
-                            } else {
+                            } label: {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "stop.fill")
+                                        .font(.system(size: 13, weight: .medium))
+                                    Text("Stop Scanning")
+                                        .font(.system(size: 13, weight: .medium))
+                                }
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(AppColors.danger, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                .shadow(color: AppColors.danger.opacity(0.20), radius: 8, y: 4)
+                            }
+                            .buttonStyle(.plain)
+                        } else {
+                            GradientButton(title: "Start Scanning", icon: "play.fill") {
                                 viewModel.startScanning()
                             }
                         }
-                        .buttonStyle(.borderedProminent)
-                        .tint(viewModel.isScanning ? AppColors.danger : AppColors.primary)
 
                         if let tagID = viewModel.lastDiscoveredTagID {
                             Button("Process Tag") {
@@ -51,56 +78,82 @@ struct ScannerView: View {
             }
 
             if let result = viewModel.lastProcessResult {
-                AppSurfaceCard {
+                GlassCard(padding: AppSpacing.m) {
                     Text(result)
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.inkMuted)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
 
-            AppSurfaceCard {
-                Text("Last scanned EPC")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                Text(viewModel.lastDiscoveredTagID ?? "Waiting for scan…")
-                    .font(AppTypography.mono)
-                    .foregroundStyle(AppColors.ink)
-                    .textSelection(.enabled)
-                    .lineLimit(2)
-            }
-
-            AppSurfaceCard {
-                HStack {
-                    Text("Scanner Activity")
-                        .font(AppTypography.heading)
-                        .foregroundStyle(AppColors.ink)
-                    Spacer()
-                    AppStatusBadge(title: "\(viewModel.discoveredTagIDs.count) events", tone: .neutral)
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: AppSpacing.m) {
+                GlassCard(padding: AppSpacing.m) {
+                    VStack(alignment: .leading, spacing: AppSpacing.xxs) {
+                        Text("LAST SCANNED EPC")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(Color.white.opacity(0.35))
+                            .tracking(1.2)
+                        Text(viewModel.lastDiscoveredTagID ?? "Waiting for scan…")
+                            .font(AppTypography.mono)
+                            .foregroundStyle(AppColors.ink)
+                            .textSelection(.enabled)
+                            .lineLimit(2)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
-                if viewModel.discoveredTagIDs.isEmpty {
-                    Text("No scans yet. Keep a tag in read range to begin.")
-                        .font(AppTypography.body)
-                        .foregroundStyle(AppColors.inkSubtle)
-                } else {
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: AppSpacing.s) {
-                            ForEach(Array(viewModel.discoveredTagIDs.enumerated().reversed()), id: \.offset) { _, tag in
-                                HStack {
-                                    Circle()
-                                        .fill(AppColors.primary.opacity(0.5))
-                                        .frame(width: 8, height: 8)
-                                    Text(tag)
-                                        .font(AppTypography.mono)
-                                        .foregroundStyle(AppColors.ink)
-                                        .lineLimit(1)
-                                        .truncationMode(.middle)
+                GlassCard(padding: AppSpacing.m) {
+                    VStack(alignment: .leading, spacing: AppSpacing.xxs) {
+                        Text("TOTAL EVENTS")
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(Color.white.opacity(0.35))
+                            .tracking(1.2)
+                        Text("\(viewModel.discoveredTagIDs.count)")
+                            .font(.system(size: 22, weight: .semibold))
+                            .foregroundStyle(AppColors.primary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+
+            GlassCard(padding: AppSpacing.m) {
+                VStack(alignment: .leading, spacing: AppSpacing.m) {
+                    HStack {
+                        Text("SCANNER ACTIVITY")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(Color.white.opacity(0.50))
+                            .tracking(1.5)
+                        Spacer()
+                        AppStatusBadge(title: "\(viewModel.discoveredTagIDs.count) events", tone: .neutral)
+                    }
+
+                    if viewModel.discoveredTagIDs.isEmpty {
+                        Text("No scans yet. Keep a tag in read range to begin.")
+                            .font(AppTypography.body)
+                            .foregroundStyle(AppColors.inkSubtle)
+                    } else {
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 0) {
+                                ForEach(Array(viewModel.discoveredTagIDs.enumerated().reversed()), id: \.offset) { _, tag in
+                                    HStack {
+                                        Circle()
+                                            .fill(AppColors.primary.opacity(0.5))
+                                            .frame(width: 8, height: 8)
+                                        Text(tag)
+                                            .font(AppTypography.mono)
+                                            .foregroundStyle(AppColors.ink)
+                                            .lineLimit(1)
+                                            .truncationMode(.middle)
+                                    }
+                                    .padding(.vertical, AppSpacing.xs)
+                                    .overlay(alignment: .bottom) {
+                                        Divider().background(Color.white.opacity(0.04))
+                                    }
                                 }
-                                .padding(.vertical, AppSpacing.xs)
                             }
                         }
+                        .frame(maxHeight: 260)
                     }
-                    .frame(maxHeight: 260)
                 }
             }
 
@@ -108,7 +161,7 @@ struct ScannerView: View {
         }
         .padding(AppSpacing.xl)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(AppColors.background)
+        .background(AppColors.shellGradient)
         .onAppear { viewModel.attachScanHandler() }
         .onDisappear { viewModel.detachScanHandler() }
     }

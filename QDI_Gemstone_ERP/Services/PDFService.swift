@@ -103,7 +103,7 @@ final class PDFService {
 
         let taxRow: String
         if let t = tax, t > 0 {
-            taxRow = "<tr><td colspan=\"4\" class=\"label\">Tax</td><td class=\"num\">\(formatCurrency(t))</td></tr>"
+            taxRow = "<tr><td colspan=\"4\" class=\"label\">Tax</td><td class=\"num\">\(t.asCurrency)</td></tr>"
         } else {
             taxRow = ""
         }
@@ -174,9 +174,9 @@ final class PDFService {
                 </tbody>
             </table>
             <table class="totals">
-                <tr><td class="label">Subtotal</td><td class="num">\(formatCurrency(subtotal))</td></tr>
+                <tr><td class="label">Subtotal</td><td class="num">\(subtotal.asCurrency)</td></tr>
                 \(taxRow)
-                <tr><td class="label">Total</td><td class="num">\(formatCurrency(grandTotal))</td></tr>
+                <tr><td class="label">Total</td><td class="num">\(grandTotal.asCurrency)</td></tr>
             </table>
             \(notesBlock)
         </body>
@@ -190,13 +190,6 @@ final class PDFService {
             .replacingOccurrences(of: "<", with: "&lt;")
             .replacingOccurrences(of: ">", with: "&gt;")
             .replacingOccurrences(of: "\"", with: "&quot;")
-    }
-
-    private func formatCurrency(_ value: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: value as NSDecimalNumber) ?? "$0.00"
     }
 
     private func formatAddress(_ customer: Customer?) -> String {

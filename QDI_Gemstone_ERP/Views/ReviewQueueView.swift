@@ -25,12 +25,18 @@ struct ReviewQueueView: View {
         VStack(spacing: 0) {
             HStack {
                 Text("Review Queue")
-                    .font(.largeTitle)
-                    .fontWeight(.semibold)
+                    .font(AppTypography.title)
+                    .foregroundStyle(AppColors.ink)
                 Spacer()
                 Text("\(reviewStones.count) need review")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkMuted)
+                Button("Complete / Edit") {
+                    showEditSheet = true
+                }
+                .buttonStyle(GradientButtonStyle())
+                .disabled(selectedStoneID == nil)
+                .keyboardShortcut(.return, modifiers: [])
             }
             .padding()
             if reviewStones.isEmpty {
@@ -39,34 +45,75 @@ struct ReviewQueueView: View {
                     systemImage: "checkmark.circle",
                     description: Text("Stones with complete follow-up fields will not appear here.")
                 )
+                .foregroundStyle(AppColors.inkMuted)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                Table(reviewStones, selection: $selectedStoneID) {
-                    TableColumn("SKU") { s in Text(s.sku) }
-                    TableColumn("Type") { s in Text(s.stoneType.rawValue) }
-                    TableColumn("Shape") { s in Text(s.shape ?? s.cut) }
-                    TableColumn("Created") { s in Text(s.createdAt, style: .date) }
-                    TableColumn("Missing") { s in
-                        Text(missingFlags(s))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .tableStyle(.bordered(alternatesRowBackgrounds: true))
-                .contextMenu(forSelectionType: PersistentIdentifier.self) { items in
-                    if items.first != nil {
-                        Button("Complete / Edit") {
-                            showEditSheet = true
+                GlassCard(padding: 0) {
+                    VStack(spacing: 0) {
+                        AppTableHeader(columns: [
+                            AppTableHeader.Column("SKU", width: 120),
+                            AppTableHeader.Column("TYPE", width: 90),
+                            AppTableHeader.Column("SHAPE", width: 100),
+                            AppTableHeader.Column("CREATED", width: 110),
+                            AppTableHeader.Column("MISSING")
+                        ])
+                        Divider().background(Color.white.opacity(0.06))
+                        ScrollView {
+                            LazyVStack(spacing: 0) {
+                                ForEach(reviewStones) { stone in
+                                    AppTableHoverRow(
+                                        isSelected: selectedStoneID == stone.id,
+                                        onTap: { selectedStoneID = stone.id }
+                                    ) {
+                                        HStack(spacing: 0) {
+                                            Text(stone.sku)
+                                                .font(.system(size: 13, weight: .medium, design: .monospaced))
+                                                .foregroundStyle(AppColors.ink)
+                                                .lineLimit(1)
+                                                .frame(width: 120, alignment: .leading)
+                                                .padding(.horizontal, 4)
+                                            StoneTypeBadge(type: stone.stoneType.rawValue)
+                                                .frame(width: 90, alignment: .leading)
+                                                .padding(.horizontal, 4)
+                                            Text(stone.shape ?? stone.cut)
+                                                .foregroundStyle(AppColors.ink)
+                                                .lineLimit(1)
+                                                .frame(width: 100, alignment: .leading)
+                                                .padding(.horizontal, 4)
+                                            Text(stone.createdAt, style: .date)
+                                                .foregroundStyle(AppColors.inkMuted)
+                                                .frame(width: 110, alignment: .leading)
+                                                .padding(.horizontal, 4)
+                                            Text(missingFlags(stone))
+                                                .font(AppTypography.caption)
+                                                .foregroundStyle(AppColors.warning.opacity(0.80))
+                                                .lineLimit(1)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                .padding(.horizontal, 4)
+                                        }
+                                    }
+                                    .onTapGesture(count: 2) {
+                                        selectedStoneID = stone.id
+                                        showEditSheet = true
+                                    }
+                                    .contextMenu {
+                                        Button("Complete / Edit") {
+                                            selectedStoneID = stone.id
+                                            showEditSheet = true
+                                        }
+                                    }
+                                    Divider().background(Color.white.opacity(0.03))
+                                }
+                            }
                         }
                     }
-                } primaryAction: { items in
-                    if items.first != nil {
-                        showEditSheet = true
-                    }
                 }
+                .padding(.horizontal, AppSpacing.l)
+                .padding(.bottom, AppSpacing.l)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AppColors.background)
         .sheet(isPresented: $showEditSheet) {
             if let stone = selectedStone {
                 NavigationStack {

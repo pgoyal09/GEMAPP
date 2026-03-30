@@ -4,6 +4,7 @@ import SwiftUI
 /// Use consistently in headers and rows so columns align.
 enum LineItemColumnLayout {
     static let sku: CGFloat = 120
+    static let stoneType: CGFloat = 90
     static let descriptionMin: CGFloat = 360
     static let carats: CGFloat = 110
     static let rate: CGFloat = 130

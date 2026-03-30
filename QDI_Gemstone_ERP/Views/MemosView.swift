@@ -7,106 +7,111 @@ struct MemosView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.documentDirtyTracker) private var documentDirtyTracker
     @Environment(\.navigationGuard) private var navigationGuard
-    @State private var viewModel = MemosViewModel()
+    @Query(sort: \Memo.createdAt, order: .reverse) private var allMemos: [Memo]
     @State private var selectedMemoID: PersistentIdentifier?
+    @State private var selectedTab: MemosTab = .open
 
+    private var openMemos: [Memo] { allMemos.filter { !$0.isClosed } }
+    private var closedMemos: [Memo] { allMemos.filter { $0.isClosed } }
+    
+    enum MemosTab: String, CaseIterable {
+        case open = "Open Memos"
+        case closed = "Closed Memos"
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
-                Text("Memos")
-                    .font(AppTypography.title)
-                    .foregroundStyle(AppColors.ink)
-                Spacer()
-                Button {
-                    let memo = TransactionViewModel.createNewMemo(modelContext: modelContext)
-                    openWindow(id: "memo", value: memo.id)
-                } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(AppColors.primary)
+            HStack(spacing: AppSpacing.m) {
+                HStack(spacing: 0) {
+                    ForEach(MemosTab.allCases, id: \.self) { tab in
+                        Button {
+                            selectedTab = tab
+                        } label: {
+                            Text(tab.rawValue)
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundStyle(selectedTab == tab ? .white : Color.white.opacity(0.40))
+                                .padding(.horizontal, 18)
+                                .padding(.vertical, 8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                        .fill(selectedTab == tab ? AppColors.primary : Color.clear)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
-                .buttonStyle(.plain)
-                Button("Open") {
-                    openSelectedMemo()
-                }
-                .disabled(selectedMemoID == nil)
-                .keyboardShortcut("o", modifiers: .command)
-            }
-            .padding()
-            // Memo list only
-            if viewModel.memos.isEmpty {
-                ContentUnavailableView(
-                    "No Memos",
-                    systemImage: "doc.text",
-                    description: Text("Create a memo to send stones on consignment.")
+                .padding(3)
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color.white.opacity(0.06))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)
+                        )
                 )
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                Spacer()
+                if selectedTab == .open {
+                    Button {
+                        let memo = TransactionViewModel.createNewMemo(modelContext: modelContext)
+                        openWindow(id: "memo", value: memo.id)
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "plus")
+                                .font(.system(size: 13, weight: .medium))
+                            Text("New Memo")
+                                .font(.system(size: 13, weight: .medium))
+                        }
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(AppColors.primaryGradient, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .shadow(color: AppColors.primary.opacity(0.20), radius: 8, y: 4)
+                    }
+                    .buttonStyle(.plain)
+                    .keyboardShortcut("n", modifiers: .command)
+                    Button {
+                        openSelectedMemo()
+                    } label: {
+                        Text("Open")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(AppColors.primary)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(selectedMemoID == nil)
+                    .keyboardShortcut("o", modifiers: .command)
+                }
+            }
+            .padding(AppSpacing.l)
+            if selectedTab == .open {
+                openMemosContent
             } else {
-                Table(viewModel.memos, selection: $selectedMemoID) {
-                    TableColumn("Memo #") { memo in
-                        Text(memo.referenceNumber ?? "—")
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                    }
-                    .width(80)
-                    TableColumn("Customer") { memo in
-                        Text(memo.customer?.displayName ?? "—")
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                    }
-                    .width(min: 140, ideal: 200)
-                    TableColumn("Memo Date") { memo in
-                        Text(memo.dateAssigned ?? Date(), style: .date)
-                    }
-                    .width(100)
-                    TableColumn("Days Old") { memo in
-                        daysOldView(memo)
-                    }
-                    .width(80)
-                    TableColumn("Memo Amount") { memo in
-                        memoAmountView(memo)
-                    }
-                    .width(120)
-                    TableColumn("Customer Exposure") { memo in
-                        if let customer = memo.customer {
-                            Text(customer.openExposure, format: .currency(code: "USD"))
-                                .monospacedDigit()
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                                .foregroundStyle(.secondary)
-                        } else {
-                            Text("—")
-                                .foregroundStyle(.tertiary)
-                        }
-                    }
-                    .width(130)
-                }
-                .tableStyle(.bordered(alternatesRowBackgrounds: true))
-                .contextMenu(forSelectionType: PersistentIdentifier.self) { items in
-                    if !items.isEmpty {
-                        Button("Open") {
-                            if let id = items.first {
-                                openWindow(id: "memo", value: id)
-                            }
-                        }
-                    }
-                } primaryAction: { items in
-                    if let id = items.first {
-                        openWindow(id: "memo", value: id)
-                    }
-                }
+                closedMemosContent
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(AppColors.shellGradient)
+        .background(Color.clear)
+        .background {
+            Button("") { openSelectedMemo() }
+                .keyboardShortcut(.return, modifiers: [])
+                .frame(width: 0, height: 0)
+                .opacity(0)
+        }
         .onAppear {
-            viewModel.load(modelContext: modelContext)
-            if let id = selectedMemoID, !viewModel.memos.contains(where: { $0.id == id }) {
+            if let id = selectedMemoID, !allMemos.contains(where: { $0.id == id }) {
                 selectedMemoID = nil
             }
             navigationGuard?.reportDirty(documentDirtyTracker?.hasUnsavedMemo ?? false)
         }
-        .onReceive(NotificationCenter.default.publisher(for: .memoOrInvoiceDidSave)) { _ in
-            viewModel.load(modelContext: modelContext)
+        .onChange(of: selectedTab) { _, _ in
+            if selectedTab == .open {
+                if let id = selectedMemoID, !openMemos.contains(where: { $0.id == id }) {
+                    selectedMemoID = nil
+                }
+            } else {
+                if let id = selectedMemoID, !closedMemos.contains(where: { $0.id == id }) {
+                    selectedMemoID = nil
+                }
+            }
         }
         .onChange(of: documentDirtyTracker?.hasUnsavedMemo ?? false) { _, dirty in
             navigationGuard?.reportDirty(dirty)
@@ -115,15 +120,184 @@ struct MemosView: View {
             navigationGuard?.reportDirty(false)
         }
     }
+    
+    private var openMemosContent: some View {
+        Group {
+            if openMemos.isEmpty {
+                ContentUnavailableView(
+                    "No Open Memos",
+                    systemImage: "doc.text",
+                    description: Text("Create a memo to send stones on consignment.")
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                GlassCard(padding: 0) {
+                    VStack(spacing: 0) {
+                        AppTableHeader(columns: [
+                            .init("MEMO #", width: 100),
+                            .init("CUSTOMER"),
+                            .init("MEMO DATE", width: 100),
+                            .init("DAYS OLD", width: 70),
+                            .init("MEMO AMOUNT", width: 110, alignment: .trailing),
+                            .init("CUSTOMER EXPOSURE", width: 130, alignment: .trailing)
+                        ])
+                        Divider().overlay(AppColors.cardStroke)
+                        ScrollView {
+                            LazyVStack(spacing: 0) {
+                                ForEach(openMemos) { memo in
+                                    AppTableHoverRow(
+                                        isSelected: selectedMemoID == memo.id,
+                                        onTap: {
+                                            selectedMemoID = memo.id
+                                            openWindow(id: "memo", value: memo.id)
+                                        }
+                                    ) {
+                                        HStack(spacing: 0) {
+                                            Text(memo.referenceNumber ?? "—")
+                                                .font(.system(size: 13, design: .monospaced))
+                                                .foregroundStyle(AppColors.ink)
+                                                .lineLimit(1)
+                                                .frame(width: 100, alignment: .leading)
+                                                .padding(.horizontal, 4)
+                                            Text(memo.customer?.displayName ?? "—")
+                                                .font(.system(size: 13))
+                                                .foregroundStyle(AppColors.ink)
+                                                .lineLimit(1)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                .padding(.horizontal, 4)
+                                            Text(memo.dateAssigned ?? Date(), style: .date)
+                                                .font(.system(size: 13))
+                                                .foregroundStyle(AppColors.inkMuted)
+                                                .frame(width: 100, alignment: .leading)
+                                                .padding(.horizontal, 4)
+                                            daysOldView(memo)
+                                                .frame(width: 70, alignment: .leading)
+                                                .padding(.horizontal, 4)
+                                            memoAmountView(memo)
+                                                .frame(width: 110)
+                                                .padding(.horizontal, 4)
+                                            Group {
+                                                if let customer = memo.customer {
+                                                    Text(customer.openExposure, format: .currency(code: "USD"))
+                                                        .monospacedDigit()
+                                                        .foregroundStyle(AppColors.inkMuted)
+                                                } else {
+                                                    Text("—").foregroundStyle(AppColors.inkSubtle)
+                                                }
+                                            }
+                                            .frame(width: 130, alignment: .trailing)
+                                            .padding(.horizontal, 4)
+                                        }
+                                        .padding(.horizontal, AppSpacing.l)
+                                    }
+                                    .contextMenu {
+                                        Button("Open") { openWindow(id: "memo", value: memo.id) }
+                                    }
+                                    Divider().overlay(AppColors.cardStroke)
+                                }
+                            }
+                        }
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous))
+                .padding(.horizontal, AppSpacing.l)
+                .padding(.bottom, AppSpacing.l)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private var closedMemosContent: some View {
+        Group {
+            if closedMemos.isEmpty {
+                ContentUnavailableView(
+                    "No Closed Memos",
+                    systemImage: "doc.text",
+                    description: Text("Closed memos will appear here.")
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                GlassCard(padding: 0) {
+                    VStack(spacing: 0) {
+                        AppTableHeader(columns: [
+                            .init("MEMO #", width: 100),
+                            .init("CUSTOMER"),
+                            .init("MEMO DATE", width: 100),
+                            .init("MEMO AMOUNT", width: 110, alignment: .trailing),
+                            .init("CUSTOMER EXPOSURE", width: 130, alignment: .trailing)
+                        ])
+                        Divider().overlay(AppColors.cardStroke)
+                        ScrollView {
+                            LazyVStack(spacing: 0) {
+                                ForEach(closedMemos) { memo in
+                                    AppTableHoverRow(
+                                        isSelected: selectedMemoID == memo.id,
+                                        onTap: {
+                                            selectedMemoID = memo.id
+                                            openWindow(id: "memo", value: memo.id)
+                                        }
+                                    ) {
+                                        HStack(spacing: 0) {
+                                            Text(memo.referenceNumber ?? "—")
+                                                .font(.system(size: 13, design: .monospaced))
+                                                .foregroundStyle(AppColors.ink)
+                                                .lineLimit(1)
+                                                .frame(width: 100, alignment: .leading)
+                                                .padding(.horizontal, 4)
+                                            Text(memo.customer?.displayName ?? "—")
+                                                .font(.system(size: 13))
+                                                .foregroundStyle(AppColors.ink)
+                                                .lineLimit(1)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                .padding(.horizontal, 4)
+                                            Text(memo.dateAssigned ?? Date(), style: .date)
+                                                .font(.system(size: 13))
+                                                .foregroundStyle(AppColors.inkMuted)
+                                                .frame(width: 100, alignment: .leading)
+                                                .padding(.horizontal, 4)
+                                            memoAmountView(memo)
+                                                .frame(width: 110)
+                                                .padding(.horizontal, 4)
+                                            Group {
+                                                if let customer = memo.customer {
+                                                    Text(customer.openExposure, format: .currency(code: "USD"))
+                                                        .monospacedDigit()
+                                                        .foregroundStyle(AppColors.inkMuted)
+                                                } else {
+                                                    Text("—").foregroundStyle(AppColors.inkSubtle)
+                                                }
+                                            }
+                                            .frame(width: 130, alignment: .trailing)
+                                            .padding(.horizontal, 4)
+                                        }
+                                        .padding(.horizontal, AppSpacing.l)
+                                    }
+                                    .contextMenu {
+                                        Button("Open") { openWindow(id: "memo", value: memo.id) }
+                                    }
+                                    Divider().overlay(AppColors.cardStroke)
+                                }
+                            }
+                        }
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous))
+                .padding(.horizontal, AppSpacing.l)
+                .padding(.bottom, AppSpacing.l)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
 
     private func memoAmountView(_ memo: Memo) -> some View {
         Group {
             if memo.isClosed {
                 Text("Closed")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppColors.inkMuted)
             } else {
                 Text(memo.openMemoAmount, format: .currency(code: "USD"))
                     .monospacedDigit()
+                    .foregroundStyle(Color.white.opacity(0.80))
             }
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
@@ -132,9 +306,13 @@ struct MemosView: View {
     private func daysOldView(_ memo: Memo) -> some View {
         let days = daysSince(memo.dateAssigned ?? Date())
         let label = days == 0 ? "0d" : "\(days)d"
-        return Text(label)
-            .fontWeight(.medium)
-            .foregroundStyle(daysOldColor(days))
+        return HStack(spacing: 4) {
+            Image(systemName: "clock")
+                .font(.system(size: 10))
+            Text(label)
+                .fontWeight(.medium)
+        }
+        .foregroundStyle(daysOldColor(days))
     }
 
     private func daysSince(_ date: Date) -> Int {
@@ -143,10 +321,10 @@ struct MemosView: View {
 
     private func daysOldColor(_ days: Int) -> Color {
         switch days {
-        case 0...7: return Color.green
-        case 8...14: return Color(red: 0.85, green: 0.65, blue: 0.13)  // yellow/amber
-        case 15...30: return Color(red: 0.9, green: 0.45, blue: 0.2)    // dark orange
-        default: return Color.red
+        case 0..<30: return AppColors.success
+        case 30..<60: return AppColors.warning
+        case 60..<90: return AppColors.accentPeach
+        default: return AppColors.danger
         }
     }
 
@@ -159,395 +337,5 @@ struct MemosView: View {
         let ref = memo.referenceNumber.map { "#\($0) " } ?? ""
         let name = memo.customer?.displayName ?? "Unknown"
         return "Memo \(ref)– \(name)"
-    }
-}
-
-// MARK: - Full Memo Document View (QuickBooks-like) - used in MemoWindowView
-
-struct MemoDocumentView: View {
-    let memo: Memo
-    var onDelete: (() -> Void)?
-    @Environment(\.modelContext) private var modelContext
-    @Environment(\.openWindow) private var openWindow
-    @Environment(\.documentDirtyTracker) private var documentDirtyTracker
-    @Query(sort: \Customer.lastName) private var customers: [Customer]
-    @State private var selectedLineItemIDs: Set<PersistentIdentifier> = []
-    @State private var showDeleteConfirm = false
-    @State private var showInventorySheet = false
-    @State private var showAddCustomerSheet = false
-    @State private var showLeaveWithoutSavingAlert = false
-    @State private var totalRefreshID = 0
-    @State private var hasUnsavedEdits = false
-
-    private var isDirty: Bool { modelContext.hasChanges || hasUnsavedEdits }
-
-    private var isCreateMode: Bool { memo.customer == nil }
-    private var selectedOpenItems: [LineItem] {
-        memo.openLineItems.filter { selectedLineItemIDs.contains($0.id) }
-    }
-    private var canReturnOrInvoice: Bool { !selectedOpenItems.isEmpty }
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: AppSpacing.xl) {
-                headerSection
-                lineItemsSection
-                totalSection
-                if let notes = memo.notes, !notes.isEmpty {
-                    notesSection(notes)
-                }
-            }
-            .padding(AppSpacing.xl)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .frame(minWidth: 480)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(white: 0.98))
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") {
-                    if isDirty {
-                        showLeaveWithoutSavingAlert = true
-                    } else {
-                        modelContext.rollback()
-                        NSApp.keyWindow?.close()
-                    }
-                }
-                .keyboardShortcut(.cancelAction)
-            }
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Save") {
-                    do {
-                        try modelContext.save()
-                        hasUnsavedEdits = false
-                        NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
-                    } catch {
-                        // TODO: show error
-                    }
-                }
-                .keyboardShortcut(.defaultAction)
-            }
-            ToolbarItem(placement: .destructiveAction) {
-                Button(role: .destructive) { showDeleteConfirm = true } label: {
-                    Label("Delete", systemImage: "trash")
-                }
-            }
-        }
-        .sheet(isPresented: $showInventorySheet) {
-            InventorySelectSheet { stones in
-                for stone in stones {
-                    TransactionViewModel.addStoneToMemo(stone, memo: memo, modelContext: modelContext, persistImmediately: false)
-                }
-                totalRefreshID += 1
-                hasUnsavedEdits = true
-                showInventorySheet = false
-            }
-        }
-        .sheet(isPresented: $showAddCustomerSheet) {
-            NavigationStack {
-                AddCustomerSheet { newCustomer in
-                    memo.customer = newCustomer
-                    hasUnsavedEdits = true
-                }
-            }
-        }
-        .alert("Delete Memo?", isPresented: $showDeleteConfirm) {
-            Button("Delete", role: .destructive) { deleteMemo() }
-        } message: {
-            Text("Items will be returned to 'Available' status.")
-        }
-        .onExitCommand {
-            if isDirty {
-                showLeaveWithoutSavingAlert = true
-            } else {
-                modelContext.rollback()
-                NSApp.keyWindow?.close()
-            }
-        }
-        .alert("Leave without saving?", isPresented: $showLeaveWithoutSavingAlert) {
-            Button("Keep Editing", role: .cancel) {}
-            Button("Discard", role: .destructive) {
-                modelContext.rollback()
-                documentDirtyTracker?.hasUnsavedMemo = false
-                NSApp.keyWindow?.close()
-            }
-        } message: {
-            Text("Your changes will not be saved.")
-        }
-        .onChange(of: isDirty) { _, dirty in
-            documentDirtyTracker?.hasUnsavedMemo = dirty
-        }
-        .onAppear {
-            documentDirtyTracker?.hasUnsavedMemo = isDirty
-        }
-        .onDisappear {
-            documentDirtyTracker?.hasUnsavedMemo = false
-        }
-    }
-
-    private var headerSection: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.m) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: AppSpacing.s) {
-                    Text("MEMO")
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.secondary)
-                    if isCreateMode {
-                        TextField("Memo #", text: Binding(
-                        get: { memo.referenceNumber ?? "" },
-                        set: { memo.referenceNumber = $0.isEmpty ? nil : $0; hasUnsavedEdits = true }
-                        ))
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(width: 140)
-                    } else {
-                        Text(memo.referenceNumber.map { "#\($0)" } ?? "Memo")
-                            .font(.title)
-                            .fontWeight(.bold)
-                    }
-                }
-                Spacer()
-                StatusBadge(status: memo.status.rawValue)
-            }
-            if isCreateMode {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Customer")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    HStack(spacing: 8) {
-                        Picker("", selection: Binding(
-                            get: { memo.customer },
-                            set: { memo.customer = $0; hasUnsavedEdits = true }
-                        )) {
-                            Text("Select customer…").tag(nil as Customer?)
-                            ForEach(customers, id: \.id) { c in
-                                Text(c.displayName).tag(c as Customer?)
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        .frame(width: 220)
-                        Button {
-                            showAddCustomerSheet = true
-                        } label: {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.title3)
-                                .foregroundStyle(AppColors.primary)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            } else if let customer = memo.customer {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Customer")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(customer.displayName)
-                        .font(.headline)
-                    if let email = customer.email, !email.isEmpty {
-                        Text(email)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-            HStack(spacing: AppSpacing.xl) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Date")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    if isCreateMode {
-                        DatePicker("", selection: Binding(
-                            get: { memo.dateAssigned ?? Date() },
-                            set: { memo.dateAssigned = $0; hasUnsavedEdits = true }
-                        ), displayedComponents: .date)
-                        .labelsHidden()
-                    } else {
-                        Text(memo.dateAssigned ?? Date(), style: .date)
-                    }
-                }
-            }
-        }
-        .padding(AppSpacing.l)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.white)
-        .cornerRadius(AppCornerRadius.l)
-        .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
-    }
-
-    private var lineItemsSection: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.m) {
-            HStack {
-                Text("Line Items")
-                    .font(.headline)
-                Spacer()
-            }
-            HStack(spacing: AppSpacing.s) {
-                Button("Return Items") { returnSelectedToStock() }
-                    .disabled(!canReturnOrInvoice)
-                    .buttonStyle(.bordered)
-                Button("Convert to Invoice") { convertSelectedToInvoice() }
-                    .disabled(!canReturnOrInvoice)
-                    .buttonStyle(.borderedProminent)
-                if selectedLineItemIDs.isEmpty {
-                    Text("0 selected")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                } else {
-                    Text("\(selectedLineItemIDs.count) selected")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                if !selectedLineItemIDs.isEmpty {
-                    Button("Clear Selection") { selectedLineItemIDs = [] }
-                        .font(.caption)
-                        .buttonStyle(.borderless)
-                }
-            }
-            lineItemsTableHeader
-            Divider()
-            if memo.lineItems.isEmpty {
-                ContentUnavailableView("No Items", systemImage: "cube.box", description: Text("This memo has no items."))
-                    .frame(maxWidth: .infinity)
-                    .padding()
-            } else {
-                LazyVStack(spacing: 0) {
-                    ForEach(memo.lineItems.sorted(by: { $0.sku < $1.sku }), id: \.id) { item in
-                        MemoLineItemRow(
-                            item: item,
-                            isSelected: selectedLineItemIDs.contains(item.id),
-                            canSelect: item.effectiveStatus == .open,
-                            persistOnEdit: false,
-                            onUpdate: { totalRefreshID += 1; hasUnsavedEdits = true },
-                            onTap: {
-                                if item.effectiveStatus == .open { toggleSelection(item) }
-                            }
-                        )
-                        Divider()
-                    }
-                }
-            }
-            HStack(spacing: AppSpacing.m) {
-                Button("+ From Inventory") { showInventorySheet = true }
-                    .buttonStyle(.borderless)
-                Button("+ Brokered Stone") {
-                    TransactionViewModel.addBrokeredLineToMemo(memo, modelContext: modelContext, persistImmediately: false)
-                    totalRefreshID += 1
-                    hasUnsavedEdits = true
-                }
-                .buttonStyle(.borderless)
-                Button("+ Custom Line") {
-                    TransactionViewModel.addServiceLineToMemo(memo, modelContext: modelContext, persistImmediately: false)
-                    totalRefreshID += 1
-                    hasUnsavedEdits = true
-                }
-                .buttonStyle(.borderless)
-            }
-            .font(.subheadline)
-            .foregroundStyle(.blue)
-        }
-        .padding(AppSpacing.l)
-        .background(Color.white)
-        .cornerRadius(AppCornerRadius.l)
-        .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
-    }
-
-    private var lineItemsTableHeader: some View {
-        HStack(alignment: .center, spacing: 0) {
-            Color.clear
-                .frame(width: LineItemColumnLayout.check)
-                .padding(.horizontal, 4)
-            Text("SKU")
-                .frame(width: LineItemColumnLayout.sku, alignment: .leading)
-                .padding(.horizontal, 4)
-            Text("Description")
-                .frame(minWidth: LineItemColumnLayout.descriptionMin, maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 4)
-            Text("Carats")
-                .frame(width: LineItemColumnLayout.carats, alignment: .trailing)
-                .padding(.horizontal, 4)
-            Text("Rate")
-                .frame(width: LineItemColumnLayout.rate, alignment: .trailing)
-                .padding(.horizontal, 4)
-            Text("Amount")
-                .frame(width: LineItemColumnLayout.amount, alignment: .trailing)
-                .padding(.horizontal, 4)
-            Text("Status")
-                .frame(width: LineItemColumnLayout.status, alignment: .leading)
-                .padding(.horizontal, 4)
-        }
-        .font(.caption.bold())
-        .foregroundStyle(.secondary)
-        .padding(.vertical, 8)
-        .background(Color(white: 0.94))
-    }
-
-    private var totalSection: some View {
-        HStack {
-            Spacer()
-            VStack(alignment: .trailing, spacing: 4) {
-                Text("Total Value")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Text(memo.openMemoAmount, format: .currency(code: "USD"))
-                    .font(.title2.bold())
-            }
-            .id(totalRefreshID)
-        }
-        .padding(AppSpacing.l)
-    }
-
-    private func notesSection(_ notes: String) -> some View {
-        VStack(alignment: .leading, spacing: AppSpacing.s) {
-            Text("Notes")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Text(notes)
-                .font(.subheadline)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(AppSpacing.l)
-    }
-
-    private func toggleSelection(_ item: LineItem) {
-        if selectedLineItemIDs.contains(item.id) {
-            selectedLineItemIDs.remove(item.id)
-        } else {
-            selectedLineItemIDs.insert(item.id)
-        }
-    }
-
-    private func convertSelectedToInvoice() {
-        guard !selectedOpenItems.isEmpty else { return }
-        if let inv = TransactionViewModel.convertMemoToInvoice(memo: memo, selectedLineItems: selectedOpenItems, modelContext: modelContext) {
-            openWindow(id: "invoice", value: inv.id)
-            selectedLineItemIDs.removeAll()
-            totalRefreshID += 1
-            hasUnsavedEdits = true
-        }
-    }
-
-    private func returnSelectedToStock() {
-        guard !selectedOpenItems.isEmpty else { return }
-        TransactionViewModel.returnItemsFromMemo(items: selectedOpenItems, modelContext: modelContext)
-        selectedLineItemIDs.removeAll()
-        totalRefreshID += 1
-        hasUnsavedEdits = true
-    }
-
-    private func deleteMemo() {
-        let itemsToReturn = Array(memo.openLineItems)
-        TransactionViewModel.returnItemsFromMemo(items: itemsToReturn, modelContext: modelContext)
-        modelContext.delete(memo)
-        do {
-            try modelContext.save()
-        } catch {
-            return
-        }
-        documentDirtyTracker?.hasUnsavedMemo = false
-        NSApp.keyWindow?.close()
-        NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
-        onDelete?()
     }
 }

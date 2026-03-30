@@ -14,13 +14,6 @@ struct EditableLineItemRow: View {
     @State private var rateText: String = ""
     @State private var isSyncing = false
     
-    private static var currencyFormatter: NumberFormatter {
-        let f = NumberFormatter()
-        f.numberStyle = .currency
-        f.currencyCode = "USD"
-        return f
-    }
-    
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
             Text(item.displaySku)
@@ -28,40 +21,112 @@ struct EditableLineItemRow: View {
                 .truncationMode(.tail)
                 .frame(width: LineItemColumnLayout.sku, alignment: .leading)
                 .font(.system(.body, design: .monospaced))
+                .foregroundStyle(AppColors.primary.opacity(0.80))
                 .padding(.horizontal, 4)
 
+            Group {
+                if item.gemstone == nil && !item.isService {
+                    Picker("", selection: Binding(
+                        get: { item.brokeredStoneType ?? "" },
+                        set: {
+                            item.brokeredStoneType = $0.isEmpty ? nil : $0
+                            onUpdate?()
+                        }
+                    )) {
+                        Text("—").tag("")
+                        ForEach(StoneType.allCases, id: \.self) { type in
+                            Text(type.rawValue).tag(type.rawValue)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                } else {
+                    Text(item.stoneTypeDisplay)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .foregroundStyle(AppColors.inkMuted)
+                }
+            }
+            .frame(width: LineItemColumnLayout.stoneType, alignment: .leading)
+            .padding(.horizontal, 4)
+
             TextField("Description", text: $descriptionText, axis: .vertical)
-                .textFieldStyle(.roundedBorder)
+                .textFieldStyle(.plain)
+                .foregroundStyle(AppColors.ink)
                 .lineLimit(1...10)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
                 .frame(minWidth: LineItemColumnLayout.descriptionMin, maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(AppColors.panelBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                        )
+                )
                 .onSubmit { commitDescription() }
                 .padding(.horizontal, 4)
 
             if item.isService {
                 Text("—")
+                    .foregroundStyle(AppColors.inkSubtle)
                     .frame(width: LineItemColumnLayout.carats, alignment: .trailing)
                     .padding(.horizontal, 4)
             } else {
                 TextField("Carats", text: $caratsText)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(.plain)
+                    .foregroundStyle(AppColors.ink)
                     .multilineTextAlignment(.trailing)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
                     .frame(width: LineItemColumnLayout.carats, alignment: .trailing)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .fill(AppColors.panelBackground)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                    .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                            )
+                    )
                     .onSubmit { commitCarats() }
                     .padding(.horizontal, 4)
             }
 
             if item.isService {
                 TextField("Amount", text: $rateText)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(.plain)
+                    .foregroundStyle(AppColors.ink)
                     .multilineTextAlignment(.trailing)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
                     .frame(width: LineItemColumnLayout.rate, alignment: .trailing)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .fill(AppColors.panelBackground)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                    .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                            )
+                    )
                     .onSubmit { commitRateOrAmount() }
                     .padding(.horizontal, 4)
             } else {
                 TextField("Rate", text: $rateText)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(.plain)
+                    .foregroundStyle(AppColors.ink)
                     .multilineTextAlignment(.trailing)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
                     .frame(width: LineItemColumnLayout.rate, alignment: .trailing)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .fill(AppColors.panelBackground)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                    .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                            )
+                    )
                     .onSubmit { commitRateOrAmount() }
                     .padding(.horizontal, 4)
             }
@@ -70,7 +135,7 @@ struct EditableLineItemRow: View {
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .frame(width: LineItemColumnLayout.amount, alignment: .trailing)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(AppColors.ink)
                 .padding(.horizontal, 4)
         }
         .padding(.vertical, 6)
@@ -78,11 +143,29 @@ struct EditableLineItemRow: View {
         .onChange(of: item.itemDescription) { _, _ in syncFromItem() }
         .onChange(of: item.carats) { _, _ in syncFromItem() }
         .onChange(of: item.rate) { _, _ in syncFromItem() }
+        .onChange(of: descriptionText) { _, newVal in
+            if !isSyncing {
+                item.itemDescription = newVal
+                onUpdate?()
+            }
+        }
+        .onChange(of: caratsText) { _, val in
+            guard !isSyncing, !val.isEmpty, let v = Double(val), v >= 0 else { return }
+            item.carats = v
+            if !item.isService { item.amount = item.rate * Decimal(v) }
+            onUpdate?()
+        }
+        .onChange(of: rateText) { _, val in
+            guard !isSyncing, !val.isEmpty, let d = Decimal(string: val), d >= 0 else { return }
+            item.rate = d
+            item.amount = item.isService ? d : d * Decimal(item.carats)
+            onUpdate?()
+        }
     }
     
     private var displayAmount: String {
         let amt = item.isService ? item.rate : item.rate * Decimal(item.carats)
-        return Self.currencyFormatter.string(from: amt as NSDecimalNumber) ?? "$0.00"
+        return amt.asCurrency
     }
     
     private func syncFromItem() {

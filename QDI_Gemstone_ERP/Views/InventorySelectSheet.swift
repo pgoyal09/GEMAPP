@@ -13,16 +13,17 @@ struct InventorySelectSheet: View {
 
     var onSelect: ([Gemstone]) -> Void
 
-    /// Base set: all stones, or only available depending on toggle
+    /// Base set: non-lot stones only (lots are handled by LotSelectSheet).
     private var baseStones: [Gemstone] {
         let descriptor = FetchDescriptor<Gemstone>(
             sortBy: [SortDescriptor(\.sku)]
         )
         guard let all = try? modelContext.fetch(descriptor) else { return [] }
+        let singles = all.filter { !$0.isLot }
         if availableOnly {
-            return all.filter { $0.effectiveStatus == .available }
+            return singles.filter { $0.effectiveStatus == .available }
         }
-        return all
+        return singles
     }
 
     /// Filtered by search and stone type
@@ -59,10 +60,9 @@ struct InventorySelectSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Top controls
             HStack(spacing: 12) {
                 TextField("Search…", text: $searchText)
-                    .textFieldStyle(.roundedBorder)
+                    .glassField()
                     .frame(maxWidth: 200)
 
                 Picker("Type", selection: $stoneTypeFilter) {
@@ -76,33 +76,35 @@ struct InventorySelectSheet: View {
 
                 Toggle("Available only", isOn: $availableOnly)
                     .toggleStyle(.checkbox)
+                    .foregroundStyle(AppColors.inkMuted)
             }
             .padding()
 
-            Divider()
+            Divider().overlay(AppColors.cardStroke)
 
-            // Title + buttons
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Select Stone\(selectedStoneIDs.count > 1 ? "s" : "")")
                         .font(.headline)
+                        .foregroundStyle(AppColors.ink)
                     Text("Click to select multiple")
                         .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppColors.inkMuted)
                 }
                 if !selectedStoneIDs.isEmpty {
                     Text("(\(selectedStoneIDs.count) selected)")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppColors.inkMuted)
                 }
                 Spacer()
                 Button(selectedStoneIDs.isEmpty ? "Select" : "Add \(selectedStoneIDs.count) Stone\(selectedStoneIDs.count == 1 ? "" : "s")") {
                     confirmSelection()
                 }
                 .disabled(!hasValidSelection)
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(GradientButtonStyle())
                 .keyboardShortcut(.defaultAction)
                 Button("Cancel") { dismiss() }
+                    .buttonStyle(OutlineGlassButtonStyle())
                     .keyboardShortcut(.cancelAction)
             }
             .padding(.horizontal)
@@ -115,12 +117,13 @@ struct InventorySelectSheet: View {
                         ? "All stones are on memo or sold. Add stones or return some from memos."
                         : "No stones match your search or filter.")
                 )
+                .foregroundStyle(AppColors.inkMuted)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         inventoryHeader
-                        Divider()
+                        Divider().overlay(AppColors.cardStroke)
                         ForEach(filteredStones, id: \.id) { stone in
                             inventoryRow(stone)
                                 .contentShape(Rectangle())
@@ -136,22 +139,22 @@ struct InventorySelectSheet: View {
             }
         }
         .frame(minWidth: 720, minHeight: 420)
-        .background(Color(nsColor: .windowBackgroundColor))
+        .background(AppColors.background)
     }
 
     private var inventoryHeader: some View {
         HStack(spacing: 0) {
             Color.clear.frame(width: 28)
-            Text("SKU").font(.caption.bold()).foregroundStyle(.secondary).frame(width: 100, alignment: .leading)
-            Text("Type").font(.caption.bold()).foregroundStyle(.secondary).frame(width: 90, alignment: .leading)
-            Text("Carat").font(.caption.bold()).foregroundStyle(.secondary).frame(width: 70, alignment: .trailing)
-            Text("Color").font(.caption.bold()).foregroundStyle(.secondary).frame(width: 80, alignment: .leading)
-            Text("Shape").font(.caption.bold()).foregroundStyle(.secondary).frame(width: 90, alignment: .leading)
-            Text("Sell Price").font(.caption.bold()).foregroundStyle(.secondary).frame(width: 90, alignment: .trailing)
+            Text("SKU").font(.caption.bold()).foregroundStyle(AppColors.inkSubtle).frame(width: 100, alignment: .leading)
+            Text("Type").font(.caption.bold()).foregroundStyle(AppColors.inkSubtle).frame(width: 90, alignment: .leading)
+            Text("Carat").font(.caption.bold()).foregroundStyle(AppColors.inkSubtle).frame(width: 70, alignment: .trailing)
+            Text("Color").font(.caption.bold()).foregroundStyle(AppColors.inkSubtle).frame(width: 80, alignment: .leading)
+            Text("Shape").font(.caption.bold()).foregroundStyle(AppColors.inkSubtle).frame(width: 90, alignment: .leading)
+            Text("Sell Price").font(.caption.bold()).foregroundStyle(AppColors.inkSubtle).frame(width: 90, alignment: .trailing)
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 8)
-        .background(Color(white: 0.94))
+        .background(AppColors.cardBackground)
     }
 
     private func toggleSelection(_ stone: Gemstone) {
@@ -172,32 +175,32 @@ struct InventorySelectSheet: View {
         let isSelected = selectedStoneIDs.contains(stone.id)
         return HStack(spacing: 0) {
             Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                .foregroundStyle(isSelected ? Color.accentColor : .secondary)
+                .foregroundStyle(isSelected ? AppColors.primary : AppColors.inkSubtle)
                 .frame(width: 28, alignment: .center)
             Text(stone.sku)
                 .font(.system(.body, design: .monospaced))
+                .foregroundStyle(AppColors.ink)
                 .frame(width: 100, alignment: .leading)
             Text(stone.stoneType.rawValue)
+                .foregroundStyle(AppColors.ink)
                 .frame(width: 90, alignment: .leading)
             Text(String(format: "%.2f", stone.caratWeight))
                 .monospacedDigit()
+                .foregroundStyle(AppColors.ink)
                 .frame(width: 70, alignment: .trailing)
             Text(stone.color)
+                .foregroundStyle(AppColors.ink)
                 .frame(width: 80, alignment: .leading)
             Text(shapeDisplay(stone))
+                .foregroundStyle(AppColors.ink)
                 .frame(width: 90, alignment: .leading)
-            Text(formatCurrency(stone.sellPrice))
+            Text(stone.sellPrice.asCurrency)
+                .foregroundStyle(AppColors.ink)
                 .frame(width: 90, alignment: .trailing)
         }
         .padding(.vertical, 6)
         .padding(.horizontal, 8)
-        .background(isSelected ? Color.accentColor.opacity(0.15) : Color.clear)
+        .background(isSelected ? AppColors.primary.opacity(0.10) : Color.clear)
     }
 
-    private func formatCurrency(_ value: Decimal) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
-        return formatter.string(from: value as NSDecimalNumber) ?? "$0"
-    }
 }
