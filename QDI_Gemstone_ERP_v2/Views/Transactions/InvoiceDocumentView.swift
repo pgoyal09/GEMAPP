@@ -133,6 +133,7 @@ struct InvoiceDocumentView: View {
                                 ForEach(allCustomers) { c in Text(c.displayName).tag(Customer?.some(c)) }
                             }
                             .labelsHidden()
+                            .accessibilityLabel("Select Customer")
                             .disabled(!isEditable)
                             Button(action: { showAddCustomerSheet = true }) {
                                 Image(systemName: "plus.circle").foregroundStyle(AppColors.primary)
@@ -158,6 +159,7 @@ struct InvoiceDocumentView: View {
                             Text("COD").tag("COD")
                         }
                         .labelsHidden()
+                        .accessibilityLabel("Payment Terms")
                         .disabled(!isEditable)
                         .onChange(of: invoice.terms) { _, _ in markDirty() }
                     }
@@ -294,6 +296,7 @@ struct InvoiceDocumentView: View {
             if invoice.status != .void {
                 Button("Void") { showVoidConfirm = true }
                     .buttonStyle(.outline(AppColors.danger))
+                    .help("Cancel this invoice and return items to inventory")
             }
 
             Spacer()
@@ -310,12 +313,14 @@ struct InvoiceDocumentView: View {
                     }
                 }
                 .buttonStyle(.gradient(AppColors.emeraldGradient))
+                .help("Record payment received for this invoice")
             }
 
             Button("Export PDF") { exportPDF() }
                 .buttonStyle(.outline)
                 .disabled(isGeneratingPDF)
                 .keyboardShortcut("p", modifiers: .command)
+                .help("Generate a PDF document for printing or emailing")
 
             Button("Cancel") { dismiss() }
                 .buttonStyle(.outline)

@@ -78,6 +78,7 @@ struct CustomerListView: View {
                                     if !customer.email.isEmpty {
                                         HStack(spacing: 4) {
                                             Image(systemName: "envelope").font(.system(size: 10))
+                                                .accessibilityLabel("Email")
                                             Text(customer.email).lineLimit(1)
                                         }
                                         .font(AppTypography.caption)
@@ -86,6 +87,7 @@ struct CustomerListView: View {
                                     if !customer.phone.isEmpty {
                                         HStack(spacing: 4) {
                                             Image(systemName: "phone").font(.system(size: 10))
+                                                .accessibilityLabel("Phone")
                                             Text(customer.phone).lineLimit(1)
                                         }
                                         .font(AppTypography.caption)

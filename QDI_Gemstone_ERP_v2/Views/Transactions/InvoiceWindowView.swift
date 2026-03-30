@@ -19,10 +19,26 @@ struct InvoiceWindowView: View {
         .frame(minWidth: 1100, minHeight: 760)
         .appBackground()
         .preferredColorScheme(.dark)
+        .onDisappear {
+            cleanupEmptyInvoice()
+        }
     }
 
     private func fetchInvoice() -> Invoice? {
         let descriptor = FetchDescriptor<Invoice>()
         return (try? modelContext.fetch(descriptor))?.first { $0.persistentModelID == invoiceID }
+    }
+
+    /// Mirror of MemoWindowView cleanup: delete invoices with 0 line items on dismiss.
+    private func cleanupEmptyInvoice() {
+        guard let invoice = fetchInvoice() else { return }
+        if invoice.lineItems.isEmpty && invoice.status == .draft {
+            modelContext.delete(invoice)
+            do {
+                try modelContext.save()
+            } catch {
+                print("Failed to cleanup empty invoice: \(error.localizedDescription)")
+            }
+        }
     }
 }

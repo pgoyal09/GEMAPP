@@ -72,6 +72,7 @@ struct DashboardView: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("Generate New Mock Data")
         .disabled(isResetting)
     }
 

@@ -153,6 +153,7 @@ struct InventoryListView: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("Toggle Filters")
     }
 
     // MARK: - Active Filter Pills
@@ -176,6 +177,7 @@ struct InventoryListView: View {
                                     .foregroundStyle(AppColors.primary.opacity(0.6))
                             }
                             .buttonStyle(.plain)
+                            .accessibilityLabel("Remove \(pill.label) filter")
                         }
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)

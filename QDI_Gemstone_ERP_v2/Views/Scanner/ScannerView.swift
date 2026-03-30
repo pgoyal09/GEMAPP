@@ -35,6 +35,7 @@ struct ScannerView: View {
                         .fill(viewModel.isScanning ? AppColors.success : AppColors.inkSubtle)
                         .frame(width: 12, height: 12)
                 }
+                .accessibilityLabel(viewModel.isScanning ? "Scanner Active" : "Scanner Idle")
                 VStack(alignment: .leading, spacing: 4) {
                     Text(viewModel.isScanning ? "Scanning Active" : "Scanner Idle")
                         .font(AppTypography.subheading)
@@ -47,12 +48,15 @@ struct ScannerView: View {
                 if viewModel.isScanning {
                     Button("Stop") { viewModel.stopScanning() }
                         .buttonStyle(.outline(AppColors.danger))
+                        .accessibilityLabel("Stop Scanning")
                 } else {
                     Button("Start Scanning") { viewModel.startScanning() }
                         .buttonStyle(.gradient)
+                        .accessibilityLabel("Start RFID Scanning")
                 }
                 Button("Clear") { viewModel.clearDiscoveredTags() }
                     .buttonStyle(.outline)
+                    .accessibilityLabel("Clear Scanned Tags")
             }
         }
     }

@@ -34,6 +34,7 @@ struct QuickActionCard: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(title)
     }
 }
 
@@ -56,13 +57,19 @@ struct QuickActionsGrid: View {
                         navigateTo = .reviewQueue
                     }
                     QuickActionCard(title: "New Memo", icon: "doc.text.fill", gradient: AppColors.amberGradient) {
-                        if let memo = try? TransactionService.createMemo(modelContext: modelContext) {
+                        do {
+                            let memo = try TransactionService.createMemo(modelContext: modelContext)
                             openWindow(id: "memo", value: memo.persistentModelID)
+                        } catch {
+                            print("Failed to create memo: \(error.localizedDescription)")
                         }
                     }
                     QuickActionCard(title: "New Invoice", icon: "doc.richtext.fill", gradient: AppColors.roseGradient) {
-                        if let inv = try? TransactionService.createInvoice(modelContext: modelContext) {
+                        do {
+                            let inv = try TransactionService.createInvoice(modelContext: modelContext)
                             openWindow(id: "invoice", value: inv.persistentModelID)
+                        } catch {
+                            print("Failed to create invoice: \(error.localizedDescription)")
                         }
                     }
                     QuickActionCard(title: "Inventory", icon: "square.grid.2x2.fill", gradient: AppColors.primaryGradient) {

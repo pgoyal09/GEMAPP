@@ -175,9 +175,13 @@ final class Gemstone {
     var isLot: Bool { grouping == .lot }
 
     /// Effective remaining carats for lots. Falls back to caratWeight if not yet set.
+    /// Rounded to 4 decimal places to prevent floating-point drift.
     var effectiveRemainingCarats: Double {
-        get { remainingCarats ?? caratWeight }
-        set { remainingCarats = newValue }
+        get {
+            let result = remainingCarats ?? caratWeight
+            return (result * 10000).rounded() / 10000
+        }
+        set { remainingCarats = (newValue * 10000).rounded() / 10000 }
     }
 
     /// Effective average cost per carat. Falls back to costPrice / caratWeight.

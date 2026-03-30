@@ -296,7 +296,11 @@ struct LotInventoryView: View {
                 .buttonStyle(.outline)
 
                 GradientButton(title: "Add") {
-                    try? viewModel.addQuantity(to: lot, modelContext: modelContext)
+                    do {
+                        try viewModel.addQuantity(to: lot, modelContext: modelContext)
+                    } catch {
+                        print("Failed to add quantity: \(error.localizedDescription)")
+                    }
                 }
             }
         }

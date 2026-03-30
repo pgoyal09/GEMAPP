@@ -40,6 +40,7 @@ struct SidebarView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityLabel("Settings")
             .overlay(alignment: .top) {
                 Divider().background(Color.white.opacity(0.06))
             }
@@ -119,6 +120,7 @@ struct SidebarView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(item.rawValue)
         .tag(item)
     }
 }

@@ -67,6 +67,7 @@ struct StoneFormView: View {
                             ForEach(StoneType.allCases, id: \.self) { Text($0.rawValue).tag($0.rawValue) }
                         }
                         .labelsHidden()
+                        .accessibilityLabel("Stone Type")
                         .onChange(of: viewModel.stoneTypeText) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
                     }
                     VStack(alignment: .leading, spacing: 4) {
@@ -80,6 +81,7 @@ struct StoneFormView: View {
                             ForEach(StoneGrouping.allCases, id: \.self) { Text($0.displayName).tag($0) }
                         }
                         .labelsHidden()
+                        .accessibilityLabel("Stone Grouping")
                         .onChange(of: viewModel.grouping) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
                     }
                 }
@@ -155,6 +157,7 @@ struct StoneFormView: View {
                 Toggle("Has Certificate", isOn: $viewModel.hasCert)
                     .toggleStyle(.checkbox)
                     .foregroundStyle(AppColors.inkMuted)
+                    .accessibilityLabel("Has Certificate")
                 if viewModel.hasCert {
                     HStack(spacing: AppSpacing.m) {
                         field("Lab", $viewModel.certLab)
@@ -210,14 +213,24 @@ struct StoneFormView: View {
 
             if case .intake = viewModel.mode {
                 Button("Save & Continue") {
-                    try? viewModel.saveAndContinue(modelContext: modelContext)
+                    do {
+                        try viewModel.saveAndContinue(modelContext: modelContext)
+                    } catch {
+                        viewModel.toastMessage = "Save failed: \(error.localizedDescription)"
+                        viewModel.toastIsError = true
+                    }
                 }
                 .buttonStyle(.outline(AppColors.primary))
             }
 
             Button("Save") {
-                try? viewModel.save(modelContext: modelContext)
-                if viewModel.toastIsError == false { dismiss() }
+                do {
+                    try viewModel.save(modelContext: modelContext)
+                    if viewModel.toastIsError == false { dismiss() }
+                } catch {
+                    viewModel.toastMessage = "Save failed: \(error.localizedDescription)"
+                    viewModel.toastIsError = true
+                }
             }
             .buttonStyle(.gradient)
             .disabled(!viewModel.canSave)

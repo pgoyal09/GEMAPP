@@ -149,7 +149,11 @@ struct CustomerFormSheet: View {
                 address: address.trimmed, city: city.trimmed, country: country.trimmed, zip: zip.trimmed
             )
             modelContext.insert(customer)
-            try? modelContext.save()
+            do {
+                try modelContext.save()
+            } catch {
+                print("Failed to save new customer: \(error.localizedDescription)")
+            }
             onSave?(customer)
         case .edit(let c):
             c.firstName = firstName.trimmed
@@ -161,7 +165,11 @@ struct CustomerFormSheet: View {
             c.city = city.trimmed
             c.country = country.trimmed
             c.zip = zip.trimmed
-            try? modelContext.save()
+            do {
+                try modelContext.save()
+            } catch {
+                print("Failed to save customer edits: \(error.localizedDescription)")
+            }
             onSave?(c)
         }
         dismiss()

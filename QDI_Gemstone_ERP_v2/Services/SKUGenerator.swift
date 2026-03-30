@@ -96,12 +96,20 @@ enum SKUGenerator {
 
     @MainActor
     private static func nextSequence(prefix: String, modelContext: ModelContext) -> Int {
-        let descriptor = FetchDescriptor<Gemstone>()
-        let all = (try? modelContext.fetch(descriptor)) ?? []
-        let nums = all
-            .filter { $0.sku.hasPrefix(prefix) }
-            .compactMap { Int(String($0.sku.dropFirst(prefix.count))) }
-        return (nums.max() ?? 0) + 1
+        // Optimized: fetch only the latest SKU for this prefix instead of full table scan.
+        // Use a predicate that checks hasPrefix, sort descending, fetchLimit 1.
+        let prefixStr = prefix
+        var descriptor = FetchDescriptor<Gemstone>(
+            predicate: #Predicate<Gemstone> { $0.sku.starts(with: prefixStr) },
+            sortBy: [SortDescriptor(\.sku, order: .reverse)]
+        )
+        descriptor.fetchLimit = 1
+        guard let results = try? modelContext.fetch(descriptor),
+              let latest = results.first else {
+            return 1
+        }
+        let seqString = String(latest.sku.dropFirst(prefix.count))
+        return (Int(seqString) ?? 0) + 1
     }
 
     @MainActor
@@ -110,16 +118,25 @@ enum SKUGenerator {
         excludingID: PersistentIdentifier? = nil,
         modelContext: ModelContext
     ) -> String {
-        let descriptor = FetchDescriptor<Gemstone>()
-        var all = (try? modelContext.fetch(descriptor)) ?? []
-        if let id = excludingID {
-            all = all.filter { $0.id != id }
-        }
-        let existingSKUs = Set(all.map(\.sku))
         var candidate = sku.trimmingCharacters(in: .whitespaces)
         if candidate.isEmpty { candidate = "TMP-OT-S-001" }
 
-        if !existingSKUs.contains(candidate) { return candidate }
+        // Optimized: check one SKU at a time with a targeted predicate + fetchLimit: 1
+        // instead of fetching ALL gemstones.
+        func skuExists(_ skuToCheck: String) -> Bool {
+            let check = skuToCheck
+            var desc = FetchDescriptor<Gemstone>(
+                predicate: #Predicate<Gemstone> { $0.sku == check }
+            )
+            desc.fetchLimit = 1
+            guard let matches = try? modelContext.fetch(desc) else { return false }
+            if let id = excludingID {
+                return matches.contains { $0.id != id }
+            }
+            return !matches.isEmpty
+        }
+
+        if !skuExists(candidate) { return candidate }
 
         let parts = candidate.split(separator: "-")
         let base = parts.count >= 4 ? parts.prefix(3).joined(separator: "-") + "-" : candidate + "-"
@@ -128,7 +145,7 @@ enum SKUGenerator {
         for _ in 0..<10_000 {
             seq += 1
             let attempt = base + String(format: "%03d", seq)
-            if !existingSKUs.contains(attempt) { return attempt }
+            if !skuExists(attempt) { return attempt }
         }
         return candidate
     }

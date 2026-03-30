@@ -18,7 +18,7 @@ enum LotService {
 
         let existingCarats = lot.effectiveRemainingCarats
         let existingCost = lot.effectiveAverageCost
-        let totalCarats = existingCarats + carats
+        let totalCarats = ((existingCarats + carats) * 10000).rounded() / 10000
         let newAvgCost = totalCarats > 0
             ? (existingCost * Decimal(existingCarats) + costPerCarat * Decimal(carats)) / Decimal(totalCarats)
             : costPerCarat

@@ -42,6 +42,7 @@ struct AccountingView: View {
                 }
             }
             .frame(width: 160)
+            .accessibilityLabel("Date Range")
             Button("Export CSV") { exportCSV() }
                 .buttonStyle(.outline)
         }
@@ -177,11 +178,15 @@ struct AccountingView: View {
         panel.allowedContentTypes = [.commaSeparatedText]
         panel.begin { response in
             if response == .OK, let url = panel.url {
-                try? csv.write(to: url, atomically: true, encoding: .utf8)
-                showExportSuccess = true
-                Task { @MainActor in
-                    try? await Task.sleep(for: .seconds(2))
-                    showExportSuccess = false
+                do {
+                    try csv.write(to: url, atomically: true, encoding: .utf8)
+                    showExportSuccess = true
+                    Task { @MainActor in
+                        try? await Task.sleep(for: .seconds(2))
+                        showExportSuccess = false
+                    }
+                } catch {
+                    print("Failed to export CSV: \(error.localizedDescription)")
                 }
             }
         }

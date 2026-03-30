@@ -195,7 +195,11 @@ struct ReviewQueueView: View {
     }
 
     private func saveAndNext() {
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            print("Failed to save review: \(error.localizedDescription)")
+        }
 
         guard let idx = currentIndex, idx + 1 < reviewStones.count else {
             showEditSheet = false

@@ -28,9 +28,32 @@ final class PDFService {
 
     private init() {}
 
+    // MARK: - Temp File Cleanup
+
+    /// Removes document-*.pdf files in the temp directory older than 1 hour.
+    static func cleanupStaleTempFiles() {
+        let tempDir = FileManager.default.temporaryDirectory
+        let fm = FileManager.default
+        guard let contents = try? fm.contentsOfDirectory(
+            at: tempDir, includingPropertiesForKeys: [.creationDateKey], options: .skipsHiddenFiles
+        ) else { return }
+
+        let oneHourAgo = Date().addingTimeInterval(-3600)
+        for fileURL in contents {
+            guard fileURL.lastPathComponent.hasPrefix("document-"),
+                  fileURL.pathExtension == "pdf" else { continue }
+            if let attrs = try? fm.attributesOfItem(atPath: fileURL.path),
+               let creationDate = attrs[.creationDate] as? Date,
+               creationDate < oneHourAgo {
+                try? fm.removeItem(at: fileURL)
+            }
+        }
+    }
+
     // MARK: - Public API
 
     func generatePDF(invoice: Invoice, completion: @escaping @Sendable (Result<URL, Error>) -> Void) {
+        Self.cleanupStaleTempFiles()
         let html = buildHTML(
             documentTitle: "INVOICE",
             companyName: companyName,
@@ -47,6 +70,7 @@ final class PDFService {
     }
 
     func generatePDF(memo: Memo, completion: @escaping @Sendable (Result<URL, Error>) -> Void) {
+        Self.cleanupStaleTempFiles()
         let html = buildHTML(
             documentTitle: "MEMO",
             companyName: companyName,
@@ -278,6 +302,17 @@ private final class PDFWebViewRunner: NSObject, WKNavigationDelegate {
     let completion: (Result<URL, Error>) -> Void
     private var webView: WKWebView?
     private var selfRetain: PDFWebViewRunner?
+    private var timeoutWorkItem: DispatchWorkItem?
+    private var didComplete: Bool = false
+
+    enum PDFError: LocalizedError {
+        case timeout
+        var errorDescription: String? {
+            switch self {
+            case .timeout: return "PDF generation timed out after 30 seconds"
+            }
+        }
+    }
 
     init(html: String, pageSize: CGSize, completion: @escaping @Sendable (Result<URL, Error>) -> Void) {
         self.html = html
@@ -293,6 +328,26 @@ private final class PDFWebViewRunner: NSObject, WKNavigationDelegate {
         webView = wv
         selfRetain = self
         wv.loadHTMLString(html, baseURL: nil)
+
+        // 30-second timeout
+        let timeout = DispatchWorkItem { [weak self] in
+            guard let self = self, !self.didComplete else { return }
+            self.didComplete = true
+            self.webView = nil
+            self.selfRetain = nil
+            self.completion(.failure(PDFError.timeout))
+        }
+        timeoutWorkItem = timeout
+        DispatchQueue.main.asyncAfter(deadline: .now() + 30, execute: timeout)
+    }
+
+    private func finish(with result: Result<URL, Error>) {
+        guard !didComplete else { return }
+        didComplete = true
+        timeoutWorkItem?.cancel()
+        webView = nil
+        selfRetain = nil
+        completion(result)
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -300,27 +355,23 @@ private final class PDFWebViewRunner: NSObject, WKNavigationDelegate {
         config.rect = CGRect(origin: .zero, size: pageSize)
         webView.createPDF(configuration: config) { [weak self] result in
             guard let self = self else { return }
-            self.webView = nil
-            self.selfRetain = nil
             switch result {
             case .success(let data):
                 do {
                     let fileName = "document-\(UUID().uuidString).pdf"
                     let url = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
                     try data.write(to: url)
-                    self.completion(.success(url))
+                    self.finish(with: .success(url))
                 } catch {
-                    self.completion(.failure(error))
+                    self.finish(with: .failure(error))
                 }
             case .failure(let error):
-                self.completion(.failure(error))
+                self.finish(with: .failure(error))
             }
         }
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        self.webView = nil
-        selfRetain = nil
-        completion(.failure(error))
+        finish(with: .failure(error))
     }
 }

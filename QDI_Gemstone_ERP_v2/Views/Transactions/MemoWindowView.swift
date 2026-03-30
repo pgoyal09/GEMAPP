@@ -33,7 +33,11 @@ struct MemoWindowView: View {
         guard let memo = fetchMemo() else { return }
         if memo.lineItems.isEmpty {
             modelContext.delete(memo)
-            try? modelContext.save()
+            do {
+                try modelContext.save()
+            } catch {
+                print("Failed to cleanup empty memo: \(error.localizedDescription)")
+            }
         }
     }
 }

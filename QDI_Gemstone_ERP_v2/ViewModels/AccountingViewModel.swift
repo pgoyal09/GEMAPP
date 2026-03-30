@@ -83,15 +83,26 @@ final class AccountingViewModel {
     // MARK: - Private
 
     private func loadRevenueAndCost(startDate: Date?, modelContext: ModelContext) {
-        let descriptor = FetchDescriptor<Invoice>()
-        guard let invoices = try? modelContext.fetch(descriptor) else {
-            totalRevenue = 0; totalCost = 0; return
+        // Optimized: use a predicate to fetch only paid/sent invoices
+        let paidStatus = InvoiceStatus.paid
+        let sentStatus = InvoiceStatus.sent
+        let descriptor: FetchDescriptor<Invoice>
+        if let start = startDate {
+            descriptor = FetchDescriptor<Invoice>(
+                predicate: #Predicate<Invoice> {
+                    ($0.status == paidStatus || $0.status == sentStatus) &&
+                    $0.invoiceDate >= start
+                }
+            )
+        } else {
+            descriptor = FetchDescriptor<Invoice>(
+                predicate: #Predicate<Invoice> {
+                    $0.status == paidStatus || $0.status == sentStatus
+                }
+            )
         }
-
-        let filtered = invoices.filter { inv in
-            guard inv.status == .paid || inv.status == .sent else { return false }
-            if let start = startDate { return inv.invoiceDate >= start }
-            return true
+        guard let filtered = try? modelContext.fetch(descriptor) else {
+            totalRevenue = 0; totalCost = 0; return
         }
 
         totalRevenue = filtered.reduce(Decimal.zero) { $0 + $1.totalAmount }
@@ -144,15 +155,30 @@ final class AccountingViewModel {
     }
 
     private func loadSalesByStoneType(startDate: Date?, modelContext: ModelContext) {
-        let descriptor = FetchDescriptor<Invoice>()
+        // Optimized: use predicate to fetch only paid/sent invoices
+        let paidStatus = InvoiceStatus.paid
+        let sentStatus = InvoiceStatus.sent
+        let descriptor: FetchDescriptor<Invoice>
+        if let start = startDate {
+            descriptor = FetchDescriptor<Invoice>(
+                predicate: #Predicate<Invoice> {
+                    ($0.status == paidStatus || $0.status == sentStatus) &&
+                    $0.invoiceDate >= start
+                }
+            )
+        } else {
+            descriptor = FetchDescriptor<Invoice>(
+                predicate: #Predicate<Invoice> {
+                    $0.status == paidStatus || $0.status == sentStatus
+                }
+            )
+        }
         guard let invoices = try? modelContext.fetch(descriptor) else {
             salesByStoneType = []; return
         }
 
         var map: [String: Decimal] = [:]
         for inv in invoices {
-            guard inv.status == .paid || inv.status == .sent else { continue }
-            if let start = startDate, inv.invoiceDate < start { continue }
             for item in inv.lineItems {
                 let type = item.stoneTypeDisplay
                 map[type, default: 0] += item.amount
@@ -164,7 +190,24 @@ final class AccountingViewModel {
     }
 
     private func loadMonthlySales(startDate: Date?, modelContext: ModelContext) {
-        let descriptor = FetchDescriptor<Invoice>()
+        // Optimized: use predicate to fetch only paid/sent invoices
+        let paidStatus = InvoiceStatus.paid
+        let sentStatus = InvoiceStatus.sent
+        let descriptor: FetchDescriptor<Invoice>
+        if let start = startDate {
+            descriptor = FetchDescriptor<Invoice>(
+                predicate: #Predicate<Invoice> {
+                    ($0.status == paidStatus || $0.status == sentStatus) &&
+                    $0.invoiceDate >= start
+                }
+            )
+        } else {
+            descriptor = FetchDescriptor<Invoice>(
+                predicate: #Predicate<Invoice> {
+                    $0.status == paidStatus || $0.status == sentStatus
+                }
+            )
+        }
         guard let invoices = try? modelContext.fetch(descriptor) else {
             monthlySales = []; return
         }
@@ -174,8 +217,6 @@ final class AccountingViewModel {
 
         var map: [String: Decimal] = [:]
         for inv in invoices {
-            guard inv.status == .paid || inv.status == .sent else { continue }
-            if let start = startDate, inv.invoiceDate < start { continue }
             let key = fmt.string(from: inv.invoiceDate)
             map[key, default: 0] += inv.totalAmount
         }

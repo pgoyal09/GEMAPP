@@ -115,6 +115,7 @@ struct MemoDocumentView: View {
                                 ForEach(allCustomers) { c in Text(c.displayName).tag(Customer?.some(c)) }
                             }
                             .labelsHidden()
+                            .accessibilityLabel("Select Customer")
                             Button(action: { showAddCustomerSheet = true }) {
                                 Image(systemName: "plus.circle").foregroundStyle(AppColors.primary)
                             }
@@ -252,6 +253,7 @@ struct MemoDocumentView: View {
                 markDirty()
             }
             .buttonStyle(.outline(.init(AppColors.warning)))
+            .help("Mark selected items as returned to inventory")
             Button("Convert to Invoice") {
                 let items = memo.lineItems.filter { selectedItemIDs.contains($0.persistentModelID) && $0.status == .open }
                 do {
@@ -264,6 +266,7 @@ struct MemoDocumentView: View {
                 selectedItemIDs.removeAll()
             }
             .buttonStyle(.gradient)
+            .help("Creates a new invoice from selected memo items")
         }
         .padding(.vertical, AppSpacing.xs)
     }
@@ -324,6 +327,7 @@ struct MemoDocumentView: View {
                 .buttonStyle(.outline)
                 .disabled(isGeneratingPDF)
                 .keyboardShortcut("p", modifiers: .command)
+                .help("Generate a PDF document for printing or emailing")
             Button("Cancel") {
                 dismiss()
             }

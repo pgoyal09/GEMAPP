@@ -50,27 +50,38 @@ final class DashboardViewModel {
     // MARK: - Private
 
     private func loadInventoryMetrics(modelContext: ModelContext) {
-        let descriptor = FetchDescriptor<Gemstone>()
-        guard let stones = try? modelContext.fetch(descriptor) else { return }
-
+        // Use fetchCount for snapshot counts instead of fetching all records
         var snap = InventorySnapshot()
-        var carats: Double = 0
-        var value: Decimal = 0
+        let availableStatus = GemstoneStatus.available
+        let onMemoStatus = GemstoneStatus.onMemo
+        let soldStatus = GemstoneStatus.sold
+        snap.availableCount = (try? modelContext.fetchCount(FetchDescriptor<Gemstone>(
+            predicate: #Predicate<Gemstone> { $0.status == availableStatus }
+        ))) ?? 0
+        snap.onMemoCount = (try? modelContext.fetchCount(FetchDescriptor<Gemstone>(
+            predicate: #Predicate<Gemstone> { $0.status == onMemoStatus }
+        ))) ?? 0
+        snap.soldCount = (try? modelContext.fetchCount(FetchDescriptor<Gemstone>(
+            predicate: #Predicate<Gemstone> { $0.status == soldStatus }
+        ))) ?? 0
+        inventorySnapshot = snap
 
-        for stone in stones {
-            switch stone.status {
-            case .available:
-                snap.availableCount += 1
-                carats += stone.isLot ? stone.effectiveRemainingCarats : stone.caratWeight
-                value += stone.sellPrice * Decimal(stone.caratWeight)
-            case .onMemo:
-                snap.onMemoCount += 1
-            case .sold:
-                snap.soldCount += 1
-            }
+        // Fetch only available stones for carats/value calculation
+        let availableDesc = FetchDescriptor<Gemstone>(
+            predicate: #Predicate<Gemstone> { $0.status == availableStatus }
+        )
+        guard let availableStones = try? modelContext.fetch(availableDesc) else {
+            totalCaratsInStock = 0
+            totalInventoryValue = 0
+            return
         }
 
-        inventorySnapshot = snap
+        var carats: Double = 0
+        var value: Decimal = 0
+        for stone in availableStones {
+            carats += stone.isLot ? stone.effectiveRemainingCarats : stone.caratWeight
+            value += stone.sellPrice * Decimal(stone.caratWeight)
+        }
         totalCaratsInStock = carats
         totalInventoryValue = value
     }
@@ -131,23 +142,22 @@ final class DashboardViewModel {
     }
 
     private func fetchOldestOpenMemos(modelContext: ModelContext) -> [OldestMemoItem] {
+        let onMemoStatus = MemoStatus.onMemo
         var descriptor = FetchDescriptor<Memo>(
+            predicate: #Predicate<Memo> { $0.status == onMemoStatus },
             sortBy: [SortDescriptor(\.createdAt, order: .forward)]
         )
-        descriptor.fetchLimit = 50
+        descriptor.fetchLimit = 5
         guard let memos = try? modelContext.fetch(descriptor) else { return [] }
 
-        return memos
-            .filter { $0.status == .onMemo }
-            .prefix(5)
-            .map { memo in
-                OldestMemoItem(
-                    id: memo.persistentModelID,
-                    referenceNumber: memo.referenceNumber,
-                    customerName: memo.customer?.displayName ?? "Unknown",
-                    ageDays: memo.ageInDays,
-                    openAmount: memo.openMemoAmount
-                )
-            }
+        return memos.map { memo in
+            OldestMemoItem(
+                id: memo.persistentModelID,
+                referenceNumber: memo.referenceNumber,
+                customerName: memo.customer?.displayName ?? "Unknown",
+                ageDays: memo.ageInDays,
+                openAmount: memo.openMemoAmount
+            )
+        }
     }
 }
