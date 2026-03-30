@@ -38,9 +38,48 @@ struct CustomerActivityView: View {
         return items.sorted { $0.date > $1.date }
     }
 
+    // MARK: - Summary Stats
+
+    private var lastMemoDate: Date? {
+        customer.memos.compactMap(\.dateAssigned).max()
+    }
+
+    private var lastInvoiceDate: Date? {
+        customer.invoices.map(\.invoiceDate).max()
+    }
+
+    private var outstandingBalance: Decimal {
+        customer.invoices
+            .filter { $0.status == .sent }
+            .reduce(Decimal.zero) { $0 + $1.grandTotal }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.s) {
             SectionHeader(title: "Activity Log")
+
+            // Summary stats
+            VStack(alignment: .leading, spacing: 4) {
+                if let memoDate = lastMemoDate {
+                    DetailRow(label: "Last Memo", value: memoDate.formatted(date: .abbreviated, time: .omitted))
+                }
+                if let invoiceDate = lastInvoiceDate {
+                    DetailRow(label: "Last Invoice", value: invoiceDate.formatted(date: .abbreviated, time: .omitted))
+                }
+                if outstandingBalance > 0 {
+                    HStack {
+                        Text("Outstanding")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.inkSubtle)
+                        Spacer()
+                        Text(outstandingBalance.asCurrency)
+                            .font(AppTypography.mono)
+                            .foregroundStyle(AppColors.danger)
+                    }
+                }
+            }
+            .padding(.bottom, AppSpacing.xs)
+
             if activities.isEmpty {
                 Text("No activity yet")
                     .font(AppTypography.caption)
