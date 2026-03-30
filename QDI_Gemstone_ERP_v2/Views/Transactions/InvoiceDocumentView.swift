@@ -51,7 +51,7 @@ struct InvoiceDocumentView: View {
                         try TransactionService.addStone(stone, to: invoice, modelContext: modelContext)
                         if stone.sellPrice == 0 { zeroPriceSkus.append(stone.sku) }
                     } catch {
-                        showToast("Failed to add stone: \(error.localizedDescription)", isError: true)
+                        showToast("Failed to add stone: \(ErrorMapper.userMessage(from: error))", isError: true)
                     }
                 }
                 if !zeroPriceSkus.isEmpty {
@@ -65,7 +65,7 @@ struct InvoiceDocumentView: View {
                 do {
                     try LotService.addToInvoice(lot, carats: carats, invoice: invoice, modelContext: modelContext)
                 } catch {
-                    showToast("Failed to add lot: \(error.localizedDescription)", isError: true)
+                    showToast("Failed to add lot: \(ErrorMapper.userMessage(from: error))", isError: true)
                 }
                 markDirty()
             }
@@ -83,7 +83,7 @@ struct InvoiceDocumentView: View {
                     try InvoiceService.deleteInvoice(invoice, modelContext: modelContext)
                     dismiss()
                 } catch {
-                    showToast("Failed to delete invoice: \(error.localizedDescription)", isError: true)
+                    showToast("Failed to delete invoice: \(ErrorMapper.userMessage(from: error))", isError: true)
                 }
             }
         }
@@ -93,7 +93,7 @@ struct InvoiceDocumentView: View {
                 do {
                     try InvoiceService.voidInvoice(invoice, modelContext: modelContext)
                 } catch {
-                    showToast("Failed to void invoice: \(error.localizedDescription)", isError: true)
+                    showToast("Failed to void invoice: \(ErrorMapper.userMessage(from: error))", isError: true)
                 }
             }
         }
@@ -218,7 +218,7 @@ struct InvoiceDocumentView: View {
                                         try TransactionService.removeLineItem(item, modelContext: modelContext)
                                         markDirty()
                                     } catch {
-                                        showToast("Failed to remove item: \(error.localizedDescription)", isError: true)
+                                        showToast("Failed to remove item: \(ErrorMapper.userMessage(from: error))", isError: true)
                                     }
                                 }
                             }
@@ -246,7 +246,7 @@ struct InvoiceDocumentView: View {
                     try TransactionService.addBrokeredLine(to: invoice, modelContext: modelContext)
                     markDirty()
                 } catch {
-                    showToast("Failed to add brokered line: \(error.localizedDescription)", isError: true)
+                    showToast("Failed to add brokered line: \(ErrorMapper.userMessage(from: error))", isError: true)
                 }
             }
             Button("Service") {
@@ -254,7 +254,7 @@ struct InvoiceDocumentView: View {
                     try TransactionService.addServiceLine(to: invoice, modelContext: modelContext)
                     markDirty()
                 } catch {
-                    showToast("Failed to add service line: \(error.localizedDescription)", isError: true)
+                    showToast("Failed to add service line: \(ErrorMapper.userMessage(from: error))", isError: true)
                 }
             }
         }
@@ -317,7 +317,7 @@ struct InvoiceDocumentView: View {
                         InvoiceService.markLotItemsAsSold(invoice: invoice, modelContext: modelContext)
                         NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
                     } catch {
-                        showToast("Failed to mark as paid: \(error.localizedDescription)", isError: true)
+                        showToast("Failed to mark as paid: \(ErrorMapper.userMessage(from: error))", isError: true)
                     }
                 }
                 .buttonStyle(.gradient(AppColors.emeraldGradient))
@@ -369,7 +369,7 @@ struct InvoiceDocumentView: View {
             dirtyTracker.clearDirty()
             NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
         } catch {
-            showToast("Failed to save invoice: \(error.localizedDescription)", isError: true)
+            showToast("Failed to save invoice: \(ErrorMapper.userMessage(from: error))", isError: true)
         }
     }
 
@@ -391,13 +391,13 @@ struct InvoiceDocumentView: View {
                                 }
                                 try FileManager.default.copyItem(at: tempURL, to: destURL)
                             } catch {
-                                pdfError = "Failed to save PDF: \(error.localizedDescription)"
+                                pdfError = "Failed to save PDF: \(ErrorMapper.userMessage(from: error))"
                             }
                         }
                         PDFService.shared.cleanupTempFile(at: tempURL)
                     }
                 case .failure(let error):
-                    pdfError = "PDF generation failed: \(error.localizedDescription)"
+                    pdfError = "PDF generation failed: \(ErrorMapper.userMessage(from: error))"
                 }
             }
         }
@@ -426,7 +426,7 @@ struct InvoiceDocumentView: View {
                         PDFService.shared.cleanupTempFile(at: tempURL)
                     }
                 case .failure(let error):
-                    pdfError = "PDF generation failed: \(error.localizedDescription)"
+                    pdfError = "PDF generation failed: \(ErrorMapper.userMessage(from: error))"
                 }
             }
         }

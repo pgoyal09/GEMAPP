@@ -89,7 +89,7 @@ struct UnknownTagAssignSheet: View {
             try rfidCoordinator?.assignTag(to: stone, modelContext: modelContext)
             dismiss()
         } catch {
-            errorMessage = "Failed to assign tag: \(error.localizedDescription)"
+            errorMessage = "Failed to assign tag: \(ErrorMapper.userMessage(from: error))"
         }
     }
 }

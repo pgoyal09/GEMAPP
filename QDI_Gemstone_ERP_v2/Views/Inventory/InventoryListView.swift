@@ -479,7 +479,7 @@ struct InventoryListView: View {
             openWindow(id: "memo", value: memo.persistentModelID)
         } catch {
             toastIsError = true
-            withAnimation { toastMessage = "Failed to create memo: \(error.localizedDescription)" }
+            withAnimation { toastMessage = "Failed to create memo: \(ErrorMapper.userMessage(from: error))" }
         }
     }
 
@@ -495,7 +495,7 @@ struct InventoryListView: View {
             openWindow(id: "invoice", value: invoice.persistentModelID)
         } catch {
             toastIsError = true
-            withAnimation { toastMessage = "Failed to create invoice: \(error.localizedDescription)" }
+            withAnimation { toastMessage = "Failed to create invoice: \(ErrorMapper.userMessage(from: error))" }
         }
     }
 }

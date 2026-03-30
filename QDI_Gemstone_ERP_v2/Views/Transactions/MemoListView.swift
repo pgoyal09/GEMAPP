@@ -207,7 +207,7 @@ struct MemoListView: View {
             openWindow(id: "memo", value: memo.persistentModelID)
         } catch {
             toastIsError = true
-            withAnimation { toastMessage = "Failed to create memo: \(error.localizedDescription)" }
+            withAnimation { toastMessage = "Failed to create memo: \(ErrorMapper.userMessage(from: error))" }
         }
     }
 }

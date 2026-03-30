@@ -13,14 +13,15 @@ extension String {
     }
 
     /// Escape a CSV field: wrap in quotes if it contains commas, quotes, or newlines.
-    /// Prepends a single quote if the field starts with a formula-injection character.
+    /// Prepends a tab character if the field starts with a formula-injection character
+    /// (`=`, `+`, `-`, `@`) to prevent spreadsheet formula injection.
     var csvEscaped: String {
         var value = self
-        // Guard against CSV formula injection
+        // Guard against CSV formula injection — tab prefix neutralizes formula interpretation
         if let first = value.first, "=+\u{2d}@".contains(first) {
-            value = "'" + value
+            value = "\t" + value
         }
-        if value.contains(",") || value.contains("\"") || value.contains("\n") {
+        if value.contains(",") || value.contains("\"") || value.contains("\n") || value.contains("\t") {
             return "\"\(value.replacingOccurrences(of: "\"", with: "\"\""))\""
         }
         return value

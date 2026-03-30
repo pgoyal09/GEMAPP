@@ -273,7 +273,7 @@ struct InvoiceListView: View {
             openWindow(id: "invoice", value: inv.persistentModelID)
         } catch {
             batchToastIsError = true
-            withAnimation { batchToastMessage = "Failed to create invoice: \(error.localizedDescription)" }
+            withAnimation { batchToastMessage = "Failed to create invoice: \(ErrorMapper.userMessage(from: error))" }
         }
     }
 }

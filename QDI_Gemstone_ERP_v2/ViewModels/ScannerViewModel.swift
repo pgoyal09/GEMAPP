@@ -139,7 +139,7 @@ final class ScannerViewModel {
             lastProcessResult = "Added to Memo #\(memo.referenceNumber)"
         } catch {
             scannerLog.error("Scanner memo creation failed: \(error.localizedDescription, privacy: .public)")
-            lastProcessResult = "Failed to save: \(error.localizedDescription)"
+            lastProcessResult = "Failed to save: \(ErrorMapper.userMessage(from: error))"
         }
     }
 
