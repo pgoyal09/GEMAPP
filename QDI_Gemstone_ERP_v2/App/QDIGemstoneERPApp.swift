@@ -7,6 +7,9 @@ extension Notification.Name {
     static let menuNewMemo = Notification.Name("menuNewMemo")
     static let menuNewInvoice = Notification.Name("menuNewInvoice")
     static let menuNewStone = Notification.Name("menuNewStone")
+    static let menuNewDiamond = Notification.Name("menuNewDiamond")
+    static let menuNewGemstone = Notification.Name("menuNewGemstone")
+    static let menuNewLot = Notification.Name("menuNewLot")
     static let menuToggleSidebar = Notification.Name("menuToggleSidebar")
     static let menuOpenSettings = Notification.Name("menuOpenSettings")
 }
@@ -97,28 +100,58 @@ struct QDIGemstoneERPApp: App {
         }
         .modelContainer(sharedModelContainer)
         .commands {
+            // File → New items
             CommandGroup(replacing: .newItem) {
-                Button("New Memo") {
-                    NotificationCenter.default.post(name: .menuNewMemo, object: nil)
+                Button("New Diamond") {
+                    NotificationCenter.default.post(name: .menuNewDiamond, object: nil)
                 }
                 .keyboardShortcut("n", modifiers: .command)
 
-                Button("New Invoice") {
-                    NotificationCenter.default.post(name: .menuNewInvoice, object: nil)
+                Button("New Gemstone") {
+                    NotificationCenter.default.post(name: .menuNewGemstone, object: nil)
                 }
                 .keyboardShortcut("n", modifiers: [.command, .shift])
 
-                Button("New Stone") {
-                    NotificationCenter.default.post(name: .menuNewStone, object: nil)
+                Button("New Lot") {
+                    NotificationCenter.default.post(name: .menuNewLot, object: nil)
                 }
                 .keyboardShortcut("n", modifiers: [.command, .option])
             }
+
+            // Edit → Undo / Redo
+            CommandGroup(replacing: .undoRedo) {
+                Button("Undo") {
+                    NSApp.sendAction(Selector(("undo:")), to: nil, from: nil)
+                }
+                .keyboardShortcut("z", modifiers: .command)
+
+                Button("Redo") {
+                    NSApp.sendAction(Selector(("redo:")), to: nil, from: nil)
+                }
+                .keyboardShortcut("z", modifiers: [.command, .shift])
+            }
+
+            // View → Toggle Sidebar
             CommandGroup(after: .sidebar) {
                 Button("Toggle Sidebar") {
                     NotificationCenter.default.post(name: .menuToggleSidebar, object: nil)
                 }
                 .keyboardShortcut("s", modifiers: [.command, .option])
             }
+
+            // Transactions menu
+            CommandMenu("Transactions") {
+                Button("New Memo") {
+                    NotificationCenter.default.post(name: .menuNewMemo, object: nil)
+                }
+                .keyboardShortcut("m", modifiers: .command)
+
+                Button("New Invoice") {
+                    NotificationCenter.default.post(name: .menuNewInvoice, object: nil)
+                }
+                .keyboardShortcut("i", modifiers: .command)
+            }
+
             CommandGroup(replacing: .appSettings) {
                 Button("Settings…") {
                     NotificationCenter.default.post(name: .menuOpenSettings, object: nil)

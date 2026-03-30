@@ -11,6 +11,11 @@ struct SoldInventoryView: View {
     @State private var showEditSheet = false
     @State private var editingStone: Gemstone?
 
+    // MARK: - Sort State
+
+    @State private var sortKey: String = "sku"
+    @State private var sortAscending: Bool = true
+
     // MARK: - Filter State
 
     @State private var typeToggle: SoldTypeToggle = .all
@@ -47,7 +52,31 @@ struct SoldInventoryView: View {
                 $0.currentLocation.lowercased().contains(q)
             }
         }
-        return result
+        return sortedStones(result)
+    }
+
+    private func sortedStones(_ stones: [Gemstone]) -> [Gemstone] {
+        stones.sorted { a, b in
+            let asc: Bool
+            switch sortKey {
+            case "type": asc = a.stoneType.rawValue.localizedCompare(b.stoneType.rawValue) == .orderedAscending
+            case "carat": asc = a.caratWeight < b.caratWeight
+            case "price": asc = a.sellPrice < b.sellPrice
+            case "cost": asc = a.costPrice < b.costPrice
+            case "margin":
+                let mA = a.costPrice > 0 ? ((a.sellPrice - a.costPrice) / a.costPrice) : 0
+                let mB = b.costPrice > 0 ? ((b.sellPrice - b.costPrice) / b.costPrice) : 0
+                asc = mA < mB
+            case "date": asc = a.createdAt < b.createdAt
+            default: asc = a.sku.localizedCompare(b.sku) == .orderedAscending
+            }
+            return sortAscending ? asc : !asc
+        }
+    }
+
+    private func toggleSort(_ key: String) {
+        if sortKey == key { sortAscending.toggle() }
+        else { sortKey = key; sortAscending = true }
     }
 
     private var selectedStone: Gemstone? {
@@ -132,19 +161,23 @@ struct SoldInventoryView: View {
 
     private var tableHeader: some View {
         HStack(spacing: 0) {
-            TableHeader(title: "SKU", width: TableColumn.sku, alignment: .leading)
-            TableHeader(title: "Type", width: TableColumn.type, alignment: .leading)
+            sortableHeader("SKU", key: "sku", width: TableColumn.sku, alignment: .leading)
+            sortableHeader("Type", key: "type", width: TableColumn.type, alignment: .leading)
             TableHeader(title: "Shape", width: TableColumn.shape, alignment: .leading)
-            TableHeader(title: "Carat", width: TableColumn.carat, alignment: .trailing)
+            sortableHeader("Carat", key: "carat", width: TableColumn.carat, alignment: .trailing)
             TableHeader(title: "Color", width: TableColumn.color, alignment: .leading)
-            TableHeader(title: "Ask $/ct", width: TableColumn.price, alignment: .trailing)
-            TableHeader(title: "Cost $/ct", width: TableColumn.price, alignment: .trailing)
-            TableHeader(title: "Margin%", width: TableColumn.margin, alignment: .trailing)
-            TableHeader(title: "Sold Date", width: TableColumn.date, alignment: .leading)
+            sortableHeader("Ask $/ct", key: "price", width: TableColumn.price, alignment: .trailing)
+            sortableHeader("Cost $/ct", key: "cost", width: TableColumn.price, alignment: .trailing)
+            sortableHeader("Margin%", key: "margin", width: TableColumn.margin, alignment: .trailing)
+            sortableHeader("Sold Date", key: "date", width: TableColumn.date, alignment: .leading)
             Spacer()
         }
         .padding(.horizontal, AppSpacing.m)
         .padding(.vertical, AppSpacing.s)
+    }
+
+    private func sortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment) -> TableHeader {
+        TableHeader(title: title, width: width, alignment: alignment, isSorted: sortKey == key, ascending: sortAscending, onTap: { toggleSort(key) })
     }
 
     private func stoneRow(_ stone: Gemstone) -> some View {

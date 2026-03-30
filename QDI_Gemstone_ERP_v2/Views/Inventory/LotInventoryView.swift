@@ -8,6 +8,8 @@ struct LotInventoryView: View {
     @State var viewModel = LotInventoryViewModel()
     @State private var showHistorySheet = false
     @State private var historyLot: Gemstone?
+    @State private var sortKey: String = "sku"
+    @State private var sortAscending: Bool = true
 
     // MARK: - Computed
 
@@ -16,7 +18,27 @@ struct LotInventoryView: View {
     }
 
     private var filteredLots: [Gemstone] {
-        viewModel.filtered(from: lots)
+        sortedLots(viewModel.filtered(from: lots))
+    }
+
+    private func sortedLots(_ lots: [Gemstone]) -> [Gemstone] {
+        lots.sorted { a, b in
+            let asc: Bool
+            switch sortKey {
+            case "type": asc = a.stoneType.rawValue.localizedCompare(b.stoneType.rawValue) == .orderedAscending
+            case "remaining": asc = a.effectiveRemainingCarats < b.effectiveRemainingCarats
+            case "avgCost": asc = a.effectiveAverageCost < b.effectiveAverageCost
+            case "sell": asc = a.sellPrice < b.sellPrice
+            case "value": asc = (a.sellPrice * Decimal(a.effectiveRemainingCarats)) < (b.sellPrice * Decimal(b.effectiveRemainingCarats))
+            default: asc = a.sku.localizedCompare(b.sku) == .orderedAscending
+            }
+            return sortAscending ? asc : !asc
+        }
+    }
+
+    private func toggleSort(_ key: String) {
+        if sortKey == key { sortAscending.toggle() }
+        else { sortKey = key; sortAscending = true }
     }
 
     private var selectedLot: Gemstone? {
@@ -111,16 +133,20 @@ struct LotInventoryView: View {
 
     private var tableHeader: some View {
         HStack(spacing: 0) {
-            TableHeader(title: "SKU", width: TableColumn.sku, alignment: .leading)
-            TableHeader(title: "Type", width: TableColumn.type, alignment: .leading)
-            TableHeader(title: "Remaining ct", width: TableColumn.carat + 20, alignment: .trailing)
-            TableHeader(title: "Avg Cost/ct", width: TableColumn.price, alignment: .trailing)
-            TableHeader(title: "Sell/ct", width: TableColumn.price, alignment: .trailing)
-            TableHeader(title: "Total Value", width: TableColumn.price, alignment: .trailing)
+            sortableHeader("SKU", key: "sku", width: TableColumn.sku, alignment: .leading)
+            sortableHeader("Type", key: "type", width: TableColumn.type, alignment: .leading)
+            sortableHeader("Remaining ct", key: "remaining", width: TableColumn.carat + 20, alignment: .trailing)
+            sortableHeader("Avg Cost/ct", key: "avgCost", width: TableColumn.price, alignment: .trailing)
+            sortableHeader("Sell/ct", key: "sell", width: TableColumn.price, alignment: .trailing)
+            sortableHeader("Total Value", key: "value", width: TableColumn.price, alignment: .trailing)
             Spacer()
         }
         .padding(.horizontal, AppSpacing.m)
         .padding(.vertical, AppSpacing.s)
+    }
+
+    private func sortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment) -> TableHeader {
+        TableHeader(title: title, width: width, alignment: alignment, isSorted: sortKey == key, ascending: sortAscending, onTap: { toggleSort(key) })
     }
 
     private func lotRow(_ lot: Gemstone) -> some View {

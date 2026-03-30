@@ -34,7 +34,7 @@ struct KPICardRow: View {
     var body: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 4), spacing: 16) {
             KPICard(title: "Total Carats", value: String(format: "%.2f", viewModel.totalCaratsInStock), unit: "ct")
-            KPICard(title: "Value on Memo", value: viewModel.totalValueOnMemo.asCurrency)
+            KPICard(title: "Value on Memo", value: viewModel.totalValueOnMemo.asCurrencyShort)
             KPICard(title: "Items on Memo", value: "\(viewModel.inventorySnapshot.onMemoCount)")
             KPICard(title: "Available", value: "\(viewModel.inventorySnapshot.availableCount)")
         }

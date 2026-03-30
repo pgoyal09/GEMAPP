@@ -106,6 +106,15 @@ struct AppShellView: View {
         .onReceive(NotificationCenter.default.publisher(for: .menuNewStone)) { _ in
             routeBinding.wrappedValue = .quickIntake
         }
+        .onReceive(NotificationCenter.default.publisher(for: .menuNewDiamond)) { _ in
+            routeBinding.wrappedValue = .quickIntake
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuNewGemstone)) { _ in
+            routeBinding.wrappedValue = .quickIntake
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuNewLot)) { _ in
+            routeBinding.wrappedValue = .quickIntake
+        }
         .onReceive(NotificationCenter.default.publisher(for: .menuToggleSidebar)) { _ in
             withAnimation(.easeInOut(duration: 0.2)) { showSidebar.toggle() }
         }

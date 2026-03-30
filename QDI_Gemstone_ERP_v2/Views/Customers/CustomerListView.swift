@@ -46,9 +46,9 @@ struct CustomerListView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     customerSortableHeader("Name", key: "name", width: TableColumn.customer)
-                    TableHeader(title: "Contact", width: TableColumn.description)
-                    TableHeader(title: "Open Memos", width: TableColumn.quantity)
-                    TableHeader(title: "Status", width: TableColumn.status)
+                    customerSortableHeader("Contact", key: "contact", width: TableColumn.description)
+                    customerSortableHeader("Open Memos", key: "memos", width: TableColumn.quantity)
+                    customerSortableHeader("Status", key: "status", width: TableColumn.status)
                     Spacer()
                 }
                 .padding(.horizontal, AppSpacing.m)

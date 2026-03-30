@@ -29,8 +29,12 @@ final class CustomerListViewModel: SortableViewModel {
         customers.sorted { a, b in
             let result: Bool
             switch sortKey {
-            case "company":
-                result = a.company.localizedCompare(b.company) == .orderedAscending
+            case "contact":
+                result = a.email.localizedCompare(b.email) == .orderedAscending
+            case "memos":
+                result = a.activeMemos.count < b.activeMemos.count
+            case "status":
+                result = (a.isActive ? 0 : 1) < (b.isActive ? 0 : 1)
             default: // "name"
                 result = a.displayName.localizedCompare(b.displayName) == .orderedAscending
             }
