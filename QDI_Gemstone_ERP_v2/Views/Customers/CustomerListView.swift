@@ -32,6 +32,7 @@ struct CustomerListView: View {
                 CustomerDetailPanel(customer: customer)
             }
         }
+        .accessibilityIdentifier("CustomerListView")
         .sheet(isPresented: $viewModel.showAddCustomerSheet) {
             CustomerFormSheet(mode: .add)
         }

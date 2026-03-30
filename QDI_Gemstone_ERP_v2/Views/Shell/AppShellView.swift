@@ -16,6 +16,7 @@ struct AppShellView: View {
     @AppStorage("onboardingComplete") private var onboardingComplete: Bool = false
     @AppStorage("companyName") private var companyName: String = ""
     @State private var showGlossary = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var resolvedColorScheme: ColorScheme? {
         switch appAppearance {
@@ -59,6 +60,7 @@ struct AppShellView: View {
         .environment(\.navigationGuard, navigationGuard)
         .appBackground()
         .frame(minWidth: 1000, minHeight: 700)
+        .accessibilityIdentifier("AppShellView")
         .preferredColorScheme(resolvedColorScheme)
         .sheet(isPresented: $showGlossary) {
             GlossaryView()
@@ -136,7 +138,8 @@ struct AppShellView: View {
             routeBinding.wrappedValue = .quickIntake
         }
         .onReceive(NotificationCenter.default.publisher(for: .menuToggleSidebar)) { _ in
-            withAnimation(.easeInOut(duration: 0.2)) { showSidebar.toggle() }
+            if reduceMotion { showSidebar.toggle() }
+            else { withAnimation(.easeInOut(duration: 0.2)) { showSidebar.toggle() } }
         }
         .onReceive(NotificationCenter.default.publisher(for: .menuOpenSettings)) { _ in
             routeBinding.wrappedValue = .settings

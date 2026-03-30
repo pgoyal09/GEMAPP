@@ -121,6 +121,7 @@ struct ScannerView: View {
                                     Image(systemName: "wave.3.right")
                                         .font(.system(size: 10))
                                         .foregroundStyle(AppColors.primary)
+                                        .accessibilityLabel("RFID Tag")
                                     Text(tag)
                                         .font(AppTypography.mono)
                                         .foregroundStyle(AppColors.inkMuted)

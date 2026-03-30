@@ -135,6 +135,7 @@ struct DiamondsInventoryView: View {
                 .frame(width: 296)
             }
         }
+        .accessibilityIdentifier("DiamondsInventoryView")
         .animation(.easeInOut(duration: 0.2), value: selectedStone?.persistentModelID)
         .overlay(alignment: .bottom) {
             if !selectedStones.isEmpty {
@@ -227,6 +228,7 @@ struct DiamondsInventoryView: View {
                 Image(systemName: "xmark").font(.system(size: 8, weight: .bold)).foregroundStyle(AppColors.primary.opacity(0.6))
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Remove \(label) filter")
         }
         .padding(.horizontal, 10).padding(.vertical, 5)
         .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(AppColors.primary.opacity(0.12)))

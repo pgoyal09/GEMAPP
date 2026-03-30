@@ -64,6 +64,7 @@ struct InventoryListView: View {
                 .frame(width: 296)
             }
         }
+        .accessibilityIdentifier("InventoryListView")
         .onAppear { viewModel.fetchPage(context: modelContext, mode: mode) }
         .animation(.easeInOut(duration: 0.2), value: viewModel.showFiltersPanel)
         .animation(.easeInOut(duration: 0.2), value: selectedStone?.persistentModelID)

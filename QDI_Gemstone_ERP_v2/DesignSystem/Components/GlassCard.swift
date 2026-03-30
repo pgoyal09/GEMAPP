@@ -1,17 +1,20 @@
 import SwiftUI
 
 /// Glass-morphism card container used throughout the app.
+/// Falls back to solid background when reduce-transparency is enabled.
 struct GlassCard<Content: View>: View {
     var padding: CGFloat = AppSpacing.l
     var cornerRadius: CGFloat = AppCornerRadius.m
     @ViewBuilder var content: Content
+
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     var body: some View {
         content
             .padding(padding)
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(AppColors.cardBackground)
+                    .fill(reduceTransparency ? AppColors.cardElevated : AppColors.cardBackground)
                     .overlay(
                         RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                             .strokeBorder(AppColors.cardStroke, lineWidth: 1)
@@ -27,6 +30,8 @@ struct SurfaceCard<Content: View>: View {
     var accent: Color? = nil
     @ViewBuilder var content: Content
 
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.m) {
             content
@@ -35,7 +40,7 @@ struct SurfaceCard<Content: View>: View {
         .background(
             ZStack {
                 RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
-                    .fill(AppColors.cardBackground)
+                    .fill(reduceTransparency ? AppColors.cardElevated : AppColors.cardBackground)
                 RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
                     .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                 if let accent {

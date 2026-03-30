@@ -7,18 +7,29 @@ struct HoverRow<Content: View>: View {
     @ViewBuilder let content: () -> Content
 
     @State private var isHovered = false
+    @FocusState private var isFocused: Bool
 
     var body: some View {
-        HStack(spacing: 0) {
-            content()
+        Button {
+            onTap?()
+        } label: {
+            HStack(spacing: 0) {
+                content()
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, AppSpacing.m)
+            .padding(.vertical, AppSpacing.s)
+            .background(rowBackground)
+            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.s, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: AppCornerRadius.s, style: .continuous)
+                    .strokeBorder(isFocused ? AppColors.primary : Color.clear, lineWidth: 2)
+            )
         }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, AppSpacing.m)
-        .padding(.vertical, AppSpacing.s)
-        .background(rowBackground)
-        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.s, style: .continuous))
+        .buttonStyle(.plain)
+        .focusable()
+        .focused($isFocused)
         .onHover { isHovered = $0 }
-        .onTapGesture { onTap?() }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(isSelected ? .isSelected : [])

@@ -37,6 +37,7 @@ struct MemoDocumentView: View {
             }
             bottomToolbar
         }
+        .accessibilityIdentifier("MemoDocumentView")
         .id(totalRefreshID)
         .onChange(of: memo.lineItems.count) { _, _ in totalRefreshID = UUID() }
         .sheet(isPresented: $showInventorySheet) {

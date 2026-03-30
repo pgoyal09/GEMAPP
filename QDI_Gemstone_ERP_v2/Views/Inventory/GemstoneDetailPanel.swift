@@ -23,6 +23,7 @@ struct GemstoneDetailPanel: View {
             .padding(AppSpacing.l)
         }
         .background(AppColors.panelBackground)
+        .accessibilityIdentifier("GemstoneDetailPanel")
     }
 
     // MARK: - Header

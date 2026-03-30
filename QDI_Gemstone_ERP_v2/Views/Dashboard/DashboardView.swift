@@ -29,6 +29,7 @@ struct DashboardView: View {
 
             DashboardInfoPanel(viewModel: viewModel)
         }
+        .accessibilityIdentifier("DashboardView")
         .sheet(isPresented: $showAddStoneSheet) {
             NavigationStack { StoneFormView(mode: .intake) }
                 .presentationDetents([.medium, .large])

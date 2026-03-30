@@ -19,6 +19,7 @@ struct CustomerDetailPanel: View {
         }
         .frame(width: 296)
         .background(Color.white.opacity(0.02))
+        .accessibilityIdentifier("CustomerDetailPanel")
         .overlay(alignment: .leading) {
             Divider().background(Color.white.opacity(0.06))
         }

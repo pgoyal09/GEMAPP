@@ -42,6 +42,7 @@ struct InvoiceDocumentView: View {
             }
             bottomToolbar
         }
+        .accessibilityIdentifier("InvoiceDocumentView")
         .id(totalRefreshID)
         .onChange(of: invoice.lineItems.count) { _, _ in totalRefreshID = UUID() }
         .sheet(isPresented: $showInventorySheet) {

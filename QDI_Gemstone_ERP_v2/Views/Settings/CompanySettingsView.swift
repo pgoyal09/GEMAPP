@@ -192,6 +192,7 @@ struct CompanySettingsView: View {
             .padding(24)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityIdentifier("CompanySettingsView")
         .alert("Restore from Backup?", isPresented: $showRestoreConfirm) {
             Button("Cancel", role: .cancel) { pendingRestoreURL = nil }
             Button("Replace All Data", role: .destructive) { performRestore() }

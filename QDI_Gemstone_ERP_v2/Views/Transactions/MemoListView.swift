@@ -13,6 +13,7 @@ struct MemoListView: View {
             toolbar
             memoTable
         }
+        .accessibilityIdentifier("MemoListView")
         .onAppear { viewModel.fetchPage(context: modelContext) }
         .onChange(of: viewModel.statusFilter) { _, _ in
             viewModel.refetch(context: modelContext)
