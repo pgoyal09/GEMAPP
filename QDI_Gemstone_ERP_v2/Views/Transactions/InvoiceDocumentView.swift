@@ -268,11 +268,80 @@ struct InvoiceDocumentView: View {
 
     private var totalsSection: some View {
         GlassCard(padding: AppSpacing.m) {
-            HStack {
-                Spacer()
-                Text("Total: \(invoice.totalAmount.asCurrency)")
-                    .font(AppTypography.heading)
-                    .foregroundStyle(AppColors.ink)
+            VStack(alignment: .trailing, spacing: AppSpacing.s) {
+                HStack {
+                    Spacer()
+                    VStack(alignment: .trailing, spacing: 4) {
+                        HStack {
+                            Text("Subtotal")
+                                .font(AppTypography.body)
+                                .foregroundStyle(AppColors.inkMuted)
+                            Text(invoice.totalBeforeDiscount.asCurrency)
+                                .font(AppTypography.mono)
+                                .foregroundStyle(AppColors.ink)
+                        }
+
+                        if isEditable || invoice.discountAmount > 0 {
+                            HStack(spacing: AppSpacing.s) {
+                                Text("Discount")
+                                    .font(AppTypography.body)
+                                    .foregroundStyle(AppColors.inkMuted)
+                                if isEditable {
+                                    TextField("0.00", value: $invoice.discountAmount, format: .number)
+                                        .glassField()
+                                        .frame(width: 100)
+                                        .multilineTextAlignment(.trailing)
+                                        .onChange(of: invoice.discountAmount) { _, _ in markDirty() }
+                                } else {
+                                    Text("−\(invoice.discountAmount.asCurrency)")
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(AppColors.danger)
+                                }
+                            }
+                        }
+
+                        if isEditable || invoice.taxRate > 0 {
+                            HStack(spacing: AppSpacing.s) {
+                                Text("Tax Rate %")
+                                    .font(AppTypography.body)
+                                    .foregroundStyle(AppColors.inkMuted)
+                                if isEditable {
+                                    TextField("0.0", value: $invoice.taxRate, format: .number)
+                                        .glassField()
+                                        .frame(width: 80)
+                                        .multilineTextAlignment(.trailing)
+                                        .onChange(of: invoice.taxRate) { _, _ in markDirty() }
+                                } else {
+                                    Text("\(invoice.taxRate)%")
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(AppColors.inkMuted)
+                                }
+                            }
+                        }
+
+                        if invoice.taxAmount > 0 {
+                            HStack {
+                                Text("Tax")
+                                    .font(AppTypography.body)
+                                    .foregroundStyle(AppColors.inkMuted)
+                                Text(invoice.taxAmount.asCurrency)
+                                    .font(AppTypography.mono)
+                                    .foregroundStyle(AppColors.ink)
+                            }
+                        }
+
+                        Divider().frame(width: 200)
+
+                        HStack {
+                            Text("Total")
+                                .font(AppTypography.heading)
+                                .foregroundStyle(AppColors.ink)
+                            Text(invoice.grandTotal.asCurrency)
+                                .font(AppTypography.heading)
+                                .foregroundStyle(AppColors.ink)
+                        }
+                    }
+                }
             }
         }
     }
@@ -369,6 +438,7 @@ struct InvoiceDocumentView: View {
             hasUnsavedEdits = false
             dirtyTracker.clearDirty()
             NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
+            NotificationCenter.default.post(name: .dataStoreDidChange, object: nil)
         } catch {
             showToast("Failed to save invoice: \(ErrorMapper.userMessage(from: error))", isError: true)
         }

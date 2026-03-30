@@ -105,6 +105,8 @@ final class StoneFormViewModel {
 
     var costPriceText: String = ""
     var sellPriceText: String = ""
+    var currencyType: CurrencyType = .usd
+    var exchangeRateText: String = "1"
 
     // MARK: - Media
 
@@ -231,6 +233,8 @@ final class StoneFormViewModel {
         if let stone = mode.existingStone {
             applyTo(stone)
             try modelContext.save()
+            NotificationCenter.default.post(name: .gemstoneDidChange, object: nil)
+            NotificationCenter.default.post(name: .dataStoreDidChange, object: nil)
             toastMessage = "Stone updated"
             toastIsError = false
         } else {
@@ -240,6 +244,8 @@ final class StoneFormViewModel {
             HistoryLogger.logQuietly(stone: stone, type: .dateAdded,
                                       message: "Added to inventory", modelContext: modelContext)
             try modelContext.save()
+            NotificationCenter.default.post(name: .gemstoneDidChange, object: nil)
+            NotificationCenter.default.post(name: .dataStoreDidChange, object: nil)
             toastMessage = "Stone saved"
             toastIsError = false
         }
@@ -321,6 +327,8 @@ final class StoneFormViewModel {
         height2Text = stone.height2.map { "\($0)" } ?? ""
         costPriceText = "\(stone.costPrice)"
         sellPriceText = "\(stone.sellPrice)"
+        currencyType = stone.currencyType
+        exchangeRateText = "\(stone.exchangeRate)"
         certificateImagePath = stone.certificateImagePath
         mediaPaths = stone.mediaPaths
     }
@@ -420,6 +428,8 @@ final class StoneFormViewModel {
         // Pricing
         stone.costPrice = costPrice
         stone.sellPrice = sellPrice
+        stone.currencyType = currencyType
+        stone.exchangeRate = Decimal(string: exchangeRateText) ?? 1
 
         // Lot inventory
         if isLot && stone.remainingCarats == nil {
@@ -480,6 +490,8 @@ final class StoneFormViewModel {
         height2Text = ""
         costPriceText = ""
         sellPriceText = ""
+        currencyType = .usd
+        exchangeRateText = "1"
         certificateImagePath = nil
         mediaPaths = []
         toastMessage = nil

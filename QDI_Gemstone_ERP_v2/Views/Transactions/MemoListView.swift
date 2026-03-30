@@ -17,6 +17,12 @@ struct MemoListView: View {
         .onChange(of: viewModel.statusFilter) { _, _ in
             viewModel.refetch(context: modelContext)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .memoOrInvoiceDidSave)) { _ in
+            viewModel.refetch(context: modelContext)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .dataStoreDidChange)) { _ in
+            viewModel.refetch(context: modelContext)
+        }
         .overlay {
             if let msg = toastMessage {
                 ToastOverlay(message: msg, isError: toastIsError)
@@ -125,6 +131,7 @@ struct MemoListView: View {
 
     private func memoRow(_ memo: Memo) -> some View {
         let isSelected = viewModel.selectedMemoID == memo.persistentModelID
+        let isOverdue = memo.status == .onMemo && memo.ageInDays >= 30
         return HoverRow(isSelected: isSelected, onTap: {
             viewModel.selectedMemoID = memo.persistentModelID
         }) {
@@ -156,11 +163,23 @@ struct MemoListView: View {
                 .frame(width: TableColumn.price, alignment: .trailing)
             memoStatusBadge(memo.status)
                 .frame(width: TableColumn.status, alignment: .leading)
+            if isOverdue {
+                Button("Follow Up") {
+                    followUpMemo(memo)
+                }
+                .font(AppTypography.caption)
+                .buttonStyle(.outline(AppColors.warning))
+                .help("Open memo for follow-up — overdue \(memo.ageInDays) days")
+            }
             Spacer()
         }
         .simultaneousGesture(TapGesture(count: 2).onEnded {
             openWindow(id: "memo", value: memo.persistentModelID)
         })
+    }
+
+    private func followUpMemo(_ memo: Memo) {
+        openWindow(id: "memo", value: memo.persistentModelID)
     }
 
     private func memoStatusBadge(_ status: MemoStatus) -> some View {

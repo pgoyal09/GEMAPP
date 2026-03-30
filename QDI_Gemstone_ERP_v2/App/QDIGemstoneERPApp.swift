@@ -40,6 +40,10 @@ struct QDIGemstoneERPApp: App {
     private static var migrationErrorMessage = ""
 
     var sharedModelContainer: ModelContainer = {
+        // groupAppContainerIdentifier is nil so all windows share one store.
+        // Multi-window consistency is achieved via NotificationCenter-based refresh:
+        // each document window posts .dataStoreDidChange on save; list views
+        // observe it and re-fetch, preventing stale data across windows.
         let config = ModelConfiguration(schema: schema, url: storeURL)
         do {
             return try ModelContainer(for: schema, configurations: [config])

@@ -377,6 +377,7 @@ struct MemoDocumentView: View {
             hasUnsavedEdits = false
             dirtyTracker.clearDirty()
             NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
+            NotificationCenter.default.post(name: .dataStoreDidChange, object: nil)
         } catch {
             showToast("Failed to save memo: \(ErrorMapper.userMessage(from: error))", isError: true)
         }

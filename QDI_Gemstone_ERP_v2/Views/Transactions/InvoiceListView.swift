@@ -23,6 +23,12 @@ struct InvoiceListView: View {
         .onChange(of: viewModel.statusFilter) { _, _ in
             viewModel.refetch(context: modelContext)
         }
+        .onReceive(NotificationCenter.default.publisher(for: .memoOrInvoiceDidSave)) { _ in
+            viewModel.refetch(context: modelContext)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .dataStoreDidChange)) { _ in
+            viewModel.refetch(context: modelContext)
+        }
         .overlay {
             if let msg = batchToastMessage {
                 ToastOverlay(message: msg, isError: batchToastIsError)
@@ -207,49 +213,35 @@ struct InvoiceListView: View {
         let total = filtered.count
 
         Task { @MainActor in
-            let maxConcurrency = 3
-            var idx = 0
-
-            // Process in batches of maxConcurrency
-            while idx < filtered.count {
-                let batchEnd = min(idx + maxConcurrency, filtered.count)
-                let batch = Array(filtered[idx..<batchEnd])
-                idx = batchEnd
-
-                await withTaskGroup(of: Bool.self) { group in
-                    for invoice in batch {
-                        let refNum = invoice.referenceNumber
-                        group.addTask { @MainActor in
-                            await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
-                                PDFService.shared.generatePDF(invoice: invoice) { result in
-                                    switch result {
-                                    case .success(let tempURL):
-                                        let destURL = folder.appendingPathComponent("Invoice-\(refNum).pdf")
-                                        do {
-                                            let fm = FileManager.default
-                                            if fm.fileExists(atPath: destURL.path) {
-                                                try fm.removeItem(at: destURL)
-                                            }
-                                            try fm.copyItem(at: tempURL, to: destURL)
-                                        } catch {
-                                            continuation.resume(returning: false)
-                                            PDFService.shared.cleanupTempFile(at: tempURL)
-                                            return
-                                        }
-                                        PDFService.shared.cleanupTempFile(at: tempURL)
-                                        continuation.resume(returning: true)
-                                    case .failure:
-                                        continuation.resume(returning: false)
+            for invoice in filtered {
+                let refNum = invoice.referenceNumber
+                let success: Bool = await withCheckedContinuation { (continuation: CheckedContinuation<Bool, Never>) in
+                    PDFService.shared.generatePDF(invoice: invoice) { result in
+                        DispatchQueue.main.async {
+                            switch result {
+                            case .success(let tempURL):
+                                let destURL = folder.appendingPathComponent("Invoice-\(refNum).pdf")
+                                do {
+                                    let fm = FileManager.default
+                                    if fm.fileExists(atPath: destURL.path) {
+                                        try fm.removeItem(at: destURL)
                                     }
+                                    try fm.copyItem(at: tempURL, to: destURL)
+                                } catch {
+                                    continuation.resume(returning: false)
+                                    PDFService.shared.cleanupTempFile(at: tempURL)
+                                    return
                                 }
+                                PDFService.shared.cleanupTempFile(at: tempURL)
+                                continuation.resume(returning: true)
+                            case .failure:
+                                continuation.resume(returning: false)
                             }
                         }
                     }
-                    for await success in group {
-                        if !success { batchFailed += 1 }
-                        batchCompleted += 1
-                    }
                 }
+                if !success { batchFailed += 1 }
+                batchCompleted += 1
             }
 
             isExportingBatch = false

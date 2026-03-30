@@ -28,8 +28,18 @@ enum AppConstants {
     // MARK: - Notifications
 
     static let memoOrInvoiceDidSave = Notification.Name("com.qdi.gemapp.memoOrInvoiceDidSave")
+    /// Posted when a gemstone is created, edited, or deleted so other windows can refresh.
+    static let gemstoneDidChange = Notification.Name("com.qdi.gemapp.gemstoneDidChange")
+    /// Posted when a customer record is modified.
+    static let customerDidChange = Notification.Name("com.qdi.gemapp.customerDidChange")
+    /// Generic data-change notification for cross-window refresh when the specific
+    /// entity type does not matter (e.g. inventory lists observing any save).
+    static let dataStoreDidChange = Notification.Name("com.qdi.gemapp.dataStoreDidChange")
 }
 
 extension Notification.Name {
     static let memoOrInvoiceDidSave = AppConstants.memoOrInvoiceDidSave
+    static let gemstoneDidChange = AppConstants.gemstoneDidChange
+    static let customerDidChange = AppConstants.customerDidChange
+    static let dataStoreDidChange = AppConstants.dataStoreDidChange
 }
