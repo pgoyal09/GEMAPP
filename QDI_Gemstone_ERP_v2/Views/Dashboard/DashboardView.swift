@@ -51,7 +51,7 @@ struct DashboardView: View {
         .overlay {
             if let msg = toastMessage {
                 ToastOverlay(message: msg)
-                    .animation(.easeInOut(duration: 0.3), value: toastMessage)
+                    .animation(AppAnimation.standard, value: toastMessage)
             }
         }
     }

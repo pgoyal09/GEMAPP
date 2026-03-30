@@ -25,11 +25,15 @@ struct HoverRow<Content: View>: View {
                 RoundedRectangle(cornerRadius: AppCornerRadius.s, style: .continuous)
                     .strokeBorder(isFocused ? AppColors.primary : Color.clear, lineWidth: 2)
             )
+            .scaleEffect(isHovered ? 1.005 : 1.0)
+            .shadow(color: isHovered ? AppColors.softShadow.opacity(0.3) : Color.clear, radius: isHovered ? 4 : 0, y: 1)
         }
         .buttonStyle(.plain)
         .focusable()
         .focused($isFocused)
-        .onHover { isHovered = $0 }
+        .onHover { hovering in
+            withAnimation(AppAnimation.fast) { isHovered = hovering }
+        }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(isSelected ? .isSelected : [])

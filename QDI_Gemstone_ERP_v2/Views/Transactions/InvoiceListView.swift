@@ -33,7 +33,7 @@ struct InvoiceListView: View {
         .overlay {
             if let msg = batchToastMessage {
                 ToastOverlay(message: msg, isError: batchToastIsError)
-                    .animation(.easeInOut, value: batchToastMessage)
+                    .animation(AppAnimation.standard, value: batchToastMessage)
             }
         }
     }

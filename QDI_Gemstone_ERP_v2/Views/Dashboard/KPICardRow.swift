@@ -16,6 +16,7 @@ struct KPICard: View {
                     Text(value)
                         .font(AppTypography.largeValue)
                         .foregroundStyle(AppColors.ink)
+                        .contentTransition(.numericText())
                     if let unit {
                         Text(unit)
                             .font(AppTypography.body)

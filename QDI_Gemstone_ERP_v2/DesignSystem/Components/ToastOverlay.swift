@@ -18,5 +18,6 @@ struct ToastOverlay: View {
                 .padding(.bottom, AppSpacing.xl)
         }
         .transition(.move(edge: .bottom).combined(with: .opacity))
+        .animation(AppAnimation.standard, value: message)
     }
 }

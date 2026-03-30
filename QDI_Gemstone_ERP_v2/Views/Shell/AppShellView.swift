@@ -147,7 +147,7 @@ struct AppShellView: View {
         .onReceive(NotificationCenter.default.publisher(for: .menuOpenGlossary)) { _ in
             showGlossary = true
         }
-        .animation(.easeInOut(duration: 0.2), value: showSidebar)
+        .animation(AppAnimation.standard, value: showSidebar)
     }
 
     // MARK: - Header

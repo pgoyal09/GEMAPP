@@ -30,9 +30,11 @@ struct CustomerListView: View {
             if let id = viewModel.selectedCustomerID,
                let customer = allCustomers.first(where: { $0.persistentModelID == id }) {
                 CustomerDetailPanel(customer: customer)
+                    .transition(.move(edge: .trailing).combined(with: .opacity))
             }
         }
         .accessibilityIdentifier("CustomerListView")
+        .animation(AppAnimation.sheetSpring, value: viewModel.selectedCustomerID)
         .sheet(isPresented: $viewModel.showAddCustomerSheet) {
             CustomerFormSheet(mode: .add)
         }

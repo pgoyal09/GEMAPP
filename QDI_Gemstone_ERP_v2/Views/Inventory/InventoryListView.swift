@@ -62,17 +62,18 @@ struct InventoryListView: View {
                     showEditSheet = true
                 })
                 .frame(width: 296)
+                .transition(.move(edge: .trailing).combined(with: .opacity))
             }
         }
         .accessibilityIdentifier("InventoryListView")
         .onAppear { viewModel.fetchPage(context: modelContext, mode: mode) }
-        .animation(.easeInOut(duration: 0.2), value: viewModel.showFiltersPanel)
-        .animation(.easeInOut(duration: 0.2), value: selectedStone?.persistentModelID)
+        .animation(AppAnimation.standard, value: viewModel.showFiltersPanel)
+        .animation(AppAnimation.sheetSpring, value: selectedStone?.persistentModelID)
         .overlay(alignment: .bottom) {
             if !selectedStones.isEmpty {
                 multiSelectActionBar
                     .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .animation(.easeInOut(duration: 0.25), value: selectedStones.isEmpty)
+                    .animation(AppAnimation.standard, value: selectedStones.isEmpty)
             }
         }
         .overlay {
