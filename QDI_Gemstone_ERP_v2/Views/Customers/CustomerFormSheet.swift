@@ -27,6 +27,7 @@ struct CustomerFormSheet: View {
     @State private var notes = ""
     @State private var toastMessage: String?
     @State private var toastIsError = false
+    @State private var isSaving = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -47,15 +48,18 @@ struct CustomerFormSheet: View {
 
             HStack {
                 Spacer()
-                Button("Cancel") { dismiss() }.buttonStyle(.outline)
+                Button("Cancel") { dismiss() }
+                    .buttonStyle(.outline)
+                    .disabled(isSaving)
                 Button("Save") { save() }
                     .buttonStyle(.gradient)
-                    .disabled(firstName.trimmed.isEmpty && lastName.trimmed.isEmpty && company.trimmed.isEmpty)
+                    .disabled(isSaving || (firstName.trimmed.isEmpty && lastName.trimmed.isEmpty && company.trimmed.isEmpty))
             }
             .padding(AppSpacing.m)
         }
         .frame(minWidth: 480, minHeight: 400)
         .appBackground()
+        .interactiveDismissDisabled(isSaving)
         .overlay {
             if let msg = toastMessage {
                 ToastOverlay(message: msg, isError: toastIsError)
@@ -177,6 +181,20 @@ struct CustomerFormSheet: View {
     private func save() {
         // Require at least one identifying field
         guard !firstName.trimmed.isEmpty || !lastName.trimmed.isEmpty || !company.trimmed.isEmpty else { return }
+
+        // Validate field lengths and formats
+        if let err = InputValidator.validateStringField(firstName, field: "First name", maxLength: InputValidator.maxCustomerName) ??
+            InputValidator.validateStringField(lastName, field: "Last name", maxLength: InputValidator.maxCustomerName) ??
+            InputValidator.validateStringField(company, field: "Company", maxLength: InputValidator.maxCompanyName) ??
+            InputValidator.validateEmail(email) ??
+            InputValidator.validatePhone(phone) {
+            toastIsError = true
+            withAnimation { toastMessage = err }
+            return
+        }
+
+        isSaving = true
+        defer { isSaving = false }
 
         switch mode {
         case .add:

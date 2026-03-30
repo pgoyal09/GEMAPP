@@ -13,6 +13,7 @@ enum TransactionError: LocalizedError {
     case stoneAlreadyOnInvoice(sku: String, ref: String)
     case invalidCaratWeight
     case lotInsufficientCarats(available: Double, requested: Double)
+    case tooManyLineItems(max: Int)
 
     var errorDescription: String? {
         switch self {
@@ -30,6 +31,8 @@ enum TransactionError: LocalizedError {
             return "Carat weight must be greater than zero."
         case .lotInsufficientCarats(let available, let requested):
             return "Insufficient lot carats. Available: \(String(format: "%.2f", available)), requested: \(String(format: "%.2f", requested))."
+        case .tooManyLineItems(let max):
+            return "Maximum of \(max) line items per document."
         }
     }
 }
@@ -62,6 +65,10 @@ enum TransactionService {
 
     @MainActor
     static func addStone(_ stone: Gemstone, to memo: Memo, modelContext: ModelContext) throws {
+        // Guard: document line item limit
+        guard memo.lineItems.count < InputValidator.maxLineItemsPerDocument else {
+            throw TransactionError.tooManyLineItems(max: InputValidator.maxLineItemsPerDocument)
+        }
         // Guard: stone must be in stock
         guard stone.status == .available else {
             throw TransactionError.stoneNotAvailable(sku: stone.sku, status: stone.status.rawValue)
@@ -124,6 +131,9 @@ enum TransactionService {
 
     @MainActor
     static func addBrokeredLine(to memo: Memo, modelContext: ModelContext) throws {
+        guard memo.lineItems.count < InputValidator.maxLineItemsPerDocument else {
+            throw TransactionError.tooManyLineItems(max: InputValidator.maxLineItemsPerDocument)
+        }
         let item = LineItem(kind: .brokered)
         modelContext.insert(item)
         item.memo = memo
@@ -132,6 +142,9 @@ enum TransactionService {
 
     @MainActor
     static func addServiceLine(to memo: Memo, modelContext: ModelContext) throws {
+        guard memo.lineItems.count < InputValidator.maxLineItemsPerDocument else {
+            throw TransactionError.tooManyLineItems(max: InputValidator.maxLineItemsPerDocument)
+        }
         let item = LineItem(itemDescription: "Shipping / Service", kind: .service)
         modelContext.insert(item)
         item.memo = memo
@@ -142,6 +155,10 @@ enum TransactionService {
 
     @MainActor
     static func addStone(_ stone: Gemstone, to invoice: Invoice, modelContext: ModelContext) throws {
+        // Guard: document line item limit
+        guard invoice.lineItems.count < InputValidator.maxLineItemsPerDocument else {
+            throw TransactionError.tooManyLineItems(max: InputValidator.maxLineItemsPerDocument)
+        }
         // Guard: stone on memo must go through memo-to-invoice conversion
         if stone.status == .onMemo {
             throw TransactionError.stoneOnMemo(sku: stone.sku)
@@ -209,6 +226,9 @@ enum TransactionService {
 
     @MainActor
     static func addBrokeredLine(to invoice: Invoice, modelContext: ModelContext) throws {
+        guard invoice.lineItems.count < InputValidator.maxLineItemsPerDocument else {
+            throw TransactionError.tooManyLineItems(max: InputValidator.maxLineItemsPerDocument)
+        }
         let item = LineItem(kind: .brokered)
         modelContext.insert(item)
         item.invoice = invoice
@@ -217,6 +237,9 @@ enum TransactionService {
 
     @MainActor
     static func addServiceLine(to invoice: Invoice, modelContext: ModelContext) throws {
+        guard invoice.lineItems.count < InputValidator.maxLineItemsPerDocument else {
+            throw TransactionError.tooManyLineItems(max: InputValidator.maxLineItemsPerDocument)
+        }
         let item = LineItem(itemDescription: "Shipping / Service", kind: .service)
         modelContext.insert(item)
         item.invoice = invoice

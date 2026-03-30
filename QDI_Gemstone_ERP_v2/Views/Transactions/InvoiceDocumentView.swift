@@ -22,6 +22,7 @@ struct InvoiceDocumentView: View {
     @State private var toastIsError = false
     @State private var totalRefreshID = UUID()
     @State private var hasUnsavedEdits = false
+    @State private var isSaving = false
     @State private var showUnsavedAlert = false
 
     private var isEditable: Bool {

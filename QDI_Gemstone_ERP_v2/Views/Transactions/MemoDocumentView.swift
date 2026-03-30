@@ -17,6 +17,7 @@ struct MemoDocumentView: View {
     @State private var showAddCustomerSheet = false
     @State private var showDeleteConfirm = false
     @State private var hasUnsavedEdits = false
+    @State private var isSaving = false
     @State private var isGeneratingPDF = false
     @State private var toastMessage: String?
     @State private var toastIsError = false
@@ -84,6 +85,7 @@ struct MemoDocumentView: View {
         } message: {
             Text("This will return all items and permanently delete the memo.")
         }
+        .interactiveDismissDisabled(isSaving)
         .overlay {
             if let msg = toastMessage {
                 ToastOverlay(message: msg, isError: toastIsError)
@@ -347,10 +349,15 @@ struct MemoDocumentView: View {
                 }
             }
             .buttonStyle(.outline)
+            .disabled(isSaving)
             Button("Save") {
+                guard !isSaving else { return }
+                isSaving = true
+                defer { isSaving = false }
                 saveMemo()
             }
             .buttonStyle(.gradient)
+            .disabled(isSaving)
             .keyboardShortcut("s", modifiers: .command)
         }
         .padding(AppSpacing.m)

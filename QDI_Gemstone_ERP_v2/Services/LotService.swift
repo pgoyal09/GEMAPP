@@ -48,7 +48,10 @@ enum LotService {
         memo: Memo,
         modelContext: ModelContext
     ) throws {
-        guard carats > 0, lot.isLot else { return }
+        guard lot.isLot else { return }
+        guard carats > 0 else {
+            throw TransactionError.invalidCaratWeight
+        }
         guard carats <= lot.effectiveRemainingCarats else {
             throw TransactionError.lotInsufficientCarats(available: lot.effectiveRemainingCarats, requested: carats)
         }
@@ -95,7 +98,10 @@ enum LotService {
         invoice: Invoice,
         modelContext: ModelContext
     ) throws {
-        guard carats > 0, lot.isLot else { return }
+        guard lot.isLot else { return }
+        guard carats > 0 else {
+            throw TransactionError.invalidCaratWeight
+        }
         guard carats <= lot.effectiveRemainingCarats else {
             throw TransactionError.lotInsufficientCarats(available: lot.effectiveRemainingCarats, requested: carats)
         }

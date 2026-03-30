@@ -144,6 +144,21 @@ final class StoneFormViewModel {
 
     var canSave: Bool { caratWeight > 0 && !sku.isEmpty }
 
+    /// Returns first validation error, or nil if all fields are valid.
+    func validate() -> String? {
+        if let err = InputValidator.validateSKU(sku) { return err }
+        if let err = InputValidator.validateCaratWeight(caratWeight) { return err }
+        if let err = InputValidator.validatePrice(costPrice, field: "Cost price") { return err }
+        if let err = InputValidator.validatePrice(sellPrice, field: "Sell price") { return err }
+        if let err = InputValidator.validateStringField(origin, field: "Origin") { return err }
+        if let err = InputValidator.validateStringField(color, field: "Color") { return err }
+        if let err = InputValidator.validateStringField(clarity, field: "Clarity") { return err }
+        if let err = InputValidator.validateStringField(cut, field: "Cut") { return err }
+        if let err = InputValidator.validateStringField(treatment, field: "Treatment") { return err }
+        if let err = InputValidator.validateStringField(shapeText, field: "Shape") { return err }
+        return nil
+    }
+
     var hasUnsavedChanges: Bool {
         guard let stone = mode.existingStone else { return true }
         return sku != stone.sku ||
@@ -202,6 +217,11 @@ final class StoneFormViewModel {
     }
 
     func save(modelContext: ModelContext) throws {
+        if let validationError = validate() {
+            toastMessage = validationError
+            toastIsError = true
+            return
+        }
         guard caratWeight > 0 else {
             toastMessage = "Carat weight must be greater than zero"
             toastIsError = true

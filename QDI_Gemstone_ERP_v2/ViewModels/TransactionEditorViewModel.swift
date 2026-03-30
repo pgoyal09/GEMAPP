@@ -124,12 +124,30 @@ final class TransactionEditorViewModel {
 
     func updateRate(at index: Int, _ value: Decimal) {
         guard lineItems.indices.contains(index) else { return }
-        lineItems[index].rate = value
+        lineItems[index].rate = max(0, min(value, InputValidator.maxPrice))
     }
 
     func updateAmount(at index: Int, _ value: Decimal) {
         guard lineItems.indices.contains(index) else { return }
-        lineItems[index].rate = value  // For service lines, rate IS the amount
+        lineItems[index].rate = max(0, min(value, InputValidator.maxPrice))  // For service lines, rate IS the amount
+    }
+
+    /// Validates all line items before saving. Returns first error or nil.
+    func validateLineItems() -> String? {
+        if let err = InputValidator.validateLineItemCount(lineItems.count) { return err }
+        for (i, item) in lineItems.enumerated() {
+            if item.kind == .brokered || item.kind == .service {
+                if let err = InputValidator.validatePositiveAmount(item.rate, field: "Line \(i + 1) rate") {
+                    return err
+                }
+            }
+            if item.kind == .brokered {
+                if item.carats < 0 {
+                    return "Line \(i + 1) carats cannot be negative."
+                }
+            }
+        }
+        return nil
     }
 
     // MARK: - Load / Reset

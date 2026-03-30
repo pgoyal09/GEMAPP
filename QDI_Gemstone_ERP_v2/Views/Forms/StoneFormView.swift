@@ -6,6 +6,7 @@ struct StoneFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isCaratFieldFocused: Bool
+    @State private var isSaving = false
     var navigateTo: Binding<NavigationItem>?
 
     init(mode: StoneFormMode, navigateTo: Binding<NavigationItem>? = nil) {
@@ -64,6 +65,7 @@ struct StoneFormView: View {
         } message: {
             Text("Stone has $0 price. Save anyway?")
         }
+        .interactiveDismissDisabled(isSaving)
         .overlay {
             if let msg = viewModel.toastMessage {
                 ToastOverlay(message: msg, isError: viewModel.toastIsError)
@@ -305,10 +307,15 @@ struct StoneFormView: View {
     private var bottomToolbar: some View {
         HStack {
             Spacer()
-            Button("Cancel") { dismiss() }.buttonStyle(.outline)
+            Button("Cancel") { dismiss() }
+                .buttonStyle(.outline)
+                .disabled(isSaving)
 
             if case .intake = viewModel.mode {
                 Button("Save & Continue") {
+                    guard !isSaving else { return }
+                    isSaving = true
+                    defer { isSaving = false }
                     do {
                         try viewModel.saveAndContinue(modelContext: modelContext)
                     } catch {
@@ -317,9 +324,13 @@ struct StoneFormView: View {
                     }
                 }
                 .buttonStyle(.outline(AppColors.primary))
+                .disabled(isSaving)
             }
 
             Button("Save") {
+                guard !isSaving else { return }
+                isSaving = true
+                defer { isSaving = false }
                 do {
                     try viewModel.saveWithPriceCheck(modelContext: modelContext)
                     if viewModel.toastIsError == false && !viewModel.showZeroPriceConfirmation {
@@ -336,7 +347,7 @@ struct StoneFormView: View {
                 }
             }
             .buttonStyle(.gradient)
-            .disabled(!viewModel.canSave)
+            .disabled(!viewModel.canSave || isSaving)
             .keyboardShortcut("s", modifiers: .command)
         }
         .padding(AppSpacing.m)
