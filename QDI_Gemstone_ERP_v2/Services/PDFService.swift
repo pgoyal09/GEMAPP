@@ -211,13 +211,10 @@ final class PDFService {
         <head>
             <meta charset="utf-8">
             <style>
+                /* WKWebView does not support CSS @page counters (counter(page)/counter(pages)),
+                   so page numbering is omitted. The footer div provides company branding. */
                 @page {
                     margin: 18mm 15mm 22mm 15mm;
-                    @bottom-center {
-                        content: counter(page) " of " counter(pages);
-                        font-size: 9pt;
-                        color: #888;
-                    }
                 }
                 * { box-sizing: border-box; margin: 0; padding: 0; }
                 body {
@@ -422,13 +419,6 @@ final class PDFService {
                 <span>\(escape(displayCompanyName)) &middot; Thank you for your business</span>
             </div>
 
-            <script>
-                // Page numbers via JavaScript (for WKWebView rendering)
-                (function() {
-                    var footer = document.querySelector('.footer');
-                    if (footer) footer.innerHTML += '';
-                })();
-            </script>
         </body>
         </html>
         """

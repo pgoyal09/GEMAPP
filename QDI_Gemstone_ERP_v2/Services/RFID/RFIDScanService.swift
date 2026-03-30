@@ -158,7 +158,7 @@ enum RFIDScanService {
             }
         } catch {
             rfidLog.error("RFIDTag uniqueness check failed: \(error.localizedDescription, privacy: .public)")
-            return .conflict(error.localizedDescription)
+            return .conflict(ErrorMapper.userMessage(from: error))
         }
 
         // --- EPC uniqueness on Gemstone.rfidEpc ---
@@ -172,7 +172,7 @@ enum RFIDScanService {
             }
         } catch {
             rfidLog.error("EPC uniqueness check failed: \(error.localizedDescription, privacy: .public)")
-            return .conflict(error.localizedDescription)
+            return .conflict(ErrorMapper.userMessage(from: error))
         }
 
         // --- TID uniqueness ---
@@ -186,7 +186,7 @@ enum RFIDScanService {
                 }
             } catch {
                 rfidLog.error("TID uniqueness check failed: \(error.localizedDescription, privacy: .public)")
-                return .conflict(error.localizedDescription)
+                return .conflict(ErrorMapper.userMessage(from: error))
             }
         }
 
@@ -218,7 +218,7 @@ enum RFIDScanService {
             stoneTag = try modelContext.fetch(allTagsDescriptor).first(where: { $0.assignedStone?.id == stone.id })
         } catch {
             rfidLog.error("Existing tag lookup by stone failed: \(error.localizedDescription, privacy: .public)")
-            return .conflict(error.localizedDescription)
+            return .conflict(ErrorMapper.userMessage(from: error))
         }
 
         if let stoneTag {
@@ -246,7 +246,7 @@ enum RFIDScanService {
             return hadExisting ? .replaced : .assigned
         } catch {
             rfidLog.error("Assignment failed: \(error.localizedDescription, privacy: .public)")
-            return .conflict(error.localizedDescription)
+            return .conflict(ErrorMapper.userMessage(from: error))
         }
     }
 }
