@@ -1,0 +1,198 @@
+import SwiftUI
+import SwiftData
+
+struct SoldInventoryView: View {
+    @Environment(\.modelContext) private var modelContext
+
+    @Query(sort: \Gemstone.createdAt, order: .reverse) private var allStones: [Gemstone]
+
+    @State private var searchText = ""
+    @State private var selectedStoneID: PersistentIdentifier?
+    @State private var showEditSheet = false
+    @State private var editingStone: Gemstone?
+
+    // MARK: - Filter State
+
+    @State private var typeToggle: SoldTypeToggle = .all
+
+    enum SoldTypeToggle: String, CaseIterable {
+        case all = "All"
+        case diamonds = "Diamonds"
+        case gemstones = "Gemstones"
+        case lots = "Lots"
+    }
+
+    // MARK: - Computed
+
+    private var soldStones: [Gemstone] {
+        allStones.filter { $0.status == .sold }
+    }
+
+    private var filteredStones: [Gemstone] {
+        var result = soldStones
+
+        switch typeToggle {
+        case .all: break
+        case .diamonds: result = result.filter { $0.stoneType == .diamond && $0.grouping != .lot }
+        case .gemstones: result = result.filter { $0.stoneType != .diamond && $0.grouping != .lot }
+        case .lots: result = result.filter { $0.grouping == .lot }
+        }
+
+        let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if !q.isEmpty {
+            result = result.filter {
+                $0.sku.lowercased().contains(q) ||
+                $0.stoneType.rawValue.lowercased().contains(q) ||
+                $0.color.lowercased().contains(q) ||
+                $0.currentLocation.lowercased().contains(q)
+            }
+        }
+        return result
+    }
+
+    private var selectedStone: Gemstone? {
+        guard let id = selectedStoneID else { return nil }
+        return filteredStones.first { $0.persistentModelID == id }
+    }
+
+    // MARK: - Body
+
+    var body: some View {
+        HStack(spacing: 0) {
+            VStack(spacing: 0) {
+                topBar
+                tableContent
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            if let stone = selectedStone {
+                Divider().background(AppColors.cardStroke)
+                GemstoneDetailPanel(gemstone: stone, onEdit: {
+                    editingStone = stone
+                    showEditSheet = true
+                })
+                .frame(width: 296)
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: selectedStone?.persistentModelID)
+        .sheet(isPresented: $showEditSheet) {
+            if let stone = editingStone {
+                StoneFormView(mode: .edit(stone))
+            }
+        }
+    }
+
+    // MARK: - Top Bar
+
+    private var topBar: some View {
+        HStack(spacing: AppSpacing.s) {
+            GlassSearchField(text: $searchText, placeholder: "Search sold stones...")
+                .frame(maxWidth: 320)
+
+            HStack(spacing: AppSpacing.xs) {
+                ForEach(SoldTypeToggle.allCases, id: \.rawValue) { toggle in
+                    FilterPill(title: toggle.rawValue, isActive: typeToggle == toggle) {
+                        typeToggle = toggle
+                    }
+                }
+            }
+
+            Spacer()
+        }
+        .padding(.horizontal, AppSpacing.l)
+        .padding(.vertical, AppSpacing.m)
+    }
+
+    // MARK: - Table
+
+    private var tableContent: some View {
+        ScrollView([.horizontal, .vertical]) {
+            LazyVStack(spacing: 0) {
+                tableHeader
+                Divider().background(AppColors.cardStroke)
+                if filteredStones.isEmpty {
+                    EmptyStateView(icon: "tag.slash", title: "No sold stones", subtitle: "Sold inventory will appear here")
+                } else {
+                    LazyVStack(spacing: 2) {
+                        ForEach(filteredStones, id: \.persistentModelID) { stone in
+                            stoneRow(stone)
+                        }
+                    }
+                    .padding(.vertical, AppSpacing.xs)
+                    summaryFooter
+                }
+            }
+            .frame(minWidth: 1000, maxWidth: .infinity)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .glassTable()
+        .padding(.horizontal, AppSpacing.l)
+        .padding(.bottom, AppSpacing.l)
+    }
+
+    private var tableHeader: some View {
+        HStack(spacing: 0) {
+            TableHeader(title: "SKU", width: TableColumn.sku, alignment: .leading)
+            TableHeader(title: "Type", width: TableColumn.type, alignment: .leading)
+            TableHeader(title: "Shape", width: TableColumn.shape, alignment: .leading)
+            TableHeader(title: "Carat", width: TableColumn.carat, alignment: .trailing)
+            TableHeader(title: "Color", width: TableColumn.color, alignment: .leading)
+            TableHeader(title: "Ask $/ct", width: TableColumn.price, alignment: .trailing)
+            TableHeader(title: "Cost $/ct", width: TableColumn.price, alignment: .trailing)
+            TableHeader(title: "Margin%", width: TableColumn.margin, alignment: .trailing)
+            TableHeader(title: "Sold Date", width: TableColumn.date, alignment: .leading)
+            Spacer()
+        }
+        .padding(.horizontal, AppSpacing.m)
+        .padding(.vertical, AppSpacing.s)
+    }
+
+    private func stoneRow(_ stone: Gemstone) -> some View {
+        HoverRow(isSelected: selectedStoneID == stone.persistentModelID, onTap: {
+            selectedStoneID = selectedStoneID == stone.persistentModelID ? nil : stone.persistentModelID
+        }) {
+            Text(stone.sku).font(AppTypography.mono).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.sku, alignment: .leading)
+            StoneTypeBadge(type: stone.stoneType.rawValue).frame(width: TableColumn.type, alignment: .leading)
+            Text(stone.shape).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.shape, alignment: .leading)
+            Text(String(format: "%.2f", stone.caratWeight)).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: TableColumn.carat, alignment: .trailing)
+            Text(stone.color).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.color, alignment: .leading)
+            Text(stone.sellPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: TableColumn.price, alignment: .trailing)
+            Text(stone.costPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.price, alignment: .trailing)
+            Text(marginText(stone)).font(AppTypography.mono).foregroundStyle(marginColor(stone)).frame(width: TableColumn.margin, alignment: .trailing)
+            Text(stone.createdAt.formatted(.dateTime.month(.abbreviated).day().year())).font(AppTypography.caption).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.date, alignment: .leading)
+            Spacer()
+        }
+    }
+
+    // MARK: - Summary
+
+    private var summaryFooter: some View {
+        let stones = filteredStones
+        let totalCarats = stones.reduce(0.0) { $0 + $1.caratWeight }
+        let totalSell = stones.reduce(Decimal.zero) { $0 + $1.sellPrice * Decimal($1.caratWeight) }
+        let totalCost = stones.reduce(Decimal.zero) { $0 + $1.costPrice * Decimal($1.caratWeight) }
+        let totalMargin = totalSell > 0 ? ((totalSell - totalCost) / totalSell) * 100 : 0
+        return HStack(spacing: AppSpacing.l) {
+            Text("\(stones.count) sold").font(AppTypography.caption.bold()).foregroundStyle(AppColors.ink)
+            Text("Total: \(String(format: "%.2f", totalCarats)) ct").font(AppTypography.caption).foregroundStyle(AppColors.inkMuted)
+            Text("Revenue: \(totalSell.asCurrency)").font(AppTypography.caption).foregroundStyle(AppColors.inkMuted)
+            Text("Margin: \(NSDecimalNumber(decimal: totalMargin).stringValue)%").font(AppTypography.caption).foregroundStyle(AppColors.success)
+            Spacer()
+        }
+        .padding(.horizontal, AppSpacing.m).padding(.vertical, AppSpacing.s)
+        .background(Color.white.opacity(0.03))
+    }
+
+    // MARK: - Helpers
+
+    private func marginText(_ stone: Gemstone) -> String {
+        guard stone.costPrice > 0 else { return "—" }
+        let margin = ((stone.sellPrice - stone.costPrice) / stone.costPrice) * 100
+        return "\(NSDecimalNumber(decimal: margin).intValue)%"
+    }
+
+    private func marginColor(_ stone: Gemstone) -> Color {
+        guard stone.costPrice > 0 else { return AppColors.inkMuted }
+        return stone.sellPrice >= stone.costPrice ? AppColors.success : AppColors.danger
+    }
+}

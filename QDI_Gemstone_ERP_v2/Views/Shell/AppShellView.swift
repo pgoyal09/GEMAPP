@@ -85,11 +85,11 @@ struct AppShellView: View {
                 Button("") { routeBinding.wrappedValue = .memos }.keyboardShortcut("2", modifiers: .command)
                 Button("") { routeBinding.wrappedValue = .invoices }.keyboardShortcut("3", modifiers: .command)
                 Button("") { routeBinding.wrappedValue = .customers }.keyboardShortcut("4", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .inventory }.keyboardShortcut("5", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .quickIntake }.keyboardShortcut("6", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .reviewQueue }.keyboardShortcut("7", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .diamonds }.keyboardShortcut("5", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .gemstones }.keyboardShortcut("6", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .lots }.keyboardShortcut("7", modifiers: .command)
                 Button("") { routeBinding.wrappedValue = .accounting }.keyboardShortcut("8", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .lots }.keyboardShortcut("9", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .quickIntake }.keyboardShortcut("9", modifiers: .command)
             }
             .frame(width: 0, height: 0).opacity(0)
         }
@@ -169,12 +169,14 @@ struct AppShellView: View {
             switch route {
             case .dashboard:
                 DashboardView(navigateTo: routeBinding)
-            case .inventory:
-                InventoryListView(navigateTo: routeBinding, mode: .current)
+            case .diamonds:
+                DiamondsInventoryView(navigateTo: routeBinding)
+            case .gemstones:
+                GemstonesInventoryView(navigateTo: routeBinding)
             case .lots:
                 LotInventoryView()
-            case .soldInventory:
-                InventoryListView(navigateTo: routeBinding, mode: .sold)
+            case .sold:
+                SoldInventoryView()
             case .quickIntake:
                 StoneFormView(mode: .intake)
             case .reviewQueue:

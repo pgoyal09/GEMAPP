@@ -72,8 +72,8 @@ struct QuickActionsGrid: View {
                             AppLogger.ui.error("Failed to create invoice: \(error.localizedDescription)")
                         }
                     }
-                    QuickActionCard(title: "Inventory", icon: "square.grid.2x2.fill", gradient: AppColors.primaryGradient) {
-                        navigateTo = .inventory
+                    QuickActionCard(title: "Diamonds", icon: "sparkle", gradient: AppColors.primaryGradient) {
+                        navigateTo = .diamonds
                     }
                     QuickActionCard(title: "Customers", icon: "person.2.fill", gradient: AppColors.violetGradient) {
                         navigateTo = .customers

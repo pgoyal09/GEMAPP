@@ -18,4 +18,9 @@ enum TableColumn {
     static let quantity: CGFloat = 60
     static let description: CGFloat = 200
     static let actions: CGFloat = 80
+    static let margin: CGFloat = 70
+    static let percent: CGFloat = 60
+    static let availability: CGFloat = 100
+    static let days: CGFloat = 60
+    static let origin: CGFloat = 100
 }
