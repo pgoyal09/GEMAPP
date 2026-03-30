@@ -327,6 +327,9 @@ struct GemstonesInventoryView: View {
             Spacer()
             GradientButton(title: "Create Memo", icon: "doc.text") { createMemo() }
             GradientButton(title: "Create Invoice", icon: "doc.text.fill") { createInvoice() }
+            Button { exportSelectedCSV() } label: {
+                Label("Export CSV", systemImage: "square.and.arrow.up")
+            }.buttonStyle(.outline)
             Button("Clear") { selectedStones.removeAll() }.buttonStyle(.outline)
         }
         .padding(.horizontal, AppSpacing.l).padding(.vertical, AppSpacing.m)
@@ -364,6 +367,23 @@ struct GemstonesInventoryView: View {
             openWindow(id: "invoice", value: inv.persistentModelID)
         } catch {
             toastIsError = true; withAnimation { toastMessage = "Failed: \(error.localizedDescription)" }
+        }
+    }
+
+    private func exportSelectedCSV() {
+        let stones = filteredStones.filter { selectedStones.contains($0.persistentModelID) }
+        guard !stones.isEmpty else { return }
+        let csv = RapNetExportService.exportGemstoneCSV(stones: stones)
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.commaSeparatedText]
+        panel.nameFieldStringValue = "selected-gemstones-\(Date().formatted(.dateTime.year().month(.twoDigits).day(.twoDigits))).csv"
+        if panel.runModal() == .OK, let url = panel.url {
+            do {
+                try csv.write(to: url, atomically: true, encoding: .utf8)
+                toastIsError = false; withAnimation { toastMessage = "Exported \(stones.count) gemstones" }
+            } catch {
+                toastIsError = true; withAnimation { toastMessage = "Export failed: \(error.localizedDescription)" }
+            }
         }
     }
 

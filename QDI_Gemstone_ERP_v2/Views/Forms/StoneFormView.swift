@@ -43,6 +43,27 @@ struct StoneFormView: View {
         } message: {
             Text("A stone with SKU '\(viewModel.pendingSKU)' already exists.")
         }
+        .alert("Zero Price", isPresented: $viewModel.showZeroPriceConfirmation) {
+            Button("Cancel", role: .cancel) {}
+            Button("Save Anyway") {
+                do {
+                    try viewModel.save(modelContext: modelContext)
+                    if viewModel.toastIsError == false {
+                        if let nav = navigateTo {
+                            nav.wrappedValue = viewModel.isDiamond ? .diamonds :
+                                viewModel.isLot ? .lots : .gemstones
+                        } else {
+                            dismiss()
+                        }
+                    }
+                } catch {
+                    viewModel.toastMessage = "Save failed: \(error.localizedDescription)"
+                    viewModel.toastIsError = true
+                }
+            }
+        } message: {
+            Text("Stone has $0 price. Save anyway?")
+        }
         .overlay {
             if let msg = viewModel.toastMessage {
                 ToastOverlay(message: msg, isError: viewModel.toastIsError)
@@ -300,8 +321,8 @@ struct StoneFormView: View {
 
             Button("Save") {
                 do {
-                    try viewModel.save(modelContext: modelContext)
-                    if viewModel.toastIsError == false {
+                    try viewModel.saveWithPriceCheck(modelContext: modelContext)
+                    if viewModel.toastIsError == false && !viewModel.showZeroPriceConfirmation {
                         if let nav = navigateTo {
                             nav.wrappedValue = viewModel.isDiamond ? .diamonds :
                                 viewModel.isLot ? .lots : .gemstones

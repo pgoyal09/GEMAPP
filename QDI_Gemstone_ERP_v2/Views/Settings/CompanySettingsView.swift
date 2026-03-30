@@ -11,6 +11,9 @@ struct CompanySettingsView: View {
     @State private var logoData: Data? = UserDefaults.standard.data(forKey: PDFService.companyLogoUserDefaultsKey)
     @State private var showSavedToast = false
     @AppStorage("appAppearance") private var appAppearance: String = "dark"
+    @AppStorage("memoAgingGreen") private var memoAgingGreen: Int = 7
+    @AppStorage("memoAgingYellow") private var memoAgingYellow: Int = 14
+    @AppStorage("memoAgingOrange") private var memoAgingOrange: Int = 30
     @State private var backupMessage: String?
     @State private var backupIsError = false
 
@@ -118,6 +121,28 @@ struct CompanySettingsView: View {
                         )
                 )
 
+                // MARK: - Memo Aging Thresholds
+
+                SectionHeader(title: "Memo Aging Alerts")
+
+                VStack(alignment: .leading, spacing: 12) {
+                    agingRow(label: "Green → Yellow (days)", value: $memoAgingGreen)
+                    agingRow(label: "Yellow → Orange (days)", value: $memoAgingYellow)
+                    agingRow(label: "Orange → Red (days)", value: $memoAgingOrange)
+                    Text("Memos are color-coded by age on the dashboard.")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkSubtle)
+                }
+                .padding(20)
+                .background(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                        .fill(Color.white.opacity(0.04))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                                .strokeBorder(Color.white.opacity(0.07), lineWidth: 1)
+                        )
+                )
+
                 Text("These details appear on generated PDF invoices and memos.")
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.inkSubtle)
@@ -214,6 +239,19 @@ struct CompanySettingsView: View {
         } catch {
             backupIsError = true
             backupMessage = error.localizedDescription
+        }
+    }
+
+    private func agingRow(label: String, value: Binding<Int>) -> some View {
+        HStack {
+            Text(label)
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.inkMuted)
+            Spacer()
+            TextField("", value: value, format: .number)
+                .frame(width: 60)
+                .textFieldStyle(.roundedBorder)
+                .multilineTextAlignment(.center)
         }
     }
 

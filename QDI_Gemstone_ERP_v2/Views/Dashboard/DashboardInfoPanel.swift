@@ -3,6 +3,9 @@ import SwiftUI
 struct DashboardInfoPanel: View {
     let viewModel: DashboardViewModel
     @Environment(\.openWindow) private var openWindow
+    @AppStorage("memoAgingGreen") private var memoAgingGreen: Int = 7
+    @AppStorage("memoAgingYellow") private var memoAgingYellow: Int = 14
+    @AppStorage("memoAgingOrange") private var memoAgingOrange: Int = 30
 
     var body: some View {
         ScrollView {
@@ -96,12 +99,10 @@ struct DashboardInfoPanel: View {
     }
 
     private func agingColor(days: Int) -> Color {
-        switch days {
-        case ..<30: return AppColors.success
-        case 30..<60: return AppColors.warning
-        case 60..<90: return Color.orange
-        default: return AppColors.danger
-        }
+        if days < memoAgingGreen { return AppColors.success }
+        if days < memoAgingYellow { return AppColors.warning }
+        if days < memoAgingOrange { return Color.orange }
+        return AppColors.danger
     }
 
     private func snapshotChip(_ label: String, _ count: Int, color: Color) -> some View {

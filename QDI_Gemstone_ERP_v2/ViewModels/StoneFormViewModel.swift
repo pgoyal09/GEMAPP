@@ -115,6 +115,7 @@ final class StoneFormViewModel {
 
     var showSKUConfirmation: Bool = false
     var pendingSKU: String = ""
+    var showZeroPriceConfirmation: Bool = false
     var toastMessage: String? = nil
     var toastIsError: Bool = false
 
@@ -190,6 +191,15 @@ final class StoneFormViewModel {
     }
 
     // MARK: - Save
+
+    /// Validates price before saving. Shows confirmation if sell price is $0.
+    func saveWithPriceCheck(modelContext: ModelContext) throws {
+        if sellPrice == 0 {
+            showZeroPriceConfirmation = true
+            return
+        }
+        try save(modelContext: modelContext)
+    }
 
     func save(modelContext: ModelContext) throws {
         guard caratWeight > 0 else {

@@ -14,6 +14,7 @@ struct AccountingView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppSpacing.l) {
                 headerRow
+                quickDateFilters
                 statCardsRow
                 tabSelection
                 if selectedTab == 0 { overviewContent } else { transactionsContent }
@@ -72,6 +73,35 @@ struct AccountingView: View {
                     viewModel.dateRange = .custom(from: customStartDate, to: newVal)
                 }
             }
+        }
+    }
+
+    // MARK: - Quick Date Filters
+
+    private var quickDateFilters: some View {
+        HStack(spacing: AppSpacing.xs) {
+            FilterPill(title: "This Month", isActive: isRange(.thisMonth)) {
+                viewModel.dateRange = .thisMonth
+            }
+            FilterPill(title: "This Quarter", isActive: isRange(.thisQuarter)) {
+                viewModel.dateRange = .thisQuarter
+            }
+            FilterPill(title: "This Year", isActive: isRange(.thisYear)) {
+                viewModel.dateRange = .thisYear
+            }
+            FilterPill(title: "All Time", isActive: isRange(.allTime)) {
+                viewModel.dateRange = .allTime
+            }
+        }
+    }
+
+    private func isRange(_ range: AccountingDateRange) -> Bool {
+        switch (viewModel.dateRange, range) {
+        case (.thisMonth, .thisMonth), (.thisQuarter, .thisQuarter),
+             (.thisYear, .thisYear), (.allTime, .allTime):
+            return true
+        default:
+            return false
         }
     }
 
