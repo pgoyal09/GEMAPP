@@ -83,12 +83,16 @@ enum BackupService {
     static func exportCSVBundleInBackground(container: ModelContainer) throws -> URL {
         let bgContext = ModelContext(container)
         bgContext.autosaveEnabled = false
-        return try exportCSVBundle(modelContext: bgContext)
+        return try exportCSVBundleImpl(modelContext: bgContext)
     }
 
     /// Exports gemstones, customers, memos, and invoices to CSV files in a temporary directory.
     @MainActor
     static func exportCSVBundle(modelContext: ModelContext) throws -> URL {
+        try exportCSVBundleImpl(modelContext: modelContext)
+    }
+
+    private static func exportCSVBundleImpl(modelContext: ModelContext) throws -> URL {
         cleanupStaleTempDirs()
         let fm = FileManager.default
         let exportDir = fm.temporaryDirectory.appendingPathComponent("QDI_CSV_\(timestamp())")
@@ -141,6 +145,42 @@ enum BackupService {
         try csv.write(to: exportDir.appendingPathComponent("line_items.csv"), atomically: true, encoding: .utf8)
 
         return exportDir
+    }
+
+    // MARK: - Restore
+
+    /// Restores a previously exported database backup, replacing the current store.
+    /// The `backupDir` should contain the store file (and optional WAL/SHM files).
+    /// After restore, the app should be relaunched to pick up the new data.
+    @MainActor
+    static func restoreDatabase(from backupDir: URL, modelContext: ModelContext) throws {
+        let fm = FileManager.default
+        let baseName = storeURL.lastPathComponent
+        let parentDir = storeURL.deletingLastPathComponent()
+
+        // Verify backup contains the store file
+        let backupStore = backupDir.appendingPathComponent(baseName)
+        guard fm.fileExists(atPath: backupStore.path) else {
+            throw BackupError.exportFailed("Backup does not contain \(baseName)")
+        }
+
+        // Save current context to flush, then remove existing store files
+        try modelContext.save()
+        for suffix in ["", "-wal", "-shm"] {
+            let target = parentDir.appendingPathComponent(baseName + suffix)
+            if fm.fileExists(atPath: target.path) {
+                try fm.removeItem(at: target)
+            }
+        }
+
+        // Copy backup files to store location
+        for suffix in ["", "-wal", "-shm"] {
+            let source = backupDir.appendingPathComponent(baseName + suffix)
+            if fm.fileExists(atPath: source.path) {
+                let dest = parentDir.appendingPathComponent(baseName + suffix)
+                try fm.copyItem(at: source, to: dest)
+            }
+        }
     }
 
     // MARK: - Helpers

@@ -16,6 +16,8 @@ struct CompanySettingsView: View {
     @AppStorage("memoAgingOrange") private var memoAgingOrange: Int = 30
     @State private var backupMessage: String?
     @State private var backupIsError = false
+    @State private var showRestoreConfirm = false
+    @State private var pendingRestoreURL: URL?
 
     var body: some View {
         ScrollView {
@@ -157,6 +159,8 @@ struct CompanySettingsView: View {
                             .buttonStyle(.outline)
                         Button("Export Database Copy…") { exportDatabase() }
                             .buttonStyle(.outline)
+                        Button("Restore from Backup…") { pickBackupToRestore() }
+                            .buttonStyle(.outline(AppColors.warning))
                     }
 
                     if let msg = backupMessage {
@@ -169,7 +173,7 @@ struct CompanySettingsView: View {
                         }
                     }
 
-                    Text("CSV exports gemstones, customers, memos, and invoices as separate CSV files. Database copy exports the raw SwiftData store.")
+                    Text("CSV exports gemstones, customers, memos, and invoices as separate CSV files. Database copy exports the raw SwiftData store. Restore replaces all current data with a previous backup.")
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.inkSubtle)
                 }
@@ -188,6 +192,12 @@ struct CompanySettingsView: View {
             .padding(24)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .alert("Restore from Backup?", isPresented: $showRestoreConfirm) {
+            Button("Cancel", role: .cancel) { pendingRestoreURL = nil }
+            Button("Replace All Data", role: .destructive) { performRestore() }
+        } message: {
+            Text("This will replace ALL current data with the backup. This action cannot be undone. The app will quit and must be relaunched.")
+        }
         .onAppear {
             // Show saved toast briefly
             if !companyName.isEmpty {
@@ -252,6 +262,36 @@ struct CompanySettingsView: View {
                 .frame(width: 60)
                 .textFieldStyle(.roundedBorder)
                 .multilineTextAlignment(.center)
+        }
+    }
+
+    private func pickBackupToRestore() {
+        let panel = NSOpenPanel()
+        panel.title = "Select Database Backup Folder"
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.message = "Select a QDI_Backup folder previously exported from this app."
+
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        pendingRestoreURL = url
+        showRestoreConfirm = true
+    }
+
+    private func performRestore() {
+        guard let backupURL = pendingRestoreURL else { return }
+        pendingRestoreURL = nil
+        do {
+            try BackupService.restoreDatabase(from: backupURL, modelContext: modelContext)
+            backupIsError = false
+            backupMessage = "Restore successful. Quitting app — please relaunch."
+            // Quit after a short delay so the user can read the message
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                NSApplication.shared.terminate(nil)
+            }
+        } catch {
+            backupIsError = true
+            backupMessage = "Restore failed: \(ErrorMapper.userMessage(from: error))"
         }
     }
 
