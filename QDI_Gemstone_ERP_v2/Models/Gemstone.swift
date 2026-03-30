@@ -59,6 +59,9 @@ final class Gemstone {
     // MARK: - Lot Inventory
 
     /// Currently available carats for lot stones. Nil for non-lot stones.
+    /// Note: Ideally Decimal for exact precision, but SwiftData predicate support
+    /// is limited for Decimal — Double with 4-decimal rounding is used instead.
+    /// All writes should go through `effectiveRemainingCarats` to ensure rounding.
     var remainingCarats: Double?
     /// Weighted-average cost per carat, recalculated when quantity is added.
     var averageCostPerCarat: Decimal?

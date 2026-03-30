@@ -80,10 +80,16 @@ enum TransactionService {
                 item.status == openStatus
             }
         )
-        if let existingItems = try? modelContext.fetch(allLineItems),
-           let existingItem = existingItems.first(where: { $0.memo?.persistentModelID != memo.persistentModelID }) {
-            let ref = existingItem.memo?.referenceNumber ?? "unknown"
-            throw TransactionError.stoneAlreadyOnMemo(sku: stone.sku, ref: ref)
+        do {
+            let existingItems = try modelContext.fetch(allLineItems)
+            if let existingItem = existingItems.first(where: { $0.memo?.persistentModelID != memo.persistentModelID }) {
+                let ref = existingItem.memo?.referenceNumber ?? "unknown"
+                throw TransactionError.stoneAlreadyOnMemo(sku: stone.sku, ref: ref)
+            }
+        } catch let error as TransactionError {
+            throw error
+        } catch {
+            logger.error("Failed to check existing memo items: \(error.localizedDescription, privacy: .public)")
         }
         // Guard: carat weight must be positive
         guard stone.caratWeight > 0 else {
@@ -159,10 +165,16 @@ enum TransactionService {
                 (item.status == soldStatus || item.status == openStatus)
             }
         )
-        if let existingItems = try? modelContext.fetch(allInvoiceItems),
-           let existingItem = existingItems.first(where: { $0.invoice?.persistentModelID != invoice.persistentModelID }) {
-            let ref = existingItem.invoice?.referenceNumber ?? "unknown"
-            throw TransactionError.stoneAlreadyOnInvoice(sku: stone.sku, ref: ref)
+        do {
+            let existingItems = try modelContext.fetch(allInvoiceItems)
+            if let existingItem = existingItems.first(where: { $0.invoice?.persistentModelID != invoice.persistentModelID }) {
+                let ref = existingItem.invoice?.referenceNumber ?? "unknown"
+                throw TransactionError.stoneAlreadyOnInvoice(sku: stone.sku, ref: ref)
+            }
+        } catch let error as TransactionError {
+            throw error
+        } catch {
+            logger.error("Failed to check existing invoice items: \(error.localizedDescription, privacy: .public)")
         }
         // Guard: carat weight must be positive
         guard stone.caratWeight > 0 else {

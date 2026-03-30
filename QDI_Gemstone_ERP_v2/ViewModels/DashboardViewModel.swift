@@ -39,8 +39,11 @@ final class DashboardViewModel {
     var oldestOpenMemos: [OldestMemoItem] = []
     var inventorySnapshot = InventorySnapshot()
     var overdueMemoCount: Int = 0
+    var isLoading: Bool = false
 
     func load(modelContext: ModelContext) {
+        isLoading = true
+        defer { isLoading = false }
         loadInventoryMetrics(modelContext: modelContext)
         loadMemoMetrics(modelContext: modelContext)
         loadSalesMetrics(modelContext: modelContext)

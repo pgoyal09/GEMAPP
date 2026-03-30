@@ -67,6 +67,9 @@ struct MemoListView: View {
                         }
                     }
                     .padding(.vertical, AppSpacing.xs)
+
+                    // Summary footer
+                    memoSummaryFooter(filtered)
                 }
             }
             .frame(minWidth: memoTableMinWidth, maxWidth: .infinity)
@@ -148,6 +151,26 @@ struct MemoListView: View {
         case .sold: .success
         }
         return StatusBadge(title: status.rawValue, tone: tone)
+    }
+
+    private func memoSummaryFooter(_ memos: [Memo]) -> some View {
+        let totalAmount = memos.reduce(Decimal.zero) { $0 + $1.totalAmount }
+        let openCount = memos.filter { $0.status == .onMemo }.count
+        return HStack(spacing: AppSpacing.l) {
+            Text("\(memos.count) memo\(memos.count == 1 ? "" : "s")")
+                .font(AppTypography.caption.bold())
+                .foregroundStyle(AppColors.ink)
+            Text("Open: \(openCount)")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+            Text("Total: \(totalAmount.asCurrency)")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+            Spacer()
+        }
+        .padding(.horizontal, AppSpacing.m)
+        .padding(.vertical, AppSpacing.s)
+        .background(Color.white.opacity(0.03))
     }
 
     private func memoAgingColor(days: Int) -> Color {

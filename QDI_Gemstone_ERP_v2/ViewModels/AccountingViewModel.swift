@@ -105,8 +105,11 @@ final class AccountingViewModel {
     var agedReceivables: [AgedReceivableBucket] = []
     var salesByStoneType: [SalesByStoneType] = []
     var monthlySales: [MonthlySales] = []
+    var isLoading: Bool = false
 
     func load(modelContext: ModelContext) {
+        isLoading = true
+        defer { isLoading = false }
         let startDate = dateRange.startDate
         let endDate = dateRange.endDate
         loadRevenueAndCost(startDate: startDate, endDate: endDate, modelContext: modelContext)

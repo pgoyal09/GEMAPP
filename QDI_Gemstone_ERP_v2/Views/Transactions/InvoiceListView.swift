@@ -63,6 +63,9 @@ struct InvoiceListView: View {
                         }
                     }
                     .padding(.vertical, AppSpacing.xs)
+
+                    // Summary footer
+                    invoiceSummaryFooter(filtered)
                 }
             }
             .frame(minWidth: invoiceTableMinWidth, maxWidth: .infinity)
@@ -129,6 +132,26 @@ struct InvoiceListView: View {
         .simultaneousGesture(TapGesture(count: 2).onEnded {
             openWindow(id: "invoice", value: invoice.persistentModelID)
         })
+    }
+
+    private func invoiceSummaryFooter(_ invoices: [Invoice]) -> some View {
+        let totalAmount = invoices.reduce(Decimal.zero) { $0 + $1.totalAmount }
+        let paidCount = invoices.filter { $0.status == .paid }.count
+        return HStack(spacing: AppSpacing.l) {
+            Text("\(invoices.count) invoice\(invoices.count == 1 ? "" : "s")")
+                .font(AppTypography.caption.bold())
+                .foregroundStyle(AppColors.ink)
+            Text("Paid: \(paidCount)")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+            Text("Total: \(totalAmount.asCurrency)")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+            Spacer()
+        }
+        .padding(.horizontal, AppSpacing.m)
+        .padding(.vertical, AppSpacing.s)
+        .background(Color.white.opacity(0.03))
     }
 
     private func invoiceStatusBadge(_ status: InvoiceStatus) -> some View {

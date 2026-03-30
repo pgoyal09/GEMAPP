@@ -63,7 +63,11 @@ struct QDIGemstoneERPApp: App {
                     setupRFID()
                     #if DEBUG
                     // Only seed demo data in debug builds — production starts with empty database
-                    try? DemoDataService.seedIfNeeded(modelContext: sharedModelContainer.mainContext)
+                    do {
+                        try DemoDataService.seedIfNeeded(modelContext: sharedModelContainer.mainContext)
+                    } catch {
+                        print("[App] Failed to seed demo data: \(error.localizedDescription)")
+                    }
                     #endif
                     if Self.migrationDidFail {
                         migrationError = Self.migrationErrorMessage
@@ -76,7 +80,11 @@ struct QDIGemstoneERPApp: App {
                         NSApplication.shared.terminate(nil)
                     }
                     Button("Reset Data", role: .destructive) {
-                        try? FileManager.default.removeItem(at: Self.storeURL)
+                        do {
+                            try FileManager.default.removeItem(at: Self.storeURL)
+                        } catch {
+                            print("[App] Failed to delete store file: \(error.localizedDescription)")
+                        }
                         // Relaunch after reset
                         NSApplication.shared.terminate(nil)
                     }

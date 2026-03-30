@@ -20,6 +20,11 @@ final class ScannerViewModel {
     private var lastProcessedTimes: [String: Date] = [:]
     private static let rescanCooldown: TimeInterval = 15
 
+    /// Batch processing: collect tags within a 200ms window before processing.
+    private var pendingTags: [String] = []
+    private var batchWorkItem: DispatchWorkItem?
+    private static let batchWindow: TimeInterval = 0.2
+
     init(rfidService: RFIDService, rfidCoordinator: RFIDCoordinator? = nil) {
         self.rfidService = rfidService
         self.rfidCoordinator = rfidCoordinator
@@ -60,11 +65,35 @@ final class ScannerViewModel {
            now.timeIntervalSince(lastSeen) < Self.rescanCooldown {
             return
         }
-        lastProcessedTimes[tagID] = now
-        lastDiscoveredTagID = tagID
-        discoveredTagIDs.append(tagID)
-        if let ctx = modelContext {
-            processScannedTag(tagID: tagID, modelContext: ctx)
+
+        // Batch incoming tags within a 200ms window
+        pendingTags.append(tagID)
+        batchWorkItem?.cancel()
+        let workItem = DispatchWorkItem { [weak self] in
+            Task { @MainActor in
+                self?.processPendingBatch()
+            }
+        }
+        batchWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.batchWindow, execute: workItem)
+    }
+
+    private func processPendingBatch() {
+        let tags = pendingTags
+        pendingTags.removeAll()
+        let now = Date()
+        for tagID in tags {
+            // Re-check cooldown (tag may have been queued multiple times)
+            if let lastSeen = lastProcessedTimes[tagID],
+               now.timeIntervalSince(lastSeen) < Self.rescanCooldown {
+                continue
+            }
+            lastProcessedTimes[tagID] = now
+            lastDiscoveredTagID = tagID
+            discoveredTagIDs.append(tagID)
+            if let ctx = modelContext {
+                processScannedTag(tagID: tagID, modelContext: ctx)
+            }
         }
     }
 

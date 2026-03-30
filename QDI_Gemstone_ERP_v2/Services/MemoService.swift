@@ -67,7 +67,11 @@ enum MemoService {
             memo.status = .sold
         }
         memo.dateCompleted = Date()
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            logger.error("Failed to save memo auto-close: \(error.localizedDescription, privacy: .public)")
+        }
     }
 
     /// Convert selected memo line items to a new invoice. Does NOT mark items as sold yet.

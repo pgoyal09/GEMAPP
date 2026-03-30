@@ -240,6 +240,9 @@ struct InventoryListView: View {
                         }
                     }
                     .padding(.vertical, AppSpacing.xs)
+
+                    // Summary footer
+                    summaryFooter
                 }
             }
             .frame(minWidth: tableMinWidth, maxWidth: .infinity)
@@ -365,6 +368,34 @@ struct InventoryListView: View {
 
             Spacer()
         }
+    }
+
+    // MARK: - Summary Footer
+
+    private var summaryFooter: some View {
+        let stones = filteredStones
+        let totalCarats = stones.reduce(0.0) { $0 + $1.caratWeight }
+        let totalValue = stones.reduce(Decimal.zero) { $0 + $1.sellPrice * Decimal($1.caratWeight) }
+        return HStack(spacing: AppSpacing.l) {
+            Text("\(stones.count) stone\(stones.count == 1 ? "" : "s")")
+                .font(AppTypography.caption.bold())
+                .foregroundStyle(AppColors.ink)
+            Text("Total: \(String(format: "%.2f", totalCarats)) ct")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+            Text("Value: \(totalValue.asCurrency)")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+            if allGemstones.count != stones.count {
+                Text("(of \(allGemstones.count) total)")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, AppSpacing.m)
+        .padding(.vertical, AppSpacing.s)
+        .background(Color.white.opacity(0.03))
     }
 
     // MARK: - Helpers

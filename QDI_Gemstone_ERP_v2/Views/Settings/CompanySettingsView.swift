@@ -1,13 +1,17 @@
 import SwiftUI
+import SwiftData
 import AppKit
 
 struct CompanySettingsView: View {
+    @Environment(\.modelContext) private var modelContext
     @AppStorage("companyName") private var companyName: String = ""
     @AppStorage("companyAddress") private var companyAddress: String = ""
     @AppStorage("companyPhone") private var companyPhone: String = ""
     @AppStorage("companyEmail") private var companyEmail: String = ""
     @State private var logoData: Data? = UserDefaults.standard.data(forKey: PDFService.companyLogoUserDefaultsKey)
     @State private var showSavedToast = false
+    @State private var backupMessage: String?
+    @State private var backupIsError = false
 
     var body: some View {
         ScrollView {
@@ -94,6 +98,42 @@ struct CompanySettingsView: View {
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.inkSubtle)
 
+                // MARK: - Backup & Export
+
+                SectionHeader(title: "Backup & Export")
+
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 12) {
+                        Button("Export CSV Bundle…") { exportCSV() }
+                            .buttonStyle(.outline)
+                        Button("Export Database Copy…") { exportDatabase() }
+                            .buttonStyle(.outline)
+                    }
+
+                    if let msg = backupMessage {
+                        HStack(spacing: 6) {
+                            Image(systemName: backupIsError ? "xmark.circle.fill" : "checkmark.circle.fill")
+                                .foregroundStyle(backupIsError ? AppColors.danger : AppColors.success)
+                            Text(msg)
+                                .font(AppTypography.caption)
+                                .foregroundStyle(backupIsError ? AppColors.danger : AppColors.inkMuted)
+                        }
+                    }
+
+                    Text("CSV exports gemstones, customers, memos, and invoices as separate CSV files. Database copy exports the raw SwiftData store.")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkSubtle)
+                }
+                .padding(20)
+                .background(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                        .fill(Color.white.opacity(0.04))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                                .strokeBorder(Color.white.opacity(0.07), lineWidth: 1)
+                        )
+                )
+
                 Spacer()
             }
             .padding(24)
@@ -116,6 +156,40 @@ struct CompanySettingsView: View {
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
             content()
+        }
+    }
+
+    private func exportCSV() {
+        do {
+            let exportDir = try BackupService.exportCSVBundle(modelContext: modelContext)
+            let panel = NSSavePanel()
+            panel.title = "Save CSV Export"
+            panel.nameFieldStringValue = exportDir.lastPathComponent
+            panel.canCreateDirectories = true
+            guard panel.runModal() == .OK, let dest = panel.url else { return }
+            try FileManager.default.copyItem(at: exportDir, to: dest)
+            backupIsError = false
+            backupMessage = "CSV exported to \(dest.lastPathComponent)"
+        } catch {
+            backupIsError = true
+            backupMessage = error.localizedDescription
+        }
+    }
+
+    private func exportDatabase() {
+        do {
+            let exportDir = try BackupService.exportDatabaseCopy()
+            let panel = NSSavePanel()
+            panel.title = "Save Database Backup"
+            panel.nameFieldStringValue = exportDir.lastPathComponent
+            panel.canCreateDirectories = true
+            guard panel.runModal() == .OK, let dest = panel.url else { return }
+            try FileManager.default.copyItem(at: exportDir, to: dest)
+            backupIsError = false
+            backupMessage = "Database exported to \(dest.lastPathComponent)"
+        } catch {
+            backupIsError = true
+            backupMessage = error.localizedDescription
         }
     }
 
