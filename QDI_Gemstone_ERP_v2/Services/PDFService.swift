@@ -60,9 +60,10 @@ final class PDFService {
             customerAddress: formatAddress(invoice.customer),
             metaLines: invoiceMetaLines(invoice),
             lineItems: Array(invoice.lineItems),
-            subtotal: invoiceSubtotal(invoice),
-            tax: nil,
-            grandTotal: invoiceTotal(invoice),
+            subtotal: invoice.totalBeforeDiscount,
+            discount: invoice.discountAmount > 0 ? invoice.discountAmount : nil,
+            tax: invoice.taxAmount > 0 ? invoice.taxAmount : nil,
+            grandTotal: invoice.grandTotal,
             notes: invoice.notes,
             logoBase64: loadLogoBase64()
         )
@@ -78,6 +79,7 @@ final class PDFService {
             metaLines: memoMetaLines(memo),
             lineItems: Array(memo.lineItems),
             subtotal: memoSubtotal(memo),
+            discount: nil,
             tax: nil,
             grandTotal: memoTotal(memo),
             notes: memo.notes,
@@ -148,15 +150,17 @@ final class PDFService {
         metaLines: [String],
         lineItems: [LineItem],
         subtotal: Decimal,
+        discount: Decimal?,
         tax: Decimal?,
         grandTotal: Decimal,
         notes: String,
         logoBase64: String?
     ) -> String {
         let logoImg: String
-        if let base64 = logoBase64 {
+        if let base64 = logoBase64, !base64.isEmpty {
             logoImg = #"<img src="data:image/png;base64,\#(base64)" alt="Logo" class="logo" />"#
         } else {
+            // No logo uploaded — show company name as text logo fallback
             logoImg = ""
         }
 
@@ -173,9 +177,16 @@ final class PDFService {
             """
         }.joined(separator: "\n")
 
+        let discountRow: String
+        if let d = discount, d > 0 {
+            discountRow = "<tr><td class=\"label\">Discount</td><td class=\"num\">&minus;\(d.asCurrency)</td></tr>"
+        } else {
+            discountRow = ""
+        }
+
         let taxRow: String
         if let t = tax, t > 0 {
-            taxRow = "<tr><td colspan=\"4\" class=\"label\">Tax</td><td class=\"num\">\(t.asCurrency)</td></tr>"
+            taxRow = "<tr><td class=\"label\">Tax</td><td class=\"num\">\(t.asCurrency)</td></tr>"
         } else {
             taxRow = ""
         }
@@ -210,6 +221,7 @@ final class PDFService {
         <html>
         <head>
             <meta charset="utf-8">
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
             <style>
                 /* WKWebView does not support CSS @page counters (counter(page)/counter(pages)),
                    so page numbering is omitted. The footer div provides company branding. */
@@ -302,7 +314,7 @@ final class PDFService {
                     font-weight: 600;
                 }
                 .items-table thead { display: table-header-group; }
-                .items-table tbody tr { page-break-inside: avoid; }
+                .items-table tbody tr { page-break-inside: avoid; break-inside: avoid; }
                 .items-table tbody tr:nth-child(even) { background: #fafafa; }
                 .items-table tbody td {
                     padding: 7px 10px;
@@ -317,6 +329,8 @@ final class PDFService {
                     display: flex;
                     justify-content: flex-end;
                     margin-top: 8px;
+                    page-break-inside: avoid;
+                    break-inside: avoid;
                 }
                 .totals-table {
                     width: 260px;
@@ -381,7 +395,7 @@ final class PDFService {
             <div class="info-row">
                 <div class="bill-to">
                     <div class="section-label">Bill To</div>
-                    \(customerAddress.isEmpty ? "<p>—</p>" : "<p>\(customerAddress)</p>")
+                    \(customerAddress.isEmpty ? "<p style=\"color:#999;\">Address not provided</p>" : "<p>\(customerAddress)</p>")
                 </div>
                 <div class="meta">
                     <div class="section-label">Details</div>
@@ -407,6 +421,7 @@ final class PDFService {
             <div class="totals-wrapper">
                 <table class="totals-table">
                     <tr><td class="label">Subtotal</td><td class="num">\(subtotal.asCurrency)</td></tr>
+                    \(discountRow)
                     \(taxRow)
                     <tr class="grand"><td class="label">Total</td><td class="num">\(grandTotal.asCurrency)</td></tr>
                 </table>
@@ -464,14 +479,6 @@ final class PDFService {
 
     private func formatDate(_ date: Date) -> String {
         mediumDateFormatter.string(from: date)
-    }
-
-    private func invoiceSubtotal(_ invoice: Invoice) -> Decimal {
-        invoice.lineItems.reduce(0) { $0 + $1.amount }
-    }
-
-    private func invoiceTotal(_ invoice: Invoice) -> Decimal {
-        invoiceSubtotal(invoice)
     }
 
     private func memoSubtotal(_ memo: Memo) -> Decimal {
