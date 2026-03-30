@@ -67,7 +67,7 @@ enum InvoiceRoutes {
                     try context.save()
                     return .created(invoiceJSON(invoice))
                 } catch {
-                    return .error(code: "CREATE_FAILED", message: error.localizedDescription, status: 500)
+                    return .error(code: "CREATE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
                 }
             }
         }
@@ -95,7 +95,7 @@ enum InvoiceRoutes {
                     try context.save()
                     return .ok(invoiceDetailJSON(invoice))
                 } catch {
-                    return .error(code: "ADD_FAILED", message: error.localizedDescription)
+                    return .error(code: "ADD_FAILED", message: ErrorMapper.userMessage(from: error))
                 }
             }
         }
@@ -119,7 +119,7 @@ enum InvoiceRoutes {
                     try context.save()
                     return .ok(invoiceDetailJSON(invoice))
                 } catch {
-                    return .error(code: "REMOVE_FAILED", message: error.localizedDescription)
+                    return .error(code: "REMOVE_FAILED", message: ErrorMapper.userMessage(from: error))
                 }
             }
         }
@@ -136,7 +136,7 @@ enum InvoiceRoutes {
             }
             invoice.status = .sent
             do { try context.save() } catch {
-                return .error(code: "SAVE_FAILED", message: error.localizedDescription, status: 500)
+                return .error(code: "SAVE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
             }
             return .ok(invoiceJSON(invoice))
         }
@@ -150,7 +150,7 @@ enum InvoiceRoutes {
             }
             invoice.status = .void
             do { try context.save() } catch {
-                return .error(code: "SAVE_FAILED", message: error.localizedDescription, status: 500)
+                return .error(code: "SAVE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
             }
             return .ok(invoiceJSON(invoice))
         }

@@ -64,7 +64,7 @@ enum CustomerRoutes {
             )
             context.insert(customer)
             do { try context.save() } catch {
-                return .error(code: "SAVE_FAILED", message: error.localizedDescription, status: 500)
+                return .error(code: "SAVE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
             }
             return .created(customerJSON(customer))
         }
@@ -92,7 +92,7 @@ enum CustomerRoutes {
             if let v = body["notes"] as? String { customer.notes = v }
 
             do { try context.save() } catch {
-                return .error(code: "SAVE_FAILED", message: error.localizedDescription, status: 500)
+                return .error(code: "SAVE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
             }
             return .ok(customerJSON(customer))
         }
@@ -106,7 +106,7 @@ enum CustomerRoutes {
             }
             context.delete(customer)
             do { try context.save() } catch {
-                return .error(code: "DELETE_FAILED", message: error.localizedDescription, status: 500)
+                return .error(code: "DELETE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
             }
             return .noContent()
         }

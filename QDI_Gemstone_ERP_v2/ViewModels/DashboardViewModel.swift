@@ -1,4 +1,5 @@
 import Foundation
+import os
 import SwiftData
 
 // MARK: - Dashboard Data Types
@@ -60,22 +61,26 @@ final class DashboardViewModel {
         let availableStatus = GemstoneStatus.available
         let onMemoStatus = GemstoneStatus.onMemo
         let soldStatus = GemstoneStatus.sold
-        snap.availableCount = (try? modelContext.fetchCount(FetchDescriptor<Gemstone>(
+        snap.availableCount = safeCount(FetchDescriptor<Gemstone>(
             predicate: #Predicate<Gemstone> { $0.status == availableStatus }
-        ))) ?? 0
-        snap.onMemoCount = (try? modelContext.fetchCount(FetchDescriptor<Gemstone>(
+        ), modelContext: modelContext)
+        snap.onMemoCount = safeCount(FetchDescriptor<Gemstone>(
             predicate: #Predicate<Gemstone> { $0.status == onMemoStatus }
-        ))) ?? 0
-        snap.soldCount = (try? modelContext.fetchCount(FetchDescriptor<Gemstone>(
+        ), modelContext: modelContext)
+        snap.soldCount = safeCount(FetchDescriptor<Gemstone>(
             predicate: #Predicate<Gemstone> { $0.status == soldStatus }
-        ))) ?? 0
+        ), modelContext: modelContext)
         inventorySnapshot = snap
 
         // Fetch only available stones for carats/value calculation
         let availableDesc = FetchDescriptor<Gemstone>(
             predicate: #Predicate<Gemstone> { $0.status == availableStatus }
         )
-        guard let availableStones = try? modelContext.fetch(availableDesc) else {
+        let availableStones: [Gemstone]
+        do {
+            availableStones = try modelContext.fetch(availableDesc)
+        } catch {
+            AppLogger.data.error("Dashboard available stones fetch failed: \(error.localizedDescription, privacy: .public)")
             totalCaratsInStock = 0
             totalInventoryValue = 0
             return
@@ -97,7 +102,11 @@ final class DashboardViewModel {
         let descriptor = FetchDescriptor<Memo>(
             predicate: #Predicate<Memo> { $0.status == onMemoStatus }
         )
-        guard let memos = try? modelContext.fetch(descriptor) else {
+        let memos: [Memo]
+        do {
+            memos = try modelContext.fetch(descriptor)
+        } catch {
+            AppLogger.data.error("Dashboard memo metrics fetch failed: \(error.localizedDescription, privacy: .public)")
             totalValueOnMemo = 0
             return
         }
@@ -115,7 +124,11 @@ final class DashboardViewModel {
                 $0.invoiceDate >= startOfMonth
             }
         )
-        guard let invoices = try? modelContext.fetch(descriptor) else {
+        let invoices: [Invoice]
+        do {
+            invoices = try modelContext.fetch(descriptor)
+        } catch {
+            AppLogger.data.error("Dashboard sales metrics fetch failed: \(error.localizedDescription, privacy: .public)")
             monthlySales = 0
             return
         }
@@ -127,7 +140,13 @@ final class DashboardViewModel {
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
         descriptor.fetchLimit = 8
-        guard let memos = try? modelContext.fetch(descriptor) else { return [] }
+        let memos: [Memo]
+        do {
+            memos = try modelContext.fetch(descriptor)
+        } catch {
+            AppLogger.data.error("Dashboard recent activity fetch failed: \(error.localizedDescription, privacy: .public)")
+            return []
+        }
 
         return memos.map { memo in
             let customer = memo.customer?.displayName ?? "Unknown"
@@ -154,7 +173,13 @@ final class DashboardViewModel {
             sortBy: [SortDescriptor(\.createdAt, order: .forward)]
         )
         descriptor.fetchLimit = 5
-        guard let memos = try? modelContext.fetch(descriptor) else { return [] }
+        let memos: [Memo]
+        do {
+            memos = try modelContext.fetch(descriptor)
+        } catch {
+            AppLogger.data.error("Dashboard oldest memos fetch failed: \(error.localizedDescription, privacy: .public)")
+            return []
+        }
 
         return memos.map { memo in
             OldestMemoItem(
@@ -172,10 +197,25 @@ final class DashboardViewModel {
         let descriptor = FetchDescriptor<Memo>(
             predicate: #Predicate<Memo> { $0.status == onMemoStatus }
         )
-        guard let memos = try? modelContext.fetch(descriptor) else {
+        let memos: [Memo]
+        do {
+            memos = try modelContext.fetch(descriptor)
+        } catch {
+            AppLogger.data.error("Dashboard overdue memo count fetch failed: \(error.localizedDescription, privacy: .public)")
             overdueMemoCount = 0
             return
         }
         overdueMemoCount = memos.filter { $0.ageInDays > 60 }.count
+    }
+
+    // MARK: - Helpers
+
+    private func safeCount<T: PersistentModel>(_ descriptor: FetchDescriptor<T>, modelContext: ModelContext) -> Int {
+        do {
+            return try modelContext.fetchCount(descriptor)
+        } catch {
+            AppLogger.data.error("Dashboard count failed: \(error.localizedDescription, privacy: .public)")
+            return 0
+        }
     }
 }

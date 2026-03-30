@@ -57,7 +57,7 @@ struct StoneFormView: View {
                         }
                     }
                 } catch {
-                    viewModel.toastMessage = "Save failed: \(error.localizedDescription)"
+                    viewModel.toastMessage = "Save failed: \(ErrorMapper.userMessage(from: error))"
                     viewModel.toastIsError = true
                 }
             }
@@ -312,7 +312,7 @@ struct StoneFormView: View {
                     do {
                         try viewModel.saveAndContinue(modelContext: modelContext)
                     } catch {
-                        viewModel.toastMessage = "Save failed: \(error.localizedDescription)"
+                        viewModel.toastMessage = "Save failed: \(ErrorMapper.userMessage(from: error))"
                         viewModel.toastIsError = true
                     }
                 }
@@ -331,7 +331,7 @@ struct StoneFormView: View {
                         }
                     }
                 } catch {
-                    viewModel.toastMessage = "Save failed: \(error.localizedDescription)"
+                    viewModel.toastMessage = "Save failed: \(ErrorMapper.userMessage(from: error))"
                     viewModel.toastIsError = true
                 }
             }

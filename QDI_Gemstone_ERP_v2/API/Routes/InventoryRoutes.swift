@@ -132,7 +132,7 @@ enum InventoryRoutes {
                 do {
                     try context.save()
                 } catch {
-                    return .error(code: "SAVE_FAILED", message: error.localizedDescription, status: 500)
+                    return .error(code: "SAVE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
                 }
                 return .created(stoneJSON(stone))
             }
@@ -159,7 +159,7 @@ enum InventoryRoutes {
             if let v = body["sellPrice"] as? Double { stone.sellPrice = Decimal(v) }
 
             do { try context.save() } catch {
-                return .error(code: "SAVE_FAILED", message: error.localizedDescription, status: 500)
+                return .error(code: "SAVE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
             }
             return .ok(stoneJSON(stone))
         }
@@ -179,7 +179,7 @@ enum InventoryRoutes {
             }
             context.delete(stone)
             do { try context.save() } catch {
-                return .error(code: "DELETE_FAILED", message: error.localizedDescription, status: 500)
+                return .error(code: "DELETE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
             }
             return .noContent()
         }

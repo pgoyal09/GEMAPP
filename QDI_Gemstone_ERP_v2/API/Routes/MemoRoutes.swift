@@ -64,7 +64,7 @@ enum MemoRoutes {
                     try context.save()
                     return .created(memoJSON(memo))
                 } catch {
-                    return .error(code: "CREATE_FAILED", message: error.localizedDescription, status: 500)
+                    return .error(code: "CREATE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
                 }
             }
         }
@@ -92,7 +92,7 @@ enum MemoRoutes {
                     try context.save()
                     return .ok(memoDetailJSON(memo))
                 } catch {
-                    return .error(code: "ADD_FAILED", message: error.localizedDescription)
+                    return .error(code: "ADD_FAILED", message: ErrorMapper.userMessage(from: error))
                 }
             }
         }
@@ -116,7 +116,7 @@ enum MemoRoutes {
                     try context.save()
                     return .ok(memoDetailJSON(memo))
                 } catch {
-                    return .error(code: "REMOVE_FAILED", message: error.localizedDescription)
+                    return .error(code: "REMOVE_FAILED", message: ErrorMapper.userMessage(from: error))
                 }
             }
         }
@@ -130,7 +130,7 @@ enum MemoRoutes {
             }
             context.delete(memo)
             do { try context.save() } catch {
-                return .error(code: "DELETE_FAILED", message: error.localizedDescription, status: 500)
+                return .error(code: "DELETE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
             }
             return .noContent()
         }
@@ -151,7 +151,7 @@ enum MemoRoutes {
                     }
                     return .error(code: "CONVERT_FAILED", message: "No invoice created")
                 } catch {
-                    return .error(code: "CONVERT_FAILED", message: error.localizedDescription)
+                    return .error(code: "CONVERT_FAILED", message: ErrorMapper.userMessage(from: error))
                 }
             }
         }

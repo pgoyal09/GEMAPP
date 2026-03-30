@@ -221,7 +221,7 @@ struct CompanySettingsView: View {
             backupMessage = "CSV exported to \(dest.lastPathComponent)"
         } catch {
             backupIsError = true
-            backupMessage = error.localizedDescription
+            backupMessage = ErrorMapper.userMessage(from: error)
         }
     }
 
@@ -238,7 +238,7 @@ struct CompanySettingsView: View {
             backupMessage = "Database exported to \(dest.lastPathComponent)"
         } catch {
             backupIsError = true
-            backupMessage = error.localizedDescription
+            backupMessage = ErrorMapper.userMessage(from: error)
         }
     }
 
