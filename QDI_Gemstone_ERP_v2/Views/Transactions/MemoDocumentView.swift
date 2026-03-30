@@ -1,0 +1,392 @@
+import SwiftUI
+import SwiftData
+import AppKit
+import UniformTypeIdentifiers
+
+struct MemoDocumentView: View {
+    @Bindable var memo: Memo
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.openWindow) private var openWindow
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.documentDirtyTracker) private var dirtyTracker
+    @Query(sort: \Customer.lastName) private var allCustomers: [Customer]
+
+    @State private var selectedItemIDs: Set<PersistentIdentifier> = []
+    @State private var showInventorySheet = false
+    @State private var showLotSheet = false
+    @State private var showAddCustomerSheet = false
+    @State private var showDeleteConfirm = false
+    @State private var hasUnsavedEdits = false
+    @State private var isGeneratingPDF = false
+    @State private var toastMessage: String?
+    @State private var toastIsError = false
+    @State private var totalRefreshID = UUID()
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: AppSpacing.l) {
+                    headerSection
+                    lineItemsSection
+                    totalsSection
+                    notesSection
+                }
+                .padding(AppSpacing.l)
+            }
+            bottomToolbar
+        }
+        .id(totalRefreshID)
+        .onChange(of: memo.lineItems.count) { _, _ in totalRefreshID = UUID() }
+        .sheet(isPresented: $showInventorySheet) {
+            InventorySelectSheet { stones in
+                for stone in stones {
+                    do {
+                        try TransactionService.addStone(stone, to: memo, modelContext: modelContext)
+                    } catch {
+                        showToast("Failed to add stone: \(error.localizedDescription)", isError: true)
+                    }
+                }
+                markDirty()
+            }
+        }
+        .sheet(isPresented: $showLotSheet) {
+            LotSelectSheet { lot, carats in
+                do {
+                    try LotService.addToMemo(lot, carats: carats, memo: memo, modelContext: modelContext)
+                } catch {
+                    showToast("Failed to add lot: \(error.localizedDescription)", isError: true)
+                }
+                markDirty()
+            }
+        }
+        .sheet(isPresented: $showAddCustomerSheet) {
+            CustomerFormSheet(mode: .add) { customer in
+                memo.customer = customer
+                markDirty()
+            }
+        }
+        .alert("Delete Memo?", isPresented: $showDeleteConfirm) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                do {
+                    try MemoService.deleteMemo(memo, modelContext: modelContext)
+                    dismiss()
+                } catch {
+                    showToast("Failed to delete memo: \(error.localizedDescription)", isError: true)
+                }
+            }
+        } message: {
+            Text("This will return all items and permanently delete the memo.")
+        }
+        .overlay {
+            if let msg = toastMessage {
+                ToastOverlay(message: msg, isError: toastIsError)
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            withAnimation { toastMessage = nil }
+                        }
+                    }
+            }
+        }
+    }
+
+    // MARK: - Header
+
+    private var headerSection: some View {
+        GlassCard(padding: AppSpacing.l) {
+            VStack(alignment: .leading, spacing: AppSpacing.m) {
+                HStack {
+                    Text("Memo #\(memo.referenceNumber)")
+                        .font(AppTypography.heading)
+                        .foregroundStyle(AppColors.ink)
+                    Spacer()
+                    memoStatusBadge
+                }
+
+                HStack(spacing: AppSpacing.l) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Customer").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                        HStack {
+                            Picker("Customer", selection: Binding(
+                                get: { memo.customer },
+                                set: { memo.customer = $0; markDirty() }
+                            )) {
+                                Text("Select…").tag(Customer?.none)
+                                ForEach(allCustomers) { c in Text(c.displayName).tag(Customer?.some(c)) }
+                            }
+                            .labelsHidden()
+                            Button(action: { showAddCustomerSheet = true }) {
+                                Image(systemName: "plus.circle").foregroundStyle(AppColors.primary)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Add Customer")
+                        }
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Date").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                        DatePicker("", selection: Binding(
+                            get: { memo.dateAssigned ?? Date() },
+                            set: { memo.dateAssigned = $0; markDirty() }
+                        ), displayedComponents: .date)
+                        .labelsHidden()
+                    }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var memoStatusBadge: some View {
+        let tone: StatusBadge.Tone = switch memo.status {
+        case .onMemo: .accent
+        case .returned: .warning
+        case .sold: .success
+        }
+        StatusBadge(title: memo.status.rawValue, tone: tone)
+    }
+
+    // MARK: - Line Items
+
+    private var lineItemsSection: some View {
+        GlassCard(padding: AppSpacing.m) {
+            VStack(alignment: .leading, spacing: AppSpacing.s) {
+                HStack {
+                    SectionHeader(title: "Line Items")
+                    Spacer()
+                    addItemsMenu
+                }
+
+                if !selectedItemIDs.isEmpty {
+                    selectedItemActions
+                }
+
+                // Header row
+                HStack(spacing: 0) {
+                    Toggle("", isOn: .constant(false)).frame(width: 24).hidden()
+                    TableHeader(title: "SKU", width: TableColumn.sku)
+                    TableHeader(title: "Type", width: TableColumn.type)
+                    TableHeader(title: "Description", width: TableColumn.description)
+                    TableHeader(title: "Carats", width: TableColumn.carat)
+                    TableHeader(title: "Rate", width: TableColumn.price)
+                    TableHeader(title: "Amount", width: TableColumn.price)
+                }
+                .padding(.horizontal, AppSpacing.s)
+
+                ForEach(memo.lineItems) { item in
+                    HStack(spacing: 0) {
+                        Toggle("", isOn: Binding(
+                            get: { selectedItemIDs.contains(item.persistentModelID) },
+                            set: { if $0 { selectedItemIDs.insert(item.persistentModelID) } else { selectedItemIDs.remove(item.persistentModelID) } }
+                        ))
+                        .frame(width: 24)
+
+                        EditableLineItemRow(item: item) { markDirty() }
+
+                        lineItemStatusBadge(item)
+                            .frame(width: 70, alignment: .trailing)
+                    }
+                    .padding(.horizontal, AppSpacing.s)
+                    .padding(.vertical, 2)
+                    .contextMenu {
+                        Button("Remove") {
+                            do {
+                                try TransactionService.removeLineItem(item, modelContext: modelContext)
+                                markDirty()
+                            } catch {
+                                showToast("Failed to remove item: \(error.localizedDescription)", isError: true)
+                            }
+                        }
+                    }
+                }
+
+                if memo.lineItems.isEmpty {
+                    Text("No line items. Add stones or services above.")
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.inkSubtle)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, AppSpacing.l)
+                }
+            }
+        }
+    }
+
+    private var addItemsMenu: some View {
+        HStack(spacing: 8) {
+            Button("Single/Pair") { showInventorySheet = true }
+            Button("Lot") { showLotSheet = true }
+            Button("Brokered") {
+                do {
+                    try TransactionService.addBrokeredLine(to: memo, modelContext: modelContext)
+                    markDirty()
+                } catch {
+                    showToast("Failed to add brokered line: \(error.localizedDescription)", isError: true)
+                }
+            }
+            Button("Service") {
+                do {
+                    try TransactionService.addServiceLine(to: memo, modelContext: modelContext)
+                    markDirty()
+                } catch {
+                    showToast("Failed to add service line: \(error.localizedDescription)", isError: true)
+                }
+            }
+        }
+        .font(AppTypography.caption)
+        .foregroundStyle(AppColors.primary)
+        .buttonStyle(.plain)
+    }
+
+    private var selectedItemActions: some View {
+        HStack(spacing: 12) {
+            Text("\(selectedItemIDs.count) selected")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkSubtle)
+            Button("Return Items") {
+                let items = memo.lineItems.filter { selectedItemIDs.contains($0.persistentModelID) && $0.status == .open }
+                do {
+                    try MemoService.returnItems(items, modelContext: modelContext)
+                } catch {
+                    showToast("Failed to return items: \(error.localizedDescription)", isError: true)
+                }
+                selectedItemIDs.removeAll()
+                markDirty()
+            }
+            .buttonStyle(.outline(.init(AppColors.warning)))
+            Button("Convert to Invoice") {
+                let items = memo.lineItems.filter { selectedItemIDs.contains($0.persistentModelID) && $0.status == .open }
+                do {
+                    if let invoice = try MemoService.convertToInvoice(memo: memo, selectedItems: items, modelContext: modelContext) {
+                        openWindow(id: "invoice", value: invoice.persistentModelID)
+                    }
+                } catch {
+                    showToast("Failed to convert to invoice: \(error.localizedDescription)", isError: true)
+                }
+                selectedItemIDs.removeAll()
+            }
+            .buttonStyle(.gradient)
+        }
+        .padding(.vertical, AppSpacing.xs)
+    }
+
+    @ViewBuilder
+    private func lineItemStatusBadge(_ item: LineItem) -> some View {
+        let tone: StatusBadge.Tone = switch item.status {
+        case .open: .neutral
+        case .returned: .warning
+        case .sold: .success
+        }
+        StatusBadge(title: item.status.rawValue, tone: tone)
+    }
+
+    // MARK: - Totals
+
+    private var totalsSection: some View {
+        GlassCard(padding: AppSpacing.m) {
+            HStack {
+                Spacer()
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("Total: \(memo.totalAmount.asCurrency)")
+                        .font(AppTypography.heading)
+                        .foregroundStyle(AppColors.ink)
+                    Text("Open: \(memo.openMemoAmount.asCurrency)")
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.primary)
+                }
+            }
+        }
+    }
+
+    // MARK: - Notes
+
+    private var notesSection: some View {
+        GlassCard(padding: AppSpacing.m) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Notes").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                TextEditor(text: $memo.notes)
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.ink)
+                    .scrollContentBackground(.hidden)
+                    .frame(minHeight: 60)
+                    .onChange(of: memo.notes) { _, _ in markDirty() }
+            }
+        }
+    }
+
+    // MARK: - Bottom Toolbar
+
+    private var bottomToolbar: some View {
+        HStack {
+            Button("Delete Memo") { showDeleteConfirm = true }
+                .foregroundStyle(AppColors.danger)
+                .buttonStyle(.plain)
+            Spacer()
+            Button("Export PDF") { exportPDF() }
+                .buttonStyle(.outline)
+                .disabled(isGeneratingPDF)
+                .keyboardShortcut("p", modifiers: .command)
+            Button("Cancel") {
+                dismiss()
+            }
+            .buttonStyle(.outline)
+            Button("Save") {
+                saveMemo()
+            }
+            .buttonStyle(.gradient)
+            .keyboardShortcut("s", modifiers: .command)
+        }
+        .padding(AppSpacing.m)
+        .background(Color.white.opacity(0.02))
+        .overlay(alignment: .top) { Divider().background(Color.white.opacity(0.06)) }
+    }
+
+    private func saveMemo() {
+        do {
+            try modelContext.save()
+            hasUnsavedEdits = false
+            dirtyTracker.clearDirty()
+            NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
+        } catch {
+            // Save error handled by modelContext
+        }
+    }
+
+    private func exportPDF() {
+        isGeneratingPDF = true
+        PDFService.shared.generatePDF(memo: memo) { result in
+            DispatchQueue.main.async {
+                isGeneratingPDF = false
+                switch result {
+                case .success(let tempURL):
+                    let panel = NSSavePanel()
+                    panel.allowedContentTypes = [.pdf]
+                    panel.nameFieldStringValue = "Memo-\(memo.referenceNumber).pdf"
+                    panel.begin { response in
+                        if response == .OK, let destURL = panel.url {
+                            do {
+                                if FileManager.default.fileExists(atPath: destURL.path) {
+                                    try FileManager.default.removeItem(at: destURL)
+                                }
+                                try FileManager.default.copyItem(at: tempURL, to: destURL)
+                            } catch {
+                                showToast("Failed to save PDF: \(error.localizedDescription)", isError: true)
+                            }
+                        }
+                        PDFService.shared.cleanupTempFile(at: tempURL)
+                    }
+                case .failure(let error):
+                    showToast("PDF generation failed: \(error.localizedDescription)", isError: true)
+                }
+            }
+        }
+    }
+
+    private func markDirty() {
+        hasUnsavedEdits = true
+        dirtyTracker.markDirty()
+    }
+
+    private func showToast(_ message: String, isError: Bool = false) {
+        toastIsError = isError
+        withAnimation { toastMessage = message }
+    }
+}

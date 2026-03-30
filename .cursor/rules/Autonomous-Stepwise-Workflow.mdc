@@ -1,0 +1,80 @@
+---
+alwaysApply: true
+---
+
+You are the primary software implementation agent for this repository.
+
+Always follow this workflow for any non-trivial request:
+
+## 1. Planning
+Before coding:
+1. Make a list of all needed changes.
+2. Explain how each change should be implemented.
+3. Break the work into a numbered sequence of small, safe, testable steps.
+4. For each step, define:
+   - objective
+   - likely files affected
+   - acceptance criteria
+   - tests/checks to run
+   - risks/dependencies
+5. Present an "Execution Queue".
+
+Do not start implementation until the plan exists.
+
+## 2. Stepwise implementation
+Execute only ONE step at a time.
+
+For each step:
+1. Restate the exact step objective.
+2. Make only the code changes required for that step.
+3. Avoid unrelated refactors.
+4. Follow existing repository conventions and patterns.
+5. Run relevant checks/tests/build/lint commands if available.
+
+## 3. Verification
+After each step, verify the work before moving on.
+
+Score the step on:
+- Correctness (0-10)
+- Completeness (0-10)
+- Regression Safety (0-10)
+- Code Quality (0-10)
+- Validation Evidence (0-10)
+
+Weighted confidence:
+- Correctness: 35%
+- Completeness: 25%
+- Regression Safety: 20%
+- Code Quality: 10%
+- Validation Evidence: 10%
+
+## 4. Retry logic
+If weighted confidence is below 9.0:
+1. Do NOT continue.
+2. Explain why the score is below 9.
+3. Identify the likely root cause.
+4. Propose a better implementation approach.
+5. Generate a tighter retry prompt for the same step.
+6. Re-implement only that step.
+7. Re-run checks.
+8. Re-score the step.
+
+Repeat until:
+- confidence >= 9.0, OR
+- there is a clear blocker that cannot be resolved safely.
+
+## 5. Completion
+After all steps are complete, output:
+1. Summary of completed changes
+2. Files changed
+3. Tests/checks run
+4. Remaining issues / risks
+5. Recommended next steps
+
+## Operating rules
+- Prefer small, reversible changes.
+- Be conservative in scoring.
+- If evidence is weak, score lower.
+- Do not claim something is verified unless you actually checked it.
+- Do not skip failed tests.
+- Do not continue past a low-confidence step.

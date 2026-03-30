@@ -1,0 +1,926 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		02820FE626391AF6ED793539 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96E4658275B0BB02DEE8C7EA /* DashboardView.swift */; };
+		02C2B00B64D2CD3DD6185B9A /* DocumentDirtyTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BA467836A257651957AC30 /* DocumentDirtyTracker.swift */; };
+		07B845F1AA0F5EE6AF6CF6D0 /* String+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FA9BB5D29646A37FED67D4 /* String+Helpers.swift */; };
+		0D03B2B204E8B94FD9BE5B47 /* AccountingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B08E7202314CCAB62D6B4B /* AccountingViewModel.swift */; };
+		0D837AC79FC1183B054378DD /* GradientButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 314343D6A92F0E3A4BB66BBB /* GradientButton.swift */; };
+		0E22C31C27AC813031FCE9B9 /* AppShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C520DBB8403C8EC32DDD058 /* AppShellView.swift */; };
+		0E499D6C15EA875729D18B9A /* GradientButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 325C18F3512961657BDAD856 /* GradientButtonStyle.swift */; };
+		0ED668E60356DA0484B31263 /* StoneShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98BA838D1EBFB0FC5CD952B0 /* StoneShape.swift */; };
+		0FCE57C035CE5E45350AC3BF /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAD2476C55F79206377ADE3C /* GlassCard.swift */; };
+		1002EA4486B8EE5755776E11 /* ReferenceNumberGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5EC08686561C814F4638EFB /* ReferenceNumberGenerator.swift */; };
+		10B427329AA2467F2FDC9AE6 /* TableHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBCAA0A67DB386B1FD7A631C /* TableHeader.swift */; };
+		11FE247A849C307366FBD722 /* ScannerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B301F1FBF670487313AA823 /* ScannerViewModel.swift */; };
+		1238BCEA0A0DDE5D897FA376 /* RecentActivityList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 667B98EBC03A1403A73B6FA0 /* RecentActivityList.swift */; };
+		131475971AEAEAA1815CF268 /* RFIDManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96D844385E3F6295552E81B9 /* RFIDManager.swift */; };
+		131B6C26CA0C486F3426BAC2 /* StoneFormViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2AF4D46115756F206DD89A7 /* StoneFormViewModel.swift */; };
+		1489D08237C341F76A599448 /* GemstoneStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBD18A2A4E61A928E95DB592 /* GemstoneStatus.swift */; };
+		14913C4FE0D6647E9DDF6F02 /* TransactionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 839D3C084D42E8BF25F18F4B /* TransactionService.swift */; };
+		14CC1929E412754E2E088A23 /* GlassBackgroundModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CB667D10C57F1B9EB42D6F /* GlassBackgroundModifier.swift */; };
+		16356103918657A1C69BC698 /* GlassFieldModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F178839EE6951B96D2016337 /* GlassFieldModifier.swift */; };
+		1989853CA2BB15A70FADE321 /* CustomerListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9036CD16C22CE2FC676144FB /* CustomerListViewModel.swift */; };
+		1CD0AE33C4EAFD6907195D3F /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ECF159A5FC31BBD9D068E1C /* SidebarView.swift */; };
+		1D3823E437D7D660EE2A4797 /* PDFService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD9E6F4BB3CB6A102CD30AEB /* PDFService.swift */; };
+		1ED84C0E9FD45192AA89D070 /* MemoListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FC22A075D95D822A554438 /* MemoListView.swift */; };
+		220119E875D04B6378A1498D /* StoneGrouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3DCED9AB17D0D229DE8F7A1 /* StoneGrouping.swift */; };
+		22F0D123BC129C779B9FA8FE /* Date+Relative.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA586950C6BEDF816ADF42D7 /* Date+Relative.swift */; };
+		22F23D9F8E802FBD936767BE /* AppTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F57C93F3894AAE530F52820 /* AppTypography.swift */; };
+		250D560298DA3BBD70C0F1B1 /* DashboardInfoPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82174E0400A9FC9A87E6B78 /* DashboardInfoPanel.swift */; };
+		2599CD0D0A9C81E5D79D2ADE /* LotService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D1AB12068D6098DAB4A22A3 /* LotService.swift */; };
+		26F4350DF12DABAC78445B20 /* SKUGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D04B1F807ECBF7399A1576 /* SKUGenerator.swift */; };
+		2A09F23C27BC6C7C770B9352 /* EditableLineItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF52535A188C64A84EADF9EE /* EditableLineItemRow.swift */; };
+		2A0DDDDABE302401802C1A68 /* QuickActionsGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDF43F66FC7402DC31864900 /* QuickActionsGrid.swift */; };
+		2AB076B178140D5D6E08687A /* InvoiceWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DAC44C95038D141D0930061 /* InvoiceWindowView.swift */; };
+		2DF420A52C9709593A2A50CA /* ToastOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BCAC0BEB1EAB0CD639D6FA2 /* ToastOverlay.swift */; };
+		2E40205CB293FB5D0F8C1BBC /* StoneTypeBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9555B15E90483AC30BCFAC /* StoneTypeBadge.swift */; };
+		2F4FB98D7BC8F79ABD16DDA7 /* StoneType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6B133B323D833E799468EA /* StoneType.swift */; };
+		2F7BEB794576611CF1605802 /* HistoryEventType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C6A26598A73007FDECAF109 /* HistoryEventType.swift */; };
+		303AE869A631CC57C6648528 /* InventoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0802F6FC50765CEE19C0FB4E /* InventoryListView.swift */; };
+		320A9924011B5A7B3F4013C3 /* InvoiceStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5AD9B9980F9121A678A0051 /* InvoiceStatus.swift */; };
+		33A389AF89C4C2138E449298 /* RFIDTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC2C8DCD1516CDC38886FFC /* RFIDTag.swift */; };
+		3E7253792457246D6128E747 /* MemoDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0F40EC01C97C5209D4F80E /* MemoDocumentView.swift */; };
+		3EAD38A014DAAD9ECA8D116F /* CustomerFormSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D3AC4AEFD6246352AEA546 /* CustomerFormSheet.swift */; };
+		43387DB5F7418C1F49F5CAD8 /* Customer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A771D99AF395E25A383305 /* Customer.swift */; };
+		4B2BE11085FE92583CC52B7D /* CustomerListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8694EA6DA5A3AF102B5B6 /* CustomerListView.swift */; };
+		5041255737768DE30B3309AD /* HoverRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA238D2CE296E7F838340CCD /* HoverRow.swift */; };
+		5230523037E4A195FA18008D /* StoneFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DCDE31D32F68887B83C97E2 /* StoneFormView.swift */; };
+		57B36C9037EA951332C0C6C7 /* ReconcileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AD0042F0425A31D03D81B15 /* ReconcileViewModel.swift */; };
+		58D4B1FEBCB4D268F7209011 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7220B21A25317D921736B773 /* EmptyStateView.swift */; };
+		5D4252BCD24FFD3E613925DB /* LotSelectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C830FBAB085D765E82A476A2 /* LotSelectSheet.swift */; };
+		5F3BE4F310544777811FC6D1 /* ReviewQueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F515C70472941C4AA201004D /* ReviewQueueView.swift */; };
+		625E118C5D6B61E937EDD8D4 /* DemoDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90E295BFAC2A9465729BDF0A /* DemoDataService.swift */; };
+		63CD328302DF899DDE94627F /* NavigationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A40AC13F11AC3673A4A1587 /* NavigationItem.swift */; };
+		655199E393D8F081A7941A84 /* RFIDLifecycleStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D30989C55A226CF4F6D747 /* RFIDLifecycleStatus.swift */; };
+		66FF1931D85581CE3FA6E272 /* UnknownTagAssignSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1615490722ED65602953FB1 /* UnknownTagAssignSheet.swift */; };
+		67B2AAA74D6698A0B1B91324 /* LotInventoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 626E3D17936BF2108324AF28 /* LotInventoryViewModel.swift */; };
+		6AA436000DB086EE953682C6 /* LotTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E2B54397410243BBF48929 /* LotTransaction.swift */; };
+		6D6FA2C068306A4AA0754718 /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5CDFA11A960E91FB0A818F3 /* StatusBadge.swift */; };
+		6E9460794A680AD3E74BE51D /* Gemstone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 865F7818A0D127059D5F79E6 /* Gemstone.swift */; };
+		72AD8359D7575C77CFE5B1CF /* MemoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62E27E8FE9B3748CF06DC50 /* MemoService.swift */; };
+		72DDA78BD6DCEBA65A238C75 /* LineItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816074071ED96F056B1712EA /* LineItem.swift */; };
+		748169DF4ED8777BCBEC80AF /* Invoice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 230BF8E5988671BEFE23C0E0 /* Invoice.swift */; };
+		75DCAB009D62E00D1737C994 /* AccountingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FBD15DCE21EE1BD176D04F /* AccountingView.swift */; };
+		79D64E872448970E69F593C9 /* FilterPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E7B6A77056D754FF2151496 /* FilterPill.swift */; };
+		7E295706AFD620C12A948AC9 /* LotTransactionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9453E5A1BB6929896AE1BE0A /* LotTransactionType.swift */; };
+		7EA01D623D3136817EE57733 /* InventorySelectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9299C8922C00C4B986D2EF8 /* InventorySelectSheet.swift */; };
+		7EBBF92F4898FA347D76981A /* InvoiceDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977283232FDCB4E0C4840013 /* InvoiceDocumentView.swift */; };
+		7EC09767EE9FDF645E7BED24 /* ReconcileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98536087CF99CCD213E1EA5F /* ReconcileView.swift */; };
+		832F16AE8FFC3D579CCCFD2B /* ScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE8B1FC546208EE8FE5FE4D /* ScannerView.swift */; };
+		83EA0138A6C10867A3530322 /* InvoiceListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9060984B3BD60113BC717CB0 /* InvoiceListView.swift */; };
+		8445D20A1BA1A80DA0B7384E /* OutlineButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BDB32F92A33062485FDE23 /* OutlineButtonStyle.swift */; };
+		931FFC237CBE06B9BBE6EDCB /* LotInventoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25CDDAACE2FF674CA40DBD20 /* LotInventoryView.swift */; };
+		9420EE5E15188B81396103F2 /* InvoiceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F92992A54A6B3F94585D300 /* InvoiceService.swift */; };
+		94757921694BFB20D9094247 /* TransactionEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F904E2E169D04A5E12A9BA24 /* TransactionEditorViewModel.swift */; };
+		9574F276BFBFEB86FD242007 /* StoneDescriptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C64C9459C79A0894AC0F0F0 /* StoneDescriptionBuilder.swift */; };
+		983E49E5F8888D2FC01A3A1B /* QDIGemstoneERPApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4BC3BE124CB7474DC325DA /* QDIGemstoneERPApp.swift */; };
+		98D7F9952F6786EA9D83D041 /* RFIDCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6538A7C8468B6A5E43E91FE9 /* RFIDCoordinator.swift */; };
+		A2514E098351502ACF15BA47 /* GlassSearchField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F52F24F5AFF74620899B4F36 /* GlassSearchField.swift */; };
+		A53B4FF570C732F5F44679AA /* RFIDService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB4A70485C8693503BFC503 /* RFIDService.swift */; };
+		AAF4F8C7361C8E5C96483987 /* EPCanonical.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78DFE5A014C55EA551D7D16D /* EPCanonical.swift */; };
+		ADE644F1B38D59234715CA9B /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82D39A3810995F0A808EB202 /* SectionHeader.swift */; };
+		AEB120D968D7BF9F4F12AA4B /* InventoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10E5E8CE863390404948AA94 /* InventoryViewModel.swift */; };
+		B02FE4C6341F52FB20F7C3A6 /* MemoWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E32BF5EC574469A8D3977C5F /* MemoWindowView.swift */; };
+		B34DB3A3FF936FA5FFC60998 /* InvoiceListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB2959E2E58627DBE83E661 /* InvoiceListViewModel.swift */; };
+		B5E0D52AD619ABC57EB872A5 /* Memo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07EA69C23F35D6BFA7DBF3A /* Memo.swift */; };
+		B665C2DFE7620630DAC22AA2 /* AppSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C50CA93426BCF5FD29E8332 /* AppSpacing.swift */; };
+		C17269AFC38428BC87160C85 /* GemstoneDetailPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 814CBBF32C678A903E1B3D9C /* GemstoneDetailPanel.swift */; };
+		C1981B0CE8BC8F335CF84748 /* KPICardRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995BE77960F452E41F4E4BDF /* KPICardRow.swift */; };
+		C57428D589CE37362E11A2CF /* CustomerDetailPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C836FB999C2771AA1719CA14 /* CustomerDetailPanel.swift */; };
+		C598F81E0453F9C995A49137 /* TableColumn.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07BBCDE21A8DEA71CC11956 /* TableColumn.swift */; };
+		C604BF9B9BE75A4DE210A592 /* LineItemKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D603B8B6A476C98E66B400 /* LineItemKind.swift */; };
+		C8D707A1F1797FFE711ABBC2 /* ORSSerial in Frameworks */ = {isa = PBXBuildFile; productRef = DB07F8E31C04219DAA692E41 /* ORSSerial */; };
+		CF5C7C0597EB7E99DA8D3991 /* DetailRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */; };
+		D139FE43F09FB5A1B750B918 /* LineItemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CD014DC9A48F5870B67D2B /* LineItemStatus.swift */; };
+		D47EBBD8500619EF4147879A /* MemoStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 173E223EE059F1CF750C3941 /* MemoStatus.swift */; };
+		DB204AB5F19F7F8F7D055CE0 /* MemoListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53978275BA1221231FE9B922 /* MemoListViewModel.swift */; };
+		E2F00AFDAA6FD58267E75D7E /* GlassTableModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22407FE0A483A38E0B420584 /* GlassTableModifier.swift */; };
+		E56A8D662F2E1D90E871A970 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4ECE3F56706FBA13A89DF47 /* AppConstants.swift */; };
+		E87D650B61167FA6D12F2169 /* InventoryFilterBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A9B8686EE1663B720013FC /* InventoryFilterBar.swift */; };
+		E9EA1A74670EFB1C0D87AF61 /* RFIDScanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FFA42D7ADC3BDCCB4B372B4 /* RFIDScanService.swift */; };
+		EB9A2DCD8E6BCCAC13026227 /* NavigationGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 037857AF7FF32943A3CBC483 /* NavigationGuard.swift */; };
+		F0AC6557A35E1C3E15C169E2 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C611B9AA323E95C9B384F701 /* DashboardViewModel.swift */; };
+		F76E8FCAA742119E0D9A183D /* HistoryLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D6DC60F80D7FC541834613 /* HistoryLogger.swift */; };
+		F91A9927D6C94C662EACDE6F /* HistoryEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 149AAED5205BD92D1632662A /* HistoryEvent.swift */; };
+		FA8502A655774E79FC240E64 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B0F11EF531CE6C3EF6C5CC /* AppColors.swift */; };
+		FF2A553EE82E73075D6FB33A /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B86ED4CBE9430761895C822 /* CurrencyFormatter.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		02CB667D10C57F1B9EB42D6F /* GlassBackgroundModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassBackgroundModifier.swift; sourceTree = "<group>"; };
+		037857AF7FF32943A3CBC483 /* NavigationGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationGuard.swift; sourceTree = "<group>"; };
+		07A771D99AF395E25A383305 /* Customer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Customer.swift; sourceTree = "<group>"; };
+		0802F6FC50765CEE19C0FB4E /* InventoryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryListView.swift; sourceTree = "<group>"; };
+		0AE8B1FC546208EE8FE5FE4D /* ScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerView.swift; sourceTree = "<group>"; };
+		0BCAC0BEB1EAB0CD639D6FA2 /* ToastOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastOverlay.swift; sourceTree = "<group>"; };
+		0C4BC3BE124CB7474DC325DA /* QDIGemstoneERPApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QDIGemstoneERPApp.swift; sourceTree = "<group>"; };
+		0C50CA93426BCF5FD29E8332 /* AppSpacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSpacing.swift; sourceTree = "<group>"; };
+		0C6A26598A73007FDECAF109 /* HistoryEventType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryEventType.swift; sourceTree = "<group>"; };
+		0F92992A54A6B3F94585D300 /* InvoiceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceService.swift; sourceTree = "<group>"; };
+		10E5E8CE863390404948AA94 /* InventoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryViewModel.swift; sourceTree = "<group>"; };
+		149AAED5205BD92D1632662A /* HistoryEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryEvent.swift; sourceTree = "<group>"; };
+		173E223EE059F1CF750C3941 /* MemoStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoStatus.swift; sourceTree = "<group>"; };
+		1BB4A70485C8693503BFC503 /* RFIDService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDService.swift; sourceTree = "<group>"; };
+		1C64C9459C79A0894AC0F0F0 /* StoneDescriptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneDescriptionBuilder.swift; sourceTree = "<group>"; };
+		1DCDE31D32F68887B83C97E2 /* StoneFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneFormView.swift; sourceTree = "<group>"; };
+		22407FE0A483A38E0B420584 /* GlassTableModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassTableModifier.swift; sourceTree = "<group>"; };
+		230BF8E5988671BEFE23C0E0 /* Invoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Invoice.swift; sourceTree = "<group>"; };
+		25CDDAACE2FF674CA40DBD20 /* LotInventoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotInventoryView.swift; sourceTree = "<group>"; };
+		2ECF159A5FC31BBD9D068E1C /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		314343D6A92F0E3A4BB66BBB /* GradientButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientButton.swift; sourceTree = "<group>"; };
+		325C18F3512961657BDAD856 /* GradientButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientButtonStyle.swift; sourceTree = "<group>"; };
+		32D04B1F807ECBF7399A1576 /* SKUGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SKUGenerator.swift; sourceTree = "<group>"; };
+		32D6DC60F80D7FC541834613 /* HistoryLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryLogger.swift; sourceTree = "<group>"; };
+		35FA9BB5D29646A37FED67D4 /* String+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Helpers.swift"; sourceTree = "<group>"; };
+		37BDB32F92A33062485FDE23 /* OutlineButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutlineButtonStyle.swift; sourceTree = "<group>"; };
+		37D603B8B6A476C98E66B400 /* LineItemKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineItemKind.swift; sourceTree = "<group>"; };
+		3A9555B15E90483AC30BCFAC /* StoneTypeBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneTypeBadge.swift; sourceTree = "<group>"; };
+		3AC2C8DCD1516CDC38886FFC /* RFIDTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDTag.swift; sourceTree = "<group>"; };
+		41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailRow.swift; sourceTree = "<group>"; };
+		4A40AC13F11AC3673A4A1587 /* NavigationItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationItem.swift; sourceTree = "<group>"; };
+		4C520DBB8403C8EC32DDD058 /* AppShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShellView.swift; sourceTree = "<group>"; };
+		4F57C93F3894AAE530F52820 /* AppTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTypography.swift; sourceTree = "<group>"; };
+		53978275BA1221231FE9B922 /* MemoListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoListViewModel.swift; sourceTree = "<group>"; };
+		5E0F40EC01C97C5209D4F80E /* MemoDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoDocumentView.swift; sourceTree = "<group>"; };
+		5ED44A9E836CD59534C5F518 /* QDI_Gemstone_ERP_v2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QDI_Gemstone_ERP_v2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		626E3D17936BF2108324AF28 /* LotInventoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotInventoryViewModel.swift; sourceTree = "<group>"; };
+		6538A7C8468B6A5E43E91FE9 /* RFIDCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDCoordinator.swift; sourceTree = "<group>"; };
+		667B98EBC03A1403A73B6FA0 /* RecentActivityList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentActivityList.swift; sourceTree = "<group>"; };
+		69BA467836A257651957AC30 /* DocumentDirtyTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentDirtyTracker.swift; sourceTree = "<group>"; };
+		7220B21A25317D921736B773 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
+		75E8694EA6DA5A3AF102B5B6 /* CustomerListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerListView.swift; sourceTree = "<group>"; };
+		78DFE5A014C55EA551D7D16D /* EPCanonical.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EPCanonical.swift; sourceTree = "<group>"; };
+		7DAC44C95038D141D0930061 /* InvoiceWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceWindowView.swift; sourceTree = "<group>"; };
+		7FFA42D7ADC3BDCCB4B372B4 /* RFIDScanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDScanService.swift; sourceTree = "<group>"; };
+		814CBBF32C678A903E1B3D9C /* GemstoneDetailPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GemstoneDetailPanel.swift; sourceTree = "<group>"; };
+		816074071ED96F056B1712EA /* LineItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineItem.swift; sourceTree = "<group>"; };
+		82D39A3810995F0A808EB202 /* SectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeader.swift; sourceTree = "<group>"; };
+		839D3C084D42E8BF25F18F4B /* TransactionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionService.swift; sourceTree = "<group>"; };
+		865F7818A0D127059D5F79E6 /* Gemstone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemstone.swift; sourceTree = "<group>"; };
+		8AD0042F0425A31D03D81B15 /* ReconcileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReconcileViewModel.swift; sourceTree = "<group>"; };
+		8B86ED4CBE9430761895C822 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
+		8D1AB12068D6098DAB4A22A3 /* LotService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotService.swift; sourceTree = "<group>"; };
+		9036CD16C22CE2FC676144FB /* CustomerListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerListViewModel.swift; sourceTree = "<group>"; };
+		9060984B3BD60113BC717CB0 /* InvoiceListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceListView.swift; sourceTree = "<group>"; };
+		90E295BFAC2A9465729BDF0A /* DemoDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoDataService.swift; sourceTree = "<group>"; };
+		9453E5A1BB6929896AE1BE0A /* LotTransactionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotTransactionType.swift; sourceTree = "<group>"; };
+		96D844385E3F6295552E81B9 /* RFIDManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDManager.swift; sourceTree = "<group>"; };
+		96E4658275B0BB02DEE8C7EA /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		977283232FDCB4E0C4840013 /* InvoiceDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceDocumentView.swift; sourceTree = "<group>"; };
+		98536087CF99CCD213E1EA5F /* ReconcileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReconcileView.swift; sourceTree = "<group>"; };
+		98BA838D1EBFB0FC5CD952B0 /* StoneShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneShape.swift; sourceTree = "<group>"; };
+		995BE77960F452E41F4E4BDF /* KPICardRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KPICardRow.swift; sourceTree = "<group>"; };
+		9B301F1FBF670487313AA823 /* ScannerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerViewModel.swift; sourceTree = "<group>"; };
+		9E7B6A77056D754FF2151496 /* FilterPill.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterPill.swift; sourceTree = "<group>"; };
+		A07EA69C23F35D6BFA7DBF3A /* Memo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Memo.swift; sourceTree = "<group>"; };
+		A1615490722ED65602953FB1 /* UnknownTagAssignSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnknownTagAssignSheet.swift; sourceTree = "<group>"; };
+		A4ECE3F56706FBA13A89DF47 /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
+		A5AD9B9980F9121A678A0051 /* InvoiceStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceStatus.swift; sourceTree = "<group>"; };
+		AA238D2CE296E7F838340CCD /* HoverRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverRow.swift; sourceTree = "<group>"; };
+		AAD2476C55F79206377ADE3C /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
+		B2CD014DC9A48F5870B67D2B /* LineItemStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineItemStatus.swift; sourceTree = "<group>"; };
+		BA586950C6BEDF816ADF42D7 /* Date+Relative.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Relative.swift"; sourceTree = "<group>"; };
+		C0D3AC4AEFD6246352AEA546 /* CustomerFormSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerFormSheet.swift; sourceTree = "<group>"; };
+		C3DCED9AB17D0D229DE8F7A1 /* StoneGrouping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneGrouping.swift; sourceTree = "<group>"; };
+		C3E2B54397410243BBF48929 /* LotTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotTransaction.swift; sourceTree = "<group>"; };
+		C5CDFA11A960E91FB0A818F3 /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
+		C611B9AA323E95C9B384F701 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		C830FBAB085D765E82A476A2 /* LotSelectSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotSelectSheet.swift; sourceTree = "<group>"; };
+		C836FB999C2771AA1719CA14 /* CustomerDetailPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerDetailPanel.swift; sourceTree = "<group>"; };
+		C9299C8922C00C4B986D2EF8 /* InventorySelectSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventorySelectSheet.swift; sourceTree = "<group>"; };
+		D2AF4D46115756F206DD89A7 /* StoneFormViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneFormViewModel.swift; sourceTree = "<group>"; };
+		DBD18A2A4E61A928E95DB592 /* GemstoneStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GemstoneStatus.swift; sourceTree = "<group>"; };
+		DD9E6F4BB3CB6A102CD30AEB /* PDFService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFService.swift; sourceTree = "<group>"; };
+		DF52535A188C64A84EADF9EE /* EditableLineItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableLineItemRow.swift; sourceTree = "<group>"; };
+		E32BF5EC574469A8D3977C5F /* MemoWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoWindowView.swift; sourceTree = "<group>"; };
+		E5FBD15DCE21EE1BD176D04F /* AccountingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountingView.swift; sourceTree = "<group>"; };
+		E6A9B8686EE1663B720013FC /* InventoryFilterBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryFilterBar.swift; sourceTree = "<group>"; };
+		EA6B133B323D833E799468EA /* StoneType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneType.swift; sourceTree = "<group>"; };
+		EDF43F66FC7402DC31864900 /* QuickActionsGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActionsGrid.swift; sourceTree = "<group>"; };
+		EFB2959E2E58627DBE83E661 /* InvoiceListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceListViewModel.swift; sourceTree = "<group>"; };
+		F07BBCDE21A8DEA71CC11956 /* TableColumn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableColumn.swift; sourceTree = "<group>"; };
+		F0B08E7202314CCAB62D6B4B /* AccountingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountingViewModel.swift; sourceTree = "<group>"; };
+		F0B0F11EF531CE6C3EF6C5CC /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
+		F0FC22A075D95D822A554438 /* MemoListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoListView.swift; sourceTree = "<group>"; };
+		F178839EE6951B96D2016337 /* GlassFieldModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassFieldModifier.swift; sourceTree = "<group>"; };
+		F515C70472941C4AA201004D /* ReviewQueueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewQueueView.swift; sourceTree = "<group>"; };
+		F52F24F5AFF74620899B4F36 /* GlassSearchField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassSearchField.swift; sourceTree = "<group>"; };
+		F5EC08686561C814F4638EFB /* ReferenceNumberGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferenceNumberGenerator.swift; sourceTree = "<group>"; };
+		F62E27E8FE9B3748CF06DC50 /* MemoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoService.swift; sourceTree = "<group>"; };
+		F82174E0400A9FC9A87E6B78 /* DashboardInfoPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardInfoPanel.swift; sourceTree = "<group>"; };
+		F8D30989C55A226CF4F6D747 /* RFIDLifecycleStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDLifecycleStatus.swift; sourceTree = "<group>"; };
+		F904E2E169D04A5E12A9BA24 /* TransactionEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionEditorViewModel.swift; sourceTree = "<group>"; };
+		FBCAA0A67DB386B1FD7A631C /* TableHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableHeader.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		538FE44D16AE4ED381C3C85A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C8D707A1F1797FFE711ABBC2 /* ORSSerial in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		05733B88A9504E249C1D7F00 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A4ECE3F56706FBA13A89DF47 /* AppConstants.swift */,
+				0C4BC3BE124CB7474DC325DA /* QDIGemstoneERPApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		0D2B9FAB6BB678E87759EC30 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				3D37FDFE3885C8368918D5DC /* ButtonStyles */,
+				764E2826C918CDE7A0544068 /* Components */,
+				1496DBCE5BA5E008AD0A05FF /* Modifiers */,
+				A4A3F2A99D4B2760C0032EA9 /* TableKit */,
+				F4F166D943784F271A3D4611 /* Theme */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		1496DBCE5BA5E008AD0A05FF /* Modifiers */ = {
+			isa = PBXGroup;
+			children = (
+				02CB667D10C57F1B9EB42D6F /* GlassBackgroundModifier.swift */,
+				F178839EE6951B96D2016337 /* GlassFieldModifier.swift */,
+				22407FE0A483A38E0B420584 /* GlassTableModifier.swift */,
+			);
+			path = Modifiers;
+			sourceTree = "<group>";
+		};
+		2B20E188203C69471AD8FF01 /* Shell */ = {
+			isa = PBXGroup;
+			children = (
+				4C520DBB8403C8EC32DDD058 /* AppShellView.swift */,
+				4A40AC13F11AC3673A4A1587 /* NavigationItem.swift */,
+				2ECF159A5FC31BBD9D068E1C /* SidebarView.swift */,
+			);
+			path = Shell;
+			sourceTree = "<group>";
+		};
+		2FD4518DE6B46E3F000B6DED /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				07A771D99AF395E25A383305 /* Customer.swift */,
+				865F7818A0D127059D5F79E6 /* Gemstone.swift */,
+				149AAED5205BD92D1632662A /* HistoryEvent.swift */,
+				230BF8E5988671BEFE23C0E0 /* Invoice.swift */,
+				816074071ED96F056B1712EA /* LineItem.swift */,
+				C3E2B54397410243BBF48929 /* LotTransaction.swift */,
+				A07EA69C23F35D6BFA7DBF3A /* Memo.swift */,
+				3AC2C8DCD1516CDC38886FFC /* RFIDTag.swift */,
+				CBA383056EAC752827E714A3 /* Enums */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		310DE5650EA149547265D6B7 /* Accounting */ = {
+			isa = PBXGroup;
+			children = (
+				E5FBD15DCE21EE1BD176D04F /* AccountingView.swift */,
+			);
+			path = Accounting;
+			sourceTree = "<group>";
+		};
+		314ED36BF422A12070AC86AF /* StoneForm */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = StoneForm;
+			sourceTree = "<group>";
+		};
+		3D37FDFE3885C8368918D5DC /* ButtonStyles */ = {
+			isa = PBXGroup;
+			children = (
+				325C18F3512961657BDAD856 /* GradientButtonStyle.swift */,
+				37BDB32F92A33062485FDE23 /* OutlineButtonStyle.swift */,
+			);
+			path = ButtonStyles;
+			sourceTree = "<group>";
+		};
+		403CA78BD4517D2EE1ED9D8D /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				8B86ED4CBE9430761895C822 /* CurrencyFormatter.swift */,
+				69BA467836A257651957AC30 /* DocumentDirtyTracker.swift */,
+				037857AF7FF32943A3CBC483 /* NavigationGuard.swift */,
+				E43EE7BD716FF121687C23A2 /* Extensions */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		4826D114D71A1F97B85EFA35 /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				F82174E0400A9FC9A87E6B78 /* DashboardInfoPanel.swift */,
+				96E4658275B0BB02DEE8C7EA /* DashboardView.swift */,
+				995BE77960F452E41F4E4BDF /* KPICardRow.swift */,
+				EDF43F66FC7402DC31864900 /* QuickActionsGrid.swift */,
+				667B98EBC03A1403A73B6FA0 /* RecentActivityList.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		50A504FD873DB636F1D74C78 /* Forms */ = {
+			isa = PBXGroup;
+			children = (
+				1DCDE31D32F68887B83C97E2 /* StoneFormView.swift */,
+			);
+			path = Forms;
+			sourceTree = "<group>";
+		};
+		603BBD2C6BF00E3CE0F0E7CA /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				90E295BFAC2A9465729BDF0A /* DemoDataService.swift */,
+				32D6DC60F80D7FC541834613 /* HistoryLogger.swift */,
+				0F92992A54A6B3F94585D300 /* InvoiceService.swift */,
+				8D1AB12068D6098DAB4A22A3 /* LotService.swift */,
+				F62E27E8FE9B3748CF06DC50 /* MemoService.swift */,
+				DD9E6F4BB3CB6A102CD30AEB /* PDFService.swift */,
+				F5EC08686561C814F4638EFB /* ReferenceNumberGenerator.swift */,
+				32D04B1F807ECBF7399A1576 /* SKUGenerator.swift */,
+				1C64C9459C79A0894AC0F0F0 /* StoneDescriptionBuilder.swift */,
+				839D3C084D42E8BF25F18F4B /* TransactionService.swift */,
+				9FC5D2310DE64791AE466D83 /* RFID */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		6BFEBA9541F23905158C0AF3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5ED44A9E836CD59534C5F518 /* QDI_Gemstone_ERP_v2.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		764E2826C918CDE7A0544068 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */,
+				7220B21A25317D921736B773 /* EmptyStateView.swift */,
+				9E7B6A77056D754FF2151496 /* FilterPill.swift */,
+				AAD2476C55F79206377ADE3C /* GlassCard.swift */,
+				F52F24F5AFF74620899B4F36 /* GlassSearchField.swift */,
+				314343D6A92F0E3A4BB66BBB /* GradientButton.swift */,
+				82D39A3810995F0A808EB202 /* SectionHeader.swift */,
+				C5CDFA11A960E91FB0A818F3 /* StatusBadge.swift */,
+				3A9555B15E90483AC30BCFAC /* StoneTypeBadge.swift */,
+				0BCAC0BEB1EAB0CD639D6FA2 /* ToastOverlay.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		89431280C980EF6DDB78A594 /* Scanner */ = {
+			isa = PBXGroup;
+			children = (
+				0AE8B1FC546208EE8FE5FE4D /* ScannerView.swift */,
+				A1615490722ED65602953FB1 /* UnknownTagAssignSheet.swift */,
+			);
+			path = Scanner;
+			sourceTree = "<group>";
+		};
+		8E63DBE99E3CD2CA7E60A15E /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				F0B08E7202314CCAB62D6B4B /* AccountingViewModel.swift */,
+				9036CD16C22CE2FC676144FB /* CustomerListViewModel.swift */,
+				C611B9AA323E95C9B384F701 /* DashboardViewModel.swift */,
+				10E5E8CE863390404948AA94 /* InventoryViewModel.swift */,
+				EFB2959E2E58627DBE83E661 /* InvoiceListViewModel.swift */,
+				626E3D17936BF2108324AF28 /* LotInventoryViewModel.swift */,
+				53978275BA1221231FE9B922 /* MemoListViewModel.swift */,
+				8AD0042F0425A31D03D81B15 /* ReconcileViewModel.swift */,
+				6538A7C8468B6A5E43E91FE9 /* RFIDCoordinator.swift */,
+				9B301F1FBF670487313AA823 /* ScannerViewModel.swift */,
+				D2AF4D46115756F206DD89A7 /* StoneFormViewModel.swift */,
+				F904E2E169D04A5E12A9BA24 /* TransactionEditorViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		9FC5D2310DE64791AE466D83 /* RFID */ = {
+			isa = PBXGroup;
+			children = (
+				78DFE5A014C55EA551D7D16D /* EPCanonical.swift */,
+				96D844385E3F6295552E81B9 /* RFIDManager.swift */,
+				7FFA42D7ADC3BDCCB4B372B4 /* RFIDScanService.swift */,
+				1BB4A70485C8693503BFC503 /* RFIDService.swift */,
+			);
+			path = RFID;
+			sourceTree = "<group>";
+		};
+		A4A3F2A99D4B2760C0032EA9 /* TableKit */ = {
+			isa = PBXGroup;
+			children = (
+				AA238D2CE296E7F838340CCD /* HoverRow.swift */,
+				F07BBCDE21A8DEA71CC11956 /* TableColumn.swift */,
+				FBCAA0A67DB386B1FD7A631C /* TableHeader.swift */,
+			);
+			path = TableKit;
+			sourceTree = "<group>";
+		};
+		A7C3F3C08797BDB45BE47DAF /* Sheets */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Sheets;
+			sourceTree = "<group>";
+		};
+		B45D66EC21AAD967DBCDBE29 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				310DE5650EA149547265D6B7 /* Accounting */,
+				BE38E5168CFD4FEABBD25751 /* Customers */,
+				4826D114D71A1F97B85EFA35 /* Dashboard */,
+				50A504FD873DB636F1D74C78 /* Forms */,
+				B7ECECEC888072F7234C3F5E /* Inventory */,
+				89431280C980EF6DDB78A594 /* Scanner */,
+				A7C3F3C08797BDB45BE47DAF /* Sheets */,
+				2B20E188203C69471AD8FF01 /* Shell */,
+				314ED36BF422A12070AC86AF /* StoneForm */,
+				DC5F27A026154EAD6CD1A035 /* Transactions */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		B66186493D9359F6FA0E17FD = {
+			isa = PBXGroup;
+			children = (
+				05733B88A9504E249C1D7F00 /* App */,
+				0D2B9FAB6BB678E87759EC30 /* DesignSystem */,
+				2FD4518DE6B46E3F000B6DED /* Models */,
+				603BBD2C6BF00E3CE0F0E7CA /* Services */,
+				403CA78BD4517D2EE1ED9D8D /* Utilities */,
+				8E63DBE99E3CD2CA7E60A15E /* ViewModels */,
+				B45D66EC21AAD967DBCDBE29 /* Views */,
+				6BFEBA9541F23905158C0AF3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B7ECECEC888072F7234C3F5E /* Inventory */ = {
+			isa = PBXGroup;
+			children = (
+				814CBBF32C678A903E1B3D9C /* GemstoneDetailPanel.swift */,
+				E6A9B8686EE1663B720013FC /* InventoryFilterBar.swift */,
+				0802F6FC50765CEE19C0FB4E /* InventoryListView.swift */,
+				25CDDAACE2FF674CA40DBD20 /* LotInventoryView.swift */,
+				98536087CF99CCD213E1EA5F /* ReconcileView.swift */,
+				F515C70472941C4AA201004D /* ReviewQueueView.swift */,
+			);
+			path = Inventory;
+			sourceTree = "<group>";
+		};
+		BE38E5168CFD4FEABBD25751 /* Customers */ = {
+			isa = PBXGroup;
+			children = (
+				C836FB999C2771AA1719CA14 /* CustomerDetailPanel.swift */,
+				C0D3AC4AEFD6246352AEA546 /* CustomerFormSheet.swift */,
+				75E8694EA6DA5A3AF102B5B6 /* CustomerListView.swift */,
+			);
+			path = Customers;
+			sourceTree = "<group>";
+		};
+		CBA383056EAC752827E714A3 /* Enums */ = {
+			isa = PBXGroup;
+			children = (
+				DBD18A2A4E61A928E95DB592 /* GemstoneStatus.swift */,
+				0C6A26598A73007FDECAF109 /* HistoryEventType.swift */,
+				A5AD9B9980F9121A678A0051 /* InvoiceStatus.swift */,
+				37D603B8B6A476C98E66B400 /* LineItemKind.swift */,
+				B2CD014DC9A48F5870B67D2B /* LineItemStatus.swift */,
+				9453E5A1BB6929896AE1BE0A /* LotTransactionType.swift */,
+				173E223EE059F1CF750C3941 /* MemoStatus.swift */,
+				F8D30989C55A226CF4F6D747 /* RFIDLifecycleStatus.swift */,
+				C3DCED9AB17D0D229DE8F7A1 /* StoneGrouping.swift */,
+				98BA838D1EBFB0FC5CD952B0 /* StoneShape.swift */,
+				EA6B133B323D833E799468EA /* StoneType.swift */,
+			);
+			path = Enums;
+			sourceTree = "<group>";
+		};
+		DC5F27A026154EAD6CD1A035 /* Transactions */ = {
+			isa = PBXGroup;
+			children = (
+				DF52535A188C64A84EADF9EE /* EditableLineItemRow.swift */,
+				C9299C8922C00C4B986D2EF8 /* InventorySelectSheet.swift */,
+				977283232FDCB4E0C4840013 /* InvoiceDocumentView.swift */,
+				9060984B3BD60113BC717CB0 /* InvoiceListView.swift */,
+				7DAC44C95038D141D0930061 /* InvoiceWindowView.swift */,
+				C830FBAB085D765E82A476A2 /* LotSelectSheet.swift */,
+				5E0F40EC01C97C5209D4F80E /* MemoDocumentView.swift */,
+				F0FC22A075D95D822A554438 /* MemoListView.swift */,
+				E32BF5EC574469A8D3977C5F /* MemoWindowView.swift */,
+			);
+			path = Transactions;
+			sourceTree = "<group>";
+		};
+		E43EE7BD716FF121687C23A2 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				BA586950C6BEDF816ADF42D7 /* Date+Relative.swift */,
+				35FA9BB5D29646A37FED67D4 /* String+Helpers.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		F4F166D943784F271A3D4611 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				F0B0F11EF531CE6C3EF6C5CC /* AppColors.swift */,
+				0C50CA93426BCF5FD29E8332 /* AppSpacing.swift */,
+				4F57C93F3894AAE530F52820 /* AppTypography.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7446A7172512913F157DAD65 /* QDI_Gemstone_ERP_v2 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4DDB354DF5868F6D68A75166 /* Build configuration list for PBXNativeTarget "QDI_Gemstone_ERP_v2" */;
+			buildPhases = (
+				99AB031CC00CD96ED3F051D1 /* Sources */,
+				538FE44D16AE4ED381C3C85A /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = QDI_Gemstone_ERP_v2;
+			packageProductDependencies = (
+				DB07F8E31C04219DAA692E41 /* ORSSerial */,
+			);
+			productName = QDI_Gemstone_ERP_v2;
+			productReference = 5ED44A9E836CD59534C5F518 /* QDI_Gemstone_ERP_v2.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BB226BD8C12F12E88BE6FF0E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 145BF0206D40E2FC570F81E2 /* Build configuration list for PBXProject "QDI_Gemstone_ERP_v2" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = B66186493D9359F6FA0E17FD;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				1F15277C4EF30C7C6E3F1E0D /* XCRemoteSwiftPackageReference "ORSSerialPort" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 6BFEBA9541F23905158C0AF3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7446A7172512913F157DAD65 /* QDI_Gemstone_ERP_v2 */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		99AB031CC00CD96ED3F051D1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				75DCAB009D62E00D1737C994 /* AccountingView.swift in Sources */,
+				0D03B2B204E8B94FD9BE5B47 /* AccountingViewModel.swift in Sources */,
+				FA8502A655774E79FC240E64 /* AppColors.swift in Sources */,
+				E56A8D662F2E1D90E871A970 /* AppConstants.swift in Sources */,
+				0E22C31C27AC813031FCE9B9 /* AppShellView.swift in Sources */,
+				B665C2DFE7620630DAC22AA2 /* AppSpacing.swift in Sources */,
+				22F23D9F8E802FBD936767BE /* AppTypography.swift in Sources */,
+				FF2A553EE82E73075D6FB33A /* CurrencyFormatter.swift in Sources */,
+				43387DB5F7418C1F49F5CAD8 /* Customer.swift in Sources */,
+				C57428D589CE37362E11A2CF /* CustomerDetailPanel.swift in Sources */,
+				3EAD38A014DAAD9ECA8D116F /* CustomerFormSheet.swift in Sources */,
+				4B2BE11085FE92583CC52B7D /* CustomerListView.swift in Sources */,
+				1989853CA2BB15A70FADE321 /* CustomerListViewModel.swift in Sources */,
+				250D560298DA3BBD70C0F1B1 /* DashboardInfoPanel.swift in Sources */,
+				02820FE626391AF6ED793539 /* DashboardView.swift in Sources */,
+				F0AC6557A35E1C3E15C169E2 /* DashboardViewModel.swift in Sources */,
+				22F0D123BC129C779B9FA8FE /* Date+Relative.swift in Sources */,
+				625E118C5D6B61E937EDD8D4 /* DemoDataService.swift in Sources */,
+				CF5C7C0597EB7E99DA8D3991 /* DetailRow.swift in Sources */,
+				02C2B00B64D2CD3DD6185B9A /* DocumentDirtyTracker.swift in Sources */,
+				AAF4F8C7361C8E5C96483987 /* EPCanonical.swift in Sources */,
+				2A09F23C27BC6C7C770B9352 /* EditableLineItemRow.swift in Sources */,
+				58D4B1FEBCB4D268F7209011 /* EmptyStateView.swift in Sources */,
+				79D64E872448970E69F593C9 /* FilterPill.swift in Sources */,
+				6E9460794A680AD3E74BE51D /* Gemstone.swift in Sources */,
+				C17269AFC38428BC87160C85 /* GemstoneDetailPanel.swift in Sources */,
+				1489D08237C341F76A599448 /* GemstoneStatus.swift in Sources */,
+				14CC1929E412754E2E088A23 /* GlassBackgroundModifier.swift in Sources */,
+				0FCE57C035CE5E45350AC3BF /* GlassCard.swift in Sources */,
+				16356103918657A1C69BC698 /* GlassFieldModifier.swift in Sources */,
+				A2514E098351502ACF15BA47 /* GlassSearchField.swift in Sources */,
+				E2F00AFDAA6FD58267E75D7E /* GlassTableModifier.swift in Sources */,
+				0D837AC79FC1183B054378DD /* GradientButton.swift in Sources */,
+				0E499D6C15EA875729D18B9A /* GradientButtonStyle.swift in Sources */,
+				F91A9927D6C94C662EACDE6F /* HistoryEvent.swift in Sources */,
+				2F7BEB794576611CF1605802 /* HistoryEventType.swift in Sources */,
+				F76E8FCAA742119E0D9A183D /* HistoryLogger.swift in Sources */,
+				5041255737768DE30B3309AD /* HoverRow.swift in Sources */,
+				E87D650B61167FA6D12F2169 /* InventoryFilterBar.swift in Sources */,
+				303AE869A631CC57C6648528 /* InventoryListView.swift in Sources */,
+				7EA01D623D3136817EE57733 /* InventorySelectSheet.swift in Sources */,
+				AEB120D968D7BF9F4F12AA4B /* InventoryViewModel.swift in Sources */,
+				748169DF4ED8777BCBEC80AF /* Invoice.swift in Sources */,
+				7EBBF92F4898FA347D76981A /* InvoiceDocumentView.swift in Sources */,
+				83EA0138A6C10867A3530322 /* InvoiceListView.swift in Sources */,
+				B34DB3A3FF936FA5FFC60998 /* InvoiceListViewModel.swift in Sources */,
+				9420EE5E15188B81396103F2 /* InvoiceService.swift in Sources */,
+				320A9924011B5A7B3F4013C3 /* InvoiceStatus.swift in Sources */,
+				2AB076B178140D5D6E08687A /* InvoiceWindowView.swift in Sources */,
+				C1981B0CE8BC8F335CF84748 /* KPICardRow.swift in Sources */,
+				72DDA78BD6DCEBA65A238C75 /* LineItem.swift in Sources */,
+				C604BF9B9BE75A4DE210A592 /* LineItemKind.swift in Sources */,
+				D139FE43F09FB5A1B750B918 /* LineItemStatus.swift in Sources */,
+				931FFC237CBE06B9BBE6EDCB /* LotInventoryView.swift in Sources */,
+				67B2AAA74D6698A0B1B91324 /* LotInventoryViewModel.swift in Sources */,
+				5D4252BCD24FFD3E613925DB /* LotSelectSheet.swift in Sources */,
+				2599CD0D0A9C81E5D79D2ADE /* LotService.swift in Sources */,
+				6AA436000DB086EE953682C6 /* LotTransaction.swift in Sources */,
+				7E295706AFD620C12A948AC9 /* LotTransactionType.swift in Sources */,
+				B5E0D52AD619ABC57EB872A5 /* Memo.swift in Sources */,
+				3E7253792457246D6128E747 /* MemoDocumentView.swift in Sources */,
+				1ED84C0E9FD45192AA89D070 /* MemoListView.swift in Sources */,
+				DB204AB5F19F7F8F7D055CE0 /* MemoListViewModel.swift in Sources */,
+				72AD8359D7575C77CFE5B1CF /* MemoService.swift in Sources */,
+				D47EBBD8500619EF4147879A /* MemoStatus.swift in Sources */,
+				B02FE4C6341F52FB20F7C3A6 /* MemoWindowView.swift in Sources */,
+				EB9A2DCD8E6BCCAC13026227 /* NavigationGuard.swift in Sources */,
+				63CD328302DF899DDE94627F /* NavigationItem.swift in Sources */,
+				8445D20A1BA1A80DA0B7384E /* OutlineButtonStyle.swift in Sources */,
+				1D3823E437D7D660EE2A4797 /* PDFService.swift in Sources */,
+				983E49E5F8888D2FC01A3A1B /* QDIGemstoneERPApp.swift in Sources */,
+				2A0DDDDABE302401802C1A68 /* QuickActionsGrid.swift in Sources */,
+				98D7F9952F6786EA9D83D041 /* RFIDCoordinator.swift in Sources */,
+				655199E393D8F081A7941A84 /* RFIDLifecycleStatus.swift in Sources */,
+				131475971AEAEAA1815CF268 /* RFIDManager.swift in Sources */,
+				E9EA1A74670EFB1C0D87AF61 /* RFIDScanService.swift in Sources */,
+				A53B4FF570C732F5F44679AA /* RFIDService.swift in Sources */,
+				33A389AF89C4C2138E449298 /* RFIDTag.swift in Sources */,
+				1238BCEA0A0DDE5D897FA376 /* RecentActivityList.swift in Sources */,
+				7EC09767EE9FDF645E7BED24 /* ReconcileView.swift in Sources */,
+				57B36C9037EA951332C0C6C7 /* ReconcileViewModel.swift in Sources */,
+				1002EA4486B8EE5755776E11 /* ReferenceNumberGenerator.swift in Sources */,
+				5F3BE4F310544777811FC6D1 /* ReviewQueueView.swift in Sources */,
+				26F4350DF12DABAC78445B20 /* SKUGenerator.swift in Sources */,
+				832F16AE8FFC3D579CCCFD2B /* ScannerView.swift in Sources */,
+				11FE247A849C307366FBD722 /* ScannerViewModel.swift in Sources */,
+				ADE644F1B38D59234715CA9B /* SectionHeader.swift in Sources */,
+				1CD0AE33C4EAFD6907195D3F /* SidebarView.swift in Sources */,
+				6D6FA2C068306A4AA0754718 /* StatusBadge.swift in Sources */,
+				9574F276BFBFEB86FD242007 /* StoneDescriptionBuilder.swift in Sources */,
+				5230523037E4A195FA18008D /* StoneFormView.swift in Sources */,
+				131B6C26CA0C486F3426BAC2 /* StoneFormViewModel.swift in Sources */,
+				220119E875D04B6378A1498D /* StoneGrouping.swift in Sources */,
+				0ED668E60356DA0484B31263 /* StoneShape.swift in Sources */,
+				2F4FB98D7BC8F79ABD16DDA7 /* StoneType.swift in Sources */,
+				2E40205CB293FB5D0F8C1BBC /* StoneTypeBadge.swift in Sources */,
+				07B845F1AA0F5EE6AF6CF6D0 /* String+Helpers.swift in Sources */,
+				C598F81E0453F9C995A49137 /* TableColumn.swift in Sources */,
+				10B427329AA2467F2FDC9AE6 /* TableHeader.swift in Sources */,
+				2DF420A52C9709593A2A50CA /* ToastOverlay.swift in Sources */,
+				94757921694BFB20D9094247 /* TransactionEditorViewModel.swift in Sources */,
+				14913C4FE0D6647E9DDF6F02 /* TransactionService.swift in Sources */,
+				66FF1931D85581CE3FA6E272 /* UnknownTagAssignSheet.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		5D0F26EED65C10C156F42229 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		68CDB5E80F1C3F49691240FE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
+				CODE_SIGN_ENTITLEMENTS = Resources/QDI_Gemstone_ERP_v2.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "QDI Gemstone ERP";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.qdi.gemapp.v2;
+				PRODUCT_NAME = "QDI Gemstone ERP v2";
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+			};
+			name = Debug;
+		};
+		717492DFE092EEEAEF2DBD59 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
+				CODE_SIGN_ENTITLEMENTS = Resources/QDI_Gemstone_ERP_v2.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "QDI Gemstone ERP";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.qdi.gemapp.v2;
+				PRODUCT_NAME = "QDI Gemstone ERP v2";
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+			};
+			name = Release;
+		};
+		C686F259CFA20AA4A37DD2C2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		145BF0206D40E2FC570F81E2 /* Build configuration list for PBXProject "QDI_Gemstone_ERP_v2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C686F259CFA20AA4A37DD2C2 /* Debug */,
+				5D0F26EED65C10C156F42229 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4DDB354DF5868F6D68A75166 /* Build configuration list for PBXNativeTarget "QDI_Gemstone_ERP_v2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				68CDB5E80F1C3F49691240FE /* Debug */,
+				717492DFE092EEEAEF2DBD59 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1F15277C4EF30C7C6E3F1E0D /* XCRemoteSwiftPackageReference "ORSSerialPort" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/armadsen/ORSSerialPort";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DB07F8E31C04219DAA692E41 /* ORSSerial */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1F15277C4EF30C7C6E3F1E0D /* XCRemoteSwiftPackageReference "ORSSerialPort" */;
+			productName = ORSSerial;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = BB226BD8C12F12E88BE6FF0E /* Project object */;
+}

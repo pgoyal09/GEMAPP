@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xcodebuild -project QDI_Gemstone_ERP_v2.xcodeproj -scheme QDI_Gemstone_ERP_v2 -destination 'platform=macOS' build)",
+      "Bash(find /Users/priyank/Desktop/GEMAPP/QDI_Gemstone_ERP_v2 -name *Lot* -o -name *lot*)"
+    ]
+  }
+}
