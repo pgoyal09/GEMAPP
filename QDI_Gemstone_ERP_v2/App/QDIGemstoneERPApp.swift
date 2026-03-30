@@ -17,6 +17,7 @@ struct QDIGemstoneERPApp: App {
     @State private var rfidCoordinator: RFIDCoordinator?
     @State private var showMigrationFailureAlert = false
     @State private var migrationError: String = ""
+    @State private var apiServer: APIServer?
 
     private static let storeURL = URL.applicationSupportDirectory.appending(path: "QDIGemstoneERP_v2.store")
     private static let schema = Schema([
@@ -61,6 +62,7 @@ struct QDIGemstoneERPApp: App {
                 .environment(\.rfidCoordinator, rfidCoordinator)
                 .onAppear {
                     setupRFID()
+                    startAPIServer()
                     #if DEBUG
                     // Only seed demo data in debug builds — production starts with empty database
                     do {
