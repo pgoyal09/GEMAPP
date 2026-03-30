@@ -12,6 +12,27 @@ struct AccountingView: View {
     @State private var customStartDate = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
     @State private var customEndDate = Date()
 
+    /// Fetch sent invoices that fall into a specific aging bucket, computed locally.
+    private func invoicesForAgingBucket(_ bucketID: String) -> [Invoice] {
+        let sentStatus = InvoiceStatus.sent
+        let descriptor = FetchDescriptor<Invoice>(
+            predicate: #Predicate<Invoice> { $0.status == sentStatus }
+        )
+        guard let invoices = try? modelContext.fetch(descriptor) else { return [] }
+        let today = Date()
+        let calendar = Calendar.current
+        return invoices.filter { inv in
+            let days = calendar.dateComponents([.day], from: inv.invoiceDate, to: today).day ?? 0
+            switch bucketID {
+            case "0-30": return days >= 0 && days <= 30
+            case "31-60": return days >= 31 && days <= 60
+            case "61-90": return days >= 61 && days <= 90
+            case "90+": return days > 90
+            default: return false
+            }
+        }
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppSpacing.l) {
@@ -188,7 +209,7 @@ struct AccountingView: View {
             if let bucketID = selectedAgingBucket {
                 AgingBucketDetailSheet(
                     bucketID: bucketID,
-                    invoices: viewModel.invoicesForAgingBucket(bucketID)
+                    invoices: invoicesForAgingBucket(bucketID)
                 )
             }
         }

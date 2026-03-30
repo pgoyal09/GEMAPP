@@ -104,14 +104,9 @@ final class AccountingViewModel {
     }
 
     var agedReceivables: [AgedReceivableBucket] = []
-    var agingBucketInvoices: [String: [Invoice]] = [:]
     var salesByStoneType: [SalesByStoneType] = []
     var monthlySales: [MonthlySales] = []
     var isLoading: Bool = false
-
-    func invoicesForAgingBucket(_ bucketID: String) -> [Invoice] {
-        agingBucketInvoices[bucketID] ?? []
-    }
 
     func load(modelContext: ModelContext) {
         isLoading = true
@@ -208,9 +203,6 @@ final class AccountingViewModel {
 
         let today = Date()
         let calendar = Calendar.current
-        var bucketInvs: [String: [Invoice]] = [
-            "0-30": [], "31-60": [], "61-90": [], "90+": []
-        ]
         for inv in sentInvoices {
             let days = calendar.dateComponents([.day], from: inv.invoiceDate, to: today).day ?? 0
             let idx: Int
@@ -222,10 +214,8 @@ final class AccountingViewModel {
             }
             buckets[idx].amount += inv.totalAmount
             buckets[idx].count += 1
-            bucketInvs[buckets[idx].id, default: []].append(inv)
         }
 
         agedReceivables = buckets
-        agingBucketInvoices = bucketInvs
     }
 }
