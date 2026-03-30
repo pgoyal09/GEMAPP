@@ -6,9 +6,11 @@ struct StoneFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isCaratFieldFocused: Bool
+    var navigateTo: Binding<NavigationItem>?
 
-    init(mode: StoneFormMode) {
+    init(mode: StoneFormMode, navigateTo: Binding<NavigationItem>? = nil) {
         _viewModel = State(initialValue: StoneFormViewModel(mode: mode))
+        self.navigateTo = navigateTo
     }
 
     var body: some View {
@@ -299,7 +301,14 @@ struct StoneFormView: View {
             Button("Save") {
                 do {
                     try viewModel.save(modelContext: modelContext)
-                    if viewModel.toastIsError == false { dismiss() }
+                    if viewModel.toastIsError == false {
+                        if let nav = navigateTo {
+                            nav.wrappedValue = viewModel.isDiamond ? .diamonds :
+                                viewModel.isLot ? .lots : .gemstones
+                        } else {
+                            dismiss()
+                        }
+                    }
                 } catch {
                     viewModel.toastMessage = "Save failed: \(error.localizedDescription)"
                     viewModel.toastIsError = true

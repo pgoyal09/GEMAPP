@@ -132,6 +132,10 @@ struct DiamondsInventoryView: View {
             GradientButton(title: "Quick Intake", icon: "plus.circle.fill") {
                 navigateTo = .quickIntake
             }
+            Toggle("Incl. Memo", isOn: $includeMemoStones)
+                .toggleStyle(.checkbox)
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
             Button("Export for RapNet") {
                 showExportConfirm = true
             }
