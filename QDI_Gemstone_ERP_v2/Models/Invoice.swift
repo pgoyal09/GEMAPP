@@ -12,6 +12,11 @@ final class Invoice {
     var createdAt: Date
     var status: InvoiceStatus
 
+    /// Invoice-level discount amount (flat dollar amount).
+    var discountAmount: Decimal
+    /// Tax rate as a percentage (e.g. 8.5 for 8.5%).
+    var taxRate: Decimal
+
     @Relationship
     var customer: Customer?
     /// When non-nil, this invoice was created by converting items from a memo.
@@ -30,7 +35,9 @@ final class Invoice {
         createdAt: Date = Date(),
         status: InvoiceStatus = .sent,
         customer: Customer? = nil,
-        originMemo: Memo? = nil
+        originMemo: Memo? = nil,
+        discountAmount: Decimal = 0,
+        taxRate: Decimal = 0
     ) {
         self.invoiceDate = invoiceDate
         self.dueDate = dueDate
@@ -41,11 +48,33 @@ final class Invoice {
         self.status = status
         self.customer = customer
         self.originMemo = originMemo
+        self.discountAmount = discountAmount
+        self.taxRate = taxRate
     }
 
     // MARK: - Computed
 
-    var totalAmount: Decimal {
+    /// Sum of all line item amounts before any discount or tax.
+    var totalBeforeDiscount: Decimal {
         lineItems.reduce(Decimal.zero) { $0 + $1.amount }
     }
+
+    /// Subtotal after discount.
+    var subtotalAfterDiscount: Decimal {
+        max(totalBeforeDiscount - discountAmount, 0)
+    }
+
+    /// Tax computed on the discounted subtotal.
+    var taxAmount: Decimal {
+        guard taxRate > 0 else { return 0 }
+        return subtotalAfterDiscount * taxRate / 100
+    }
+
+    /// Grand total: subtotal after discount + tax.
+    var grandTotal: Decimal {
+        subtotalAfterDiscount + taxAmount
+    }
+
+    /// Legacy accessor — returns grandTotal for backward compatibility.
+    var totalAmount: Decimal { grandTotal }
 }

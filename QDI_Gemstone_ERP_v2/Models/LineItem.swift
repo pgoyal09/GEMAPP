@@ -11,6 +11,9 @@ final class LineItem {
     var kind: LineItemKind
     var status: LineItemStatus
 
+    /// Per-line discount amount (flat dollar amount subtracted from this line).
+    var discount: Decimal
+
     /// Stone type label for brokered lines (no linked gemstone).
     var brokeredStoneType: String
 
@@ -40,6 +43,7 @@ final class LineItem {
         amount: Decimal = 0,
         kind: LineItemKind = .inventory,
         status: LineItemStatus = .open,
+        discount: Decimal = 0,
         brokeredStoneType: String = "",
         isLotLineItem: Bool = false,
         lockedCostPerCarat: Decimal? = nil,
@@ -52,6 +56,7 @@ final class LineItem {
         self.amount = amount
         self.kind = kind
         self.status = status
+        self.discount = discount
         self.brokeredStoneType = brokeredStoneType
         self.isLotLineItem = isLotLineItem
         self.lockedCostPerCarat = lockedCostPerCarat
@@ -80,5 +85,10 @@ final class LineItem {
 
     var displayCarats: String {
         kind == .service ? "—" : String(format: "%.2f", carats)
+    }
+
+    /// Amount after per-line discount.
+    var netAmount: Decimal {
+        max(amount - discount, 0)
     }
 }
