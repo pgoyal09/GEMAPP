@@ -81,6 +81,13 @@ final class Gemstone {
     var rfidAssignedAt: Date?
     var rfidLastSeenAt: Date?
 
+    // MARK: - RapNet Sync
+
+    /// Sync status with RapNet marketplace.
+    var rapNetSyncStatus: RapNetSyncStatus = .notSynced
+    /// Last time this stone was synced to RapNet.
+    var rapNetLastSynced: Date?
+
     // MARK: - RapNet Shared Fields
 
     /// Listing status: "G" (Guaranteed), "M" (On Memo), "STPS", "NA"

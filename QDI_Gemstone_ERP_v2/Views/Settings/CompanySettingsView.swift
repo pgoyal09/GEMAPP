@@ -198,6 +198,13 @@ struct CompanySettingsView: View {
                         )
                 )
 
+                // MARK: - RapNet Integration
+
+                SectionHeader(title: "RapNet Integration")
+
+                RapNetSettingsView()
+                    .frame(maxWidth: .infinity)
+
                 // MARK: - Backup & Export
 
                 SectionHeader(title: "Backup & Export")
