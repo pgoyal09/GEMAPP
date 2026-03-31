@@ -583,9 +583,9 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
 
     private func setDTRRTS(_ fd: Int32) {
         var dtr = Int32(TIOCM_DTR)
-        ioctl(fd, TIOCMBIS, &dtr)
+        _ = ioctl(fd, TIOCMBIS, &dtr)
         var rts = Int32(TIOCM_RTS)
-        ioctl(fd, TIOCMBIS, &rts)
+        _ = ioctl(fd, TIOCMBIS, &rts)
         debugLog("[RFID] DTR and RTS enabled")
     }
 
@@ -931,7 +931,7 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
 
 // MARK: - Module-Level Helpers
 
-nonisolated(unsafe) private let time_base_info: mach_timebase_info_data_t = {
+private let time_base_info: mach_timebase_info_data_t = {
     var t = mach_timebase_info_data_t()
     mach_timebase_info(&t)
     return t

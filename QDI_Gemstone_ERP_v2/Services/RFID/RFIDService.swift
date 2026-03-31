@@ -43,7 +43,7 @@ extension EnvironmentValues {
 }
 
 private struct RFIDCoordinatorKey: EnvironmentKey {
-    nonisolated(unsafe) static let defaultValue: RFIDCoordinator? = nil
+    static let defaultValue: RFIDCoordinator? = nil
 }
 
 extension EnvironmentValues {

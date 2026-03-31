@@ -134,7 +134,7 @@ struct InvoiceDocumentView: View {
         GlassCard(padding: AppSpacing.hero) {
             VStack(alignment: .leading, spacing: AppSpacing.section) {
                 HStack {
-                    Text("Invoice \(invoice.referenceNumber)")
+                    Text(verbatim: "Invoice \(invoice.referenceNumber)")
                         .font(AppTypography.heading)
                         .foregroundStyle(AppColors.ink)
                         .accessibilityFocused($isHeaderFocused)
@@ -344,7 +344,7 @@ struct InvoiceDocumentView: View {
                                         .multilineTextAlignment(.trailing)
                                         .onChange(of: invoice.taxRate) { _, _ in markDirty() }
                                 } else {
-                                    Text("\(invoice.taxRate)%")
+                                    Text(verbatim: "\(invoice.taxRate)%")
                                         .font(AppTypography.mono)
                                         .foregroundStyle(AppColors.inkMuted)
                                 }

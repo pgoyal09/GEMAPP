@@ -85,7 +85,7 @@ struct DashboardView: View {
         isResetting = true
         Task {
             do {
-                try await DemoDataService.resetAllData(modelContext: modelContext)
+                try DemoDataService.resetAllData(modelContext: modelContext)
                 viewModel.load(modelContext: modelContext)
                 toastMessage = "Demo data reset successfully."
             } catch {

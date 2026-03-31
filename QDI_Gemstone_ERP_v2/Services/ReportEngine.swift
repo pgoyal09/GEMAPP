@@ -172,7 +172,7 @@ enum ReportEngine {
         let soldDescriptor = FetchDescriptor<Gemstone>(
             predicate: #Predicate<Gemstone> { $0.status == soldStatus }
         )
-        let allSold = (try? modelContext.fetch(soldDescriptor)) ?? []
+        _ = (try? modelContext.fetch(soldDescriptor)) ?? [] // available for future use
 
         let paidStatus = InvoiceStatus.paid
         let invDescriptor = FetchDescriptor<Invoice>(

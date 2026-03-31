@@ -219,12 +219,14 @@ struct ReportsView: View {
             return
         }
         ReportExportService.exportReportToPDF(title: selectedReport.rawValue, html: html) { result in
-            switch result {
-            case .success(let url):
-                NSWorkspace.shared.open(url)
-            case .failure:
-                toastMessage = "PDF export failed"
-                toastIsError = true
+            Task { @MainActor in
+                switch result {
+                case .success(let url):
+                    NSWorkspace.shared.open(url)
+                case .failure:
+                    toastMessage = "PDF export failed"
+                    toastIsError = true
+                }
             }
         }
     }

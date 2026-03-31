@@ -15,7 +15,7 @@ enum InventoryRoutes {
             let minCarat = req.queryDouble("minCarat")
             let maxCarat = req.queryDouble("maxCarat")
 
-            var descriptor = FetchDescriptor<Gemstone>(sortBy: [SortDescriptor(\.sku)])
+            let descriptor = FetchDescriptor<Gemstone>(sortBy: [SortDescriptor(\.sku)])
             let allStones = (try? context.fetch(descriptor)) ?? []
 
             var filtered = allStones

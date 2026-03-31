@@ -67,6 +67,7 @@ enum ReportExportService {
 
     // MARK: - Save CSV
 
+    @MainActor
     static func saveCSV(_ content: String, suggestedName: String) {
         let panel = NSSavePanel()
         panel.nameFieldStringValue = suggestedName
