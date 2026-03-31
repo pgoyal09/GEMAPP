@@ -18,15 +18,38 @@ final class RapNetSyncService {
     var syncLog: [SyncLogEntry] = []
     var lastError: String?
 
-    // MARK: - Settings (UserDefaults backed)
+    // MARK: - Settings (Keychain-backed credentials)
+
+    private static let keychainService = "com.qualitydiajewels.rapnet"
+    private static let usernameAccount = "username"
+    private static let passwordAccount = "password"
 
     var username: String {
-        get { UserDefaults.standard.string(forKey: "rapNetUsername") ?? "" }
-        set { UserDefaults.standard.set(newValue, forKey: "rapNetUsername") }
+        get {
+            migrateCredentialsIfNeeded()
+            return KeychainHelper.load(service: Self.keychainService, account: Self.usernameAccount) ?? ""
+        }
+        set { KeychainHelper.save(newValue, service: Self.keychainService, account: Self.usernameAccount) }
     }
     var password: String {
-        get { UserDefaults.standard.string(forKey: "rapNetPassword") ?? "" }
-        set { UserDefaults.standard.set(newValue, forKey: "rapNetPassword") }
+        get {
+            migrateCredentialsIfNeeded()
+            return KeychainHelper.load(service: Self.keychainService, account: Self.passwordAccount) ?? ""
+        }
+        set { KeychainHelper.save(newValue, service: Self.keychainService, account: Self.passwordAccount) }
+    }
+
+    /// One-time migration from UserDefaults to Keychain.
+    private func migrateCredentialsIfNeeded() {
+        let defaults = UserDefaults.standard
+        if let oldUser = defaults.string(forKey: "rapNetUsername"), !oldUser.isEmpty {
+            KeychainHelper.save(oldUser, service: Self.keychainService, account: Self.usernameAccount)
+            defaults.removeObject(forKey: "rapNetUsername")
+        }
+        if let oldPass = defaults.string(forKey: "rapNetPassword"), !oldPass.isEmpty {
+            KeychainHelper.save(oldPass, service: Self.keychainService, account: Self.passwordAccount)
+            defaults.removeObject(forKey: "rapNetPassword")
+        }
     }
     var autoSyncEnabled: Bool {
         get { UserDefaults.standard.bool(forKey: "rapNetAutoSync") }

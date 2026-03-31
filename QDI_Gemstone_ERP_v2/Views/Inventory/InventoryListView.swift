@@ -12,6 +12,7 @@ enum InventoryListMode {
 struct InventoryListView: View {
     @Binding var navigateTo: NavigationItem
     let mode: InventoryListMode
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Namespace private var filterPillNamespace
 
     @Environment(\.modelContext) private var modelContext
@@ -68,13 +69,13 @@ struct InventoryListView: View {
         }
         .accessibilityIdentifier("InventoryListView")
         .onAppear { viewModel.fetchPage(context: modelContext, mode: mode) }
-        .animation(AppAnimation.standard, value: viewModel.showFiltersPanel)
-        .animation(AppAnimation.sheetSpring, value: selectedStone?.persistentModelID)
+        .animation(reduceMotion ? nil : AppAnimation.standard, value: viewModel.showFiltersPanel)
+        .animation(reduceMotion ? nil : AppAnimation.sheetSpring, value: selectedStone?.persistentModelID)
         .overlay(alignment: .bottom) {
             if !selectedStones.isEmpty {
                 multiSelectActionBar
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .animation(AppAnimation.standard, value: selectedStones.isEmpty)
+                    .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
+                    .animation(reduceMotion ? nil : AppAnimation.standard, value: selectedStones.isEmpty)
             }
         }
         .overlay {

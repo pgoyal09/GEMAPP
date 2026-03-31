@@ -92,6 +92,7 @@
 		6190D114C77309087D80EF3C /* AppAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED693A192ADD983C01E381E /* AppAnimation.swift */; };
 		625E118C5D6B61E937EDD8D4 /* DemoDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90E295BFAC2A9465729BDF0A /* DemoDataService.swift */; };
 		63CD328302DF899DDE94627F /* NavigationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A40AC13F11AC3673A4A1587 /* NavigationItem.swift */; };
+		63E60C3FAFB3C3F4D3871585 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B1D948539B890AD5C00871 /* KeychainHelper.swift */; };
 		64B8C9AFC1F6C00E988DF60D /* PLReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86B1221016374D919DB5E08F /* PLReportView.swift */; };
 		655199E393D8F081A7941A84 /* RFIDLifecycleStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D30989C55A226CF4F6D747 /* RFIDLifecycleStatus.swift */; };
 		66FF1931D85581CE3FA6E272 /* UnknownTagAssignSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1615490722ED65602953FB1 /* UnknownTagAssignSheet.swift */; };
@@ -309,6 +310,7 @@
 		C3E2B54397410243BBF48929 /* LotTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotTransaction.swift; sourceTree = "<group>"; };
 		C5CDFA11A960E91FB0A818F3 /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
 		C611B9AA323E95C9B384F701 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		C6B1D948539B890AD5C00871 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 		C7D4C3B6657EA65471DAB44C /* RapNetAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RapNetAPIService.swift; sourceTree = "<group>"; };
 		C830FBAB085D765E82A476A2 /* LotSelectSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotSelectSheet.swift; sourceTree = "<group>"; };
 		C836FB999C2771AA1719CA14 /* CustomerDetailPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerDetailPanel.swift; sourceTree = "<group>"; };
@@ -501,6 +503,7 @@
 				68C8D448759F3A55942EAE97 /* ErrorMapper.swift */,
 				A11407626D2258BD7C3092EC /* FilterPreset.swift */,
 				6D45A3823E9EF2FE28178AC3 /* InputValidator.swift */,
+				C6B1D948539B890AD5C00871 /* KeychainHelper.swift */,
 				037857AF7FF32943A3CBC483 /* NavigationGuard.swift */,
 				FB788FFE84CBD6FB2D45A564 /* SortableViewModel.swift */,
 				E43EE7BD716FF121687C23A2 /* Extensions */,
@@ -939,6 +942,7 @@
 				320A9924011B5A7B3F4013C3 /* InvoiceStatus.swift in Sources */,
 				2AB076B178140D5D6E08687A /* InvoiceWindowView.swift in Sources */,
 				C1981B0CE8BC8F335CF84748 /* KPICardRow.swift in Sources */,
+				63E60C3FAFB3C3F4D3871585 /* KeychainHelper.swift in Sources */,
 				C89F67E28F0C2DBC3FD9A39B /* LabelSettingsView.swift in Sources */,
 				F8F64EE77BC8C5874AD52E6C /* LabelTemplateService.swift in Sources */,
 				72DDA78BD6DCEBA65A238C75 /* LineItem.swift in Sources */,

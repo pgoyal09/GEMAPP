@@ -3,6 +3,7 @@ import SwiftData
 
 struct CustomerListView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query(sort: [SortDescriptor(\Customer.lastName), SortDescriptor(\Customer.firstName)]) private var allCustomers: [Customer]
     @State private var viewModel = CustomerListViewModel()
 
@@ -34,7 +35,7 @@ struct CustomerListView: View {
             }
         }
         .accessibilityIdentifier("CustomerListView")
-        .animation(AppAnimation.sheetSpring, value: viewModel.selectedCustomerID)
+        .animation(reduceMotion ? nil : AppAnimation.sheetSpring, value: viewModel.selectedCustomerID)
         .sheet(isPresented: $viewModel.showAddCustomerSheet) {
             CustomerFormSheet(mode: .add)
         }

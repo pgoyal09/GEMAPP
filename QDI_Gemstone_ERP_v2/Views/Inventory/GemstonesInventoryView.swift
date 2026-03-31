@@ -170,11 +170,11 @@ struct GemstonesInventoryView: View {
                 .keyboardShortcut("f", modifiers: .command)
                 .hidden()
         }
-        .animation(AppAnimation.sheetSpring, value: selectedStone?.persistentModelID)
+        .animation(reduceMotion ? nil : AppAnimation.sheetSpring, value: selectedStone?.persistentModelID)
         .overlay(alignment: .bottom) {
             if !selectedStones.isEmpty {
                 multiSelectBar
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
             }
         }
         .overlay {

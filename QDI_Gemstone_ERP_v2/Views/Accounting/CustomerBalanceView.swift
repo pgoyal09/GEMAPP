@@ -13,6 +13,9 @@ struct CustomerBalanceView: View {
     @State private var paymentReference = ""
     @State private var toastMessage: String?
     @State private var toastIsError = false
+    @State private var showReminderCooldownAlert = false
+    @State private var cooldownCustomer: CustomerBalance?
+    @State private var cooldownDaysAgo: Int = 0
 
     var body: some View {
         HStack(spacing: 0) {
@@ -32,6 +35,16 @@ struct CustomerBalanceView: View {
                         }
                     }
             }
+        }
+        .alert("Recent Reminder", isPresented: $showReminderCooldownAlert) {
+            Button("Send Anyway") {
+                if let customer = cooldownCustomer {
+                    createAndShareReminder(for: customer)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Last reminder sent \(cooldownDaysAgo) day\(cooldownDaysAgo == 1 ? "" : "s") ago. Send again?")
         }
     }
 
@@ -228,6 +241,41 @@ struct CustomerBalanceView: View {
                     }
                     .frame(maxHeight: 200)
                 }
+                // Reminder History
+                let reminders = fetchReminders(for: customer.customerName)
+                if !reminders.isEmpty {
+                    SectionHeader(title: "Reminder History")
+                        .padding(.horizontal, AppSpacing.section)
+
+                    ScrollView {
+                        LazyVStack(spacing: AppSpacing.compact) {
+                            ForEach(reminders, id: \.persistentModelID) { reminder in
+                                HStack {
+                                    VStack(alignment: .leading) {
+                                        Text(reminder.date.formatted(date: .abbreviated, time: .shortened))
+                                            .font(AppTypography.caption)
+                                            .foregroundStyle(AppColors.inkMuted)
+                                        Text("Invoices: \(reminder.invoiceReferences)")
+                                            .font(AppTypography.sectionLabel)
+                                            .foregroundStyle(AppColors.inkSubtle)
+                                            .lineLimit(1)
+                                    }
+                                    Spacer()
+                                    if reminder.amount > 0 {
+                                        Text(reminder.amount.asCurrency)
+                                            .font(AppTypography.mono)
+                                            .foregroundStyle(AppColors.warning)
+                                    }
+                                    Image(systemName: reminder.sent ? "checkmark.circle.fill" : "circle")
+                                        .foregroundStyle(reminder.sent ? AppColors.success : AppColors.inkSubtle)
+                                }
+                                .padding(.horizontal, AppSpacing.section)
+                                .padding(.vertical, AppSpacing.compact)
+                            }
+                        }
+                    }
+                    .frame(maxHeight: 160)
+                }
             } else {
                 EmptyStateView(icon: "person.crop.circle", title: "Select a customer", subtitle: "Click a row to see balance details")
             }
@@ -272,17 +320,80 @@ struct CustomerBalanceView: View {
     }
 
     private func sendReminder(for customer: CustomerBalance) {
+        // Check 7-day cooldown
+        if !ARService.canSendReminder(customerName: customer.customerName, modelContext: modelContext) {
+            // Find how many days ago the last reminder was sent
+            let descriptor = FetchDescriptor<PaymentReminder>(
+                predicate: #Predicate<PaymentReminder> {
+                    $0.customerName == customer.customerName && $0.sent == true
+                }
+            )
+            if let reminders = try? modelContext.fetch(descriptor),
+               let latest = reminders.max(by: { $0.date < $1.date }) {
+                cooldownDaysAgo = Calendar.current.dateComponents([.day], from: latest.date, to: Date()).day ?? 0
+            }
+            cooldownCustomer = customer
+            showReminderCooldownAlert = true
+            return
+        }
+        createAndShareReminder(for: customer)
+    }
+
+    private func createAndShareReminder(for customer: CustomerBalance) {
         let invoiceRefs = customer.invoices.map(\.referenceNumber).joined(separator: ", ")
-        let reminder = PaymentReminder(customerName: customer.customerName, invoiceReferences: invoiceRefs)
+        let reminder = PaymentReminder(
+            customerName: customer.customerName,
+            invoiceReferences: invoiceRefs,
+            amount: customer.totalOutstanding
+        )
+        reminder.sent = true
         modelContext.insert(reminder)
         do {
             try modelContext.save()
-            toastMessage = "Payment reminder created for \(customer.customerName)"
-            toastIsError = false
         } catch {
             toastMessage = "Failed to create reminder"
             toastIsError = true
+            return
         }
+
+        // Format reminder text and copy to pasteboard
+        let text = formatReminderText(customer: customer)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+
+        toastMessage = "Reminder copied to clipboard for \(customer.customerName)"
+        toastIsError = false
+    }
+
+    private func formatReminderText(customer: CustomerBalance) -> String {
+        let invoiceLines = customer.invoices.map { inv in
+            let due = inv.dueDate?.formatted(date: .abbreviated, time: .omitted) ?? "N/A"
+            return "  - \(inv.referenceNumber): \(inv.balanceDue.asCurrency) (due \(due))"
+        }.joined(separator: "\n")
+
+        return """
+        Payment Reminder — Quality Diajewels Inc.
+
+        Dear \(customer.customerName),
+
+        This is a friendly reminder regarding your outstanding balance of \(customer.totalOutstanding.asCurrency).
+
+        Outstanding invoices:
+        \(invoiceLines)
+
+        Please arrange payment at your earliest convenience.
+
+        Thank you,
+        Quality Diajewels Inc.
+        """
+    }
+
+    private func fetchReminders(for customerName: String) -> [PaymentReminder] {
+        let descriptor = FetchDescriptor<PaymentReminder>(
+            predicate: #Predicate<PaymentReminder> { $0.customerName == customerName },
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        return (try? modelContext.fetch(descriptor)) ?? []
     }
 
     private func recordPayment() {

@@ -172,11 +172,23 @@ final class CloudBackupService {
             throw CloudBackupError.compressionFailed
         }
 
-        // Delete existing data before reimport
+        let iso = ISO8601DateFormatter()
+
+        // Delete ALL existing data before reimport (children first to respect relationships)
+        try modelContext.delete(model: HistoryEvent.self)
+        try modelContext.delete(model: RFIDTag.self)
+        try modelContext.delete(model: LotTransaction.self)
+        try modelContext.delete(model: Payment.self)
+        try modelContext.delete(model: LineItem.self)
+        try modelContext.delete(model: PaymentReminder.self)
+        try modelContext.delete(model: ReconciliationRecord.self)
+        try modelContext.delete(model: Invoice.self)
+        try modelContext.delete(model: Memo.self)
         try modelContext.delete(model: Gemstone.self)
         try modelContext.delete(model: Customer.self)
 
-        // Restore customers
+        // 1. Restore customers — keyed by displayName for relationship linking
+        var customerMap: [String: Customer] = [:]
         if let custArray = dict["customers"] as? [[String: Any]] {
             for c in custArray {
                 let customer = Customer(
@@ -185,14 +197,22 @@ final class CloudBackupService {
                     company: c["company"] as? String ?? "",
                     email: c["email"] as? String ?? "",
                     phone: c["phone"] as? String ?? "",
+                    address: c["address"] as? String ?? "",
                     city: c["city"] as? String ?? "",
-                    country: c["country"] as? String ?? ""
+                    country: c["country"] as? String ?? "",
+                    zip: c["zip"] as? String ?? "",
+                    notes: c["notes"] as? String ?? ""
                 )
+                if let dateStr = c["createdAt"] as? String, let d = iso.date(from: dateStr) {
+                    customer.createdAt = d
+                }
                 modelContext.insert(customer)
+                customerMap[customer.displayName] = customer
             }
         }
 
-        // Restore stones
+        // 2. Restore stones — keyed by SKU for relationship linking
+        var stoneMap: [String: Gemstone] = [:]
         if let stoneArray = dict["stones"] as? [[String: Any]] {
             for s in stoneArray {
                 let stoneType = StoneType(rawValue: s["type"] as? String ?? "diamond") ?? .diamond
@@ -215,7 +235,222 @@ final class CloudBackupService {
                     costPrice: Decimal(string: costStr) ?? 0,
                     sellPrice: Decimal(string: sellStr) ?? 0
                 )
+                if let dateStr = s["createdAt"] as? String, let d = iso.date(from: dateStr) {
+                    stone.createdAt = d
+                }
+                if let rc = s["remainingCarats"] as? Double { stone.remainingCarats = rc }
+                if let acStr = s["averageCostPerCarat"] as? String {
+                    stone.averageCostPerCarat = Decimal(string: acStr)
+                }
                 modelContext.insert(stone)
+                stoneMap[stone.sku] = stone
+            }
+        }
+
+        // 3. Restore memos — keyed by referenceNumber
+        var memoMap: [String: Memo] = [:]
+        if let memoArray = dict["memos"] as? [[String: Any]] {
+            for m in memoArray {
+                let statusVal = MemoStatus(rawValue: m["status"] as? String ?? "On Memo") ?? .onMemo
+                let memo = Memo(
+                    status: statusVal,
+                    notes: m["notes"] as? String ?? "",
+                    referenceNumber: m["referenceNumber"] as? String ?? "",
+                    salesperson: m["salesperson"] as? String
+                )
+                if let dateStr = m["createdAt"] as? String, let d = iso.date(from: dateStr) {
+                    memo.createdAt = d
+                }
+                if let dateStr = m["dateAssigned"] as? String, let d = iso.date(from: dateStr) {
+                    memo.dateAssigned = d
+                }
+                if let dateStr = m["dateCompleted"] as? String, let d = iso.date(from: dateStr) {
+                    memo.dateCompleted = d
+                }
+                if let custName = m["customerName"] as? String {
+                    memo.customer = customerMap[custName]
+                }
+                modelContext.insert(memo)
+                memoMap[memo.referenceNumber] = memo
+            }
+        }
+
+        // 4. Restore invoices — keyed by referenceNumber
+        var invoiceMap: [String: Invoice] = [:]
+        if let invArray = dict["invoices"] as? [[String: Any]] {
+            for inv in invArray {
+                let statusVal = InvoiceStatus(rawValue: inv["status"] as? String ?? "Sent") ?? .sent
+                let invoice = Invoice(
+                    terms: inv["terms"] as? String ?? "Net 30",
+                    referenceNumber: inv["referenceNumber"] as? String ?? "",
+                    notes: inv["notes"] as? String ?? "",
+                    status: statusVal,
+                    discountAmount: Decimal(string: inv["discountAmount"] as? String ?? "0") ?? 0,
+                    taxRate: Decimal(string: inv["taxRate"] as? String ?? "0") ?? 0,
+                    salesperson: inv["salesperson"] as? String
+                )
+                if let dateStr = inv["invoiceDate"] as? String, let d = iso.date(from: dateStr) {
+                    invoice.invoiceDate = d
+                }
+                if let dateStr = inv["dueDate"] as? String, let d = iso.date(from: dateStr) {
+                    invoice.dueDate = d
+                }
+                if let dateStr = inv["createdAt"] as? String, let d = iso.date(from: dateStr) {
+                    invoice.createdAt = d
+                }
+                if let custName = inv["customerName"] as? String {
+                    invoice.customer = customerMap[custName]
+                }
+                if let memoRef = inv["originMemoRef"] as? String {
+                    invoice.originMemo = memoMap[memoRef]
+                }
+                modelContext.insert(invoice)
+                invoiceMap[invoice.referenceNumber] = invoice
+            }
+        }
+
+        // 5. Restore line items
+        if let liArray = dict["lineItems"] as? [[String: Any]] {
+            for li in liArray {
+                let kind = LineItemKind(rawValue: li["kind"] as? String ?? "Inventory") ?? .inventory
+                let status = LineItemStatus(rawValue: li["status"] as? String ?? "Open") ?? .open
+                let item = LineItem(
+                    sku: li["sku"] as? String ?? "",
+                    itemDescription: li["itemDescription"] as? String ?? "",
+                    carats: li["carats"] as? Double ?? 0,
+                    rate: Decimal(string: li["rate"] as? String ?? "0") ?? 0,
+                    amount: Decimal(string: li["amount"] as? String ?? "0") ?? 0,
+                    kind: kind,
+                    status: status,
+                    discount: Decimal(string: li["discount"] as? String ?? "0") ?? 0,
+                    brokeredStoneType: li["brokeredStoneType"] as? String ?? "",
+                    isLotLineItem: li["isLotLineItem"] as? Bool ?? false,
+                    lockedCostPerCarat: (li["lockedCostPerCarat"] as? String).flatMap { Decimal(string: $0) }
+                )
+                if let dateStr = li["returnedDate"] as? String, let d = iso.date(from: dateStr) {
+                    item.returnedDate = d
+                }
+                if let dateStr = li["soldDate"] as? String, let d = iso.date(from: dateStr) {
+                    item.soldDate = d
+                }
+                if let sku = li["gemstoneSku"] as? String { item.gemstone = stoneMap[sku] }
+                if let ref = li["invoiceRef"] as? String { item.invoice = invoiceMap[ref] }
+                if let ref = li["memoRef"] as? String { item.memo = memoMap[ref] }
+                modelContext.insert(item)
+            }
+        }
+
+        // 6. Restore payments
+        if let payArray = dict["payments"] as? [[String: Any]] {
+            for p in payArray {
+                let method = PaymentMethod(rawValue: p["method"] as? String ?? "Wire") ?? .wire
+                let payment = Payment(
+                    amount: Decimal(string: p["amount"] as? String ?? "0") ?? 0,
+                    method: method,
+                    referenceNumber: p["referenceNumber"] as? String ?? ""
+                )
+                if let dateStr = p["date"] as? String, let d = iso.date(from: dateStr) {
+                    payment.date = d
+                }
+                if let ref = p["invoiceRef"] as? String { payment.invoice = invoiceMap[ref] }
+                modelContext.insert(payment)
+            }
+        }
+
+        // 7. Restore lot transactions
+        if let ltArray = dict["lotTransactions"] as? [[String: Any]] {
+            for lt in ltArray {
+                let type = LotTransactionType(rawValue: lt["type"] as? String ?? "Added") ?? .added
+                let tx = LotTransaction(
+                    type: type,
+                    carats: lt["carats"] as? Double ?? 0,
+                    pricePerCarat: Decimal(string: lt["pricePerCarat"] as? String ?? "0") ?? 0,
+                    totalPrice: Decimal(string: lt["totalPrice"] as? String ?? "0") ?? 0,
+                    lockedCostPerCarat: (lt["lockedCostPerCarat"] as? String).flatMap { Decimal(string: $0) },
+                    notes: lt["notes"] as? String ?? ""
+                )
+                if let dateStr = lt["date"] as? String, let d = iso.date(from: dateStr) {
+                    tx.date = d
+                }
+                if let sku = lt["gemstoneSku"] as? String { tx.gemstone = stoneMap[sku] }
+                modelContext.insert(tx)
+            }
+        }
+
+        // 8. Restore RFID tags
+        if let rfidArray = dict["rfidTags"] as? [[String: Any]] {
+            for r in rfidArray {
+                let status = RFIDLifecycleStatus(rawValue: r["status"] as? String ?? "unassigned") ?? .unassigned
+                let tag = RFIDTag(
+                    epcCurrent: r["epcCurrent"] as? String ?? "",
+                    tidLastVerified: r["tidLastVerified"] as? String,
+                    status: status,
+                    printerJobID: r["printerJobID"] as? String,
+                    notes: r["notes"] as? String
+                )
+                if let dateStr = r["firstSeenAt"] as? String, let d = iso.date(from: dateStr) {
+                    tag.firstSeenAt = d
+                }
+                if let dateStr = r["lastSeenAt"] as? String, let d = iso.date(from: dateStr) {
+                    tag.lastSeenAt = d
+                }
+                if let dateStr = r["lastVerifiedAt"] as? String, let d = iso.date(from: dateStr) {
+                    tag.lastVerifiedAt = d
+                }
+                if let sku = r["assignedStoneSku"] as? String { tag.assignedStone = stoneMap[sku] }
+                modelContext.insert(tag)
+            }
+        }
+
+        // 9. Restore history events
+        if let evArray = dict["historyEvents"] as? [[String: Any]] {
+            for e in evArray {
+                let type = HistoryEventType(rawValue: e["eventType"] as? String ?? "Date Added") ?? .dateAdded
+                let event = HistoryEvent(
+                    eventDescription: e["eventDescription"] as? String ?? "",
+                    eventType: type
+                )
+                if let dateStr = e["date"] as? String, let d = iso.date(from: dateStr) {
+                    event.date = d
+                }
+                if let sku = e["gemstoneSku"] as? String { event.gemstone = stoneMap[sku] }
+                modelContext.insert(event)
+            }
+        }
+
+        // 10. Restore reconciliation records
+        if let recArray = dict["reconciliationRecords"] as? [[String: Any]] {
+            for r in recArray {
+                let record = ReconciliationRecord(
+                    matchedCount: r["matchedCount"] as? Int ?? 0,
+                    missingCount: r["missingCount"] as? Int ?? 0,
+                    unknownCount: r["unknownCount"] as? Int ?? 0,
+                    missingSkus: r["missingSkus"] as? String ?? ""
+                )
+                if let dateStr = r["date"] as? String, let d = iso.date(from: dateStr) {
+                    record.date = d
+                }
+                modelContext.insert(record)
+            }
+        }
+
+        // 11. Restore payment reminders
+        if let prArray = dict["paymentReminders"] as? [[String: Any]] {
+            for pr in prArray {
+                let reminder = PaymentReminder(
+                    customerName: pr["customerName"] as? String ?? "",
+                    invoiceReferences: pr["invoiceReferences"] as? String ?? "",
+                    amount: Decimal(string: pr["amount"] as? String ?? "0") ?? 0,
+                    method: pr["method"] as? String ?? "memo"
+                )
+                reminder.sent = pr["sent"] as? Bool ?? false
+                if let dateStr = pr["date"] as? String, let d = iso.date(from: dateStr) {
+                    reminder.date = d
+                }
+                if let dateStr = pr["createdAt"] as? String, let d = iso.date(from: dateStr) {
+                    reminder.createdAt = d
+                }
+                modelContext.insert(reminder)
             }
         }
 
@@ -247,6 +482,7 @@ final class CloudBackupService {
     // MARK: - JSON Export
 
     private func exportJSON(modelContext: ModelContext) throws -> Data {
+        let iso = ISO8601DateFormatter()
         let stones = try modelContext.fetch(FetchDescriptor<Gemstone>())
         let customers = try modelContext.fetch(FetchDescriptor<Customer>())
         let memos = try modelContext.fetch(FetchDescriptor<Memo>())
@@ -255,10 +491,13 @@ final class CloudBackupService {
         let payments = try modelContext.fetch(FetchDescriptor<Payment>())
         let lotTx = try modelContext.fetch(FetchDescriptor<LotTransaction>())
         let rfidTags = try modelContext.fetch(FetchDescriptor<RFIDTag>())
+        let historyEvents = try modelContext.fetch(FetchDescriptor<HistoryEvent>())
+        let reconciliationRecords = try modelContext.fetch(FetchDescriptor<ReconciliationRecord>())
+        let paymentReminders = try modelContext.fetch(FetchDescriptor<PaymentReminder>())
 
         var exportDict: [String: Any] = [
             "version": 2,
-            "exportDate": ISO8601DateFormatter().string(from: Date()),
+            "exportDate": iso.string(from: Date()),
             "stoneCount": stones.count,
             "customerCount": customers.count,
             "memoCount": memos.count,
@@ -269,10 +508,29 @@ final class CloudBackupService {
             "rfidTagCount": rfidTags.count,
         ]
 
-        // Stone data as array of dicts
+        // Customer data
+        var custArray: [[String: Any]] = []
+        for c in customers {
+            custArray.append([
+                "firstName": c.firstName,
+                "lastName": c.lastName,
+                "company": c.company,
+                "email": c.email,
+                "phone": c.phone,
+                "address": c.address,
+                "city": c.city,
+                "country": c.country,
+                "zip": c.zip,
+                "notes": c.notes,
+                "createdAt": iso.string(from: c.createdAt),
+            ])
+        }
+        exportDict["customers"] = custArray
+
+        // Stone data
         var stoneArray: [[String: Any]] = []
         for s in stones {
-            stoneArray.append([
+            var dict: [String: Any] = [
                 "sku": s.sku,
                 "type": s.stoneType.rawValue,
                 "shape": s.shape,
@@ -285,25 +543,166 @@ final class CloudBackupService {
                 "sellPrice": "\(s.sellPrice)",
                 "status": s.status.rawValue,
                 "origin": s.origin,
-                "createdAt": ISO8601DateFormatter().string(from: s.createdAt),
-            ])
+                "createdAt": iso.string(from: s.createdAt),
+            ]
+            if let rc = s.remainingCarats { dict["remainingCarats"] = rc }
+            if let ac = s.averageCostPerCarat { dict["averageCostPerCarat"] = "\(ac)" }
+            stoneArray.append(dict)
         }
         exportDict["stones"] = stoneArray
 
-        // Customer data
-        var custArray: [[String: Any]] = []
-        for c in customers {
-            custArray.append([
-                "firstName": c.firstName,
-                "lastName": c.lastName,
-                "company": c.company,
-                "email": c.email,
-                "phone": c.phone,
-                "city": c.city,
-                "country": c.country,
+        // Memo data
+        var memoArray: [[String: Any]] = []
+        for m in memos {
+            var dict: [String: Any] = [
+                "referenceNumber": m.referenceNumber,
+                "status": m.status.rawValue,
+                "notes": m.notes,
+                "createdAt": iso.string(from: m.createdAt),
+            ]
+            if let d = m.dateAssigned { dict["dateAssigned"] = iso.string(from: d) }
+            if let d = m.dateCompleted { dict["dateCompleted"] = iso.string(from: d) }
+            if let sp = m.salesperson { dict["salesperson"] = sp }
+            if let cust = m.customer { dict["customerName"] = cust.displayName }
+            memoArray.append(dict)
+        }
+        exportDict["memos"] = memoArray
+
+        // Invoice data
+        var invArray: [[String: Any]] = []
+        for inv in invoices {
+            var dict: [String: Any] = [
+                "referenceNumber": inv.referenceNumber,
+                "invoiceDate": iso.string(from: inv.invoiceDate),
+                "terms": inv.terms,
+                "notes": inv.notes,
+                "createdAt": iso.string(from: inv.createdAt),
+                "status": inv.status.rawValue,
+                "discountAmount": "\(inv.discountAmount)",
+                "taxRate": "\(inv.taxRate)",
+            ]
+            if let d = inv.dueDate { dict["dueDate"] = iso.string(from: d) }
+            if let sp = inv.salesperson { dict["salesperson"] = sp }
+            if let cust = inv.customer { dict["customerName"] = cust.displayName }
+            if let om = inv.originMemo { dict["originMemoRef"] = om.referenceNumber }
+            invArray.append(dict)
+        }
+        exportDict["invoices"] = invArray
+
+        // Line item data
+        var liArray: [[String: Any]] = []
+        for li in lineItems {
+            var dict: [String: Any] = [
+                "sku": li.sku,
+                "itemDescription": li.itemDescription,
+                "carats": li.carats,
+                "rate": "\(li.rate)",
+                "amount": "\(li.amount)",
+                "kind": li.kind.rawValue,
+                "status": li.status.rawValue,
+                "discount": "\(li.discount)",
+                "brokeredStoneType": li.brokeredStoneType,
+                "isLotLineItem": li.isLotLineItem,
+            ]
+            if let lc = li.lockedCostPerCarat { dict["lockedCostPerCarat"] = "\(lc)" }
+            if let d = li.returnedDate { dict["returnedDate"] = iso.string(from: d) }
+            if let d = li.soldDate { dict["soldDate"] = iso.string(from: d) }
+            if let g = li.gemstone { dict["gemstoneSku"] = g.sku }
+            if let inv = li.invoice { dict["invoiceRef"] = inv.referenceNumber }
+            if let m = li.memo { dict["memoRef"] = m.referenceNumber }
+            liArray.append(dict)
+        }
+        exportDict["lineItems"] = liArray
+
+        // Payment data
+        var payArray: [[String: Any]] = []
+        for p in payments {
+            var dict: [String: Any] = [
+                "date": iso.string(from: p.date),
+                "amount": "\(p.amount)",
+                "method": p.method.rawValue,
+                "referenceNumber": p.referenceNumber,
+            ]
+            if let inv = p.invoice { dict["invoiceRef"] = inv.referenceNumber }
+            payArray.append(dict)
+        }
+        exportDict["payments"] = payArray
+
+        // Lot transaction data
+        var ltArray: [[String: Any]] = []
+        for lt in lotTx {
+            var dict: [String: Any] = [
+                "type": lt.type.rawValue,
+                "carats": lt.carats,
+                "date": iso.string(from: lt.date),
+                "pricePerCarat": "\(lt.pricePerCarat)",
+                "totalPrice": "\(lt.totalPrice)",
+                "notes": lt.notes,
+            ]
+            if let lc = lt.lockedCostPerCarat { dict["lockedCostPerCarat"] = "\(lc)" }
+            if let g = lt.gemstone { dict["gemstoneSku"] = g.sku }
+            ltArray.append(dict)
+        }
+        exportDict["lotTransactions"] = ltArray
+
+        // RFID tag data
+        var rfidArray: [[String: Any]] = []
+        for r in rfidTags {
+            var dict: [String: Any] = [
+                "epcCurrent": r.epcCurrent,
+                "status": r.status.rawValue,
+            ]
+            if let t = r.tidLastVerified { dict["tidLastVerified"] = t }
+            if let d = r.firstSeenAt { dict["firstSeenAt"] = iso.string(from: d) }
+            if let d = r.lastSeenAt { dict["lastSeenAt"] = iso.string(from: d) }
+            if let d = r.lastVerifiedAt { dict["lastVerifiedAt"] = iso.string(from: d) }
+            if let j = r.printerJobID { dict["printerJobID"] = j }
+            if let n = r.notes { dict["notes"] = n }
+            if let g = r.assignedStone { dict["assignedStoneSku"] = g.sku }
+            rfidArray.append(dict)
+        }
+        exportDict["rfidTags"] = rfidArray
+
+        // History event data
+        var evArray: [[String: Any]] = []
+        for e in historyEvents {
+            var dict: [String: Any] = [
+                "date": iso.string(from: e.date),
+                "eventDescription": e.eventDescription,
+                "eventType": e.eventType.rawValue,
+            ]
+            if let g = e.gemstone { dict["gemstoneSku"] = g.sku }
+            evArray.append(dict)
+        }
+        exportDict["historyEvents"] = evArray
+
+        // Reconciliation record data
+        var recArray: [[String: Any]] = []
+        for r in reconciliationRecords {
+            recArray.append([
+                "date": iso.string(from: r.date),
+                "matchedCount": r.matchedCount,
+                "missingCount": r.missingCount,
+                "unknownCount": r.unknownCount,
+                "missingSkus": r.missingSkus,
             ])
         }
-        exportDict["customers"] = custArray
+        exportDict["reconciliationRecords"] = recArray
+
+        // Payment reminder data
+        var prArray: [[String: Any]] = []
+        for pr in paymentReminders {
+            prArray.append([
+                "date": iso.string(from: pr.date),
+                "customerName": pr.customerName,
+                "invoiceReferences": pr.invoiceReferences,
+                "amount": "\(pr.amount)",
+                "sent": pr.sent,
+                "method": pr.method,
+                "createdAt": iso.string(from: pr.createdAt),
+            ])
+        }
+        exportDict["paymentReminders"] = prArray
 
         return try JSONSerialization.data(withJSONObject: exportDict, options: [.prettyPrinted, .sortedKeys])
     }
