@@ -26,6 +26,8 @@ struct DemoDataService {
 
     /// Deletes all entities in dependency-safe order using batch delete.
     static func deleteAllData(modelContext: ModelContext) throws {
+        try modelContext.delete(model: PaymentReminder.self)
+        try modelContext.delete(model: ReconciliationRecord.self)
         try modelContext.delete(model: LotTransaction.self)
         try modelContext.delete(model: HistoryEvent.self)
         try modelContext.delete(model: LineItem.self)
