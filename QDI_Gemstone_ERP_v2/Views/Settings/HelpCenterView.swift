@@ -45,6 +45,7 @@ struct HelpCenterView: View {
     @State private var selectedSection: HelpSection?
     @State private var selectedArticle: HelpArticle?
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 0) {
@@ -115,7 +116,7 @@ struct HelpCenterView: View {
             ], spacing: AppSpacing.section) {
                 ForEach(Self.helpSections) { section in
                     Button {
-                        withAnimation(AppAnimation.standard) {
+                        withAnimation(reduceMotion ? nil : AppAnimation.standard) {
                             selectedSection = section
                         }
                     } label: {
@@ -175,7 +176,7 @@ struct HelpCenterView: View {
             // Breadcrumb
             HStack(spacing: AppSpacing.compact) {
                 Button {
-                    withAnimation(AppAnimation.standard) {
+                    withAnimation(reduceMotion ? nil : AppAnimation.standard) {
                         selectedSection = nil
                     }
                 } label: {
@@ -221,7 +222,7 @@ struct HelpCenterView: View {
 
                     ForEach(section.articles) { article in
                         Button {
-                            withAnimation(AppAnimation.standard) {
+                            withAnimation(reduceMotion ? nil : AppAnimation.standard) {
                                 selectedArticle = article
                             }
                         } label: {
@@ -256,7 +257,7 @@ struct HelpCenterView: View {
             // Breadcrumb
             HStack(spacing: AppSpacing.compact) {
                 Button {
-                    withAnimation(AppAnimation.standard) {
+                    withAnimation(reduceMotion ? nil : AppAnimation.standard) {
                         selectedArticle = nil
                     }
                 } label: {
@@ -474,7 +475,7 @@ struct HelpCenterView: View {
                 } else {
                     ForEach(results, id: \.1.id) { section, article in
                         Button {
-                            withAnimation(AppAnimation.standard) {
+                            withAnimation(reduceMotion ? nil : AppAnimation.standard) {
                                 selectedSection = section
                                 selectedArticle = article
                             }
@@ -1072,6 +1073,75 @@ extension HelpCenterView {
                         "Diffusion — Beryllium diffusion in sapphires creates vivid orange/yellow. Requires disclosure.",
                         "No Treatment — Untreated stones command significant premiums, especially for sapphires and rubies."
                     ]),
+                ]),
+            ]
+        ),
+
+        // ─────────────────────────────────────────────
+        // KEYBOARD SHORTCUTS
+        // ─────────────────────────────────────────────
+        HelpSection(
+            icon: "keyboard.fill",
+            title: "Keyboard Shortcuts",
+            subtitle: "Navigate, create, and manage with keyboard shortcuts",
+            articles: [
+                HelpArticle(title: "Navigation Shortcuts", body: [
+                    .heading("Sidebar Navigation"),
+                    .paragraph("Quickly jump between main sections using ⌘ + number keys:"),
+                    .keyboardShortcutGroup([
+                        (key: "⌘1", description: "Dashboard"),
+                        (key: "⌘2", description: "Scanner"),
+                        (key: "⌘3", description: "Diamonds"),
+                        (key: "⌘4", description: "Lots"),
+                        (key: "⌘5", description: "Sold"),
+                        (key: "⌘6", description: "Memos"),
+                        (key: "⌘7", description: "Invoices"),
+                        (key: "⌘8", description: "Customers"),
+                        (key: "⌘9", description: "Accounting"),
+                    ]),
+                    .tip("These shortcuts work from any screen and respect the unsaved-changes guard."),
+                ]),
+
+                HelpArticle(title: "Creating & Editing", body: [
+                    .heading("New Items"),
+                    .paragraph("Context-aware creation adapts to your current view:"),
+                    .keyboardShortcutGroup([
+                        (key: "⌘N", description: "New item — stone, memo, or invoice depending on active tab"),
+                        (key: "⌘⇧N", description: "Quick Intake — jump straight to the intake form"),
+                        (key: "⌘M", description: "New Memo"),
+                        (key: "⌘I", description: "New Invoice"),
+                    ]),
+                    .heading("Search & Filter"),
+                    .keyboardShortcutGroup([
+                        (key: "⌘F", description: "Focus the search / filter field"),
+                        (key: "Escape", description: "Close panel, deselect, or dismiss sheet"),
+                    ]),
+                ]),
+
+                HelpArticle(title: "Data & Export", body: [
+                    .heading("Data Management"),
+                    .keyboardShortcutGroup([
+                        (key: "⌘R", description: "Refresh data"),
+                        (key: "⌘E", description: "Export current view"),
+                        (key: "⌘P", description: "Print current view"),
+                        (key: "⌘⇧S", description: "Cloud Backup"),
+                    ]),
+                    .heading("Workflow Shortcuts"),
+                    .keyboardShortcutGroup([
+                        (key: "⌘⇧R", description: "Review Queue"),
+                        (key: "⌘⇧C", description: "Reconcile"),
+                        (key: "⌘⇧A", description: "Aging Report"),
+                    ]),
+                ]),
+
+                HelpArticle(title: "System & Help", body: [
+                    .heading("Application"),
+                    .keyboardShortcutGroup([
+                        (key: "⌘,", description: "Open Settings"),
+                        (key: "⌘?", description: "Open Help Center"),
+                        (key: "⌘⌥S", description: "Toggle Sidebar"),
+                    ]),
+                    .tip("Most shortcuts are also available from the menu bar. Look for the ⌘ symbols next to each menu item."),
                 ]),
             ]
         ),

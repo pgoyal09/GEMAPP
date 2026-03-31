@@ -3,6 +3,7 @@ import SwiftUI
 struct GlassSearchField: View {
     @Binding var text: String
     var placeholder: String = "Search..."
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var isFocused: Bool
 
     /// Optional external focus binding for programmatic focus (e.g. keyboard shortcuts).
@@ -34,7 +35,7 @@ struct GlassSearchField: View {
                         )
                 )
         )
-        .animation(.easeOut(duration: 0.15), value: isFocused)
+        .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: isFocused)
         .onChange(of: requestFocus?.wrappedValue) { _, newValue in
             if newValue == true {
                 isFocused = true

@@ -85,7 +85,7 @@ struct LotInventoryView: View {
 
             summaryStrip
         }
-        .animation(.easeInOut(duration: 0.2), value: selectedLot?.persistentModelID)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: selectedLot?.persistentModelID)
         .sheet(isPresented: $viewModel.showAddQuantitySheet) {
             if let lot = selectedLot {
                 addQuantitySheet(lot)
@@ -163,7 +163,7 @@ struct LotInventoryView: View {
 
     private func lotRow(_ lot: Gemstone) -> some View {
         HoverRow(isSelected: viewModel.selectedLotID == lot.persistentModelID, onTap: {
-            withAnimation(.easeInOut(duration: 0.15)) {
+            withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.15)) {
                 if viewModel.selectedLotID == lot.persistentModelID {
                     viewModel.selectedLotID = nil
                 } else {

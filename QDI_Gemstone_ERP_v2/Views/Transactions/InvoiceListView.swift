@@ -34,7 +34,7 @@ struct InvoiceListView: View {
         .overlay {
             if let msg = batchToastMessage {
                 ToastOverlay(message: msg, isError: batchToastIsError)
-                    .animation(AppAnimation.standard, value: batchToastMessage)
+                    .animation(reduceMotion ? nil : AppAnimation.standard, value: batchToastMessage)
             }
         }
     }
@@ -264,7 +264,7 @@ struct InvoiceListView: View {
                 batchToastMessage = "Exported \(total) invoice PDF\(total == 1 ? "" : "s")"
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                withAnimation { batchToastMessage = nil }
+                withAnimation(reduceMotion ? nil : .default) { batchToastMessage = nil }
             }
         }
     }
@@ -275,7 +275,7 @@ struct InvoiceListView: View {
             openWindow(id: "invoice", value: inv.persistentModelID)
         } catch {
             batchToastIsError = true
-            withAnimation { batchToastMessage = "Failed to create invoice: \(ErrorMapper.userMessage(from: error))" }
+            withAnimation(reduceMotion ? nil : .default) { batchToastMessage = "Failed to create invoice: \(ErrorMapper.userMessage(from: error))" }
         }
     }
 }

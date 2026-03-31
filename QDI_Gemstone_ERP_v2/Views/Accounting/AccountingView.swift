@@ -11,6 +11,7 @@ struct AccountingView: View {
     @State private var selectedAgingBucket: String?
     @State private var customStartDate = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
     @State private var customEndDate = Date()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// Fetch sent invoices that fall into a specific aging bucket, computed locally.
     private func invoicesForAgingBucket(_ bucketID: String) -> [Invoice] {
@@ -49,7 +50,7 @@ struct AccountingView: View {
         .overlay {
             if showExportSuccess {
                 ToastOverlay(message: "CSV exported successfully")
-                    .animation(.easeInOut, value: showExportSuccess)
+                    .animation(reduceMotion ? nil : .easeInOut, value: showExportSuccess)
             }
         }
     }

@@ -33,6 +33,7 @@ struct BulkEditSheet: View {
     let onApply: (BulkEditAction) -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     // Status
     @State private var selectedStatus: GemstoneStatus = .available
@@ -94,7 +95,7 @@ struct BulkEditSheet: View {
         .padding(AppSpacing.hero)
         .frame(width: 360, height: 280)
         .appBackground()
-        .transition(.opacity.combined(with: .scale(scale: 0.95)))
+        .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: 0.95)))
     }
 
     // MARK: - Status

@@ -161,7 +161,7 @@ struct GemstonesInventoryView: View {
                     showEditSheet = true
                 })
                 .frame(minWidth: 260, idealWidth: 296, maxWidth: 350)
-                .transition(.move(edge: .trailing).combined(with: .opacity))
+                .transition(reduceMotion ? .opacity : .move(edge: .trailing).combined(with: .opacity))
             }
         }
         .accessibilityIdentifier("GemstonesInventoryView")
@@ -183,7 +183,7 @@ struct GemstonesInventoryView: View {
                     .onAppear {
                         let delay: Double = showBulkUndo ? 5 : 3
                         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                            withAnimation {
+                            withAnimation(reduceMotion ? nil : .default) {
                                 toastMessage = nil
                                 showBulkUndo = false
                             }
@@ -325,7 +325,7 @@ struct GemstonesInventoryView: View {
         filterPresets.append(preset)
         FilterPresetStore.saveGemstonePresets(filterPresets)
         toastIsError = false
-        withAnimation { toastMessage = "Preset '\(name)' saved" }
+        withAnimation(reduceMotion ? nil : .default) { toastMessage = "Preset '\(name)' saved" }
     }
 
     private func loadGemstonePreset(_ preset: FilterPreset) {
@@ -537,7 +537,7 @@ struct GemstonesInventoryView: View {
             selectedStones.removeAll()
             openWindow(id: "memo", value: memo.persistentModelID)
         } catch {
-            toastIsError = true; withAnimation { toastMessage = "Failed: \(ErrorMapper.userMessage(from: error))" }
+            toastIsError = true; withAnimation(reduceMotion ? nil : .default) { toastMessage = "Failed: \(ErrorMapper.userMessage(from: error))" }
         }
     }
 
@@ -550,7 +550,7 @@ struct GemstonesInventoryView: View {
             selectedStones.removeAll()
             openWindow(id: "invoice", value: inv.persistentModelID)
         } catch {
-            toastIsError = true; withAnimation { toastMessage = "Failed: \(ErrorMapper.userMessage(from: error))" }
+            toastIsError = true; withAnimation(reduceMotion ? nil : .default) { toastMessage = "Failed: \(ErrorMapper.userMessage(from: error))" }
         }
     }
 
@@ -564,9 +564,9 @@ struct GemstonesInventoryView: View {
         if panel.runModal() == .OK, let url = panel.url {
             do {
                 try csv.write(to: url, atomically: true, encoding: .utf8)
-                toastIsError = false; withAnimation { toastMessage = "Exported \(stones.count) gemstones" }
+                toastIsError = false; withAnimation(reduceMotion ? nil : .default) { toastMessage = "Exported \(stones.count) gemstones" }
             } catch {
-                toastIsError = true; withAnimation { toastMessage = "Export failed: \(ErrorMapper.userMessage(from: error))" }
+                toastIsError = true; withAnimation(reduceMotion ? nil : .default) { toastMessage = "Export failed: \(ErrorMapper.userMessage(from: error))" }
             }
         }
     }
@@ -580,9 +580,9 @@ struct GemstonesInventoryView: View {
         if panel.runModal() == .OK, let url = panel.url {
             do {
                 try csv.write(to: url, atomically: true, encoding: .utf8)
-                toastIsError = false; withAnimation { toastMessage = "Exported \(exportableStones.count) gemstones" }
+                toastIsError = false; withAnimation(reduceMotion ? nil : .default) { toastMessage = "Exported \(exportableStones.count) gemstones" }
             } catch {
-                toastIsError = true; withAnimation { toastMessage = "Export failed: \(ErrorMapper.userMessage(from: error))" }
+                toastIsError = true; withAnimation(reduceMotion ? nil : .default) { toastMessage = "Export failed: \(ErrorMapper.userMessage(from: error))" }
             }
         }
     }
@@ -647,12 +647,12 @@ struct GemstonesInventoryView: View {
             NotificationCenter.default.post(name: .dataStoreDidChange, object: nil)
             toastIsError = false
             showBulkUndo = true
-            withAnimation { toastMessage = "Updated \(stones.count) stone\(stones.count == 1 ? "" : "s")" }
+            withAnimation(reduceMotion ? nil : .default) { toastMessage = "Updated \(stones.count) stone\(stones.count == 1 ? "" : "s")" }
             selectedStones.removeAll()
         } catch {
             toastIsError = true
             showBulkUndo = false
-            withAnimation { toastMessage = "Bulk edit failed: \(ErrorMapper.userMessage(from: error))" }
+            withAnimation(reduceMotion ? nil : .default) { toastMessage = "Bulk edit failed: \(ErrorMapper.userMessage(from: error))" }
         }
     }
 
@@ -671,10 +671,10 @@ struct GemstonesInventoryView: View {
             bulkUndoValues = []
             showBulkUndo = false
             toastIsError = false
-            withAnimation { toastMessage = "Bulk edit undone" }
+            withAnimation(reduceMotion ? nil : .default) { toastMessage = "Bulk edit undone" }
         } catch {
             toastIsError = true
-            withAnimation { toastMessage = "Undo failed: \(ErrorMapper.userMessage(from: error))" }
+            withAnimation(reduceMotion ? nil : .default) { toastMessage = "Undo failed: \(ErrorMapper.userMessage(from: error))" }
         }
     }
 

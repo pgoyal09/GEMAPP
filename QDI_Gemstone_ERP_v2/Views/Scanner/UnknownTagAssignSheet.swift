@@ -7,6 +7,7 @@ struct UnknownTagAssignSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(\.rfidCoordinator) private var rfidCoordinator
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query private var allGemstones: [Gemstone]
 
     init(epc: String, tid: String) {
@@ -83,7 +84,7 @@ struct UnknownTagAssignSheet: View {
                 ToastOverlay(message: msg, isError: true)
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                            withAnimation { errorMessage = nil }
+                            withAnimation(reduceMotion ? nil : .default) { errorMessage = nil }
                         }
                     }
             }

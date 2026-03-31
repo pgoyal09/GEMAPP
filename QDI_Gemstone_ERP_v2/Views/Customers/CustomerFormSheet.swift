@@ -12,6 +12,7 @@ struct CustomerFormSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     enum Field: Hashable { case firstName, lastName, company, email, phone, address, city, country, zip, notes }
     @FocusState private var focusedField: Field?
@@ -60,14 +61,14 @@ struct CustomerFormSheet: View {
         }
         .frame(minWidth: 480, minHeight: 400)
         .appBackground()
-        .transition(.opacity.combined(with: .scale(scale: 0.95)))
+        .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: 0.95)))
         .interactiveDismissDisabled(isSaving)
         .overlay {
             if let msg = toastMessage {
                 ToastOverlay(message: msg, isError: toastIsError)
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                            withAnimation { toastMessage = nil }
+                            withAnimation(reduceMotion ? nil : .default) { toastMessage = nil }
                         }
                     }
             }
@@ -163,7 +164,7 @@ struct CustomerFormSheet: View {
             InputValidator.validateEmail(email) ??
             InputValidator.validatePhone(phone) {
             toastIsError = true
-            withAnimation { toastMessage = err }
+            withAnimation(reduceMotion ? nil : .default) { toastMessage = err }
             return
         }
 
@@ -185,7 +186,7 @@ struct CustomerFormSheet: View {
                 dismiss()
             } catch {
                 toastIsError = true
-                withAnimation { toastMessage = "Failed to save customer: \(ErrorMapper.userMessage(from: error))" }
+                withAnimation(reduceMotion ? nil : .default) { toastMessage = "Failed to save customer: \(ErrorMapper.userMessage(from: error))" }
             }
         case .edit(let c):
             c.firstName = firstName.trimmed
@@ -204,7 +205,7 @@ struct CustomerFormSheet: View {
                 dismiss()
             } catch {
                 toastIsError = true
-                withAnimation { toastMessage = "Failed to save customer: \(ErrorMapper.userMessage(from: error))" }
+                withAnimation(reduceMotion ? nil : .default) { toastMessage = "Failed to save customer: \(ErrorMapper.userMessage(from: error))" }
             }
         }
     }

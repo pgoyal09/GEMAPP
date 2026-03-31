@@ -8,6 +8,7 @@ struct QuickEntryView: View {
     var defaultStoneType: StoneType = .diamond
 
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selectedCategory: StoneType = .diamond
     @State private var rows: [QuickEntryRow] = [QuickEntryRow()]
     @State private var toastMessage: String?
@@ -23,7 +24,7 @@ struct QuickEntryView: View {
         .overlay {
             if let msg = toastMessage {
                 ToastOverlay(message: msg, isError: toastIsError)
-                    .animation(AppAnimation.standard, value: toastMessage)
+                    .animation(reduceMotion ? nil : AppAnimation.standard, value: toastMessage)
             }
         }
         .onAppear {
@@ -260,7 +261,7 @@ struct QuickEntryView: View {
         focusedField = .type(rows[0].id)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-            withAnimation { toastMessage = nil }
+            withAnimation(reduceMotion ? nil : .default) { toastMessage = nil }
         }
     }
 

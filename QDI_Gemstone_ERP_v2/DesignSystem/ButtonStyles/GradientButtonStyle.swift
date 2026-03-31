@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Primary action button with gradient background.
 struct GradientButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var gradient: LinearGradient = AppColors.primaryGradient
 
     func makeBody(configuration: Configuration) -> some View {
@@ -14,7 +15,7 @@ struct GradientButtonStyle: ButtonStyle {
             .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous))
             .shadow(color: AppColors.primary.opacity(configuration.isPressed ? 0.08 : 0.20), radius: configuration.isPressed ? 4 : 8, y: configuration.isPressed ? 2 : 4)
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
-            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: configuration.isPressed)
     }
 }
 

@@ -6,6 +6,7 @@ struct CSVImportPreviewSheet: View {
     let rows: [CSVImportService.ImportRow]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var importedCount: Int?
     @State private var errorMessage: String?
     @AccessibilityFocusState private var isTitleFocused: Bool
@@ -20,7 +21,7 @@ struct CSVImportPreviewSheet: View {
         }
         .frame(minWidth: 700, minHeight: 400)
         .appBackground()
-        .transition(.opacity.combined(with: .scale(scale: 0.95)))
+        .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: 0.95)))
         .onAppear { isTitleFocused = true }
     }
 

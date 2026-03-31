@@ -30,7 +30,7 @@ struct MemoListView: View {
                 ToastOverlay(message: msg, isError: toastIsError)
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                            withAnimation { toastMessage = nil }
+                            withAnimation(reduceMotion ? nil : .default) { toastMessage = nil }
                         }
                     }
             }
@@ -236,7 +236,7 @@ struct MemoListView: View {
             openWindow(id: "memo", value: memo.persistentModelID)
         } catch {
             toastIsError = true
-            withAnimation { toastMessage = "Failed to create memo: \(ErrorMapper.userMessage(from: error))" }
+            withAnimation(reduceMotion ? nil : .default) { toastMessage = "Failed to create memo: \(ErrorMapper.userMessage(from: error))" }
         }
     }
 }

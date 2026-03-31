@@ -57,6 +57,8 @@ struct DemoDataService {
         seedInvoices(modelContext: modelContext, customers: customers, gemstones: gemstones, openMemos: openMemos)
         seedHistoryEvents(modelContext: modelContext, gemstones: gemstones)
         seedLotTransactions(modelContext: modelContext, lotStones: lotStones, customers: customers)
+        seedPaymentReminders(modelContext: modelContext)
+        seedReconciliationRecords(modelContext: modelContext)
         try modelContext.save()
     }
 
@@ -112,21 +114,57 @@ struct DemoDataService {
             (3.00, "K",  "SI2",  "Cushion",  9000,  12000),
         ]
         for (i, (carat, color, clarity, shape, cost, sell)) in diaSpecs.enumerated() {
+            let origins = ["India", "Belgium", "South Africa", "Russia"]
+            let polishGrades = ["Excellent", "Excellent", "Very Good", "Excellent", "Excellent", "Very Good", "Excellent", "Excellent", "Excellent", "Good"]
+            let symGrades = ["Excellent", "Excellent", "Excellent", "Very Good", "Excellent", "Very Good", "Excellent", "Excellent", "Very Good", "Good"]
+            let fluors = ["None", "None", "Faint", "None", "Medium", "None", "Faint", "None", "None", "Faint"]
+            let certLabs = ["GIA", "GIA", "AGS", "GIA", "IGI", "GIA", "GIA", "GIA", "AGS", "GIA"]
+            let certNos = ["6451230987", "2251340876", "AGS-104054321", "7361240567", "IGI-459012345", "5271430678", "8181540789", "1291650890", "AGS-104165432", "4201760901"]
+            let lengths = [6.90, 5.30, 8.00, 5.15, 7.32, 6.23, 6.50, 8.50, 4.50, 8.80]
+            let widths = [6.90, 5.30, 5.80, 5.15, 6.45, 5.43, 6.50, 8.50, 4.50, 7.70]
+            let heights = [4.28, 3.78, 5.12, 3.21, 4.71, 3.62, 4.05, 5.23, 3.20, 5.02]
+            let depths = [62.0, 61.3, 64.0, 62.3, 61.8, 60.5, 62.3, 61.5, 61.0, 63.2]
+            let tables = [57.0, 56.0, 58.0, 57.5, 56.0, 58.0, 57.0, 55.0, 56.5, 58.5]
+            let rapPrices: [Decimal] = [10200, 5500, 15000, 3400, 7200, 3100, 5000, 22000, 1900, 4500]
+            let rapDiscs = [-18.0, -20.5, -15.0, -25.0, -12.5, -22.0, -14.0, -10.0, -24.0, -30.0]
+            let cities = ["Surat", "Antwerp", "Johannesburg", "Moscow", "Surat", "Antwerp", "Johannesburg", "Moscow", "Surat", "Antwerp"]
+            let countries = ["India", "Belgium", "South Africa", "Russia", "India", "Belgium", "South Africa", "Russia", "India", "Belgium"]
             let stone = Gemstone(
                 sku: String(format: "DIA%03d", i + 1),
                 stoneType: .diamond,
                 caratWeight: carat,
                 shape: shape,
                 grouping: .single,
-                origin: ["India", "Belgium", "South Africa", "Russia"][i % 4],
+                origin: origins[i % 4],
                 createdAt: baseDate.addingTimeInterval(Double(i) * 3600),
                 status: .available,
                 color: color,
                 clarity: clarity,
                 cut: shape,
+                treatment: "None",
+                polish: polishGrades[i],
+                symmetry: symGrades[i],
+                fluorescence: fluors[i],
+                hasCert: true,
+                certLab: certLabs[i],
+                certNo: certNos[i],
+                length: lengths[i],
+                width: widths[i],
+                height: heights[i],
                 costPrice: cost,
                 sellPrice: sell
             )
+            stone.depthPct = depths[i]
+            stone.tablePct = tables[i]
+            stone.rapNetPrice = rapPrices[i]
+            stone.rapNetDiscountPct = rapDiscs[i]
+            stone.numberOfStones = 1
+            stone.stoneCountry = countries[i]
+            stone.stoneCity = cities[i]
+            stone.fluorescenceIntensity = fluors[i] == "None" ? "N" : (fluors[i] == "Faint" ? "F" : "M")
+            stone.fluorescenceColor = fluors[i] == "None" ? "N" : "B"
+            stone.eyeClean = clarity.contains("SI") ? "Borderline" : "Yes"
+            stone.availability = "G"
             modelContext.insert(stone)
             result.append(stone)
         }
@@ -145,21 +183,50 @@ struct DemoDataService {
             (1.4,  "Red",          "VS",        "Oval",     6500,  9000),
         ]
         for (i, (carat, color, clarity, shape, cost, sell)) in ruSpecs.enumerated() {
+            let ruOrigins = ["Myanmar", "Thailand", "Mozambique"]
+            let ruTreatments = ["None", "Heated", "None", "Heated", "None", "Heated", "None", "Heated", "None", "Heated"]
+            let ruPolish = ["Excellent", "Very Good", "Excellent", "Very Good", "Excellent", "Good", "Excellent", "Very Good", "Excellent", "Very Good"]
+            let ruSym = ["Excellent", "Very Good", "Excellent", "Good", "Excellent", "Very Good", "Excellent", "Very Good", "Excellent", "Good"]
+            let ruHasCert = [true, false, true, false, true, false, true, false, true, false]
+            let ruCertLabs = ["GRS", "", "Gübelin", "", "GIA", "", "GRS", "", "Gübelin", ""]
+            let ruCertNos = ["GRS2024-1001", "", "GUB-2024-5501", "", "6342001234", "", "GRS2024-1002", "", "GUB-2024-5502", ""]
+            let ruLengths = [7.80, 5.90, 7.10, 5.50, 8.50, 5.20, 7.60, 4.80, 9.10, 6.50]
+            let ruWidths = [5.90, 5.90, 6.20, 5.50, 6.50, 5.20, 5.80, 4.80, 7.00, 5.20]
+            let ruHeights = [4.10, 3.80, 4.40, 3.60, 4.90, 3.40, 4.00, 3.10, 5.30, 3.80]
+            let ruCountries = ["USA", "Thailand", "USA", "Myanmar", "USA", "Hong Kong", "USA", "Japan", "USA", "Switzerland"]
+            let ruCities = ["New York", "Bangkok", "New York", "Mogok", "New York", "Wan Chai", "New York", "Tokyo", "New York", "Geneva"]
             let stone = Gemstone(
                 sku: String(format: "RU%03d", i + 1),
                 stoneType: .ruby,
                 caratWeight: carat,
                 shape: shape,
                 grouping: .single,
-                origin: ["Myanmar", "Thailand", "Mozambique"][i % 3],
+                origin: ruOrigins[i % 3],
                 createdAt: baseDate.addingTimeInterval(Double(10 + i) * 3600),
                 status: .available,
                 color: color,
                 clarity: clarity,
                 cut: shape,
+                treatment: ruTreatments[i],
+                polish: ruPolish[i],
+                symmetry: ruSym[i],
+                fluorescence: "None",
+                hasCert: ruHasCert[i],
+                certLab: ruCertLabs[i],
+                certNo: ruCertNos[i],
+                length: ruLengths[i],
+                width: ruWidths[i],
+                height: ruHeights[i],
                 costPrice: cost,
                 sellPrice: sell
             )
+            stone.numberOfStones = 1
+            stone.stoneCountry = ruCountries[i]
+            stone.stoneCity = ruCities[i]
+            stone.primaryColorVendor = color
+            stone.colorIntensityVendor = color.contains("Pigeon") ? "Vivid" : "Strong"
+            stone.eyeClean = clarity.contains("Eye Clean") ? "Yes" : (clarity.contains("VVS") ? "Yes" : "Borderline")
+            stone.availability = "G"
             modelContext.insert(stone)
             result.append(stone)
         }
@@ -178,21 +245,50 @@ struct DemoDataService {
             (1.3,  "Padparadscha",  "Eye Clean", "Cushion", 9500,  13000),
         ]
         for (i, (carat, color, clarity, shape, cost, sell)) in sapSpecs.enumerated() {
+            let sapOrigins = ["Sri Lanka", "Madagascar", "Thailand"]
+            let sapTreatments = ["Heated", "None", "Heated", "None", "None", "Heated", "None", "Heated", "None", "None"]
+            let sapPolish = ["Excellent", "Excellent", "Very Good", "Very Good", "Excellent", "Excellent", "Excellent", "Very Good", "Excellent", "Excellent"]
+            let sapSym = ["Excellent", "Very Good", "Good", "Very Good", "Excellent", "Excellent", "Very Good", "Excellent", "Excellent", "Very Good"]
+            let sapHasCert = [true, true, true, false, true, true, false, true, false, true]
+            let sapCertLabs = ["GIA", "AIGS", "Gübelin", "", "GRS", "GIA", "", "AIGS", "", "GRS"]
+            let sapCertNos = ["6351120345", "AIGS-BK24-2201", "GUB-2024-6601", "", "GRS2024-3301", "6451230456", "", "AIGS-BK24-2202", "", "GRS2024-3302"]
+            let sapLengths = [7.00, 5.80, 8.10, 6.20, 6.00, 8.60, 5.40, 7.50, 9.20, 6.80]
+            let sapWidths = [6.10, 5.80, 6.30, 5.50, 5.10, 7.20, 5.40, 5.90, 7.10, 5.90]
+            let sapHeights = [4.30, 3.70, 4.80, 3.70, 3.40, 5.00, 3.50, 4.20, 5.10, 4.00]
+            let sapCountries = ["Sri Lanka", "USA", "Switzerland", "Thailand", "USA", "Sri Lanka", "Hong Kong", "USA", "Japan", "USA"]
+            let sapCities = ["Colombo", "New York", "Geneva", "Bangkok", "New York", "Ratnapura", "Central", "New York", "Tokyo", "New York"]
             let stone = Gemstone(
                 sku: String(format: "SAP%03d", i + 1),
                 stoneType: .sapphire,
                 caratWeight: carat,
                 shape: shape,
                 grouping: .single,
-                origin: ["Sri Lanka", "Madagascar", "Thailand"][i % 3],
+                origin: sapOrigins[i % 3],
                 createdAt: baseDate.addingTimeInterval(Double(20 + i) * 3600),
                 status: .available,
                 color: color,
                 clarity: clarity,
                 cut: shape,
+                treatment: sapTreatments[i],
+                polish: sapPolish[i],
+                symmetry: sapSym[i],
+                fluorescence: "None",
+                hasCert: sapHasCert[i],
+                certLab: sapCertLabs[i],
+                certNo: sapCertNos[i],
+                length: sapLengths[i],
+                width: sapWidths[i],
+                height: sapHeights[i],
                 costPrice: cost,
                 sellPrice: sell
             )
+            stone.numberOfStones = 1
+            stone.stoneCountry = sapCountries[i]
+            stone.stoneCity = sapCities[i]
+            stone.primaryColorVendor = color
+            stone.colorIntensityVendor = color.contains("Royal") ? "Vivid" : (color.contains("Padparadscha") ? "Strong" : "Medium")
+            stone.eyeClean = clarity.contains("Eye Clean") ? "Yes" : (clarity.contains("VVS") ? "Yes" : "Borderline")
+            stone.availability = "G"
             modelContext.insert(stone)
             result.append(stone)
         }
@@ -221,18 +317,24 @@ struct DemoDataService {
 
         for (i, (sku, type, totalCarats, color, clarity, shape, costTotal, sellPerCarat, descriptor, isDiamond)) in specs.enumerated() {
             let avgCostPerCarat = totalCarats > 0 ? costTotal / Decimal(totalCarats) : costTotal
+            let lotOrigins = ["India", "Myanmar", "Sri Lanka", "Colombia", "India", "Myanmar", "Sri Lanka", "Colombia"]
+            let lotTreatments = ["None", "None", "Heated", "None", "Heated", "None", "Oiled", "None"]
+            let lotCountries = ["India", "India", "Thailand", "Sri Lanka", "USA", "Myanmar", "Colombia", "India"]
+            let lotCities = ["Surat", "Mumbai", "Bangkok", "Colombo", "New York", "Mandalay", "Bogota", "Jaipur"]
+            let lotCounts = [150, 80, 120, 45, 100, 200, 90, 60]
             let stone = Gemstone(
                 sku: sku,
                 stoneType: type,
                 caratWeight: totalCarats,
                 shape: shape,
                 grouping: .lot,
-                origin: ["India", "Myanmar", "Sri Lanka", "Colombia"][i % 4],
+                origin: lotOrigins[i],
                 createdAt: baseDate.addingTimeInterval(Double(i) * 86400),
                 status: .available,
                 color: color,
                 clarity: clarity,
                 cut: "",
+                treatment: lotTreatments[i],
                 size: isDiamond ? descriptor : nil,
                 quality: isDiamond ? nil : descriptor,
                 costPrice: costTotal,
@@ -240,6 +342,10 @@ struct DemoDataService {
                 remainingCarats: totalCarats,
                 averageCostPerCarat: avgCostPerCarat
             )
+            stone.numberOfStones = lotCounts[i]
+            stone.stoneCountry = lotCountries[i]
+            stone.stoneCity = lotCities[i]
+            stone.availability = "G"
             modelContext.insert(stone)
             result.append(stone)
         }
@@ -491,5 +597,36 @@ struct DemoDataService {
             // Adjust remaining carats to reflect the sale
             lot.effectiveRemainingCarats -= saleCarats
         }
+    }
+
+    // MARK: - Payment Reminders (4)
+
+    private static func seedPaymentReminders(modelContext: ModelContext) {
+        let reminders = [
+            PaymentReminder(customerName: "Crown Jeweler", invoiceReferences: "INV-2005, INV-2006", amount: 14200, method: "email"),
+            PaymentReminder(customerName: "Elite Wholesaler", invoiceReferences: "INV-2007", amount: 26000, method: "email"),
+            PaymentReminder(customerName: "Horizon Jewelers", invoiceReferences: "INV-2008", amount: 9000, method: "memo"),
+            PaymentReminder(customerName: "Nova Jewelry", invoiceReferences: "INV-2009", amount: 17500, method: "email"),
+        ]
+        for r in reminders {
+            modelContext.insert(r)
+        }
+    }
+
+    // MARK: - Reconciliation Records (3)
+
+    private static func seedReconciliationRecords(modelContext: ModelContext) {
+        let now = Date()
+        let rec1 = ReconciliationRecord(matchedCount: 35, missingCount: 0, unknownCount: 0, missingSkus: "")
+        rec1.date = now.addingTimeInterval(-86400 * 30)
+        modelContext.insert(rec1)
+
+        let rec2 = ReconciliationRecord(matchedCount: 33, missingCount: 2, unknownCount: 1, missingSkus: "RU005, SAP003")
+        rec2.date = now.addingTimeInterval(-86400 * 14)
+        modelContext.insert(rec2)
+
+        let rec3 = ReconciliationRecord(matchedCount: 36, missingCount: 1, unknownCount: 0, missingSkus: "DIA008")
+        rec3.date = now.addingTimeInterval(-86400 * 2)
+        modelContext.insert(rec3)
     }
 }

@@ -5,6 +5,7 @@ struct StoneFormView: View {
     @State var viewModel: StoneFormViewModel
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var isCaratFieldFocused: Bool
     @State private var isSaving = false
     var navigateTo: Binding<NavigationItem>?
@@ -75,7 +76,7 @@ struct StoneFormView: View {
         .overlay {
             if let msg = viewModel.toastMessage {
                 ToastOverlay(message: msg, isError: viewModel.toastIsError)
-                    .animation(.easeInOut, value: viewModel.toastMessage)
+                    .animation(reduceMotion ? nil : .easeInOut, value: viewModel.toastMessage)
             }
         }
     }

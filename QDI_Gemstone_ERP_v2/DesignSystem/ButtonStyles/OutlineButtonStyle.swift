@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Secondary action button with glass outline.
 struct OutlineButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var tint: Color = AppColors.primary
 
     func makeBody(configuration: Configuration) -> some View {
@@ -19,7 +20,7 @@ struct OutlineButtonStyle: ButtonStyle {
                     .strokeBorder(tint.opacity(AppOpacity.medium), lineWidth: 1)
             )
             .opacity(configuration.isPressed ? 0.8 : 1)
-            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+            .animation(reduceMotion ? nil : .easeOut(duration: 0.15), value: configuration.isPressed)
     }
 }
 

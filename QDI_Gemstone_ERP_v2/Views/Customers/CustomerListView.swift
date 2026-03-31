@@ -31,7 +31,7 @@ struct CustomerListView: View {
             if let id = viewModel.selectedCustomerID,
                let customer = allCustomers.first(where: { $0.persistentModelID == id }) {
                 CustomerDetailPanel(customer: customer)
-                    .transition(.move(edge: .trailing).combined(with: .opacity))
+                    .transition(reduceMotion ? .opacity : .move(edge: .trailing).combined(with: .opacity))
             }
         }
         .accessibilityIdentifier("CustomerListView")

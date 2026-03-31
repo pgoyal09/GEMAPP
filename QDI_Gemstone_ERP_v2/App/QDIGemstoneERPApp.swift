@@ -14,6 +14,18 @@ extension Notification.Name {
     static let menuOpenSettings = Notification.Name("menuOpenSettings")
     static let menuOpenGlossary = Notification.Name("menuOpenGlossary")
     static let menuOpenHelpCenter = Notification.Name("menuOpenHelpCenter")
+    // Keyboard shortcut notifications
+    static let menuContextNewItem = Notification.Name("menuContextNewItem")
+    static let menuFocusSearch = Notification.Name("menuFocusSearch")
+    static let menuExport = Notification.Name("menuExport")
+    static let menuPrint = Notification.Name("menuPrint")
+    static let menuRefreshData = Notification.Name("menuRefreshData")
+    static let menuQuickIntake = Notification.Name("menuQuickIntake")
+    static let menuReviewQueue = Notification.Name("menuReviewQueue")
+    static let menuReconcile = Notification.Name("menuReconcile")
+    static let menuAgingReport = Notification.Name("menuAgingReport")
+    static let menuCloudBackup = Notification.Name("menuCloudBackup")
+    static let menuEscapeDismiss = Notification.Name("menuEscapeDismiss")
 }
 
 @main
@@ -116,23 +128,27 @@ struct QDIGemstoneERPApp: App {
         .commands {
             // File → New items
             CommandGroup(replacing: .newItem) {
+                Button("New Item") {
+                    NotificationCenter.default.post(name: .menuContextNewItem, object: nil)
+                }
+                .keyboardShortcut("n", modifiers: .command)
+
+                Divider()
+
                 Button("New Diamond") {
                     NotificationCenter.default.post(name: .menuNewDiamond, object: nil)
                 }
-                .keyboardShortcut("n", modifiers: .command)
 
                 Button("New Gemstone") {
                     NotificationCenter.default.post(name: .menuNewGemstone, object: nil)
                 }
-                .keyboardShortcut("n", modifiers: [.command, .shift])
 
                 Button("New Lot") {
                     NotificationCenter.default.post(name: .menuNewLot, object: nil)
                 }
-                .keyboardShortcut("n", modifiers: [.command, .option])
             }
 
-            // Edit → Undo / Redo
+            // Edit → Undo / Redo + Find
             CommandGroup(replacing: .undoRedo) {
                 Button("Undo") {
                     NSApp.sendAction(Selector(("undo:")), to: nil, from: nil)
@@ -143,6 +159,39 @@ struct QDIGemstoneERPApp: App {
                     NSApp.sendAction(Selector(("redo:")), to: nil, from: nil)
                 }
                 .keyboardShortcut("z", modifiers: [.command, .shift])
+            }
+
+            // Edit → Find / Search
+            CommandGroup(after: .textEditing) {
+                Button("Find / Filter…") {
+                    NotificationCenter.default.post(name: .menuFocusSearch, object: nil)
+                }
+                .keyboardShortcut("f", modifiers: .command)
+            }
+
+            // File → Export / Print / Refresh
+            CommandGroup(after: .importExport) {
+                Button("Export…") {
+                    NotificationCenter.default.post(name: .menuExport, object: nil)
+                }
+                .keyboardShortcut("e", modifiers: .command)
+
+                Button("Print…") {
+                    NotificationCenter.default.post(name: .menuPrint, object: nil)
+                }
+                .keyboardShortcut("p", modifiers: .command)
+
+                Divider()
+
+                Button("Refresh Data") {
+                    NotificationCenter.default.post(name: .menuRefreshData, object: nil)
+                }
+                .keyboardShortcut("r", modifiers: .command)
+
+                Button("Cloud Backup…") {
+                    NotificationCenter.default.post(name: .menuCloudBackup, object: nil)
+                }
+                .keyboardShortcut("s", modifiers: [.command, .shift])
             }
 
             // View → Toggle Sidebar
@@ -164,6 +213,28 @@ struct QDIGemstoneERPApp: App {
                     NotificationCenter.default.post(name: .menuNewInvoice, object: nil)
                 }
                 .keyboardShortcut("i", modifiers: .command)
+
+                Divider()
+
+                Button("Quick Intake") {
+                    NotificationCenter.default.post(name: .menuQuickIntake, object: nil)
+                }
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+
+                Button("Review Queue") {
+                    NotificationCenter.default.post(name: .menuReviewQueue, object: nil)
+                }
+                .keyboardShortcut("r", modifiers: [.command, .shift])
+
+                Button("Reconcile") {
+                    NotificationCenter.default.post(name: .menuReconcile, object: nil)
+                }
+                .keyboardShortcut("c", modifiers: [.command, .shift])
+
+                Button("Aging Report") {
+                    NotificationCenter.default.post(name: .menuAgingReport, object: nil)
+                }
+                .keyboardShortcut("a", modifiers: [.command, .shift])
             }
 
             // Help menu

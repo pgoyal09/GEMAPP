@@ -5,6 +5,7 @@ import AppKit
 struct DashboardView: View {
     @Binding var navigateTo: NavigationItem
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State var viewModel = DashboardViewModel()
     @State private var showAddStoneSheet = false
     @State private var showResetConfirm = false
@@ -51,7 +52,7 @@ struct DashboardView: View {
         .overlay {
             if let msg = toastMessage {
                 ToastOverlay(message: msg)
-                    .animation(AppAnimation.standard, value: toastMessage)
+                    .animation(reduceMotion ? nil : AppAnimation.standard, value: toastMessage)
             }
         }
     }
@@ -92,7 +93,7 @@ struct DashboardView: View {
             }
             isResetting = false
             try? await Task.sleep(for: .seconds(2.5))
-            withAnimation { toastMessage = nil }
+            withAnimation(reduceMotion ? nil : .default) { toastMessage = nil }
         }
     }
 }

@@ -49,7 +49,7 @@ struct InventoryListView: View {
                     InventoryFilterBar(viewModel: viewModel)
                         .padding(.horizontal, AppSpacing.hero)
                         .padding(.bottom, AppSpacing.comfortable)
-                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
                 }
                 tableContent
             }
@@ -64,7 +64,7 @@ struct InventoryListView: View {
                     showEditSheet = true
                 })
                 .frame(width: 296)
-                .transition(.move(edge: .trailing).combined(with: .opacity))
+                .transition(reduceMotion ? .opacity : .move(edge: .trailing).combined(with: .opacity))
             }
         }
         .accessibilityIdentifier("InventoryListView")
@@ -83,7 +83,7 @@ struct InventoryListView: View {
                 ToastOverlay(message: msg, isError: toastIsError)
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                            withAnimation { toastMessage = nil }
+                            withAnimation(reduceMotion ? nil : .default) { toastMessage = nil }
                         }
                     }
             }
@@ -145,7 +145,7 @@ struct InventoryListView: View {
                         title: filter.rawValue,
                         isActive: viewModel.statusFilter == filter,
                         action: {
-                            withAnimation(AppAnimation.spring) {
+                            withAnimation(reduceMotion ? nil : AppAnimation.spring) {
                                 viewModel.statusFilter = filter
                             }
                         },
@@ -491,7 +491,7 @@ struct InventoryListView: View {
             openWindow(id: "memo", value: memo.persistentModelID)
         } catch {
             toastIsError = true
-            withAnimation { toastMessage = "Failed to create memo: \(ErrorMapper.userMessage(from: error))" }
+            withAnimation(reduceMotion ? nil : .default) { toastMessage = "Failed to create memo: \(ErrorMapper.userMessage(from: error))" }
         }
     }
 
@@ -507,7 +507,7 @@ struct InventoryListView: View {
             openWindow(id: "invoice", value: invoice.persistentModelID)
         } catch {
             toastIsError = true
-            withAnimation { toastMessage = "Failed to create invoice: \(ErrorMapper.userMessage(from: error))" }
+            withAnimation(reduceMotion ? nil : .default) { toastMessage = "Failed to create invoice: \(ErrorMapper.userMessage(from: error))" }
         }
     }
 }

@@ -38,7 +38,7 @@ struct HoverRow<Content: View>: View {
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .transition(.asymmetric(
+        .transition(reduceMotion ? .opacity : .asymmetric(
             insertion: .opacity,
             removal: .opacity.combined(with: .move(edge: .trailing))
         ))

@@ -26,7 +26,7 @@ struct RapNetSettingsView: View {
                 ToastOverlay(message: msg, isError: toastIsError)
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                            withAnimation { toastMessage = nil }
+                            withAnimation(reduceMotion ? nil : .default) { toastMessage = nil }
                         }
                     }
             }

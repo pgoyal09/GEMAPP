@@ -71,12 +71,16 @@ struct AppShellView: View {
         }
     }
 
+    private var sidebarTransition: AnyTransition {
+        reduceMotion ? .opacity : .move(edge: .leading)
+    }
+
     private var mainContent: some View {
         HStack(spacing: 0) {
             if showSidebar {
                 SidebarView(selectedItem: routeBinding)
                     .frame(width: 240)
-                    .transition(.move(edge: .leading))
+                    .transition(sidebarTransition)
             }
 
             VStack(spacing: 0) {
@@ -96,26 +100,27 @@ struct AppShellView: View {
             Text("Your changes will not be saved.")
         }
         // RFID assign sheet
-        .sheet(isPresented: Binding(
+        .sheet(isPresented: Binding<Bool>(
             get: { rfidCoordinator?.showAssignSheet ?? false },
-            set: { if !$0 { rfidCoordinator?.dismissAssignSheet() } }
+            set: { newValue in if !newValue { rfidCoordinator?.dismissAssignSheet() } }
         )) {
             if let coord = rfidCoordinator {
                 UnknownTagAssignSheet(epc: coord.pendingEpc, tid: coord.pendingTid)
             }
         }
-        // Keyboard shortcuts for navigation
+        // Keyboard shortcuts for navigation (⌘1–9) and Escape
         .background {
             Group {
                 Button("") { routeBinding.wrappedValue = .dashboard }.keyboardShortcut("1", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .memos }.keyboardShortcut("2", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .invoices }.keyboardShortcut("3", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .customers }.keyboardShortcut("4", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .diamonds }.keyboardShortcut("5", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .gemstones }.keyboardShortcut("6", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .lots }.keyboardShortcut("7", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .accounting }.keyboardShortcut("8", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .quickIntake }.keyboardShortcut("9", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .scanner }.keyboardShortcut("2", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .diamonds }.keyboardShortcut("3", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .lots }.keyboardShortcut("4", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .sold }.keyboardShortcut("5", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .memos }.keyboardShortcut("6", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .invoices }.keyboardShortcut("7", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .customers }.keyboardShortcut("8", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .accounting }.keyboardShortcut("9", modifiers: .command)
+                Button("") { NotificationCenter.default.post(name: .menuEscapeDismiss, object: nil) }.keyboardShortcut(.escape, modifiers: [])
             }
             .frame(width: 0, height: 0).opacity(0)
         }
@@ -123,38 +128,15 @@ struct AppShellView: View {
         .onChange(of: rfidCoordinator != nil) { _, isNonNil in
             if isNonNil { createSharedVMs() }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .menuNewMemo)) { _ in
-            routeBinding.wrappedValue = .memos
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .menuNewInvoice)) { _ in
-            routeBinding.wrappedValue = .invoices
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .menuNewStone)) { _ in
-            routeBinding.wrappedValue = .quickIntake
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .menuNewDiamond)) { _ in
-            routeBinding.wrappedValue = .quickIntake
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .menuNewGemstone)) { _ in
-            routeBinding.wrappedValue = .quickIntake
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .menuNewLot)) { _ in
-            routeBinding.wrappedValue = .quickIntake
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .menuToggleSidebar)) { _ in
-            if reduceMotion { showSidebar.toggle() }
-            else { withAnimation(.easeInOut(duration: 0.2)) { showSidebar.toggle() } }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .menuOpenSettings)) { _ in
-            routeBinding.wrappedValue = .settings
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .menuOpenGlossary)) { _ in
-            showGlossary = true
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .menuOpenHelpCenter)) { _ in
-            showHelpCenter = true
-        }
-        .animation(AppAnimation.standard, value: showSidebar)
+        .modifier(MenuCommandReceiver(
+            routeBinding: routeBinding,
+            route: route,
+            showSidebar: $showSidebar,
+            showGlossary: $showGlossary,
+            showHelpCenter: $showHelpCenter,
+            reduceMotion: reduceMotion
+        ))
+        .animation(reduceMotion ? nil : AppAnimation.standard, value: showSidebar)
     }
 
     // MARK: - Header
@@ -272,5 +254,55 @@ struct AppShellView: View {
                 reconcileVM = ReconcileViewModel(rfidService: coord.rfidService, rfidCoordinator: coord)
             }
         }
+    }
+}
+
+// MARK: - Menu Command Receiver (extracted to fix type-checker timeout)
+
+private struct MenuCommandReceiver: ViewModifier {
+    let routeBinding: Binding<NavigationItem>
+    let route: NavigationItem
+    @Binding var showSidebar: Bool
+    @Binding var showGlossary: Bool
+    @Binding var showHelpCenter: Bool
+    let reduceMotion: Bool
+
+    func body(content: Content) -> some View {
+        content
+            .onReceive(NotificationCenter.default.publisher(for: .menuNewMemo)) { _ in routeBinding.wrappedValue = .memos }
+            .onReceive(NotificationCenter.default.publisher(for: .menuNewInvoice)) { _ in routeBinding.wrappedValue = .invoices }
+            .onReceive(NotificationCenter.default.publisher(for: .menuNewStone)) { _ in routeBinding.wrappedValue = .quickIntake }
+            .onReceive(NotificationCenter.default.publisher(for: .menuNewDiamond)) { _ in routeBinding.wrappedValue = .quickIntake }
+            .onReceive(NotificationCenter.default.publisher(for: .menuNewGemstone)) { _ in routeBinding.wrappedValue = .quickIntake }
+            .onReceive(NotificationCenter.default.publisher(for: .menuNewLot)) { _ in routeBinding.wrappedValue = .quickIntake }
+            .onReceive(NotificationCenter.default.publisher(for: .menuToggleSidebar)) { _ in
+                if reduceMotion { showSidebar.toggle() }
+                else { withAnimation(.easeInOut(duration: 0.2)) { showSidebar.toggle() } }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .menuOpenSettings)) { _ in routeBinding.wrappedValue = .settings }
+            .onReceive(NotificationCenter.default.publisher(for: .menuOpenGlossary)) { _ in showGlossary = true }
+            .onReceive(NotificationCenter.default.publisher(for: .menuOpenHelpCenter)) { _ in showHelpCenter = true }
+            .modifier(MenuCommandReceiverPart2(routeBinding: routeBinding, route: route))
+    }
+}
+
+private struct MenuCommandReceiverPart2: ViewModifier {
+    let routeBinding: Binding<NavigationItem>
+    let route: NavigationItem
+
+    func body(content: Content) -> some View {
+        content
+            .onReceive(NotificationCenter.default.publisher(for: .menuContextNewItem)) { _ in
+                switch route {
+                case .memos: NotificationCenter.default.post(name: .menuNewMemo, object: nil)
+                case .invoices: NotificationCenter.default.post(name: .menuNewInvoice, object: nil)
+                default: routeBinding.wrappedValue = .quickIntake
+                }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .menuQuickIntake)) { _ in routeBinding.wrappedValue = .quickIntake }
+            .onReceive(NotificationCenter.default.publisher(for: .menuReviewQueue)) { _ in routeBinding.wrappedValue = .reviewQueue }
+            .onReceive(NotificationCenter.default.publisher(for: .menuReconcile)) { _ in routeBinding.wrappedValue = .reconcile }
+            .onReceive(NotificationCenter.default.publisher(for: .menuAgingReport)) { _ in routeBinding.wrappedValue = .accountsReceivable }
+            .onReceive(NotificationCenter.default.publisher(for: .menuCloudBackup)) { _ in routeBinding.wrappedValue = .settings }
     }
 }

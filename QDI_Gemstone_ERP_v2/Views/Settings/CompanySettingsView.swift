@@ -19,6 +19,7 @@ struct CompanySettingsView: View {
     @State private var showRestoreConfirm = false
     @State private var pendingRestoreURL: URL?
     @State private var backupScheduler = BackupScheduler()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ScrollView {
@@ -274,7 +275,7 @@ struct CompanySettingsView: View {
             if !companyName.isEmpty {
                 showSavedToast = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    withAnimation { showSavedToast = false }
+                    withAnimation(reduceMotion ? nil : .default) { showSavedToast = false }
                 }
             }
         }

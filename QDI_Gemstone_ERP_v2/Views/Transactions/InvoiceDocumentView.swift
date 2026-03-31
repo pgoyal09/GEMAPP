@@ -8,6 +8,7 @@ struct InvoiceDocumentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(\.documentDirtyTracker) private var dirtyTracker
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query(sort: \Customer.lastName) private var allCustomers: [Customer]
 
     @State private var showInventorySheet = false
@@ -114,7 +115,7 @@ struct InvoiceDocumentView: View {
                 ToastOverlay(message: msg, isError: toastIsError)
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                            withAnimation { toastMessage = nil }
+                            withAnimation(reduceMotion ? nil : .default) { toastMessage = nil }
                         }
                     }
             }
@@ -541,6 +542,6 @@ struct InvoiceDocumentView: View {
 
     private func showToast(_ message: String, isError: Bool = false) {
         toastIsError = isError
-        withAnimation { toastMessage = message }
+        withAnimation(reduceMotion ? nil : .default) { toastMessage = message }
     }
 }
