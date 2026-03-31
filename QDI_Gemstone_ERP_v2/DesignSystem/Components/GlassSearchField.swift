@@ -25,7 +25,7 @@ struct GlassSearchField: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
                         .strokeBorder(
-                            isFocused ? AppColors.primary : Color.white.opacity(0.08),
+                            isFocused ? AppColors.primary : Color.white.opacity(AppOpacity.subtle),
                             lineWidth: isFocused ? 1.5 : 1
                         )
                 )

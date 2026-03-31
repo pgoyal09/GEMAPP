@@ -262,9 +262,9 @@ struct GemstonesInventoryView: View {
         guard !name.isEmpty else { return }
         let preset = FilterPreset(
             name: name,
+            colorFilter: colorFilter,
             stoneTypeFilter: stoneTypeFilter?.rawValue,
             originFilter: originFilter,
-            colorFilter: colorFilter,
             caratMin: caratMin,
             caratMax: caratMax
         )
@@ -322,13 +322,13 @@ struct GemstonesInventoryView: View {
         HStack(spacing: 4) {
             Text(label).font(AppTypography.caption).foregroundStyle(AppColors.primary)
             Button(action: action) {
-                Image(systemName: "xmark").font(AppTypography.sectionLabel.weight(.bold)).foregroundStyle(AppColors.primary.opacity(0.6))
+                Image(systemName: "xmark").font(AppTypography.sectionLabel.weight(.bold)).foregroundStyle(AppColors.primary.opacity(AppOpacity.strong))
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Remove \(label) filter")
         }
-        .padding(.horizontal, 10).padding(.vertical, 5)
-        .background(RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous).fill(AppColors.primary.opacity(0.12)))
+        .padding(.horizontal, AppSpacing.standard).padding(.vertical, AppSpacing.compact)
+        .background(RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous).fill(AppColors.primary.opacity(AppOpacity.muted)))
     }
 
     private func clearAllFilters() {
@@ -459,8 +459,8 @@ struct GemstonesInventoryView: View {
         .background(
             RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                 .fill(.ultraThinMaterial)
-                .overlay(RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous).strokeBorder(AppColors.primary.opacity(0.3), lineWidth: 1))
-                .shadow(color: .black.opacity(0.3), radius: 12, y: -4)
+                .overlay(RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous).strokeBorder(AppColors.primary.opacity(AppOpacity.medium), lineWidth: 1))
+                .shadow(color: .black.opacity(AppOpacity.medium), radius: 12, y: -4)
         )
         .padding(.horizontal, AppSpacing.hero).padding(.bottom, AppSpacing.section)
     }

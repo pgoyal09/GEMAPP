@@ -10,7 +10,7 @@ struct GlassTableModifier: ViewModifier {
             .background(tableBackground)
             .overlay(
                 RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)
+                    .strokeBorder(Color.white.opacity(AppOpacity.subtle), lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous))
     }
@@ -23,7 +23,7 @@ struct GlassTableModifier: ViewModifier {
         } else {
             RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                 .fill(.ultraThinMaterial)
-                .opacity(0.6)
+                .opacity(AppOpacity.strong)
         }
     }
 }

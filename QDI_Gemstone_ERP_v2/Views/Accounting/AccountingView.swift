@@ -232,7 +232,7 @@ struct AccountingView: View {
                                 .font(AppTypography.mono)
                                 .foregroundStyle(AppColors.ink)
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, AppSpacing.compact)
                     }
                 }
             }
@@ -258,7 +258,7 @@ struct AccountingView: View {
                                 .font(AppTypography.mono)
                                 .foregroundStyle(AppColors.ink)
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, AppSpacing.compact)
                     }
                 }
             }

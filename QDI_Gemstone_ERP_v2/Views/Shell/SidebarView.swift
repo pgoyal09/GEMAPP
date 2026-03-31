@@ -70,7 +70,7 @@ struct SidebarView: View {
                 RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
                     .fill(AppColors.primaryGradient)
                     .frame(width: 36, height: 36)
-                    .shadow(color: AppColors.primary.opacity(0.20), radius: 6, y: 2)
+                    .shadow(color: AppColors.primary.opacity(AppOpacity.muted), radius: 6, y: 2)
                 Image(systemName: "diamond.fill")
                     .font(AppTypography.body.weight(.medium))
                     .foregroundStyle(.white)
@@ -115,7 +115,7 @@ struct SidebarView: View {
                 Group {
                     if isActive {
                         RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                            .fill(Color.white.opacity(0.10))
+                            .fill(Color.white.opacity(AppOpacity.subtle))
                             .overlay(
                                 RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                                     .strokeBorder(AppColors.cardStroke, lineWidth: 1)

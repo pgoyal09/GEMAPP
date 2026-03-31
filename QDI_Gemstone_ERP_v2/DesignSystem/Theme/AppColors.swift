@@ -25,8 +25,8 @@ enum AppColors {
     // MARK: - Text Hierarchy
 
     static let ink              = Color.white.opacity(0.90)
-    static let inkMuted         = Color.white.opacity(0.70)
-    static let inkSubtle        = Color.white.opacity(0.60)
+    static let inkMuted         = Color.white.opacity(0.75)
+    static let inkSubtle        = Color.white.opacity(0.55)
 
     // MARK: - Surfaces & Effects
 

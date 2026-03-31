@@ -33,10 +33,10 @@ struct ToastOverlay: View {
                     .fill(reduceTransparency ? AppColors.cardElevated : AppColors.cardBackground)
                     .overlay(
                         RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                            .strokeBorder(tint.opacity(0.3), lineWidth: 1)
+                            .strokeBorder(tint.opacity(AppOpacity.medium), lineWidth: 1)
                     )
             )
-            .shadow(color: Color.black.opacity(0.25), radius: 12, y: 6)
+            .shadow(color: Color.black.opacity(AppOpacity.medium), radius: 12, y: 6)
             .padding(.bottom, AppSpacing.hero)
         }
         .transition(.move(edge: .bottom).combined(with: .opacity))

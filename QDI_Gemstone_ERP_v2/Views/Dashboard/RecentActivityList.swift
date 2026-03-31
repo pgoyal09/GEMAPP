@@ -37,7 +37,7 @@ struct RecentActivityList: View {
                                         .font(AppTypography.caption)
                                         .foregroundStyle(AppColors.inkSubtle)
                                 }
-                                .padding(.vertical, 10)
+                                .padding(.vertical, AppSpacing.standard)
                                 .overlay(alignment: .bottom) {
                                     Divider().background(AppColors.panelBackground)
                                 }

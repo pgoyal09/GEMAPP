@@ -87,64 +87,25 @@ struct StoneFormView: View {
             VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Stone Identity")
                 HStack(spacing: AppSpacing.section) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("SKU").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        TextField("SKU", text: $viewModel.sku)
-                            .glassField()
-                            .font(AppTypography.mono)
-                            .disabled(!viewModel.mode.isEditing && viewModel.mode.existingStone == nil)
+                    FormField(label: "SKU", text: $viewModel.sku)
+                        .font(AppTypography.mono)
+                        .disabled(!viewModel.mode.isEditing && viewModel.mode.existingStone == nil)
+                    FormPicker(label: "Type", selection: $viewModel.stoneTypeText) {
+                        ForEach(StoneType.allCases, id: \.self) { Text($0.rawValue).tag($0.rawValue) }
                     }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Type").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        Picker("", selection: $viewModel.stoneTypeText) {
-                            ForEach(StoneType.allCases, id: \.self) { Text($0.rawValue).tag($0.rawValue) }
-                        }
-                        .labelsHidden()
-                        .accessibilityLabel("Stone Type")
-                        .onChange(of: viewModel.stoneTypeText) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
+                    .onChange(of: viewModel.stoneTypeText) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
+                    FormField(label: "Shape", text: $viewModel.shapeText, error: viewModel.shapeError)
+                        .onChange(of: viewModel.shapeText) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
+                    FormPicker(label: "Grouping", selection: $viewModel.grouping) {
+                        ForEach(StoneGrouping.allCases, id: \.self) { Text($0.displayName).tag($0) }
                     }
-                    VStack(alignment: .leading, spacing: AppSpacing.compact) {
-                        Text("Shape").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        TextField("Shape", text: $viewModel.shapeText)
-                            .glassField()
-                            .overlay(
-                                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
-                                    .strokeBorder(viewModel.shapeError != nil ? AppColors.danger : Color.clear, lineWidth: 1.5)
-                            )
-                            .onChange(of: viewModel.shapeText) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
-                        if let err = viewModel.shapeError {
-                            Text(err).font(AppTypography.caption).foregroundStyle(AppColors.danger)
-                        }
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Grouping").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                            .help("Single stone, Pair, Lot (group sold by total weight), Melee (small stones under 0.20ct), or Parcel (collection of grouped stones)")
-                        Picker("", selection: $viewModel.grouping) {
-                            ForEach(StoneGrouping.allCases, id: \.self) { Text($0.displayName).tag($0) }
-                        }
-                        .labelsHidden()
-                        .accessibilityLabel("Stone Grouping")
-                        .onChange(of: viewModel.grouping) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
-                    }
+                    .help("Single stone, Pair, Lot (group sold by total weight), Melee (small stones under 0.20ct), or Parcel (collection of grouped stones)")
+                    .onChange(of: viewModel.grouping) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
                 }
                 HStack(spacing: AppSpacing.section) {
-                    VStack(alignment: .leading, spacing: AppSpacing.compact) {
-                        Text("Carats").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        TextField("0.00", text: $viewModel.caratText)
-                            .glassField()
-                            .focused($isCaratFieldFocused)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
-                                    .strokeBorder(viewModel.caratError != nil ? AppColors.danger : Color.clear, lineWidth: 1.5)
-                            )
-                        if let err = viewModel.caratError {
-                            Text(err).font(AppTypography.caption).foregroundStyle(AppColors.danger)
-                        }
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Origin").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        TextField("Origin", text: $viewModel.origin).glassField()
-                    }
+                    FormField(label: "Carats", text: $viewModel.caratText, error: viewModel.caratError)
+                        .focused($isCaratFieldFocused)
+                    FormField(label: "Origin", text: $viewModel.origin)
                 }
             }
         }
@@ -301,21 +262,16 @@ struct StoneFormView: View {
                     field("Sell Price", $viewModel.sellPriceText, error: viewModel.sellPriceError)
                 }
                 HStack(spacing: AppSpacing.section) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Currency").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        Picker("", selection: $viewModel.currencyType) {
-                            ForEach(CurrencyType.allCases, id: \.self) { c in
-                                Text(c.rawValue).tag(c)
-                            }
+                    FormPicker(label: "Currency", selection: $viewModel.currencyType) {
+                        ForEach(CurrencyType.allCases, id: \.self) { c in
+                            Text(c.rawValue).tag(c)
                         }
-                        .labelsHidden()
-                        .accessibilityLabel("Currency")
                     }
                     field("Exchange Rate", $viewModel.exchangeRateText)
                 }
                 // Computed pricing display
                 if let stone = viewModel.mode.existingStone {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: AppSpacing.compact) {
                         if let rap = stone.rapNetCalculatedPrice {
                             DetailRow(label: "RapNet Calc $/ct", value: rap.asCurrency)
                         }

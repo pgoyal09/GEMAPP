@@ -27,7 +27,7 @@ struct HoverRow<Content: View>: View {
                     .strokeBorder(isFocused ? AppColors.primary : Color.clear, lineWidth: 2)
             )
             .scaleEffect(isHovered ? 1.005 : 1.0)
-            .shadow(color: isHovered ? AppColors.softShadow.opacity(0.3) : Color.clear, radius: isHovered ? 4 : 0, y: 1)
+            .shadow(color: isHovered ? AppColors.softShadow.opacity(AppOpacity.medium) : Color.clear, radius: isHovered ? 4 : 0, y: 1)
         }
         .buttonStyle(.plain)
         .focusable()
@@ -43,7 +43,7 @@ struct HoverRow<Content: View>: View {
     @ViewBuilder
     private var rowBackground: some View {
         if isSelected {
-            AppColors.primary.opacity(0.15)
+            AppColors.primary.opacity(AppOpacity.muted)
         } else if isHovered {
             Color.white.opacity(0.04)
         } else {

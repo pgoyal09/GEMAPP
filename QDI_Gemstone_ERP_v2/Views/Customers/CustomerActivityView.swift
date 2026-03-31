@@ -132,7 +132,7 @@ struct CustomerActivityView: View {
                                     .foregroundStyle(AppColors.inkSubtle)
                             }
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, AppSpacing.compact)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)

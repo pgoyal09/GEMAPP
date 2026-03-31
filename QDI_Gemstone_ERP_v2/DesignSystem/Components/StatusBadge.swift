@@ -17,7 +17,7 @@ struct StatusBadge: View {
             }
         }
 
-        var background: Color { foreground.opacity(0.15) }
+        var background: Color { foreground.opacity(AppOpacity.muted) }
 
         var icon: String {
             switch self {

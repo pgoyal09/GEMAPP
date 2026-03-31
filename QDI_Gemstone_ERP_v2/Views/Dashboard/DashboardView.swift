@@ -64,7 +64,7 @@ struct DashboardView: View {
             }
             .foregroundStyle(AppColors.inkSubtle)
             .padding(.horizontal, AppSpacing.section)
-            .padding(.vertical, 10)
+            .padding(.vertical, AppSpacing.standard)
             .background(
                 RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                     .fill(AppColors.softHighlight)

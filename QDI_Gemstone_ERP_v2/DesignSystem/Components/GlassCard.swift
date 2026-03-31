@@ -45,7 +45,7 @@ struct SurfaceCard<Content: View>: View {
                     .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                 if let accent {
                     RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                        .stroke(accent.opacity(0.20), lineWidth: 1)
+                        .stroke(accent.opacity(AppOpacity.muted), lineWidth: 1)
                 }
             }
         )

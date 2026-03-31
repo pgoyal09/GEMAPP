@@ -22,7 +22,7 @@ struct CompanySettingsView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: AppSpacing.hero) {
                 SectionHeader(title: "Company Branding")
 
                 VStack(alignment: .leading, spacing: 16) {
@@ -32,13 +32,13 @@ struct CompanySettingsView: View {
                         TextEditor(text: $companyAddress)
                             .font(.body)
                             .frame(height: 60)
-                            .padding(4)
+                            .padding(AppSpacing.compact)
                             .background(
                                 RoundedRectangle(cornerRadius: AppCornerRadius.small)
                                     .fill(AppColors.cardBackground)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: AppCornerRadius.small)
-                                            .strokeBorder(Color.white.opacity(0.10), lineWidth: 1)
+                                            .strokeBorder(Color.white.opacity(AppOpacity.subtle), lineWidth: 1)
                                     )
                             )
                             .scrollContentBackground(.hidden)
@@ -238,7 +238,7 @@ struct CompanySettingsView: View {
 
                 Spacer()
             }
-            .padding(24)
+            .padding(AppSpacing.hero)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityIdentifier("CompanySettingsView")
@@ -260,7 +260,7 @@ struct CompanySettingsView: View {
     }
 
     private func fieldRow<Content: View>(label: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: AppSpacing.compact) {
             Text(label)
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)

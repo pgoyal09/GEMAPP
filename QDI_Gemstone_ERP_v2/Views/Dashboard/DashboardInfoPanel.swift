@@ -41,11 +41,11 @@ struct DashboardInfoPanel: View {
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.warningDeep)
                 }
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
+                .padding(.horizontal, AppSpacing.standard)
+                .padding(.vertical, AppSpacing.compact)
                 .background(
                     RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                        .fill(AppColors.warningDeep.opacity(0.12))
+                        .fill(AppColors.warningDeep.opacity(AppOpacity.muted))
                 )
             }
             if viewModel.oldestOpenMemos.isEmpty {
@@ -139,7 +139,7 @@ struct DashboardInfoPanel: View {
                 .tracking(0.5)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 10)
+        .padding(.vertical, AppSpacing.standard)
         .background(
             RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                 .fill(AppColors.panelBackground)

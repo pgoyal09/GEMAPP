@@ -50,7 +50,7 @@ struct GemstoneDetailPanel: View {
                         .padding(.vertical, AppSpacing.compact)
                         .background(
                             RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                                .fill(AppColors.primary.opacity(0.12))
+                                .fill(AppColors.primary.opacity(AppOpacity.muted))
                         )
 
                     Spacer()
@@ -197,7 +197,7 @@ struct GemstoneDetailPanel: View {
                             Circle()
                                 .fill(eventColor(event.eventType))
                                 .frame(width: 8, height: 8)
-                                .padding(.top, 5)
+                                .padding(.top, AppSpacing.compact)
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(event.eventDescription)

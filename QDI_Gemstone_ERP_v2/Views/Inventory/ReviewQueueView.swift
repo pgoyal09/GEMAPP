@@ -153,11 +153,11 @@ struct ReviewQueueView: View {
                 Text(field)
                     .font(AppTypography.sectionLabel.weight(.medium))
                     .foregroundStyle(chipColor(for: field))
-                    .padding(.horizontal, 6)
+                    .padding(.horizontal, AppSpacing.compact)
                     .padding(.vertical, 2)
                     .background(
                         RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                            .fill(chipColor(for: field).opacity(0.15))
+                            .fill(chipColor(for: field).opacity(AppOpacity.muted))
                     )
             }
         }

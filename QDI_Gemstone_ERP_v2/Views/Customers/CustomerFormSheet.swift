@@ -123,13 +123,13 @@ struct CustomerFormSheet: View {
                     .foregroundStyle(AppColors.ink)
                     .scrollContentBackground(.hidden)
                     .frame(minHeight: 60)
-                    .padding(4)
+                    .padding(AppSpacing.compact)
                     .background(
                         RoundedRectangle(cornerRadius: AppCornerRadius.small)
                             .fill(AppColors.cardBackground)
                             .overlay(
                                 RoundedRectangle(cornerRadius: AppCornerRadius.small)
-                                    .strokeBorder(Color.white.opacity(0.10), lineWidth: 1)
+                                    .strokeBorder(Color.white.opacity(AppOpacity.subtle), lineWidth: 1)
                             )
                     )
             }

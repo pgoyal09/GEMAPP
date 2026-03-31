@@ -1,19 +1,27 @@
 import SwiftUI
 
-/// Applies glass-morphism styling to text fields and pickers.
+/// Applies glass-morphism styling to text fields and pickers with focus ring.
 struct GlassFieldModifier: ViewModifier {
+    @FocusState private var isFocused: Bool
+
     func body(content: Content) -> some View {
         content
             .textFieldStyle(.plain)
             .padding(AppSpacing.comfortable)
+            .focused($isFocused)
             .background(
                 RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
-                    .fill(Color.white.opacity(0.06))
+                    .fill(Color.white.opacity(AppOpacity.subtle))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
+                    .strokeBorder(
+                        isFocused ? AppColors.primary : Color.white.opacity(0.1),
+                        lineWidth: isFocused ? 1.5 : 1
+                    )
             )
+            .shadow(color: isFocused ? AppColors.primary.opacity(AppOpacity.medium) : .clear, radius: 4, y: 0)
+            .animation(AppAnimation.fast, value: isFocused)
     }
 }
 

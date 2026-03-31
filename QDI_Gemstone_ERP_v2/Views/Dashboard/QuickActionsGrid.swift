@@ -8,7 +8,7 @@ struct QuickActionCard: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 8) {
+            VStack(spacing: AppSpacing.standard) {
                 ZStack {
                     RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                         .fill(gradient)
@@ -23,7 +23,7 @@ struct QuickActionCard: View {
                     .lineLimit(1)
             }
             .frame(maxWidth: .infinity)
-            .padding(12)
+            .padding(AppSpacing.comfortable)
             .background(
                 RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                     .fill(AppColors.softHighlight)
@@ -45,10 +45,10 @@ struct QuickActionsGrid: View {
     var onAddStone: () -> Void
 
     var body: some View {
-        GlassCard(padding: 20) {
-            VStack(alignment: .leading, spacing: 16) {
+        GlassCard(padding: AppSpacing.hero) {
+            VStack(alignment: .leading, spacing: AppSpacing.section) {
                 SectionHeader(title: "Quick Actions")
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: AppSpacing.comfortable), count: 4), spacing: AppSpacing.comfortable) {
                     QuickActionCard(title: "Add Stone", icon: "diamond.fill", gradient: AppColors.primaryGradient, action: onAddStone)
                     QuickActionCard(title: "Quick Intake", icon: "plus.circle.fill", gradient: AppColors.emeraldGradient) {
                         navigateTo = .quickIntake

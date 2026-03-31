@@ -30,6 +30,7 @@
 		16356103918657A1C69BC698 /* GlassFieldModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F178839EE6951B96D2016337 /* GlassFieldModifier.swift */; };
 		180E46B09947DC1253EAB51F /* CSVImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38BCD93D7AB62CF23C687BB7 /* CSVImportService.swift */; };
 		1989853CA2BB15A70FADE321 /* CustomerListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9036CD16C22CE2FC676144FB /* CustomerListViewModel.swift */; };
+		1AD6BCD3E24600CDE8EA3E63 /* FormPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8F7920833CBAAF2162B157B /* FormPicker.swift */; };
 		1BE2DAC96C3940E8D35B2D7E /* CurrencyType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B99186D49AA8B177AE260B /* CurrencyType.swift */; };
 		1CD0AE33C4EAFD6907195D3F /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ECF159A5FC31BBD9D068E1C /* SidebarView.swift */; };
 		1D3823E437D7D660EE2A4797 /* PDFService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD9E6F4BB3CB6A102CD30AEB /* PDFService.swift */; };
@@ -136,6 +137,7 @@
 		CCB573CA20CF92C83B93FB5C /* CSVImportPreviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56EC23CBF87289FD1987521D /* CSVImportPreviewSheet.swift */; };
 		CF5C7C0597EB7E99DA8D3991 /* DetailRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */; };
 		D139FE43F09FB5A1B750B918 /* LineItemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CD014DC9A48F5870B67D2B /* LineItemStatus.swift */; };
+		D2843B6700DC493BEC33DFAB /* AppOpacity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFE0636FA5EBCA4C69466D0 /* AppOpacity.swift */; };
 		D47EBBD8500619EF4147879A /* MemoStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 173E223EE059F1CF750C3941 /* MemoStatus.swift */; };
 		DB204AB5F19F7F8F7D055CE0 /* MemoListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53978275BA1221231FE9B922 /* MemoListViewModel.swift */; };
 		E0ADB3F0BDDB5B5F9A549701 /* BackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A597AF32983A1D01C6D562 /* BackupService.swift */; };
@@ -231,6 +233,7 @@
 		865F7818A0D127059D5F79E6 /* Gemstone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gemstone.swift; sourceTree = "<group>"; };
 		8AD0042F0425A31D03D81B15 /* ReconcileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReconcileViewModel.swift; sourceTree = "<group>"; };
 		8B86ED4CBE9430761895C822 /* CurrencyFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyFormatter.swift; sourceTree = "<group>"; };
+		8BFE0636FA5EBCA4C69466D0 /* AppOpacity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppOpacity.swift; sourceTree = "<group>"; };
 		8D1AB12068D6098DAB4A22A3 /* LotService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotService.swift; sourceTree = "<group>"; };
 		9036CD16C22CE2FC676144FB /* CustomerListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerListViewModel.swift; sourceTree = "<group>"; };
 		9060984B3BD60113BC717CB0 /* InvoiceListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceListView.swift; sourceTree = "<group>"; };
@@ -252,6 +255,7 @@
 		A1615490722ED65602953FB1 /* UnknownTagAssignSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnknownTagAssignSheet.swift; sourceTree = "<group>"; };
 		A4ECE3F56706FBA13A89DF47 /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		A5AD9B9980F9121A678A0051 /* InvoiceStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceStatus.swift; sourceTree = "<group>"; };
+		A8F7920833CBAAF2162B157B /* FormPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormPicker.swift; sourceTree = "<group>"; };
 		A9A597AF32983A1D01C6D562 /* BackupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupService.swift; sourceTree = "<group>"; };
 		AA238D2CE296E7F838340CCD /* HoverRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverRow.swift; sourceTree = "<group>"; };
 		AAD2476C55F79206377ADE3C /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
@@ -494,6 +498,7 @@
 				7220B21A25317D921736B773 /* EmptyStateView.swift */,
 				9E7B6A77056D754FF2151496 /* FilterPill.swift */,
 				F7D065D884DB94E48021A53A /* FormField.swift */,
+				A8F7920833CBAAF2162B157B /* FormPicker.swift */,
 				AAD2476C55F79206377ADE3C /* GlassCard.swift */,
 				F52F24F5AFF74620899B4F36 /* GlassSearchField.swift */,
 				82D39A3810995F0A808EB202 /* SectionHeader.swift */,
@@ -688,6 +693,7 @@
 			children = (
 				DED693A192ADD983C01E381E /* AppAnimation.swift */,
 				F0B0F11EF531CE6C3EF6C5CC /* AppColors.swift */,
+				8BFE0636FA5EBCA4C69466D0 /* AppOpacity.swift */,
 				0C50CA93426BCF5FD29E8332 /* AppSpacing.swift */,
 				4F57C93F3894AAE530F52820 /* AppTypography.swift */,
 			);
@@ -764,6 +770,7 @@
 				FA8502A655774E79FC240E64 /* AppColors.swift in Sources */,
 				E56A8D662F2E1D90E871A970 /* AppConstants.swift in Sources */,
 				2F513ACE5EF0CD69A1C7B7D1 /* AppLogger.swift in Sources */,
+				D2843B6700DC493BEC33DFAB /* AppOpacity.swift in Sources */,
 				0E22C31C27AC813031FCE9B9 /* AppShellView.swift in Sources */,
 				B665C2DFE7620630DAC22AA2 /* AppSpacing.swift in Sources */,
 				22F23D9F8E802FBD936767BE /* AppTypography.swift in Sources */,
@@ -800,6 +807,7 @@
 				79D64E872448970E69F593C9 /* FilterPill.swift in Sources */,
 				3566B3C5B8A48E4FDB40B557 /* FilterPreset.swift in Sources */,
 				C4F058B47AF4FFFE9E0E8824 /* FormField.swift in Sources */,
+				1AD6BCD3E24600CDE8EA3E63 /* FormPicker.swift in Sources */,
 				6E9460794A680AD3E74BE51D /* Gemstone.swift in Sources */,
 				C17269AFC38428BC87160C85 /* GemstoneDetailPanel.swift in Sources */,
 				1489D08237C341F76A599448 /* GemstoneStatus.swift in Sources */,

@@ -74,7 +74,7 @@ struct CSVImportPreviewSheet: View {
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.ink)
                     .padding(.horizontal, AppSpacing.section)
-                    .padding(.vertical, 4)
+                    .padding(.vertical, AppSpacing.compact)
                 }
             }
         }

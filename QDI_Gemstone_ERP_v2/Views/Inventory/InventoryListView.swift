@@ -166,14 +166,14 @@ struct InventoryListView: View {
                 }
             }
             .foregroundStyle(viewModel.showFiltersPanel ? AppColors.primary : AppColors.inkMuted)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 7)
+            .padding(.horizontal, AppSpacing.comfortable)
+            .padding(.vertical, AppSpacing.standard)
             .background(
                 RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                    .fill(viewModel.showFiltersPanel ? AppColors.primary.opacity(0.15) : AppColors.panelBackground)
+                    .fill(viewModel.showFiltersPanel ? AppColors.primary.opacity(AppOpacity.muted) : AppColors.panelBackground)
                     .overlay(
                         RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                            .strokeBorder(viewModel.showFiltersPanel ? AppColors.primary.opacity(0.20) : AppColors.cardElevated, lineWidth: 1)
+                            .strokeBorder(viewModel.showFiltersPanel ? AppColors.primary.opacity(AppOpacity.muted) : AppColors.cardElevated, lineWidth: 1)
                     )
             )
         }
@@ -199,16 +199,16 @@ struct InventoryListView: View {
                             } label: {
                                 Image(systemName: "xmark")
                                     .font(AppTypography.sectionLabel.weight(.bold))
-                                    .foregroundStyle(AppColors.primary.opacity(0.6))
+                                    .foregroundStyle(AppColors.primary.opacity(AppOpacity.strong))
                             }
                             .buttonStyle(.plain)
                             .accessibilityLabel("Remove \(pill.label) filter")
                         }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
+                        .padding(.horizontal, AppSpacing.standard)
+                        .padding(.vertical, AppSpacing.compact)
                         .background(
                             RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                                .fill(AppColors.primary.opacity(0.12))
+                                .fill(AppColors.primary.opacity(AppOpacity.muted))
                         )
                     }
 
@@ -465,9 +465,9 @@ struct InventoryListView: View {
                 .fill(.ultraThinMaterial)
                 .overlay(
                     RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                        .strokeBorder(AppColors.primary.opacity(0.3), lineWidth: 1)
+                        .strokeBorder(AppColors.primary.opacity(AppOpacity.medium), lineWidth: 1)
                 )
-                .shadow(color: .black.opacity(0.3), radius: 12, y: -4)
+                .shadow(color: .black.opacity(AppOpacity.medium), radius: 12, y: -4)
         )
         .padding(.horizontal, AppSpacing.hero)
         .padding(.bottom, AppSpacing.section)

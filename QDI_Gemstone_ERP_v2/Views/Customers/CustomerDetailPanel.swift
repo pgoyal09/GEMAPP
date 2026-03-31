@@ -96,7 +96,7 @@ struct CustomerDetailPanel: View {
                                 .font(AppTypography.mono)
                                 .foregroundStyle(AppColors.inkMuted)
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, AppSpacing.compact)
                     }
                     .buttonStyle(.plain)
                 }
@@ -126,7 +126,7 @@ struct CustomerDetailPanel: View {
                                 .font(AppTypography.mono)
                                 .foregroundStyle(AppColors.inkMuted)
                         }
-                        .padding(.vertical, 4)
+                        .padding(.vertical, AppSpacing.compact)
                     }
                     .buttonStyle(.plain)
                 }

@@ -186,7 +186,7 @@ struct AppShellView: View {
                     RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                         .fill(AppColors.primaryGradient)
                         .frame(width: 36, height: 36)
-                        .shadow(color: AppColors.primary.opacity(0.20), radius: 6, y: 2)
+                        .shadow(color: AppColors.primary.opacity(AppOpacity.muted), radius: 6, y: 2)
                     Text("Q")
                         .font(AppTypography.body.weight(.semibold))
                         .foregroundStyle(.white)
