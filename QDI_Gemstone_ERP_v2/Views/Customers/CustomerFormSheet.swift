@@ -60,6 +60,7 @@ struct CustomerFormSheet: View {
         }
         .frame(minWidth: 480, minHeight: 400)
         .appBackground()
+        .transition(.opacity.combined(with: .scale(scale: 0.95)))
         .interactiveDismissDisabled(isSaving)
         .overlay {
             if let msg = toastMessage {

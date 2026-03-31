@@ -7,8 +7,11 @@ enum AppAnimation {
     static let spring = Animation.spring(response: 0.4, dampingFraction: 0.8)
     static let sheetSpring = Animation.spring(response: 0.35, dampingFraction: 0.85)
 
-    /// Continuous shimmer animation for loading placeholders.
-    static let shimmer = Animation.easeInOut(duration: 1.2).repeatForever(autoreverses: false)
+    /// Continuous shimmer animation for loading placeholders (2s per cycle — gentle, not frantic).
+    static let shimmer = Animation.easeInOut(duration: 2.0).repeatForever(autoreverses: false)
+
+    /// Brief scale pulse for value changes.
+    static let pulse = Animation.spring(response: 0.3, dampingFraction: 0.5)
 
     /// Stagger delay for list row appearance (capped at 15 rows).
     static func staggerDelay(index: Int) -> Double {

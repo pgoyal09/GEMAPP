@@ -85,6 +85,7 @@ struct BulkEditSheet: View {
         .padding(AppSpacing.hero)
         .frame(width: 360, height: 280)
         .appBackground()
+        .transition(.opacity.combined(with: .scale(scale: 0.95)))
     }
 
     // MARK: - Status

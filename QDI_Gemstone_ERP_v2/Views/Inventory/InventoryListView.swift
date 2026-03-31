@@ -12,6 +12,7 @@ enum InventoryListMode {
 struct InventoryListView: View {
     @Binding var navigateTo: NavigationItem
     let mode: InventoryListMode
+    @Namespace private var filterPillNamespace
 
     @Environment(\.modelContext) private var modelContext
 
@@ -141,10 +142,14 @@ struct InventoryListView: View {
                 ForEach([InventoryStatusFilter.all, .available, .onMemo], id: \.rawValue) { filter in
                     FilterPill(
                         title: filter.rawValue,
-                        isActive: viewModel.statusFilter == filter
-                    ) {
-                        viewModel.statusFilter = filter
-                    }
+                        isActive: viewModel.statusFilter == filter,
+                        action: {
+                            withAnimation(AppAnimation.spring) {
+                                viewModel.statusFilter = filter
+                            }
+                        },
+                        animationNamespace: filterPillNamespace
+                    )
                 }
             }
         }

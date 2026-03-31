@@ -20,6 +20,7 @@ struct CSVImportPreviewSheet: View {
         }
         .frame(minWidth: 700, minHeight: 400)
         .appBackground()
+        .transition(.opacity.combined(with: .scale(scale: 0.95)))
         .onAppear { isTitleFocused = true }
     }
 
