@@ -35,17 +35,26 @@ struct MemoDocumentView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: AppSpacing.hero) {
-                    headerSection
-                    lineItemsSection
-                    totalsSection
-                    notesSection
+        Group {
+            if memo.isDeleted {
+                Text("Memo no longer available")
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.inkMuted)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                VStack(spacing: 0) {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: AppSpacing.hero) {
+                            headerSection
+                            lineItemsSection
+                            totalsSection
+                            notesSection
+                        }
+                        .padding(AppSpacing.hero)
+                    }
+                    bottomToolbar
                 }
-                .padding(AppSpacing.hero)
             }
-            bottomToolbar
         }
         .accessibilityIdentifier("MemoDocumentView")
         .onAppear { isHeaderFocused = true }
@@ -192,12 +201,16 @@ struct MemoDocumentView: View {
 
     @ViewBuilder
     private var memoStatusBadge: some View {
-        let tone: StatusBadge.Tone = switch memo.status {
-        case .onMemo: .accent
-        case .returned: .warning
-        case .sold: .success
+        if memo.isDeleted {
+            EmptyView()
+        } else {
+            let tone: StatusBadge.Tone = switch memo.status {
+            case .onMemo: .accent
+            case .returned: .warning
+            case .sold: .success
+            }
+            StatusBadge(title: memo.status.rawValue, tone: tone)
         }
-        StatusBadge(title: memo.status.rawValue, tone: tone)
     }
 
     // MARK: - Line Items

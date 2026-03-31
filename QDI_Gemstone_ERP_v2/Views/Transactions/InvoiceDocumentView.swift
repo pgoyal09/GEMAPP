@@ -39,18 +39,27 @@ struct InvoiceDocumentView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: AppSpacing.hero) {
-                    headerSection
-                    lineItemsSection
-                    totalsSection
-                    PaymentListView(invoice: invoice, onDirty: { markDirty() })
-                    notesSection
+        Group {
+            if invoice.isDeleted {
+                Text("Invoice no longer available")
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.inkMuted)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                VStack(spacing: 0) {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: AppSpacing.hero) {
+                            headerSection
+                            lineItemsSection
+                            totalsSection
+                            PaymentListView(invoice: invoice, onDirty: { markDirty() })
+                            notesSection
+                        }
+                        .padding(AppSpacing.hero)
+                    }
+                    bottomToolbar
                 }
-                .padding(AppSpacing.hero)
             }
-            bottomToolbar
         }
         .accessibilityIdentifier("InvoiceDocumentView")
         .onAppear { isHeaderFocused = true }
@@ -210,13 +219,17 @@ struct InvoiceDocumentView: View {
 
     @ViewBuilder
     private var invoiceStatusBadge: some View {
-        let tone: StatusBadge.Tone = switch invoice.status {
-        case .draft: .neutral
-        case .sent: .accent
-        case .paid: .success
-        case .void: .danger
+        if invoice.isDeleted {
+            EmptyView()
+        } else {
+            let tone: StatusBadge.Tone = switch invoice.status {
+            case .draft: .neutral
+            case .sent: .accent
+            case .paid: .success
+            case .void: .danger
+            }
+            StatusBadge(title: invoice.status.rawValue, tone: tone)
         }
-        StatusBadge(title: invoice.status.rawValue, tone: tone)
     }
 
     // MARK: - Line Items
