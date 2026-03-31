@@ -17,6 +17,7 @@ enum NavigationItem: String, CaseIterable {
     case accounting = "Accounting"
     case reports = "Reports"
     case accountsReceivable = "AR"
+    case memoReturn = "Memo Return"
     case settings = "Settings"
 
     var icon: String {
@@ -37,6 +38,7 @@ enum NavigationItem: String, CaseIterable {
         case .accounting: return "chart.pie.fill"
         case .reports:    return "chart.bar.xaxis"
         case .accountsReceivable: return "banknote"
+        case .memoReturn: return "wave.3.right"
         case .settings:   return "gearshape.fill"
         }
     }
@@ -45,7 +47,7 @@ enum NavigationItem: String, CaseIterable {
         ("Get Started", [.dashboard, .scanner]),
         ("Sales", [.memos, .invoices, .customers]),
         ("Accounting", [.accounting, .reports, .accountsReceivable]),
-        ("Inventory", [.diamonds, .gemstones, .lots, .sold, .quickIntake, .quickEntry, .reviewQueue, .reconcile]),
+        ("Inventory", [.diamonds, .gemstones, .lots, .sold, .quickIntake, .quickEntry, .reviewQueue, .reconcile, .memoReturn]),
         ("System", [.settings]),
     ]
 }

@@ -1,0 +1,233 @@
+import SwiftUI
+import SwiftData
+
+struct MemoReturnScanView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.rfidService) private var rfidService
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    @State private var scannedStones: [ScannedMemoStone] = []
+    @State private var isScanning = false
+    @State private var toastMessage: String?
+    @State private var toastIsError = false
+    @State private var batchMode = true
+
+    struct ScannedMemoStone: Identifiable {
+        let id = UUID()
+        let stone: Gemstone
+        let memo: Memo
+        var confirmed = false
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            controlBar
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: AppSpacing.hero) {
+                    if scannedStones.isEmpty {
+                        EmptyStateView(
+                            icon: "wave.3.right",
+                            title: "Scan stones to return from memo",
+                            subtitle: "Scan RFID tags of stones currently on memo to process returns"
+                        )
+                    } else {
+                        scannedList
+                    }
+                }
+                .padding(AppSpacing.hero)
+            }
+        }
+        .overlay {
+            if let msg = toastMessage {
+                ToastOverlay(message: msg, isError: toastIsError)
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                            withAnimation { toastMessage = nil }
+                        }
+                    }
+            }
+        }
+        .accessibilityIdentifier("MemoReturnScanView")
+    }
+
+    // MARK: - Controls
+
+    private var controlBar: some View {
+        HStack(spacing: AppSpacing.comfortable) {
+            Text("Memo Return Scanner")
+                .font(AppTypography.heading)
+                .foregroundStyle(AppColors.ink)
+
+            Spacer()
+
+            Toggle("Batch Mode", isOn: $batchMode)
+                .toggleStyle(.switch)
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+                .accessibilityLabel("Batch mode: scan multiple stones before confirming")
+
+            if isScanning {
+                HStack(spacing: AppSpacing.standard) {
+                    ProgressView().controlSize(.small).tint(AppColors.primary)
+                    Text("Scanning...")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.primary)
+                }
+                Button {
+                    stopScanning()
+                } label: {
+                    Label("Stop", systemImage: "stop.fill")
+                }
+                .buttonStyle(.outline(AppColors.danger))
+            } else {
+                Button("Start Scan", systemImage: "antenna.radiowaves.left.and.right") {
+                    startScanning()
+                }
+                .buttonStyle(.gradient)
+            }
+
+            if !scannedStones.isEmpty && batchMode {
+                Button("Return All (\(scannedStones.count))") {
+                    returnAll()
+                }
+                .buttonStyle(.gradient(AppColors.emeraldGradient))
+                .accessibilityLabel("Return all \(scannedStones.count) scanned stones from memo")
+            }
+
+            Button("Clear") {
+                scannedStones.removeAll()
+            }
+            .buttonStyle(.outline)
+            .disabled(scannedStones.isEmpty)
+        }
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.vertical, AppSpacing.section)
+    }
+
+    // MARK: - Scanned List
+
+    private var scannedList: some View {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.section) {
+                SectionHeader(title: "Scanned Stones")
+
+                ForEach(Array(scannedStones.enumerated()), id: \.element.id) { index, item in
+                    HStack(spacing: AppSpacing.comfortable) {
+                        Image(systemName: item.confirmed ? "checkmark.circle.fill" : "arrow.uturn.left.circle")
+                            .foregroundStyle(item.confirmed ? AppColors.success : AppColors.warning)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            HStack(spacing: AppSpacing.standard) {
+                                Text(item.stone.sku)
+                                    .font(AppTypography.mono)
+                                    .foregroundStyle(AppColors.ink)
+                                StoneTypeBadge(type: item.stone.stoneType.rawValue)
+                                Text(String(format: "%.2f ct", item.stone.caratWeight))
+                                    .font(AppTypography.caption)
+                                    .foregroundStyle(AppColors.inkMuted)
+                            }
+                            Text("Memo: \(item.memo.referenceNumber) — \(item.memo.customer?.displayName ?? "Unknown")")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.inkSubtle)
+                        }
+
+                        Spacer()
+
+                        if item.confirmed {
+                            StatusBadge(title: "Returned", tone: .success)
+                        } else if !batchMode {
+                            Button("Return") {
+                                returnStone(at: index)
+                            }
+                            .buttonStyle(.outline(AppColors.success))
+                            .accessibilityLabel("Return \(item.stone.sku) from memo")
+                        }
+                    }
+                    .padding(.vertical, AppSpacing.standard)
+                    .staggeredRow(index: index, reduceMotion: reduceMotion)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("\(item.stone.sku), on memo \(item.memo.referenceNumber), \(item.confirmed ? "returned" : "pending return")")
+                }
+            }
+        }
+    }
+
+    // MARK: - Actions
+
+    private func startScanning() {
+        guard let service = rfidService else { return }
+        service.onTagDiscovered = { [self] tagID in
+            Task { @MainActor in
+                self.handleScannedTag(tagID)
+            }
+        }
+        service.startScanning()
+        isScanning = true
+    }
+
+    private func stopScanning() {
+        rfidService?.stopScanning()
+        rfidService?.onTagDiscovered = nil
+        isScanning = false
+    }
+
+    private func handleScannedTag(_ rawHex: String) {
+        let result = RFIDScanService.processScannedTag(rawHex: rawHex, modelContext: modelContext)
+
+        switch result {
+        case .matched(let stone):
+            // Check if on active memo
+            if stone.status == .onMemo, let memo = stone.memo, memo.status == .onMemo {
+                // Avoid duplicates
+                guard !scannedStones.contains(where: { $0.stone.persistentModelID == stone.persistentModelID }) else { return }
+                scannedStones.append(ScannedMemoStone(stone: stone, memo: memo))
+            } else {
+                toastMessage = "\(stone.sku) is not on memo (status: \(stone.status.rawValue))"
+                toastIsError = false
+            }
+        case .unknownTag(let epc, _):
+            toastMessage = "Unknown tag: \(epc)"
+            toastIsError = false
+        }
+    }
+
+    private func returnStone(at index: Int) {
+        guard index < scannedStones.count else { return }
+        let item = scannedStones[index]
+        do {
+            // Find the line item for this stone on this memo
+            let lineItems = item.memo.lineItems.filter { $0.gemstone?.persistentModelID == item.stone.persistentModelID && $0.status == .open }
+            guard !lineItems.isEmpty else {
+                toastMessage = "No open line item found"
+                toastIsError = true
+                return
+            }
+            try MemoService.returnItems(lineItems, modelContext: modelContext)
+            scannedStones[index].confirmed = true
+            toastMessage = "\(item.stone.sku) returned successfully"
+            toastIsError = false
+        } catch {
+            toastMessage = "Failed: \(error.localizedDescription)"
+            toastIsError = true
+        }
+    }
+
+    private func returnAll() {
+        var successCount = 0
+        for index in scannedStones.indices where !scannedStones[index].confirmed {
+            let item = scannedStones[index]
+            let lineItems = item.memo.lineItems.filter { $0.gemstone?.persistentModelID == item.stone.persistentModelID && $0.status == .open }
+            guard !lineItems.isEmpty else { continue }
+            do {
+                try MemoService.returnItems(lineItems, modelContext: modelContext)
+                scannedStones[index].confirmed = true
+                successCount += 1
+            } catch {
+                continue
+            }
+        }
+        toastMessage = "\(successCount) stone\(successCount == 1 ? "" : "s") returned"
+        toastIsError = false
+    }
+}

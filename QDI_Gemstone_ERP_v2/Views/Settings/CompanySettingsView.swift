@@ -198,6 +198,13 @@ struct CompanySettingsView: View {
                         )
                 )
 
+                // MARK: - Label Printing
+
+                SectionHeader(title: "Label Printing")
+
+                LabelSettingsView()
+                    .frame(maxWidth: .infinity)
+
                 // MARK: - RapNet Integration
 
                 SectionHeader(title: "RapNet Integration")

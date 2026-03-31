@@ -234,6 +234,8 @@ struct AppShellView: View {
                 ReportsView()
             case .accountsReceivable:
                 ARDashboardView()
+            case .memoReturn:
+                MemoReturnScanView()
             case .settings:
                 CompanySettingsView()
             }

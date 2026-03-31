@@ -48,6 +48,7 @@
 		250D560298DA3BBD70C0F1B1 /* DashboardInfoPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82174E0400A9FC9A87E6B78 /* DashboardInfoPanel.swift */; };
 		2599CD0D0A9C81E5D79D2ADE /* LotService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D1AB12068D6098DAB4A22A3 /* LotService.swift */; };
 		26F4350DF12DABAC78445B20 /* SKUGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D04B1F807ECBF7399A1576 /* SKUGenerator.swift */; };
+		277071ECD233D820A32909E0 /* MemoReturnScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D6E8EFB8EC4B3037F101043 /* MemoReturnScanView.swift */; };
 		2A09F23C27BC6C7C770B9352 /* EditableLineItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF52535A188C64A84EADF9EE /* EditableLineItemRow.swift */; };
 		2A0DDDDABE302401802C1A68 /* QuickActionsGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDF43F66FC7402DC31864900 /* QuickActionsGrid.swift */; };
 		2AB076B178140D5D6E08687A /* InvoiceWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DAC44C95038D141D0930061 /* InvoiceWindowView.swift */; };
@@ -80,6 +81,7 @@
 		5314BCD3CD1F70801DB53110 /* ShareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 007E008692CAF273468B3771 /* ShareService.swift */; };
 		57B36C9037EA951332C0C6C7 /* ReconcileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AD0042F0425A31D03D81B15 /* ReconcileViewModel.swift */; };
 		58D4B1FEBCB4D268F7209011 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7220B21A25317D921736B773 /* EmptyStateView.swift */; };
+		593875550A770456872BA577 /* RFIDReconciliationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD62C45DBA9FE81C57C0BFF6 /* RFIDReconciliationService.swift */; };
 		5A35814DAD47C9CDE9833234 /* InventoryRoutes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565A4EA28FA3E61AE96AF9A5 /* InventoryRoutes.swift */; };
 		5B25F2AFA1BB5CAC72B357FF /* ARService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27B78F2F1ABA2890D8FB2D43 /* ARService.swift */; };
 		5D4252BCD24FFD3E613925DB /* LotSelectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C830FBAB085D765E82A476A2 /* LotSelectSheet.swift */; };
@@ -147,6 +149,7 @@
 		C57428D589CE37362E11A2CF /* CustomerDetailPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C836FB999C2771AA1719CA14 /* CustomerDetailPanel.swift */; };
 		C598F81E0453F9C995A49137 /* TableColumn.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07BBCDE21A8DEA71CC11956 /* TableColumn.swift */; };
 		C604BF9B9BE75A4DE210A592 /* LineItemKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D603B8B6A476C98E66B400 /* LineItemKind.swift */; };
+		C89F67E28F0C2DBC3FD9A39B /* LabelSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90706FF432765FB42B0C9E7 /* LabelSettingsView.swift */; };
 		C8D707A1F1797FFE711ABBC2 /* ORSSerial in Frameworks */ = {isa = PBXBuildFile; productRef = DB07F8E31C04219DAA692E41 /* ORSSerial */; };
 		CCB573CA20CF92C83B93FB5C /* CSVImportPreviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56EC23CBF87289FD1987521D /* CSVImportPreviewSheet.swift */; };
 		CF5C7C0597EB7E99DA8D3991 /* DetailRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */; };
@@ -165,6 +168,7 @@
 		EFAEB611DA429B8C9688AEB4 /* PaymentListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEECFCA896C5C2177322AE1A /* PaymentListView.swift */; };
 		F0AC6557A35E1C3E15C169E2 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C611B9AA323E95C9B384F701 /* DashboardViewModel.swift */; };
 		F76E8FCAA742119E0D9A183D /* HistoryLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D6DC60F80D7FC541834613 /* HistoryLogger.swift */; };
+		F8F64EE77BC8C5874AD52E6C /* LabelTemplateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FD4A41C39E9543AB55428FA /* LabelTemplateService.swift */; };
 		F91A9927D6C94C662EACDE6F /* HistoryEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 149AAED5205BD92D1632662A /* HistoryEvent.swift */; };
 		F936F24EF660226730503D41 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 543D37A0F441617A309A7682 /* OnboardingView.swift */; };
 		FA8502A655774E79FC240E64 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B0F11EF531CE6C3EF6C5CC /* AppColors.swift */; };
@@ -199,6 +203,7 @@
 		2A8AAC8B96F94CF3DABE9258 /* GlossaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlossaryView.swift; sourceTree = "<group>"; };
 		2E2B071BCC76EE4FED2E41FA /* MemoRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoRoutes.swift; sourceTree = "<group>"; };
 		2ECF159A5FC31BBD9D068E1C /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		2FD4A41C39E9543AB55428FA /* LabelTemplateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelTemplateService.swift; sourceTree = "<group>"; };
 		325C18F3512961657BDAD856 /* GradientButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientButtonStyle.swift; sourceTree = "<group>"; };
 		32D04B1F807ECBF7399A1576 /* SKUGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SKUGenerator.swift; sourceTree = "<group>"; };
 		32D6DC60F80D7FC541834613 /* HistoryLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryLogger.swift; sourceTree = "<group>"; };
@@ -215,6 +220,7 @@
 		41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailRow.swift; sourceTree = "<group>"; };
 		4A40AC13F11AC3673A4A1587 /* NavigationItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationItem.swift; sourceTree = "<group>"; };
 		4C520DBB8403C8EC32DDD058 /* AppShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShellView.swift; sourceTree = "<group>"; };
+		4D6E8EFB8EC4B3037F101043 /* MemoReturnScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoReturnScanView.swift; sourceTree = "<group>"; };
 		4D8C27FE3D81DB349A0639CD /* QuickEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEntryView.swift; sourceTree = "<group>"; };
 		4DEA801B9732A7292B7D6021 /* RapNetSyncStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RapNetSyncStatus.swift; sourceTree = "<group>"; };
 		4F57C93F3894AAE530F52820 /* AppTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTypography.swift; sourceTree = "<group>"; };
@@ -282,6 +288,7 @@
 		A4ECE3F56706FBA13A89DF47 /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		A5AD9B9980F9121A678A0051 /* InvoiceStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceStatus.swift; sourceTree = "<group>"; };
 		A8F7920833CBAAF2162B157B /* FormPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormPicker.swift; sourceTree = "<group>"; };
+		A90706FF432765FB42B0C9E7 /* LabelSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelSettingsView.swift; sourceTree = "<group>"; };
 		A9A597AF32983A1D01C6D562 /* BackupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupService.swift; sourceTree = "<group>"; };
 		AA238D2CE296E7F838340CCD /* HoverRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverRow.swift; sourceTree = "<group>"; };
 		AAD2476C55F79206377ADE3C /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
@@ -334,6 +341,7 @@
 		F981D0C4218F1C904C0C296D /* MarginAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarginAnalysisView.swift; sourceTree = "<group>"; };
 		FB788FFE84CBD6FB2D45A564 /* SortableViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortableViewModel.swift; sourceTree = "<group>"; };
 		FBCAA0A67DB386B1FD7A631C /* TableHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableHeader.swift; sourceTree = "<group>"; };
+		FD62C45DBA9FE81C57C0BFF6 /* RFIDReconciliationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDReconciliationService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -455,6 +463,7 @@
 			children = (
 				9C951A2C6D4936DCB60254A7 /* CompanySettingsView.swift */,
 				2A8AAC8B96F94CF3DABE9258 /* GlossaryView.swift */,
+				A90706FF432765FB42B0C9E7 /* LabelSettingsView.swift */,
 				1F3818E4471F1235B71AE81E /* RapNetSettingsView.swift */,
 			);
 			path = Settings;
@@ -563,6 +572,7 @@
 		89431280C980EF6DDB78A594 /* Scanner */ = {
 			isa = PBXGroup;
 			children = (
+				4D6E8EFB8EC4B3037F101043 /* MemoReturnScanView.swift */,
 				0AE8B1FC546208EE8FE5FE4D /* ScannerView.swift */,
 				A1615490722ED65602953FB1 /* UnknownTagAssignSheet.swift */,
 			);
@@ -603,7 +613,9 @@
 			isa = PBXGroup;
 			children = (
 				78DFE5A014C55EA551D7D16D /* EPCanonical.swift */,
+				2FD4A41C39E9543AB55428FA /* LabelTemplateService.swift */,
 				96D844385E3F6295552E81B9 /* RFIDManager.swift */,
+				FD62C45DBA9FE81C57C0BFF6 /* RFIDReconciliationService.swift */,
 				7FFA42D7ADC3BDCCB4B372B4 /* RFIDScanService.swift */,
 				1BB4A70485C8693503BFC503 /* RFIDService.swift */,
 			);
@@ -908,6 +920,8 @@
 				320A9924011B5A7B3F4013C3 /* InvoiceStatus.swift in Sources */,
 				2AB076B178140D5D6E08687A /* InvoiceWindowView.swift in Sources */,
 				C1981B0CE8BC8F335CF84748 /* KPICardRow.swift in Sources */,
+				C89F67E28F0C2DBC3FD9A39B /* LabelSettingsView.swift in Sources */,
+				F8F64EE77BC8C5874AD52E6C /* LabelTemplateService.swift in Sources */,
 				72DDA78BD6DCEBA65A238C75 /* LineItem.swift in Sources */,
 				C604BF9B9BE75A4DE210A592 /* LineItemKind.swift in Sources */,
 				D139FE43F09FB5A1B750B918 /* LineItemStatus.swift in Sources */,
@@ -922,6 +936,7 @@
 				3E7253792457246D6128E747 /* MemoDocumentView.swift in Sources */,
 				1ED84C0E9FD45192AA89D070 /* MemoListView.swift in Sources */,
 				DB204AB5F19F7F8F7D055CE0 /* MemoListViewModel.swift in Sources */,
+				277071ECD233D820A32909E0 /* MemoReturnScanView.swift in Sources */,
 				22B743D4CDCC2F75AB7F865C /* MemoRoutes.swift in Sources */,
 				72AD8359D7575C77CFE5B1CF /* MemoService.swift in Sources */,
 				D47EBBD8500619EF4147879A /* MemoStatus.swift in Sources */,
@@ -942,6 +957,7 @@
 				98D7F9952F6786EA9D83D041 /* RFIDCoordinator.swift in Sources */,
 				655199E393D8F081A7941A84 /* RFIDLifecycleStatus.swift in Sources */,
 				131475971AEAEAA1815CF268 /* RFIDManager.swift in Sources */,
+				593875550A770456872BA577 /* RFIDReconciliationService.swift in Sources */,
 				B9511B99086636DD4D623C36 /* RFIDRoutes.swift in Sources */,
 				E9EA1A74670EFB1C0D87AF61 /* RFIDScanService.swift in Sources */,
 				A53B4FF570C732F5F44679AA /* RFIDService.swift in Sources */,
