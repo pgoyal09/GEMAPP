@@ -42,6 +42,9 @@ enum StoneDescriptionBuilder {
 
     private static func buildNonDiamondDescription(for stone: Gemstone) -> String {
         let shape = stone.shape.trimmedOrNil ?? stone.cut.trimmedOrNil
+        let caratStr = formatNumber(stone.caratWeight)
+        let origin = stone.origin.trimmedOrNil
+        let treatment = stone.treatment.trimmedOrNil
 
         if stone.isLot {
             var parts: [String] = []
@@ -51,12 +54,14 @@ enum StoneDescriptionBuilder {
             return parts.joined(separator: " ")
         }
 
+        // Format: "[Carat]ct [Origin] [Treatment] [Shape] [Color] [Clarity]"
         var topParts: [String] = []
-        if stone.hasCert { topParts.append("Certified") }
-        if let t = stone.treatment.trimmedOrNil { topParts.append(t) }
-        topParts.append(stone.stoneType.rawValue)
+        if let c = caratStr { topParts.append("\(c)ct") }
+        if let o = origin { topParts.append(o) }
+        if let t = treatment { topParts.append(t) }
         if let s = shape { topParts.append(s) }
-        topParts.append("Single")
+        if let color = stone.color.trimmedOrNil { topParts.append(color) }
+        if let clarity = stone.clarity.trimmedOrNil { topParts.append(clarity) }
 
         var lines = [topParts.joined(separator: " ")]
 

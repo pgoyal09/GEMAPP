@@ -4,7 +4,11 @@ import SwiftData
 /// Tabular rapid-entry view for bulk stone intake.
 /// Users can tab through minimal fields per row and save multiple stones at once.
 struct QuickEntryView: View {
+    /// Default stone type based on which inventory tab user came from.
+    var defaultStoneType: StoneType = .diamond
+
     @Environment(\.modelContext) private var modelContext
+    @State private var selectedCategory: StoneType = .diamond
     @State private var rows: [QuickEntryRow] = [QuickEntryRow()]
     @State private var toastMessage: String?
     @State private var toastIsError = false
@@ -22,6 +26,10 @@ struct QuickEntryView: View {
                     .animation(AppAnimation.standard, value: toastMessage)
             }
         }
+        .onAppear {
+            selectedCategory = defaultStoneType
+            rows = [QuickEntryRow(stoneType: defaultStoneType)]
+        }
     }
 
     // MARK: - Toolbar
@@ -31,12 +39,27 @@ struct QuickEntryView: View {
             Text("Quick Entry")
                 .font(AppTypography.heading)
                 .foregroundStyle(AppColors.ink)
+
+            Picker("Category", selection: $selectedCategory) {
+                Text("Diamond").tag(StoneType.diamond)
+                Text("Ruby").tag(StoneType.ruby)
+                Text("Emerald").tag(StoneType.emerald)
+                Text("Sapphire").tag(StoneType.sapphire)
+                Text("Tanzanite").tag(StoneType.tanzanite)
+            }
+            .pickerStyle(.segmented)
+            .frame(maxWidth: 400)
+            .accessibilityLabel("Stone Type Category")
+            .onChange(of: selectedCategory) { _, newType in
+                for i in rows.indices { rows[i].stoneType = newType }
+            }
+
             Text("\(rows.count) row\(rows.count == 1 ? "" : "s")")
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkSubtle)
             Spacer()
             Button("Clear All") {
-                rows = [QuickEntryRow()]
+                rows = [QuickEntryRow(stoneType: selectedCategory)]
                 focusedField = .type(rows[0].id)
             }
             .buttonStyle(.outline)
@@ -186,7 +209,7 @@ struct QuickEntryView: View {
 
     private func addRowIfNeeded(afterIndex index: Int) {
         if index == rows.count - 1 {
-            let newRow = QuickEntryRow()
+            let newRow = QuickEntryRow(stoneType: selectedCategory)
             rows.append(newRow)
             focusedField = .type(newRow.id)
         } else {
@@ -229,7 +252,7 @@ struct QuickEntryView: View {
 
         toastIsError = false
         toastMessage = "Saved \(count) stone\(count == 1 ? "" : "s")"
-        rows = [QuickEntryRow()]
+        rows = [QuickEntryRow(stoneType: selectedCategory)]
         focusedField = .type(rows[0].id)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {

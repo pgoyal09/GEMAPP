@@ -9,6 +9,7 @@ enum CSVImportService {
     struct ImportRow: Identifiable {
         let id = UUID()
         var stoneType: StoneType
+        var grouping: StoneGrouping
         var caratWeight: Double
         var shape: String
         var color: String
@@ -76,7 +77,7 @@ enum CSVImportService {
             let sku = SKUGenerator.generate(
                 type: row.stoneType,
                 shape: row.shape,
-                grouping: .single,
+                grouping: row.grouping,
                 modelContext: modelContext
             )
             let stone = Gemstone(
@@ -84,6 +85,7 @@ enum CSVImportService {
                 stoneType: row.stoneType,
                 caratWeight: row.caratWeight,
                 shape: row.shape,
+                grouping: row.grouping,
                 origin: row.origin,
                 color: row.color,
                 clarity: row.clarity,
@@ -140,8 +142,15 @@ enum CSVImportService {
         let costStr = col(colMap, fields, "costprice", "cost", "buyprice", "pricepercarat")
         let sellStr = col(colMap, fields, "sellprice", "sell", "askingprice", "price", "totalprice")
 
+        // Detect grouping from CSV or default to .single
+        let groupingStr = col(colMap, fields, "grouping", "group", "stonegrouping")
+        let grouping = StoneGrouping(rawValue: groupingStr)
+            ?? StoneGrouping.allCases.first { $0.displayName.lowercased() == groupingStr.lowercased() }
+            ?? .single
+
         return ImportRow(
             stoneType: stoneType,
+            grouping: grouping,
             caratWeight: carat,
             shape: col(colMap, fields, "shape", "cut"),
             color: col(colMap, fields, "color", "colour"),

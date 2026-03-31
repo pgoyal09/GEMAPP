@@ -5,6 +5,7 @@ import SwiftData
 struct GemstoneDetailPanel: View {
     let gemstone: Gemstone
     var onEdit: (() -> Void)? = nil
+    @Environment(\.openWindow) private var openWindow
 
     private var isDiamond: Bool { gemstone.stoneType == .diamond }
 
@@ -63,6 +64,16 @@ struct GemstoneDetailPanel: View {
                     .buttonStyle(.outline)
                     .frame(maxWidth: .infinity)
                 }
+
+                if let memo = gemstone.memo {
+                    Button {
+                        openWindow(id: "memo", value: memo.persistentModelID)
+                    } label: {
+                        Label("View Memo", systemImage: "arrow.right.circle")
+                    }
+                    .buttonStyle(.outline(AppColors.warning))
+                    .frame(maxWidth: .infinity)
+                }
             }
         }
     }
@@ -75,7 +86,12 @@ struct GemstoneDetailPanel: View {
                 SectionHeader(title: "Overview")
                 DetailRow(label: "Type", value: gemstone.stoneType.rawValue)
                 DetailRow(label: "Shape", value: gemstone.shape.isEmpty ? "--" : gemstone.shape)
-                DetailRow(label: "Origin", value: gemstone.origin.isEmpty ? "--" : gemstone.origin)
+                if !isDiamond {
+                    DetailRow(label: "Origin", value: gemstone.origin.isEmpty ? "--" : gemstone.origin)
+                    DetailRow(label: "Treatment", value: gemstone.treatment.isEmpty ? "None" : gemstone.treatment)
+                } else {
+                    DetailRow(label: "Origin", value: gemstone.origin.isEmpty ? "--" : gemstone.origin)
+                }
                 DetailRow(label: "Location", value: gemstone.currentLocation)
             }
         }
