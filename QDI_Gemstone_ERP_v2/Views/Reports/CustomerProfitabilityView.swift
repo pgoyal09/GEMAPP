@@ -177,6 +177,6 @@ struct CustomerProfitabilityView: View {
                 EmptyStateView(icon: "person.crop.circle", title: "Select a customer", subtitle: "Click a row to see details")
             }
         }
-        .frame(width: 296)
+        .frame(minWidth: 260, idealWidth: 296, maxWidth: 360)
     }
 }

@@ -11,6 +11,7 @@ struct MemoReturnScanView: View {
     @State private var toastMessage: String?
     @State private var toastIsError = false
     @State private var batchMode = true
+    @State private var recentScans: [ScanLogEntry] = []
 
     struct ScannedMemoStone: Identifiable {
         let id = UUID()
@@ -19,20 +20,30 @@ struct MemoReturnScanView: View {
         var confirmed = false
     }
 
+    struct ScanLogEntry: Identifiable {
+        let id = UUID()
+        let timestamp: Date
+        let tag: String
+        let result: String
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             controlBar
 
             ScrollView {
                 VStack(alignment: .leading, spacing: AppSpacing.hero) {
-                    if scannedStones.isEmpty {
+                    if scannedStones.isEmpty && recentScans.isEmpty {
                         EmptyStateView(
                             icon: "wave.3.right",
                             title: "Scan stones to return from memo",
                             subtitle: "Scan RFID tags of stones currently on memo to process returns"
                         )
                     } else {
-                        scannedList
+                        if !scannedStones.isEmpty {
+                            scannedList
+                        }
+                        recentScansLog
                     }
                 }
                 .padding(AppSpacing.hero)
@@ -42,7 +53,7 @@ struct MemoReturnScanView: View {
             if let msg = toastMessage {
                 ToastOverlay(message: msg, isError: toastIsError)
                     .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                             withAnimation { toastMessage = nil }
                         }
                     }
@@ -153,6 +164,55 @@ struct MemoReturnScanView: View {
         }
     }
 
+    // MARK: - Recent Scans Log
+
+    private var recentScansLog: some View {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.section) {
+                SectionHeader(title: "Recent Scans")
+
+                if recentScans.isEmpty {
+                    Text("No scans recorded yet")
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.inkSubtle)
+                } else {
+                    ForEach(recentScans) { entry in
+                        HStack(spacing: AppSpacing.comfortable) {
+                            Text(entry.timestamp.formatted(date: .omitted, time: .standard))
+                                .font(AppTypography.mono)
+                                .foregroundStyle(AppColors.inkMuted)
+                                .frame(width: 80, alignment: .leading)
+
+                            Text(entry.tag.prefix(16) + (entry.tag.count > 16 ? "..." : ""))
+                                .font(AppTypography.mono)
+                                .foregroundStyle(AppColors.inkSubtle)
+                                .lineLimit(1)
+                                .frame(width: 140, alignment: .leading)
+
+                            Text(entry.result)
+                                .font(AppTypography.caption)
+                                .foregroundStyle(entry.result.hasPrefix("Memo match") ? AppColors.success : entry.result.hasPrefix("Unknown") ? AppColors.danger : AppColors.warning)
+                                .lineLimit(1)
+
+                            Spacer()
+                        }
+                        .padding(.vertical, AppSpacing.compact)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("\(entry.timestamp.formatted(date: .omitted, time: .standard)): tag \(entry.tag), \(entry.result)")
+                    }
+                }
+            }
+        }
+    }
+
+    private func appendScanLog(tag: String, result: String) {
+        let entry = ScanLogEntry(timestamp: Date(), tag: tag, result: result)
+        recentScans.insert(entry, at: 0)
+        if recentScans.count > 10 {
+            recentScans = Array(recentScans.prefix(10))
+        }
+    }
+
     // MARK: - Actions
 
     private func startScanning() {
@@ -182,13 +242,16 @@ struct MemoReturnScanView: View {
                 // Avoid duplicates
                 guard !scannedStones.contains(where: { $0.stone.persistentModelID == stone.persistentModelID }) else { return }
                 scannedStones.append(ScannedMemoStone(stone: stone, memo: memo))
+                appendScanLog(tag: rawHex, result: "Memo match: \(stone.sku)")
             } else {
                 toastMessage = "\(stone.sku) is not on memo (status: \(stone.status.rawValue))"
                 toastIsError = false
+                appendScanLog(tag: rawHex, result: "Not on memo: \(stone.sku) (\(stone.status.rawValue))")
             }
         case .unknownTag(let epc, _):
             toastMessage = "Unknown tag: \(epc)"
             toastIsError = false
+            appendScanLog(tag: epc, result: "Unknown tag")
         }
     }
 

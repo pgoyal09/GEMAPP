@@ -116,8 +116,8 @@ struct MarginAnalysisView: View {
                     }
                     .frame(height: 200)
                     .padding(.bottom, AppSpacing.hero)
-                    .accessibilityElement(children: .contain)
-                    .accessibilityLabel("Monthly margin trend chart")
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel(monthlyTrendAccessibilityLabel(report))
                 }
             }
         }
@@ -137,28 +137,32 @@ struct MarginAnalysisView: View {
                 } else {
                     let maxMargin = max(report.byStoneType.map(\.avgMarginPercent).max() ?? 1, 1)
 
-                    ForEach(Array(report.byStoneType.enumerated()), id: \.element.id) { index, item in
-                        HStack(spacing: AppSpacing.comfortable) {
-                            StoneTypeBadge(type: item.stoneType)
-                                .frame(width: 90, alignment: .trailing)
+                    VStack(spacing: 0) {
+                        ForEach(Array(report.byStoneType.enumerated()), id: \.element.id) { index, item in
+                            HStack(spacing: AppSpacing.comfortable) {
+                                StoneTypeBadge(type: item.stoneType)
+                                    .frame(width: 90, alignment: .trailing)
 
-                            GeometryReader { geo in
-                                let ratio = maxMargin > 0 ? CGFloat(item.avgMarginPercent / maxMargin) : 0
-                                RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                                    .fill(AppColors.stoneColor(for: item.stoneType.lowercased()))
-                                    .frame(width: max(geo.size.width * ratio, 2))
+                                GeometryReader { geo in
+                                    let ratio = maxMargin > 0 ? CGFloat(item.avgMarginPercent / maxMargin) : 0
+                                    RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
+                                        .fill(AppColors.stoneColor(for: item.stoneType.lowercased()))
+                                        .frame(width: max(geo.size.width * ratio, 2))
+                                }
+                                .frame(height: 20)
+
+                                Text(String(format: "%.1f%%", item.avgMarginPercent))
+                                    .font(AppTypography.mono)
+                                    .foregroundStyle(AppColors.ink)
+                                    .frame(width: 60, alignment: .trailing)
                             }
-                            .frame(height: 20)
-
-                            Text(String(format: "%.1f%%", item.avgMarginPercent))
-                                .font(AppTypography.mono)
-                                .foregroundStyle(AppColors.ink)
-                                .frame(width: 60, alignment: .trailing)
+                            .staggeredRow(index: index, reduceMotion: reduceMotion)
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel("\(item.stoneType): average margin \(String(format: "%.1f%%", item.avgMarginPercent))")
                         }
-                        .staggeredRow(index: index, reduceMotion: reduceMotion)
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("\(item.stoneType): average margin \(String(format: "%.1f%%", item.avgMarginPercent))")
                     }
+                    .accessibilityElement(children: .contain)
+                    .accessibilityLabel("Average margin by stone type bar chart, \(report.byStoneType.count) types")
                 }
             }
         }
@@ -206,10 +210,21 @@ struct MarginAnalysisView: View {
                         }
                     }
                     .frame(height: 200)
+                    .accessibilityElement(children: .contain)
+                    .accessibilityLabel("Margin distribution histogram, \(report.distribution.filter { $0.count > 0 }.count) active buckets")
                 }
             }
         }
         .frame(maxWidth: .infinity)
+    }
+
+    private func monthlyTrendAccessibilityLabel(_ report: MarginAnalysisReport) -> String {
+        let trend = report.monthlyTrend
+        guard let first = trend.first, let last = trend.last else { return "Monthly margin trend chart, no data" }
+        let minM = trend.min(by: { $0.marginPercent < $1.marginPercent })!
+        let maxM = trend.max(by: { $0.marginPercent < $1.marginPercent })!
+        let direction = last.marginPercent > first.marginPercent ? "upward" : last.marginPercent < first.marginPercent ? "downward" : "flat"
+        return "Monthly margin trend chart, \(trend.count) months, \(direction) trend. Low \(String(format: "%.1f%%", minM.marginPercent)) in \(minM.month), high \(String(format: "%.1f%%", maxM.marginPercent)) in \(maxM.month). Latest: \(String(format: "%.1f%%", last.marginPercent))"
     }
 
     private func distributionColor(for index: Int) -> Color {

@@ -56,6 +56,19 @@ final class ReconcileViewModel {
         rfidService.stopScanning()
         isScanning = false
         lastReconciliationDate = Date()
+        saveReconciliationRecord()
+    }
+
+    func saveReconciliationRecord() {
+        guard let modelContext else { return }
+        let matched = foundStones.count
+        let missing = missingStones.count
+        let unknown = extraScans.count
+        guard matched > 0 || missing > 0 || unknown > 0 else { return }
+        let missingSKUs = missingStones.prefix(50).map(\.sku).joined(separator: ",")
+        let record = ReconciliationRecord(matchedCount: matched, missingCount: missing, unknownCount: unknown, missingSkus: missingSKUs)
+        modelContext.insert(record)
+        try? modelContext.save()
     }
 
     func resetScan() {

@@ -38,6 +38,7 @@ struct QDIGemstoneERPApp: App {
         Payment.self,
         PaymentReminder.self,
         BackupManifest.self,
+        ReconciliationRecord.self,
     ])
 
     /// Flag set when the initial container creation fails, so the app can show an alert.

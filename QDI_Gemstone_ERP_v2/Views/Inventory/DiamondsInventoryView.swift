@@ -152,7 +152,7 @@ struct DiamondsInventoryView: View {
                     editingStone = stone
                     showEditSheet = true
                 })
-                .frame(width: 296)
+                .frame(minWidth: 260, idealWidth: 296, maxWidth: 360)
                 .transition(.move(edge: .trailing).combined(with: .opacity))
             }
         }
@@ -162,7 +162,7 @@ struct DiamondsInventoryView: View {
                 .keyboardShortcut("f", modifiers: .command)
                 .hidden()
         }
-        .animation(AppAnimation.sheetSpring, value: selectedStone?.persistentModelID)
+        .animation(reduceMotion ? nil : AppAnimation.sheetSpring, value: selectedStone?.persistentModelID)
         .overlay(alignment: .bottom) {
             if !selectedStones.isEmpty {
                 multiSelectBar
@@ -400,6 +400,7 @@ struct DiamondsInventoryView: View {
             sortableHeader("Ask $/ct", key: "price", width: TableColumn.price, alignment: .trailing)
             sortableHeader("Cost $/ct", key: "cost", width: TableColumn.price, alignment: .trailing)
             TableHeader(title: "Margin %", width: TableColumn.margin, alignment: .trailing)
+            TableHeader(title: "% Rap", width: TableColumn.percent, alignment: .trailing)
             sortableHeader("Status", key: "status", width: TableColumn.status, alignment: .center)
             Spacer()
         }
@@ -440,6 +441,7 @@ struct DiamondsInventoryView: View {
             Text(stone.sellPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: TableColumn.price, alignment: .trailing)
             Text(stone.costPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.price, alignment: .trailing)
             Text(marginText(cost: stone.costPrice, sell: stone.sellPrice)).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.margin, alignment: .trailing)
+            Text(rapDiscountText(rapNet: stone.rapNetPrice, sell: stone.sellPrice)).font(AppTypography.mono).foregroundStyle(rapDiscountColor(rapNet: stone.rapNetPrice, sell: stone.sellPrice)).frame(width: TableColumn.percent, alignment: .trailing)
             statusBadge(for: stone.status).frame(width: TableColumn.status, alignment: .center)
             Spacer()
         }
@@ -666,6 +668,20 @@ struct DiamondsInventoryView: View {
         let margin = (sell - cost) / cost * 100
         let value = NSDecimalNumber(decimal: margin).doubleValue
         return String(format: "%.1f%%", value)
+    }
+
+    // MARK: - Rap Discount
+
+    private func rapDiscountText(rapNet: Decimal?, sell: Decimal) -> String {
+        guard let rap = rapNet, rap > 0, sell > 0 else { return "\u{2014}" }
+        let discount = NSDecimalNumber(decimal: (sell / rap - 1) * 100).doubleValue
+        return String(format: "%+.1f%%", discount)
+    }
+
+    private func rapDiscountColor(rapNet: Decimal?, sell: Decimal) -> Color {
+        guard let rap = rapNet, rap > 0, sell > 0 else { return AppColors.inkMuted }
+        let discount = NSDecimalNumber(decimal: (sell / rap - 1) * 100).doubleValue
+        return discount >= 0 ? AppColors.success : AppColors.danger
     }
 
     // MARK: - Helpers

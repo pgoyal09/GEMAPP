@@ -128,12 +128,20 @@ struct CustomerBalanceView: View {
                     }
                 }
 
-                Button("Record Payment") {
-                    showPaymentSheet = true
+                HStack(spacing: AppSpacing.section) {
+                    Button("Record Payment") {
+                        showPaymentSheet = true
+                    }
+                    .buttonStyle(.gradient)
+                    .accessibilityLabel("Record payment for \(customer.customerName)")
+
+                    Button("Send Reminder", systemImage: "bell.badge") {
+                        sendReminder(for: customer)
+                    }
+                    .buttonStyle(.outline)
+                    .accessibilityLabel("Send payment reminder to \(customer.customerName)")
                 }
-                .buttonStyle(.gradient)
                 .padding(.horizontal, AppSpacing.section)
-                .accessibilityLabel("Record payment for \(customer.customerName)")
 
                 SectionHeader(title: "Unpaid Invoices")
                     .padding(.horizontal, AppSpacing.section)
@@ -224,7 +232,7 @@ struct CustomerBalanceView: View {
                 EmptyStateView(icon: "person.crop.circle", title: "Select a customer", subtitle: "Click a row to see balance details")
             }
         }
-        .frame(width: 340)
+        .frame(minWidth: 300, idealWidth: 340, maxWidth: 400)
         .sheet(isPresented: $showPaymentSheet) {
             paymentSheet
         }
@@ -261,6 +269,20 @@ struct CustomerBalanceView: View {
         .padding(AppSpacing.hero)
         .frame(width: 400)
         .appBackground()
+    }
+
+    private func sendReminder(for customer: CustomerBalance) {
+        let invoiceRefs = customer.invoices.map(\.referenceNumber).joined(separator: ", ")
+        let reminder = PaymentReminder(customerName: customer.customerName, invoiceReferences: invoiceRefs)
+        modelContext.insert(reminder)
+        do {
+            try modelContext.save()
+            toastMessage = "Payment reminder created for \(customer.customerName)"
+            toastIsError = false
+        } catch {
+            toastMessage = "Failed to create reminder"
+            toastIsError = true
+        }
     }
 
     private func recordPayment() {

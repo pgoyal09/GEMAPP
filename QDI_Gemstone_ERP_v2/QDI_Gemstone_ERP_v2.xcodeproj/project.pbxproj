@@ -56,6 +56,7 @@
 		2E40205CB293FB5D0F8C1BBC /* StoneTypeBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A9555B15E90483AC30BCFAC /* StoneTypeBadge.swift */; };
 		2F4FB98D7BC8F79ABD16DDA7 /* StoneType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6B133B323D833E799468EA /* StoneType.swift */; };
 		2F513ACE5EF0CD69A1C7B7D1 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6A68A6B6618F2262EC858E /* AppLogger.swift */; };
+		2F79005487B646915246E800 /* ReconciliationRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647E20A3CB4C2411F2019685 /* ReconciliationRecord.swift */; };
 		2F7BEB794576611CF1605802 /* HistoryEventType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C6A26598A73007FDECAF109 /* HistoryEventType.swift */; };
 		303AE869A631CC57C6648528 /* InventoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0802F6FC50765CEE19C0FB4E /* InventoryListView.swift */; };
 		320A9924011B5A7B3F4013C3 /* InvoiceStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5AD9B9980F9121A678A0051 /* InvoiceStatus.swift */; };
@@ -155,6 +156,7 @@
 		C8D707A1F1797FFE711ABBC2 /* ORSSerial in Frameworks */ = {isa = PBXBuildFile; productRef = DB07F8E31C04219DAA692E41 /* ORSSerial */; };
 		C9CAB587DB2D45421902135D /* BackupManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA6B91E3BC94FDDE815F715 /* BackupManifest.swift */; };
 		CCB573CA20CF92C83B93FB5C /* CSVImportPreviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56EC23CBF87289FD1987521D /* CSVImportPreviewSheet.swift */; };
+		CD2E5901B7ECEE2B8037CCDE /* HelpCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25D68E76CCBB93921824588C /* HelpCenterView.swift */; };
 		CF5C7C0597EB7E99DA8D3991 /* DetailRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */; };
 		D139FE43F09FB5A1B750B918 /* LineItemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CD014DC9A48F5870B67D2B /* LineItemStatus.swift */; };
 		D2843B6700DC493BEC33DFAB /* AppOpacity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFE0636FA5EBCA4C69466D0 /* AppOpacity.swift */; };
@@ -203,6 +205,7 @@
 		22407FE0A483A38E0B420584 /* GlassTableModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassTableModifier.swift; sourceTree = "<group>"; };
 		230BF8E5988671BEFE23C0E0 /* Invoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Invoice.swift; sourceTree = "<group>"; };
 		25CDDAACE2FF674CA40DBD20 /* LotInventoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotInventoryView.swift; sourceTree = "<group>"; };
+		25D68E76CCBB93921824588C /* HelpCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpCenterView.swift; sourceTree = "<group>"; };
 		27B78F2F1ABA2890D8FB2D43 /* ARService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARService.swift; sourceTree = "<group>"; };
 		2A8AAC8B96F94CF3DABE9258 /* GlossaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlossaryView.swift; sourceTree = "<group>"; };
 		2E2B071BCC76EE4FED2E41FA /* MemoRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoRoutes.swift; sourceTree = "<group>"; };
@@ -246,6 +249,7 @@
 		626E3D17936BF2108324AF28 /* LotInventoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotInventoryViewModel.swift; sourceTree = "<group>"; };
 		62B99186D49AA8B177AE260B /* CurrencyType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyType.swift; sourceTree = "<group>"; };
 		64149EBA82CE3BA94BAB9BA4 /* ReportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportsView.swift; sourceTree = "<group>"; };
+		647E20A3CB4C2411F2019685 /* ReconciliationRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReconciliationRecord.swift; sourceTree = "<group>"; };
 		6538A7C8468B6A5E43E91FE9 /* RFIDCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDCoordinator.swift; sourceTree = "<group>"; };
 		667B98EBC03A1403A73B6FA0 /* RecentActivityList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentActivityList.swift; sourceTree = "<group>"; };
 		68C8D448759F3A55942EAE97 /* ErrorMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorMapper.swift; sourceTree = "<group>"; };
@@ -417,6 +421,7 @@
 				A07EA69C23F35D6BFA7DBF3A /* Memo.swift */,
 				6983F38D7795AC6D3DF1449A /* Payment.swift */,
 				5DC3EFDE2FB93C5E5B735B9F /* PaymentReminder.swift */,
+				647E20A3CB4C2411F2019685 /* ReconciliationRecord.swift */,
 				3AC2C8DCD1516CDC38886FFC /* RFIDTag.swift */,
 				CBA383056EAC752827E714A3 /* Enums */,
 			);
@@ -471,6 +476,7 @@
 				FD75106A74B616171D252BED /* CloudBackupSettingsView.swift */,
 				9C951A2C6D4936DCB60254A7 /* CompanySettingsView.swift */,
 				2A8AAC8B96F94CF3DABE9258 /* GlossaryView.swift */,
+				25D68E76CCBB93921824588C /* HelpCenterView.swift */,
 				A90706FF432765FB42B0C9E7 /* LabelSettingsView.swift */,
 				1F3818E4471F1235B71AE81E /* RapNetSettingsView.swift */,
 			);
@@ -912,6 +918,7 @@
 				E2F00AFDAA6FD58267E75D7E /* GlassTableModifier.swift in Sources */,
 				704EA8B88F9067AFFABB8960 /* GlossaryView.swift in Sources */,
 				0E499D6C15EA875729D18B9A /* GradientButtonStyle.swift in Sources */,
+				CD2E5901B7ECEE2B8037CCDE /* HelpCenterView.swift in Sources */,
 				F91A9927D6C94C662EACDE6F /* HistoryEvent.swift in Sources */,
 				2F7BEB794576611CF1605802 /* HistoryEventType.swift in Sources */,
 				F76E8FCAA742119E0D9A183D /* HistoryLogger.swift in Sources */,
@@ -983,6 +990,7 @@
 				1238BCEA0A0DDE5D897FA376 /* RecentActivityList.swift in Sources */,
 				7EC09767EE9FDF645E7BED24 /* ReconcileView.swift in Sources */,
 				57B36C9037EA951332C0C6C7 /* ReconcileViewModel.swift in Sources */,
+				2F79005487B646915246E800 /* ReconciliationRecord.swift in Sources */,
 				1002EA4486B8EE5755776E11 /* ReferenceNumberGenerator.swift in Sources */,
 				D2DE6918D7C5FCE9055649C7 /* ReportEngine.swift in Sources */,
 				51EC36E15A04440AAE4286B7 /* ReportExportService.swift in Sources */,

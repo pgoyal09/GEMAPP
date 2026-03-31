@@ -7,7 +7,9 @@ import UniformTypeIdentifiers
 struct ReconcileView: View {
     @Bindable var viewModel: ReconcileViewModel
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showExportSuccess = false
+    @State private var reconciliationHistory: [ReconciliationRecord] = []
 
     var body: some View {
         VStack(spacing: 0) {
@@ -19,6 +21,7 @@ struct ReconcileView: View {
                     missingSection
                     foundSection
                     extraSection
+                    historySection
                 }
                 .padding(AppSpacing.hero)
             }
@@ -26,6 +29,7 @@ struct ReconcileView: View {
         .onAppear {
             viewModel.load(modelContext: modelContext)
             viewModel.attachScanHandler()
+            loadHistory()
         }
         .onDisappear {
             viewModel.detachScanHandler()
@@ -103,7 +107,7 @@ struct ReconcileView: View {
         .overlay {
             if showExportSuccess {
                 ToastOverlay(message: "Reconciliation report exported")
-                    .animation(.easeInOut, value: showExportSuccess)
+                    .animation(reduceMotion ? nil : .easeInOut, value: showExportSuccess)
             }
         }
     }
@@ -154,13 +158,16 @@ struct ReconcileView: View {
                     RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                         .fill(AppColors.primaryGradient)
                         .frame(width: geo.size.width * progress, height: 6)
-                        .animation(.easeInOut(duration: 0.3), value: progress)
+                        .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: progress)
                 }
             }
             .frame(height: 6)
         }
         .padding(.horizontal, AppSpacing.hero)
         .padding(.bottom, AppSpacing.comfortable)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Reconciliation progress: \(found) of \(total) stones found, \(String(format: "%.0f", progress * 100)) percent")
+        .accessibilityValue(String(format: "%.0f percent", progress * 100))
     }
 
     // MARK: - Missing Section (Amber)
@@ -264,6 +271,71 @@ struct ReconcileView: View {
                 .padding(.vertical, AppSpacing.compact)
             }
         }
+    }
+
+    // MARK: - History
+
+    private var historySection: some View {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+                SectionHeader(title: "Reconciliation History")
+
+                if reconciliationHistory.isEmpty {
+                    Text("No past reconciliations")
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.inkSubtle)
+                        .padding(.vertical, AppSpacing.comfortable)
+                } else {
+                    ForEach(reconciliationHistory, id: \.persistentModelID) { record in
+                        HStack(spacing: AppSpacing.comfortable) {
+                            Image(systemName: record.missingCount == 0 ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                                .foregroundStyle(record.missingCount == 0 ? AppColors.success : AppColors.warning)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(record.date.formatted(.dateTime.month().day().hour().minute()))
+                                    .font(AppTypography.body)
+                                    .foregroundStyle(AppColors.ink)
+                                HStack(spacing: AppSpacing.standard) {
+                                    Text("\(record.matchedCount) matched")
+                                        .font(AppTypography.caption)
+                                        .foregroundStyle(AppColors.success)
+                                    if record.missingCount > 0 {
+                                        Text("\(record.missingCount) missing")
+                                            .font(AppTypography.caption)
+                                            .foregroundStyle(AppColors.warning)
+                                    }
+                                    if record.unknownCount > 0 {
+                                        Text("\(record.unknownCount) unknown")
+                                            .font(AppTypography.caption)
+                                            .foregroundStyle(AppColors.danger)
+                                    }
+                                }
+                            }
+
+                            Spacer()
+
+                            if !record.missingSkus.isEmpty {
+                                Text(record.missingSkus.components(separatedBy: ",").prefix(3).joined(separator: ", "))
+                                    .font(AppTypography.caption)
+                                    .foregroundStyle(AppColors.inkMuted)
+                                    .lineLimit(1)
+                            }
+                        }
+                        .padding(.vertical, AppSpacing.compact)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("Reconciliation on \(record.date.formatted(date: .abbreviated, time: .shortened)): \(record.matchedCount) matched, \(record.missingCount) missing, \(record.unknownCount) unknown")
+                    }
+                }
+            }
+        }
+    }
+
+    private func loadHistory() {
+        var descriptor = FetchDescriptor<ReconciliationRecord>(
+            sortBy: [SortDescriptor(\.date, order: .reverse)]
+        )
+        descriptor.fetchLimit = 20
+        reconciliationHistory = (try? modelContext.fetch(descriptor)) ?? []
     }
 
     // MARK: - Reusable Section

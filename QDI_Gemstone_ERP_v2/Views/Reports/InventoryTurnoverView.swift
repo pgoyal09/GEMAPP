@@ -66,35 +66,39 @@ struct InventoryTurnoverView: View {
 
                 let maxCount = report.agingBuckets.map(\.count).max() ?? 1
 
-                ForEach(Array(report.agingBuckets.enumerated()), id: \.element.id) { index, bucket in
-                    HStack(spacing: AppSpacing.comfortable) {
-                        Text(bucket.label)
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColors.inkMuted)
-                            .frame(width: 90, alignment: .trailing)
+                VStack(spacing: 0) {
+                    ForEach(Array(report.agingBuckets.enumerated()), id: \.element.id) { index, bucket in
+                        HStack(spacing: AppSpacing.comfortable) {
+                            Text(bucket.label)
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.inkMuted)
+                                .frame(width: 90, alignment: .trailing)
 
-                        GeometryReader { geo in
-                            let ratio = maxCount > 0 ? CGFloat(bucket.count) / CGFloat(maxCount) : 0
-                            RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                                .fill(barColor(for: index))
-                                .frame(width: max(geo.size.width * ratio, 2))
+                            GeometryReader { geo in
+                                let ratio = maxCount > 0 ? CGFloat(bucket.count) / CGFloat(maxCount) : 0
+                                RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
+                                    .fill(barColor(for: index))
+                                    .frame(width: max(geo.size.width * ratio, 2))
+                            }
+                            .frame(height: 24)
+
+                            Text("\(bucket.count)")
+                                .font(AppTypography.mono)
+                                .foregroundStyle(AppColors.ink)
+                                .frame(width: 40, alignment: .trailing)
+
+                            Text(bucket.value.asCurrency)
+                                .font(AppTypography.mono)
+                                .foregroundStyle(AppColors.inkSubtle)
+                                .frame(width: 100, alignment: .trailing)
                         }
-                        .frame(height: 24)
-
-                        Text("\(bucket.count)")
-                            .font(AppTypography.mono)
-                            .foregroundStyle(AppColors.ink)
-                            .frame(width: 40, alignment: .trailing)
-
-                        Text(bucket.value.asCurrency)
-                            .font(AppTypography.mono)
-                            .foregroundStyle(AppColors.inkSubtle)
-                            .frame(width: 100, alignment: .trailing)
+                        .staggeredRow(index: index, reduceMotion: reduceMotion)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("\(bucket.label): \(bucket.count) stones, \(bucket.value.asCurrency)")
                     }
-                    .staggeredRow(index: index, reduceMotion: reduceMotion)
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel("\(bucket.label): \(bucket.count) stones, \(bucket.value.asCurrency)")
                 }
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel("Inventory aging bar chart, \(report.agingBuckets.count) buckets, \(report.agingBuckets.reduce(0) { $0 + $1.count }) total stones")
             }
         }
     }
