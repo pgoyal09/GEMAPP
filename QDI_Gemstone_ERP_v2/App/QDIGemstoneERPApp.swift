@@ -35,6 +35,7 @@ struct QDIGemstoneERPApp: App {
         HistoryEvent.self,
         RFIDTag.self,
         Payment.self,
+        PaymentReminder.self,
     ])
 
     /// Flag set when the initial container creation fails, so the app can show an alert.

@@ -16,6 +16,7 @@ enum NavigationItem: String, CaseIterable {
     case customers = "Customers"
     case accounting = "Accounting"
     case reports = "Reports"
+    case accountsReceivable = "AR"
     case settings = "Settings"
 
     var icon: String {
@@ -35,6 +36,7 @@ enum NavigationItem: String, CaseIterable {
         case .customers:  return "person.2.fill"
         case .accounting: return "chart.pie.fill"
         case .reports:    return "chart.bar.xaxis"
+        case .accountsReceivable: return "banknote"
         case .settings:   return "gearshape.fill"
         }
     }
@@ -42,7 +44,7 @@ enum NavigationItem: String, CaseIterable {
     static let groups: [(label: String, items: [NavigationItem])] = [
         ("Get Started", [.dashboard, .scanner]),
         ("Sales", [.memos, .invoices, .customers]),
-        ("Accounting", [.accounting, .reports]),
+        ("Accounting", [.accounting, .reports, .accountsReceivable]),
         ("Inventory", [.diamonds, .gemstones, .lots, .sold, .quickIntake, .quickEntry, .reviewQueue, .reconcile]),
         ("System", [.settings]),
     ]
