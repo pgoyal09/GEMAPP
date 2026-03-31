@@ -30,7 +30,7 @@ struct TableHeader: View {
                 .foregroundStyle(AppColors.inkSubtle)
             if isSorted {
                 Image(systemName: ascending ? "chevron.up" : "chevron.down")
-                    .font(.system(size: 8, weight: .bold))
+                    .font(AppTypography.sectionLabel.weight(.bold))
                     .foregroundStyle(AppColors.primary)
             }
         }

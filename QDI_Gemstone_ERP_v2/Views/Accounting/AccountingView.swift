@@ -190,7 +190,7 @@ struct AccountingView: View {
                                     .font(AppTypography.caption)
                                     .foregroundStyle(AppColors.inkSubtle)
                                 Text("\(bucket.count) invoice\(bucket.count == 1 ? "" : "s")")
-                                    .font(.system(size: 10))
+                                    .font(AppTypography.sectionLabel)
                                     .foregroundStyle(AppColors.inkSubtle)
                             }
                             .frame(maxWidth: .infinity)
@@ -201,6 +201,8 @@ struct AccountingView: View {
                             )
                         }
                         .buttonStyle(.plain)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("\(bucket.label) aged receivables: \(bucket.amount.asCurrency), \(bucket.count) invoice\(bucket.count == 1 ? "" : "s")")
                     }
                 }
             }

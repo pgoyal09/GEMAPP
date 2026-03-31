@@ -14,7 +14,7 @@ struct QuickActionCard: View {
                         .fill(gradient)
                         .frame(width: 40, height: 40)
                     Image(systemName: icon)
-                        .font(.system(size: 16, weight: .medium))
+                        .font(AppTypography.body.weight(.medium))
                         .foregroundStyle(.white)
                 }
                 Text(title)

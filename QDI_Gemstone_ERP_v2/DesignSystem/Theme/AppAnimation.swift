@@ -10,3 +10,10 @@ enum AppAnimation {
     /// Continuous shimmer animation for loading placeholders.
     static let shimmer = Animation.easeInOut(duration: 1.2).repeatForever(autoreverses: false)
 }
+
+extension View {
+    /// Animates only when the user hasn't enabled Reduce Motion.
+    func animateIfAllowed<V: Equatable>(_ animation: Animation?, value: V, reduceMotion: Bool) -> some View {
+        self.animation(reduceMotion ? nil : animation, value: value)
+    }
+}

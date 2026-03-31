@@ -49,5 +49,6 @@ struct SurfaceCard<Content: View>: View {
                 }
             }
         )
+        .accessibilityElement(children: .contain)
     }
 }

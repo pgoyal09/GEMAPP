@@ -21,7 +21,7 @@ struct RecentActivityList: View {
                             } label: {
                                 HStack(spacing: 10) {
                                     Image(systemName: item.icon)
-                                        .font(.system(size: 12))
+                                        .font(AppTypography.caption)
                                         .foregroundStyle(AppColors.primary)
                                         .frame(width: 20)
                                     VStack(alignment: .leading, spacing: 2) {
@@ -43,6 +43,8 @@ struct RecentActivityList: View {
                                 }
                             }
                             .buttonStyle(.plain)
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel("\(item.title), \(item.subtitle), \(item.date.relativeTimeString)")
                         }
                     }
                 }

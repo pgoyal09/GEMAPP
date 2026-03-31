@@ -25,6 +25,8 @@ struct KPICard: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(title): \(value)\(unit.map { " \($0)" } ?? "")")
         }
     }
 }

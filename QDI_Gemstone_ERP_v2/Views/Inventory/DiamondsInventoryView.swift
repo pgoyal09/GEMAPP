@@ -239,7 +239,7 @@ struct DiamondsInventoryView: View {
         HStack(spacing: 4) {
             Text(label).font(AppTypography.caption).foregroundStyle(AppColors.primary)
             Button(action: action) {
-                Image(systemName: "xmark").font(.system(size: 8, weight: .bold)).foregroundStyle(AppColors.primary.opacity(0.6))
+                Image(systemName: "xmark").font(AppTypography.sectionLabel.weight(.bold)).foregroundStyle(AppColors.primary.opacity(0.6))
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Remove \(label) filter")

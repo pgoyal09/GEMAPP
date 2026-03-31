@@ -119,7 +119,7 @@ struct ScannerView: View {
                             ForEach(viewModel.discoveredTagIDs.reversed(), id: \.self) { tag in
                                 HStack(spacing: 8) {
                                     Image(systemName: "wave.3.right")
-                                        .font(.system(size: 10))
+                                        .font(AppTypography.sectionLabel)
                                         .foregroundStyle(AppColors.primary)
                                         .accessibilityLabel("RFID Tag")
                                     Text(tag)

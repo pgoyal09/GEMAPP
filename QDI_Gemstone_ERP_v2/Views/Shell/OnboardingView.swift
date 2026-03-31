@@ -5,6 +5,7 @@ import SwiftData
 struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
     @AppStorage("companyName") private var companyName: String = ""
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage("onboardingComplete") private var onboardingComplete: Bool = false
 
     @State private var step: Int = 0
@@ -111,13 +112,13 @@ struct OnboardingView: View {
     private var navigationButtons: some View {
         HStack {
             if step > 0 {
-                Button("Back") { withAnimation { step -= 1 } }
+                Button("Back") { withAnimation(reduceMotion ? nil : .default) { step -= 1 } }
                     .buttonStyle(.outline)
             }
             Spacer()
             if step < 2 {
                 Button("Next", systemImage: "arrow.right") {
-                    withAnimation { step += 1 }
+                    withAnimation(reduceMotion ? nil : .default) { step += 1 }
                 }.buttonStyle(.gradient)
             } else {
                 Button("Get Started", systemImage: "arrow.right") {

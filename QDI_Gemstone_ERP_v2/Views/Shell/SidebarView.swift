@@ -72,7 +72,7 @@ struct SidebarView: View {
                     .frame(width: 36, height: 36)
                     .shadow(color: AppColors.primary.opacity(0.20), radius: 6, y: 2)
                 Image(systemName: "diamond.fill")
-                    .font(.system(size: 16, weight: .medium))
+                    .font(AppTypography.body.weight(.medium))
                     .foregroundStyle(.white)
             }
             VStack(alignment: .leading, spacing: 1) {

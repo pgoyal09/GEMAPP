@@ -370,7 +370,7 @@ struct LotInventoryView: View {
                             GlassCard(padding: AppSpacing.section) {
                                 HStack(spacing: AppSpacing.comfortable) {
                                     Image(systemName: tx.type.displayIcon)
-                                        .font(.system(size: 16))
+                                        .font(AppTypography.body)
                                         .foregroundStyle(transactionColor(tx.type))
                                         .frame(width: 28)
 

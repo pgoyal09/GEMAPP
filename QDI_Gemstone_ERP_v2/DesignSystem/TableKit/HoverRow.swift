@@ -6,6 +6,7 @@ struct HoverRow<Content: View>: View {
     var onTap: (() -> Void)? = nil
     @ViewBuilder let content: () -> Content
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isHovered = false
     @FocusState private var isFocused: Bool
 
@@ -32,7 +33,7 @@ struct HoverRow<Content: View>: View {
         .focusable()
         .focused($isFocused)
         .onHover { hovering in
-            withAnimation(AppAnimation.fast) { isHovered = hovering }
+            withAnimation(reduceMotion ? nil : AppAnimation.fast) { isHovered = hovering }
         }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)

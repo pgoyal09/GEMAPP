@@ -80,7 +80,7 @@ struct CustomerListView: View {
                                 HStack(spacing: 8) {
                                     if !customer.email.isEmpty {
                                         HStack(spacing: 4) {
-                                            Image(systemName: "envelope").font(.system(size: 10))
+                                            Image(systemName: "envelope").font(AppTypography.sectionLabel)
                                                 .accessibilityLabel("Email")
                                             Text(customer.email).lineLimit(1)
                                         }
@@ -89,7 +89,7 @@ struct CustomerListView: View {
                                     }
                                     if !customer.phone.isEmpty {
                                         HStack(spacing: 4) {
-                                            Image(systemName: "phone").font(.system(size: 10))
+                                            Image(systemName: "phone").font(AppTypography.sectionLabel)
                                                 .accessibilityLabel("Phone")
                                             Text(customer.phone).lineLimit(1)
                                         }

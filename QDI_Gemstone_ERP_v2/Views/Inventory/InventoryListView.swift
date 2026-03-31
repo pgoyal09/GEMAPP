@@ -156,7 +156,7 @@ struct InventoryListView: View {
         } label: {
             HStack(spacing: 4) {
                 Image(systemName: "line.3.horizontal.decrease.circle")
-                    .font(.system(size: 14))
+                    .font(AppTypography.body)
                 Text("Filters")
                     .font(AppTypography.caption)
                 if viewModel.hasActiveFilters {
@@ -198,7 +198,7 @@ struct InventoryListView: View {
                                 viewModel.removePill(pill)
                             } label: {
                                 Image(systemName: "xmark")
-                                    .font(.system(size: 8, weight: .bold))
+                                    .font(AppTypography.sectionLabel.weight(.bold))
                                     .foregroundStyle(AppColors.primary.opacity(0.6))
                             }
                             .buttonStyle(.plain)

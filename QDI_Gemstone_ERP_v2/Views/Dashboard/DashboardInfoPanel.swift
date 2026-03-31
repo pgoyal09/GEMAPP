@@ -35,7 +35,7 @@ struct DashboardInfoPanel: View {
             if viewModel.overdueMemoCount > 0 {
                 HStack(spacing: 6) {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 11))
+                        .font(AppTypography.caption)
                         .foregroundStyle(AppColors.warningDeep)
                     Text("\(viewModel.overdueMemoCount) memo\(viewModel.overdueMemoCount == 1 ? "" : "s") over 60 days")
                         .font(AppTypography.caption)
@@ -110,7 +110,7 @@ struct DashboardInfoPanel: View {
             SectionHeader(title: "Auto Backup")
             HStack(spacing: 6) {
                 Image(systemName: "externaldrive.fill.badge.checkmark")
-                    .font(.system(size: 11))
+                    .font(AppTypography.caption)
                     .foregroundStyle(AppColors.success)
                 Text("Last: \(backupScheduler.lastBackupAgo)")
                     .font(AppTypography.caption)
@@ -134,7 +134,7 @@ struct DashboardInfoPanel: View {
                 .font(AppTypography.largeValue.monospacedDigit())
                 .foregroundStyle(color)
             Text(label.uppercased())
-                .font(.system(size: 10))
+                .font(AppTypography.sectionLabel)
                 .foregroundStyle(AppColors.inkSubtle)
                 .tracking(0.5)
         }

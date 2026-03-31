@@ -108,7 +108,7 @@ struct CustomerActivityView: View {
                     } label: {
                         HStack(spacing: AppSpacing.comfortable) {
                             Image(systemName: activity.icon)
-                                .font(.system(size: 14))
+                                .font(AppTypography.body)
                                 .foregroundStyle(activity.iconColor)
                                 .frame(width: 24)
 

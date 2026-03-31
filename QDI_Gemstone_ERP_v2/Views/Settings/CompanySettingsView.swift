@@ -176,7 +176,7 @@ struct CompanySettingsView: View {
 
                         HStack(spacing: 6) {
                             Image(systemName: "clock")
-                                .font(.system(size: 11))
+                                .font(AppTypography.caption)
                                 .foregroundStyle(AppColors.inkSubtle)
                             Text("Last backup: \(backupScheduler.lastBackupAgo)")
                                 .font(AppTypography.caption)

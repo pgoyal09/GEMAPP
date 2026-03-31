@@ -24,6 +24,7 @@ struct MemoDocumentView: View {
     @State private var totalRefreshID = UUID()
     @State private var showUnsavedAlert = false
     @State private var duplicateWarning: String?
+    @AccessibilityFocusState private var isHeaderFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -39,6 +40,7 @@ struct MemoDocumentView: View {
             bottomToolbar
         }
         .accessibilityIdentifier("MemoDocumentView")
+        .onAppear { isHeaderFocused = true }
         .id(totalRefreshID)
         .onChange(of: memo.lineItems.count) { _, _ in totalRefreshID = UUID() }
         .sheet(isPresented: $showInventorySheet) {
@@ -125,6 +127,7 @@ struct MemoDocumentView: View {
                     Text("Memo #\(memo.referenceNumber)")
                         .font(AppTypography.heading)
                         .foregroundStyle(AppColors.ink)
+                        .accessibilityFocused($isHeaderFocused)
                     Spacer()
                     memoStatusBadge
                 }

@@ -180,14 +180,14 @@ struct ReconcileView: View {
                             viewModel.toggleManualVerification(for: stone)
                         } label: {
                             Image(systemName: "circle")
-                                .font(.system(size: 14))
+                                .font(AppTypography.body)
                                 .foregroundStyle(AppColors.inkSubtle)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("Mark \(stone.sku) as verified")
                     } else {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.system(size: 12))
+                            .font(AppTypography.caption)
                             .foregroundStyle(AppColors.warning)
                     }
                     Text(stone.sku)
@@ -220,7 +220,7 @@ struct ReconcileView: View {
             ForEach(viewModel.foundStones, id: \.persistentModelID) { stone in
                 HStack(spacing: AppSpacing.comfortable) {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 12))
+                        .font(AppTypography.caption)
                         .foregroundStyle(AppColors.success)
                     Text(stone.sku)
                         .font(AppTypography.mono)
@@ -250,7 +250,7 @@ struct ReconcileView: View {
             ForEach(extras, id: \.tagID) { scan in
                 HStack(spacing: AppSpacing.comfortable) {
                     Image(systemName: "questionmark.circle.fill")
-                        .font(.system(size: 12))
+                        .font(AppTypography.caption)
                         .foregroundStyle(AppColors.danger)
                     Text(scan.tagID)
                         .font(AppTypography.mono)

@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Shimmer loading placeholder for list views.
 struct ShimmerView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var phase: CGFloat = 0
 
     var body: some View {
@@ -12,7 +13,7 @@ struct ShimmerView: View {
         }
         .padding(AppSpacing.section)
         .onAppear {
-            withAnimation(AppAnimation.shimmer) {
+            withAnimation(reduceMotion ? nil : AppAnimation.shimmer) {
                 phase = 1
             }
         }

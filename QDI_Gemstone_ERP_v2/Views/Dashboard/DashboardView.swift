@@ -59,7 +59,7 @@ struct DashboardView: View {
     private var resetDataButton: some View {
         Button { showResetConfirm = true } label: {
             HStack(spacing: AppSpacing.standard) {
-                Image(systemName: "arrow.clockwise.circle").font(.system(size: 13))
+                Image(systemName: "arrow.clockwise.circle").font(AppTypography.caption)
                 Text("Generate New Mock Data").font(AppTypography.body)
             }
             .foregroundStyle(AppColors.inkSubtle)

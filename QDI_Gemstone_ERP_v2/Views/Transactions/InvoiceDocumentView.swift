@@ -24,6 +24,7 @@ struct InvoiceDocumentView: View {
     @State private var hasUnsavedEdits = false
     @State private var isSaving = false
     @State private var showUnsavedAlert = false
+    @AccessibilityFocusState private var isHeaderFocused: Bool
 
     private var isEditable: Bool {
         invoice.status == .draft && isEditingEnabled
@@ -44,6 +45,7 @@ struct InvoiceDocumentView: View {
             bottomToolbar
         }
         .accessibilityIdentifier("InvoiceDocumentView")
+        .onAppear { isHeaderFocused = true }
         .id(totalRefreshID)
         .onChange(of: invoice.lineItems.count) { _, _ in totalRefreshID = UUID() }
         .sheet(isPresented: $showInventorySheet) {
@@ -127,6 +129,7 @@ struct InvoiceDocumentView: View {
                     Text("Invoice \(invoice.referenceNumber)")
                         .font(AppTypography.heading)
                         .foregroundStyle(AppColors.ink)
+                        .accessibilityFocused($isHeaderFocused)
                     Spacer()
                     invoiceStatusBadge
                 }

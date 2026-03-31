@@ -8,6 +8,7 @@ struct CSVImportPreviewSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var importedCount: Int?
     @State private var errorMessage: String?
+    @AccessibilityFocusState private var isTitleFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -19,6 +20,7 @@ struct CSVImportPreviewSheet: View {
         }
         .frame(minWidth: 700, minHeight: 400)
         .appBackground()
+        .onAppear { isTitleFocused = true }
     }
 
     private var header: some View {
@@ -26,6 +28,7 @@ struct CSVImportPreviewSheet: View {
             Text("CSV Import Preview")
                 .font(AppTypography.heading)
                 .foregroundStyle(AppColors.ink)
+                .accessibilityFocused($isTitleFocused)
             Spacer()
             Text("\(rows.count) stone\(rows.count == 1 ? "" : "s") found")
                 .font(AppTypography.caption)

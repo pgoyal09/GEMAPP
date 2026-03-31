@@ -18,18 +18,33 @@ struct StatusBadge: View {
         }
 
         var background: Color { foreground.opacity(0.15) }
+
+        var icon: String {
+            switch self {
+            case .neutral: return "circle"
+            case .success: return "checkmark.circle.fill"
+            case .warning: return "exclamationmark.triangle.fill"
+            case .danger:  return "xmark.circle.fill"
+            case .accent:  return "diamond.fill"
+            }
+        }
     }
 
     var body: some View {
-        Text(title)
-            .font(AppTypography.caption)
-            .foregroundStyle(tone.foreground)
-            .padding(.horizontal, AppSpacing.comfortable)
-            .padding(.vertical, AppSpacing.standard)
-            .background(
-                RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                    .fill(tone.background)
-            )
-            .accessibilityLabel("Status: \(title)")
+        HStack(spacing: AppSpacing.compact) {
+            Image(systemName: tone.icon)
+                .font(AppTypography.caption)
+            Text(title)
+                .font(AppTypography.caption)
+        }
+        .foregroundStyle(tone.foreground)
+        .padding(.horizontal, AppSpacing.comfortable)
+        .padding(.vertical, AppSpacing.standard)
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
+                .fill(tone.background)
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Status: \(title)")
     }
 }

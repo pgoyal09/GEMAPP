@@ -167,7 +167,7 @@ struct AppShellView: View {
             HStack(spacing: AppSpacing.comfortable) {
                 Button(action: {}) {
                     Image(systemName: "bell")
-                        .font(.system(size: 14))
+                        .font(AppTypography.body)
                         .foregroundStyle(AppColors.inkSubtle)
                         .frame(width: 36, height: 36)
                         .background(

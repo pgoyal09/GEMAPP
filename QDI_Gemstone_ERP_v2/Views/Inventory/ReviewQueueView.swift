@@ -151,7 +151,7 @@ struct ReviewQueueView: View {
         HStack(spacing: AppSpacing.compact) {
             ForEach(fields, id: \.self) { field in
                 Text(field)
-                    .font(.system(size: 10, weight: .medium))
+                    .font(AppTypography.sectionLabel.weight(.medium))
                     .foregroundStyle(chipColor(for: field))
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
