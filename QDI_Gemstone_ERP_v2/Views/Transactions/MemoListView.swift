@@ -114,8 +114,8 @@ struct MemoListView: View {
             memoSortableHeader("Customer", key: "customer", width: TableColumn.customer)
             memoSortableHeader("Salesperson", key: "salesperson", width: TableColumn.salesperson)
             memoSortableHeader("Date", key: "date", width: TableColumn.date)
-            TableHeader(title: "Age", width: TableColumn.quantity)
-            memoSortableHeader("Amount", key: "total", width: TableColumn.price)
+            TableHeader(title: "Age", width: TableColumn.quantity, alignment: .trailing)
+            memoSortableHeader("Amount", key: "total", width: TableColumn.price, alignment: .trailing)
             memoSortableHeader("Status", key: "status", width: TableColumn.status)
             Spacer()
         }
@@ -123,10 +123,11 @@ struct MemoListView: View {
         .padding(.vertical, AppSpacing.comfortable)
     }
 
-    private func memoSortableHeader(_ title: String, key: String, width: CGFloat) -> TableHeader {
+    private func memoSortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment = .leading) -> TableHeader {
         TableHeader(
             title: title,
             width: width,
+            alignment: alignment,
             isSorted: viewModel.sortKey == key,
             ascending: viewModel.sortAscending,
             onTap: { viewModel.toggleSort(key) }
@@ -164,7 +165,7 @@ struct MemoListView: View {
                 .font(AppTypography.caption)
                 .foregroundStyle(memoAgingColor(days: memo.ageInDays))
                 .lineLimit(1)
-                .frame(width: TableColumn.quantity, alignment: .leading)
+                .frame(width: TableColumn.quantity, alignment: .trailing)
             Text(memo.totalAmount.asCurrency)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)

@@ -118,7 +118,7 @@ struct InvoiceListView: View {
             invoiceSortableHeader("Customer", key: "customer", width: TableColumn.customer)
             invoiceSortableHeader("Salesperson", key: "salesperson", width: TableColumn.salesperson)
             invoiceSortableHeader("Date", key: "date", width: TableColumn.date)
-            invoiceSortableHeader("Total", key: "total", width: TableColumn.price)
+            invoiceSortableHeader("Total", key: "total", width: TableColumn.price, alignment: .trailing)
             invoiceSortableHeader("Status", key: "status", width: TableColumn.status)
             Spacer()
         }
@@ -126,10 +126,11 @@ struct InvoiceListView: View {
         .padding(.vertical, AppSpacing.comfortable)
     }
 
-    private func invoiceSortableHeader(_ title: String, key: String, width: CGFloat) -> TableHeader {
+    private func invoiceSortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment = .leading) -> TableHeader {
         TableHeader(
             title: title,
             width: width,
+            alignment: alignment,
             isSorted: viewModel.sortKey == key,
             ascending: viewModel.sortAscending,
             onTap: { viewModel.toggleSort(key) }

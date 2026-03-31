@@ -60,7 +60,7 @@ struct AppShellView: View {
         }
         .environment(\.navigationGuard, navigationGuard)
         .appBackground()
-        .frame(minWidth: 1000, minHeight: 700)
+        .frame(minWidth: 1100, minHeight: 700)
         .accessibilityIdentifier("AppShellView")
         .preferredColorScheme(resolvedColorScheme)
         .sheet(isPresented: $showGlossary) {

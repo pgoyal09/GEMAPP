@@ -73,6 +73,7 @@ struct QDIGemstoneERPApp: App {
         // Main window
         WindowGroup {
             AppShellView()
+                .frame(minWidth: 1100, minHeight: 700)
                 .environment(\.rfidCoordinator, rfidCoordinator)
                 .onAppear {
                     setupRFID()
@@ -110,6 +111,7 @@ struct QDIGemstoneERPApp: App {
                     Text("The database could not be migrated to the new schema. You can try again or reset all data.\n\nError: \(migrationError)")
                 }
         }
+        .defaultSize(width: 1400, height: 900)
         .modelContainer(sharedModelContainer)
         .commands {
             // File → New items
