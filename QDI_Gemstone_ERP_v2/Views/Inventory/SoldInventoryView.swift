@@ -98,7 +98,7 @@ struct SoldInventoryView: View {
                 topBar
                 tableContent
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
 
             if let stone = selectedStone {
                 Divider().background(AppColors.cardStroke)
@@ -106,10 +106,10 @@ struct SoldInventoryView: View {
                     editingStone = stone
                     showEditSheet = true
                 })
-                .frame(width: 296)
+                .frame(minWidth: 260, idealWidth: 296, maxWidth: 350)
             }
         }
-        .animation(.easeInOut(duration: 0.2), value: selectedStone?.persistentModelID)
+        .animation(reduceMotion ? nil : AppAnimation.sheetSpring, value: selectedStone?.persistentModelID)
         .sheet(isPresented: $showEditSheet) {
             if let stone = editingStone {
                 StoneFormView(mode: .edit(stone))
@@ -124,10 +124,13 @@ struct SoldInventoryView: View {
             GlassSearchField(text: $searchText, placeholder: "Search sold stones...")
                 .frame(maxWidth: 320)
 
-            HStack(spacing: AppSpacing.standard) {
-                ForEach(SoldTypeToggle.allCases, id: \.rawValue) { toggle in
-                    FilterPill(title: toggle.rawValue, isActive: typeToggle == toggle) {
-                        typeToggle = toggle
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: AppSpacing.standard) {
+                    ForEach(SoldTypeToggle.allCases, id: \.rawValue) { toggle in
+                        FilterPill(title: toggle.rawValue, isActive: typeToggle == toggle) {
+                            typeToggle = toggle
+                        }
+                        .fixedSize()
                     }
                 }
             }

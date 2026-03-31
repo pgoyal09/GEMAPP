@@ -152,7 +152,7 @@ struct GemstonesInventoryView: View {
                 filterChips
                 tableContent
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
 
             if let stone = selectedStone {
                 Divider().background(AppColors.cardStroke)
@@ -160,7 +160,7 @@ struct GemstonesInventoryView: View {
                     editingStone = stone
                     showEditSheet = true
                 })
-                .frame(width: 296)
+                .frame(minWidth: 260, idealWidth: 296, maxWidth: 350)
                 .transition(.move(edge: .trailing).combined(with: .opacity))
             }
         }

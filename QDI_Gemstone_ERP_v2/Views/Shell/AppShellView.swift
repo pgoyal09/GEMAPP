@@ -161,15 +161,10 @@ struct AppShellView: View {
 
     private var headerBar: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(route.rawValue)
-                    .font(AppTypography.subheading)
-                    .foregroundStyle(AppColors.ink)
-                    .tracking(0.3)
-                Text("QDI Gemstone ERP")
-                    .font(AppTypography.sectionLabel)
-                    .foregroundStyle(AppColors.inkSubtle)
-            }
+            Text(route.rawValue)
+                .font(AppTypography.subheading)
+                .foregroundStyle(AppColors.ink)
+                .tracking(0.3)
             Spacer()
             HStack(spacing: AppSpacing.comfortable) {
                 Button(action: {}) {
@@ -202,6 +197,7 @@ struct AppShellView: View {
         }
         .padding(.horizontal, AppSpacing.hero)
         .padding(.vertical, AppSpacing.section)
+        .frame(height: 56)
     }
 
     // MARK: - Content Router

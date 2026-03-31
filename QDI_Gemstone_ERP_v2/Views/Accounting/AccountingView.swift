@@ -102,18 +102,24 @@ struct AccountingView: View {
     // MARK: - Quick Date Filters
 
     private var quickDateFilters: some View {
-        HStack(spacing: AppSpacing.standard) {
-            FilterPill(title: "This Month", isActive: isRange(.thisMonth)) {
-                viewModel.dateRange = .thisMonth
-            }
-            FilterPill(title: "This Quarter", isActive: isRange(.thisQuarter)) {
-                viewModel.dateRange = .thisQuarter
-            }
-            FilterPill(title: "This Year", isActive: isRange(.thisYear)) {
-                viewModel.dateRange = .thisYear
-            }
-            FilterPill(title: "All Time", isActive: isRange(.allTime)) {
-                viewModel.dateRange = .allTime
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: AppSpacing.standard) {
+                FilterPill(title: "This Month", isActive: isRange(.thisMonth)) {
+                    viewModel.dateRange = .thisMonth
+                }
+                .fixedSize()
+                FilterPill(title: "This Quarter", isActive: isRange(.thisQuarter)) {
+                    viewModel.dateRange = .thisQuarter
+                }
+                .fixedSize()
+                FilterPill(title: "This Year", isActive: isRange(.thisYear)) {
+                    viewModel.dateRange = .thisYear
+                }
+                .fixedSize()
+                FilterPill(title: "All Time", isActive: isRange(.allTime)) {
+                    viewModel.dateRange = .allTime
+                }
+                .fixedSize()
             }
         }
     }
@@ -144,6 +150,8 @@ struct AccountingView: View {
                         Text(viewModel.totalProfit.asCurrency)
                             .font(AppTypography.largeValue)
                             .foregroundStyle(viewModel.totalProfit >= 0 ? AppColors.success : AppColors.danger)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                         Text(String(format: "%.1f%%", viewModel.profitMargin))
                             .font(AppTypography.caption)
                             .foregroundStyle(AppColors.inkSubtle)
@@ -186,6 +194,8 @@ struct AccountingView: View {
                                 Text(bucket.amount.asCurrency)
                                     .font(AppTypography.subheading)
                                     .foregroundStyle(AppColors.ink)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
                                 Text(bucket.label)
                                     .font(AppTypography.caption)
                                     .foregroundStyle(AppColors.inkSubtle)

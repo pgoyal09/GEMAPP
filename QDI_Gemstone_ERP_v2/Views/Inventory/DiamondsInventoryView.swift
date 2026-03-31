@@ -144,7 +144,7 @@ struct DiamondsInventoryView: View {
                 filterChips
                 tableContent
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
 
             if let stone = selectedStone {
                 Divider().background(AppColors.cardStroke)

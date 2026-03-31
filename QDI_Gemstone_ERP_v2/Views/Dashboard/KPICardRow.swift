@@ -19,6 +19,8 @@ struct KPICard: View {
                     Text(value)
                         .font(AppTypography.largeValue)
                         .foregroundStyle(AppColors.ink)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                         .contentTransition(.numericText())
                         .scaleEffect(pulseScale)
                     if let unit {
