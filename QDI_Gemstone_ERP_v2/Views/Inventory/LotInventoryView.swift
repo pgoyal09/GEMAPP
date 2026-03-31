@@ -67,7 +67,7 @@ struct LotInventoryView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 0) {
+            HStack(spacing: 4) {
                 VStack(spacing: 0) {
                     topBar
                     tableContent

@@ -6,7 +6,7 @@ enum TableColumn {
     static let sku: CGFloat = 120
     static let type: CGFloat = 90
     static let shape: CGFloat = 90
-    static let carat: CGFloat = 70
+    static let carat: CGFloat = 80
     static let color: CGFloat = 90
     static let clarity: CGFloat = 70
     static let price: CGFloat = 100
@@ -18,10 +18,10 @@ enum TableColumn {
     static let quantity: CGFloat = 60
     static let description: CGFloat = 200
     static let actions: CGFloat = 80
-    static let margin: CGFloat = 70
+    static let margin: CGFloat = 85
     static let percent: CGFloat = 60
     static let availability: CGFloat = 100
-    static let days: CGFloat = 60
+    static let days: CGFloat = 70
     static let origin: CGFloat = 100
     static let salesperson: CGFloat = 110
 }

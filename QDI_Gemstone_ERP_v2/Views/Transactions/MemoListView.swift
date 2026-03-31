@@ -109,7 +109,7 @@ struct MemoListView: View {
     }
 
     private var headerRow: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 4) {
             memoSortableHeader("Memo #", key: "reference", width: TableColumn.memo)
             memoSortableHeader("Customer", key: "customer", width: TableColumn.customer)
             memoSortableHeader("Salesperson", key: "salesperson", width: TableColumn.salesperson)

@@ -113,7 +113,7 @@ struct InvoiceListView: View {
     }
 
     private var headerRow: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 4) {
             invoiceSortableHeader("Invoice #", key: "reference", width: TableColumn.invoice)
             invoiceSortableHeader("Customer", key: "customer", width: TableColumn.customer)
             invoiceSortableHeader("Salesperson", key: "salesperson", width: TableColumn.salesperson)

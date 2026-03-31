@@ -48,7 +48,7 @@ struct CustomerListView: View {
         let filtered = viewModel.filtered(from: allCustomers)
         return ScrollView([.horizontal, .vertical]) {
             VStack(spacing: 0) {
-                HStack(spacing: 0) {
+                HStack(spacing: 4) {
                     customerSortableHeader("Name", key: "name", width: TableColumn.customer)
                     customerSortableHeader("Contact", key: "contact", width: TableColumn.description)
                     customerSortableHeader("Open Memos", key: "memos", width: TableColumn.price, alignment: .trailing)

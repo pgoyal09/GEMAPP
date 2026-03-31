@@ -131,7 +131,7 @@ struct DiamondsInventoryView: View {
     // MARK: - Body
 
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 4) {
             VStack(spacing: 0) {
                 topBar
                 filterChips

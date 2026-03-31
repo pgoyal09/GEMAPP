@@ -45,7 +45,7 @@ struct ARAgingView: View {
                     EmptyStateView(icon: "doc.text", title: "No unpaid invoices", subtitle: "All invoices are paid or no invoices match this filter")
                 } else {
                     // Header
-                    HStack(spacing: 0) {
+                    HStack(spacing: 4) {
                         TableHeader(title: "Invoice #", width: TableColumn.invoice)
                         TableHeader(title: "Customer", width: TableColumn.customer)
                         TableHeader(title: "Amount", width: TableColumn.price, alignment: .trailing)
@@ -63,7 +63,7 @@ struct ARAgingView: View {
                                 let daysOverdue = daysOver(inv)
                                 let color = agingColor(daysOverdue)
 
-                                HStack(spacing: 0) {
+                                HStack(spacing: 4) {
                                     Text(inv.referenceNumber)
                                         .font(AppTypography.mono)
                                         .foregroundStyle(AppColors.ink)
