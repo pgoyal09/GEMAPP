@@ -230,6 +230,8 @@ struct AppShellView: View {
                 CustomerListView()
             case .accounting:
                 AccountingView()
+            case .reports:
+                ReportsView()
             case .settings:
                 CompanySettingsView()
             }

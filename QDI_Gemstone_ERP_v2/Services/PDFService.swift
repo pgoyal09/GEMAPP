@@ -491,7 +491,7 @@ final class PDFService {
 
     // MARK: - Render HTML to PDF
 
-    private func renderHTMLToPDF(html: String, completion: @escaping @Sendable (Result<URL, Error>) -> Void) {
+    func renderHTMLToPDF(html: String, completion: @escaping @Sendable (Result<URL, Error>) -> Void) {
         let runner = PDFWebViewRunner(
             html: html,
             pageSize: CGSize(width: letterWidth, height: letterHeight)
