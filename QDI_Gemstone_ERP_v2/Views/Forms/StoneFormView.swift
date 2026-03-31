@@ -90,22 +90,28 @@ struct StoneFormView: View {
                     FormField(label: "SKU", text: $viewModel.sku)
                         .font(AppTypography.mono)
                         .disabled(!viewModel.mode.isEditing && viewModel.mode.existingStone == nil)
+                        .accessibilitySortPriority(10)
                     FormPicker(label: "Type", selection: $viewModel.stoneTypeText) {
                         ForEach(StoneType.allCases, id: \.self) { Text($0.rawValue).tag($0.rawValue) }
                     }
                     .onChange(of: viewModel.stoneTypeText) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
+                    .accessibilitySortPriority(9)
                     FormField(label: "Shape", text: $viewModel.shapeText, error: viewModel.shapeError)
                         .onChange(of: viewModel.shapeText) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
+                        .accessibilitySortPriority(8)
                     FormPicker(label: "Grouping", selection: $viewModel.grouping) {
                         ForEach(StoneGrouping.allCases, id: \.self) { Text($0.displayName).tag($0) }
                     }
                     .help("Single stone, Pair, Lot (group sold by total weight), Melee (small stones under 0.20ct), or Parcel (collection of grouped stones)")
                     .onChange(of: viewModel.grouping) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
+                    .accessibilitySortPriority(7)
                 }
                 HStack(spacing: AppSpacing.section) {
                     FormField(label: "Carats", text: $viewModel.caratText, error: viewModel.caratError)
                         .focused($isCaratFieldFocused)
+                        .accessibilitySortPriority(6)
                     FormField(label: "Origin", text: $viewModel.origin)
+                        .accessibilitySortPriority(5)
                 }
             }
         }
@@ -131,9 +137,9 @@ struct StoneFormView: View {
             VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Diamond Grading")
                 HStack(spacing: AppSpacing.section) {
-                    field("Color", $viewModel.color)
-                    field("Clarity", $viewModel.clarity)
-                    field("Cut", $viewModel.cut)
+                    field("Color", $viewModel.color).accessibilitySortPriority(4)
+                    field("Clarity", $viewModel.clarity).accessibilitySortPriority(3)
+                    field("Cut", $viewModel.cut).accessibilitySortPriority(2)
                 }
                 HStack(spacing: AppSpacing.section) {
                     field("Polish", $viewModel.polish)
@@ -317,6 +323,7 @@ struct StoneFormView: View {
             Button("Cancel") { dismiss() }
                 .buttonStyle(.outline)
                 .disabled(isSaving)
+                .keyboardShortcut(.escape, modifiers: [])
 
             if case .intake = viewModel.mode {
                 Button("Save & Continue") {

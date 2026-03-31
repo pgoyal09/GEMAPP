@@ -217,6 +217,7 @@ struct DiamondsInventoryView: View {
                 .foregroundStyle(AppColors.inkMuted)
             Button("Import CSV") { pickCSVFile() }
                 .buttonStyle(.outline)
+                .accessibilityHint("Double tap to import stones from CSV file")
             Button("Export for RapNet") {
                 showExportConfirm = true
             }
@@ -243,6 +244,7 @@ struct DiamondsInventoryView: View {
             Menu {
                 ForEach(filterPresets) { preset in
                     Button(preset.name) { loadDiamondPreset(preset) }
+                        .accessibilityHint("Double tap to apply this saved filter")
                 }
                 Divider()
                 Menu("Delete") {

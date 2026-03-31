@@ -4,8 +4,10 @@ import SwiftUI
 struct ToastOverlay: View {
     let message: String
     var isError: Bool = false
+    var undoAction: (() -> Void)? = nil
 
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var icon: String {
         isError ? "xmark.circle.fill" : "checkmark.circle.fill"
@@ -25,6 +27,12 @@ struct ToastOverlay: View {
                 Text(message)
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.ink)
+                if let undoAction {
+                    Button("Undo") { undoAction() }
+                        .font(AppTypography.body.weight(.semibold))
+                        .foregroundStyle(AppColors.primary)
+                        .buttonStyle(.plain)
+                }
             }
             .padding(.horizontal, AppSpacing.hero)
             .padding(.vertical, AppSpacing.comfortable)
@@ -39,8 +47,8 @@ struct ToastOverlay: View {
             .shadow(color: Color.black.opacity(AppOpacity.medium), radius: 12, y: 6)
             .padding(.bottom, AppSpacing.hero)
         }
-        .transition(.move(edge: .bottom).combined(with: .opacity))
-        .animation(AppAnimation.standard, value: message)
+        .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))
+        .animation(reduceMotion ? nil : AppAnimation.standard, value: message)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(isError ? "Error: \(message)" : "Success: \(message)")
     }

@@ -73,11 +73,13 @@ struct BulkEditSheet: View {
                 Button("Cancel") { dismiss() }
                     .buttonStyle(.outline)
                     .keyboardShortcut(.cancelAction)
+                    .keyboardShortcut(.escape, modifiers: [])
                 Spacer()
                 Button("Apply") { applyAction() }
                     .buttonStyle(.gradient)
                     .disabled(!canApply)
                     .keyboardShortcut(.defaultAction)
+                    .accessibilityHint("Double tap to update \(mode.title.lowercased()) of \(stoneCount) selected stones")
             }
         }
         .padding(AppSpacing.hero)

@@ -51,6 +51,7 @@ struct CustomerFormSheet: View {
                 Button("Cancel") { dismiss() }
                     .buttonStyle(.outline)
                     .disabled(isSaving)
+                    .keyboardShortcut(.escape, modifiers: [])
                 Button("Save") { save() }
                     .buttonStyle(.gradient)
                     .disabled(isSaving || (firstName.trimmed.isEmpty && lastName.trimmed.isEmpty && company.trimmed.isEmpty))

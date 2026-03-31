@@ -98,10 +98,12 @@ struct CSVImportPreviewSheet: View {
             Spacer()
             Button("Cancel") { dismiss() }
                 .buttonStyle(.outline)
+                .keyboardShortcut(.escape, modifiers: [])
             Button("Import \(rows.count) Stones") {
                 performImport()
             }.buttonStyle(.gradient)
             .disabled(importedCount != nil)
+            .accessibilityHint("Double tap to import stones from CSV file")
         }
         .padding(AppSpacing.hero)
     }
