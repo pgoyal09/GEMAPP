@@ -7,12 +7,14 @@ struct BulkEditSheet: View {
         case updateStatus
         case updatePrice
         case moveToLot
+        case adjustPricePercent
 
         var id: Int {
             switch self {
             case .updateStatus: return 0
             case .updatePrice: return 1
             case .moveToLot: return 2
+            case .adjustPricePercent: return 3
             }
         }
 
@@ -21,6 +23,7 @@ struct BulkEditSheet: View {
             case .updateStatus: return "Update Status"
             case .updatePrice: return "Update Price"
             case .moveToLot: return "Move to Lot"
+            case .adjustPricePercent: return "Adjust Price %"
             }
         }
     }
@@ -37,6 +40,10 @@ struct BulkEditSheet: View {
     // Price
     @State private var priceField: PriceField = .sellPrice
     @State private var priceText: String = ""
+
+    // Percent
+    @State private var percentText: String = ""
+    @State private var adjustField: PriceField = .sellPrice
 
     // Lot
     @State private var lotSKU: String = ""
@@ -65,6 +72,8 @@ struct BulkEditSheet: View {
                 priceContent
             case .moveToLot:
                 lotContent
+            case .adjustPricePercent:
+                percentContent
             }
 
             Spacer()
@@ -127,6 +136,23 @@ struct BulkEditSheet: View {
         }
     }
 
+    // MARK: - Percent
+
+    private var percentContent: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+            Picker("Field", selection: $adjustField) {
+                ForEach(PriceField.allCases, id: \.self) { f in
+                    Text(f.rawValue).tag(f)
+                }
+            }
+            .labelsHidden()
+            FormField(label: "Percent (e.g. +10 or -5)", text: $percentText)
+            Text("Will adjust \(adjustField.rawValue.lowercased()) by \(percentText.isEmpty ? "0" : percentText)% for all selected stones")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+        }
+    }
+
     // MARK: - Logic
 
     private var canApply: Bool {
@@ -134,6 +160,7 @@ struct BulkEditSheet: View {
         case .updateStatus: return true
         case .updatePrice: return Decimal(string: priceText) != nil && (Decimal(string: priceText) ?? -1) >= 0
         case .moveToLot: return !lotSKU.trimmingCharacters(in: .whitespaces).isEmpty
+        case .adjustPricePercent: return Decimal(string: percentText) != nil
         }
     }
 
@@ -147,6 +174,10 @@ struct BulkEditSheet: View {
             }
         case .moveToLot:
             onApply(.moveToLot(sku: lotSKU.trimmingCharacters(in: .whitespaces)))
+        case .adjustPricePercent:
+            if let percent = Decimal(string: percentText) {
+                onApply(.adjustPricePercent(field: adjustField, percent: percent))
+            }
         }
         dismiss()
     }
@@ -157,4 +188,5 @@ enum BulkEditAction {
     case setStatus(GemstoneStatus)
     case setPrice(field: BulkEditSheet.PriceField, value: Decimal)
     case moveToLot(sku: String)
+    case adjustPricePercent(field: BulkEditSheet.PriceField, percent: Decimal)
 }

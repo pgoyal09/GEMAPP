@@ -23,9 +23,15 @@ struct DiamondsInventoryView: View {
     @State private var csvImportRows: [CSVImportService.ImportRow] = []
     @State private var csvImportError: String?
 
+    // MARK: - Search Focus
+
+    @State private var searchFieldFocusRequest = false
+
     // MARK: - Bulk Edit
 
     @State private var bulkEditMode: BulkEditSheet.Mode?
+    @State private var bulkUndoValues: [(PersistentIdentifier, GemstoneStatus?, Decimal?, Decimal?)] = []
+    @State private var showBulkUndo = false
 
     // MARK: - Sort State
 
@@ -151,6 +157,11 @@ struct DiamondsInventoryView: View {
             }
         }
         .accessibilityIdentifier("DiamondsInventoryView")
+        .background {
+            Button("") { searchFieldFocusRequest = true }
+                .keyboardShortcut("f", modifiers: .command)
+                .hidden()
+        }
         .animation(AppAnimation.sheetSpring, value: selectedStone?.persistentModelID)
         .overlay(alignment: .bottom) {
             if !selectedStones.isEmpty {
@@ -160,10 +171,14 @@ struct DiamondsInventoryView: View {
         }
         .overlay {
             if let msg = toastMessage {
-                ToastOverlay(message: msg, isError: toastIsError)
+                ToastOverlay(message: msg, isError: toastIsError, undoAction: showBulkUndo ? { performBulkUndo() } : nil)
                     .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                            withAnimation { toastMessage = nil }
+                        let delay: Double = showBulkUndo ? 5 : 3
+                        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                            withAnimation {
+                                toastMessage = nil
+                                showBulkUndo = false
+                            }
                         }
                     }
             }
@@ -198,7 +213,7 @@ struct DiamondsInventoryView: View {
 
     private var topBar: some View {
         HStack(spacing: AppSpacing.comfortable) {
-            GlassSearchField(text: $searchText, placeholder: "Search by SKU, color, clarity...")
+            GlassSearchField(text: $searchText, placeholder: "Search by SKU, color, clarity...", requestFocus: $searchFieldFocusRequest)
                 .frame(maxWidth: 320)
             Spacer()
             filterPresetMenu
@@ -384,6 +399,7 @@ struct DiamondsInventoryView: View {
             TableHeader(title: "Table%", width: TableColumn.percent, alignment: .trailing)
             sortableHeader("Ask $/ct", key: "price", width: TableColumn.price, alignment: .trailing)
             sortableHeader("Cost $/ct", key: "cost", width: TableColumn.price, alignment: .trailing)
+            TableHeader(title: "Margin %", width: TableColumn.margin, alignment: .trailing)
             sortableHeader("Status", key: "status", width: TableColumn.status, alignment: .center)
             Spacer()
         }
@@ -408,7 +424,7 @@ struct DiamondsInventoryView: View {
             )) { EmptyView() }
             .toggleStyle(.checkbox).frame(width: 24)
 
-            Text(stone.sku).font(AppTypography.mono).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.sku, alignment: .leading)
+            highlightedText(stone.sku, highlight: searchText).font(AppTypography.mono).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.sku, alignment: .leading)
             Text(stone.shape).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.shape, alignment: .leading)
             Text(String(format: "%.2f", stone.caratWeight)).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: TableColumn.carat, alignment: .trailing)
             Text(stone.color).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.color, alignment: .leading)
@@ -423,6 +439,7 @@ struct DiamondsInventoryView: View {
             Text(stone.tablePct.map { String(format: "%.0f", $0) } ?? "—").font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.percent, alignment: .trailing)
             Text(stone.sellPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: TableColumn.price, alignment: .trailing)
             Text(stone.costPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.price, alignment: .trailing)
+            Text(marginText(cost: stone.costPrice, sell: stone.sellPrice)).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.margin, alignment: .trailing)
             statusBadge(for: stone.status).frame(width: TableColumn.status, alignment: .center)
             Spacer()
         }
@@ -456,6 +473,7 @@ struct DiamondsInventoryView: View {
             if selectedStones.count >= 2 {
                 Button("Update Status", systemImage: "arrow.triangle.2.circlepath") { bulkEditMode = .updateStatus }.buttonStyle(.outline)
                 Button("Update Price", systemImage: "dollarsign.circle") { bulkEditMode = .updatePrice }.buttonStyle(.outline)
+                Button("Adjust Price %", systemImage: "percent") { bulkEditMode = .adjustPricePercent }.buttonStyle(.outline)
                 Button("Move to Lot", systemImage: "shippingbox") { bulkEditMode = .moveToLot }.buttonStyle(.outline)
             }
             Button("Create Memo", systemImage: "doc.text") { createMemo() }.buttonStyle(.gradient)
@@ -555,6 +573,10 @@ struct DiamondsInventoryView: View {
     private func applyBulkEdit(_ action: BulkEditAction) {
         let stones = filteredStones.filter { selectedStones.contains($0.persistentModelID) }
         guard !stones.isEmpty else { return }
+
+        // Store previous values for undo
+        bulkUndoValues = stones.map { ($0.persistentModelID, $0.status, $0.costPrice, $0.sellPrice) }
+
         switch action {
         case .setStatus(let status):
             for stone in stones { stone.status = status }
@@ -578,18 +600,72 @@ struct DiamondsInventoryView: View {
                     stone.sku = "\(sku)-\(String(format: "%03d", i + 1))"
                 }
             }
+        case .adjustPricePercent(let field, let percent):
+            let multiplier = 1 + percent / 100
+            for stone in stones {
+                switch field {
+                case .costPrice: stone.costPrice = stone.costPrice * multiplier
+                case .sellPrice: stone.sellPrice = stone.sellPrice * multiplier
+                }
+            }
         }
         do {
             try modelContext.save()
             NotificationCenter.default.post(name: .gemstoneDidChange, object: nil)
             NotificationCenter.default.post(name: .dataStoreDidChange, object: nil)
             toastIsError = false
+            showBulkUndo = true
             withAnimation { toastMessage = "Updated \(stones.count) stone\(stones.count == 1 ? "" : "s")" }
             selectedStones.removeAll()
         } catch {
             toastIsError = true
+            showBulkUndo = false
             withAnimation { toastMessage = "Bulk edit failed: \(ErrorMapper.userMessage(from: error))" }
         }
+    }
+
+    private func performBulkUndo() {
+        let allVisible = diamonds
+        for (id, status, cost, sell) in bulkUndoValues {
+            guard let stone = allVisible.first(where: { $0.persistentModelID == id }) else { continue }
+            if let status { stone.status = status }
+            if let cost { stone.costPrice = cost }
+            if let sell { stone.sellPrice = sell }
+        }
+        do {
+            try modelContext.save()
+            NotificationCenter.default.post(name: .gemstoneDidChange, object: nil)
+            NotificationCenter.default.post(name: .dataStoreDidChange, object: nil)
+            bulkUndoValues = []
+            showBulkUndo = false
+            toastIsError = false
+            withAnimation { toastMessage = "Bulk edit undone" }
+        } catch {
+            toastIsError = true
+            withAnimation { toastMessage = "Undo failed: \(ErrorMapper.userMessage(from: error))" }
+        }
+    }
+
+    // MARK: - Search Highlighting
+
+    private func highlightedText(_ text: String, highlight: String) -> Text {
+        guard !highlight.isEmpty,
+              let range = text.range(of: highlight, options: .caseInsensitive) else {
+            return Text(text)
+        }
+        let before = String(text[text.startIndex..<range.lowerBound])
+        let match = String(text[range])
+        let after = String(text[range.upperBound...])
+        return Text(before) + Text(match).foregroundColor(AppColors.primary).bold() + Text(after)
+    }
+
+    // MARK: - Margin
+
+    private func marginText(cost: Decimal, sell: Decimal) -> String {
+        guard cost > 0 else { return "\u{2014}" }
+        let margin = (sell - cost) / cost * 100
+        let value = NSDecimalNumber(decimal: margin).doubleValue
+        return String(format: "%.1f%%", value)
     }
 
     // MARK: - Helpers

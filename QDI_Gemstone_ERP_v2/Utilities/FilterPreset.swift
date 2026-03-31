@@ -13,6 +13,7 @@ struct FilterPreset: Codable, Identifiable, Equatable {
     // Gemstone filters
     var stoneTypeFilter: String?  // StoneType raw value
     var originFilter: String?
+    var treatmentFilter: String?
 
     // Shared
     var caratMin: Double?

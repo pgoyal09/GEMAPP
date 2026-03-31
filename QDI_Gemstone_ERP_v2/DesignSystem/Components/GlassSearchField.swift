@@ -5,6 +5,10 @@ struct GlassSearchField: View {
     var placeholder: String = "Search..."
     @FocusState private var isFocused: Bool
 
+    /// Optional external focus binding for programmatic focus (e.g. keyboard shortcuts).
+    /// When provided, changes to the external binding are synced to the internal FocusState.
+    var requestFocus: Binding<Bool>?
+
     var body: some View {
         HStack(spacing: AppSpacing.standard) {
             Image(systemName: "magnifyingglass")
@@ -31,5 +35,11 @@ struct GlassSearchField: View {
                 )
         )
         .animation(.easeOut(duration: 0.15), value: isFocused)
+        .onChange(of: requestFocus?.wrappedValue) { _, newValue in
+            if newValue == true {
+                isFocused = true
+                requestFocus?.wrappedValue = false
+            }
+        }
     }
 }

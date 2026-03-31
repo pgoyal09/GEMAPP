@@ -43,6 +43,7 @@ struct CSVImportPreviewSheet: View {
             LazyVStack(spacing: 0) {
                 // Header
                 HStack(spacing: 0) {
+                    Text("").frame(width: 30) // status column
                     Text("Type").frame(width: 80, alignment: .leading)
                     Text("Carat").frame(width: 60, alignment: .trailing)
                     Text("Shape").frame(width: 80, alignment: .leading)
@@ -52,6 +53,7 @@ struct CSVImportPreviewSheet: View {
                     Text("Cost").frame(width: 80, alignment: .trailing)
                     Text("Sell").frame(width: 80, alignment: .trailing)
                     Text("Lab").frame(width: 60, alignment: .leading)
+                    Text("Treatment").frame(width: 80, alignment: .leading)
                 }
                 .font(AppTypography.caption.bold())
                 .foregroundStyle(AppColors.inkMuted)
@@ -62,6 +64,9 @@ struct CSVImportPreviewSheet: View {
 
                 ForEach(rows) { row in
                     HStack(spacing: 0) {
+                        Image(systemName: row.caratWeight > 0 ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            .foregroundStyle(row.caratWeight > 0 ? AppColors.success : AppColors.danger)
+                            .frame(width: 30)
                         Text(row.stoneType.rawValue).frame(width: 80, alignment: .leading)
                         Text(String(format: "%.2f", row.caratWeight)).frame(width: 60, alignment: .trailing)
                         Text(row.shape).frame(width: 80, alignment: .leading)
@@ -71,6 +76,7 @@ struct CSVImportPreviewSheet: View {
                         Text(row.costPrice.asCurrency).frame(width: 80, alignment: .trailing)
                         Text(row.sellPrice.asCurrency).frame(width: 80, alignment: .trailing)
                         Text(row.certLab).frame(width: 60, alignment: .leading)
+                        Text(row.treatment).frame(width: 80, alignment: .leading)
                     }
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.ink)

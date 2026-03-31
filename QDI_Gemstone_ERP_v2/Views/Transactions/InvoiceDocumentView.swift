@@ -15,6 +15,7 @@ struct InvoiceDocumentView: View {
     @State private var showAddCustomerSheet = false
     @State private var showDeleteConfirm = false
     @State private var showVoidConfirm = false
+    @State private var customerSearchText = ""
     @State private var isEditingEnabled: Bool = true
     @State private var isGeneratingPDF = false
     @State private var pdfError: String?
@@ -28,6 +29,12 @@ struct InvoiceDocumentView: View {
 
     private var isEditable: Bool {
         invoice.status == .draft && isEditingEnabled
+    }
+
+    private var filteredCustomers: [Customer] {
+        let q = customerSearchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !q.isEmpty else { return allCustomers }
+        return allCustomers.filter { $0.displayName.lowercased().contains(q) }
     }
 
     var body: some View {
@@ -137,23 +144,32 @@ struct InvoiceDocumentView: View {
                 HStack(spacing: AppSpacing.hero) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Customer").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        HStack {
-                            Picker("Customer", selection: Binding(
-                                get: { invoice.customer },
-                                set: { invoice.customer = $0; markDirty() }
-                            )) {
-                                Text("Select…").tag(Customer?.none)
-                                ForEach(allCustomers) { c in Text(c.displayName).tag(Customer?.some(c)) }
+                        VStack(spacing: AppSpacing.compact) {
+                            TextField("Search customers...", text: $customerSearchText)
+                                .textFieldStyle(.plain)
+                                .font(AppTypography.smallValue)
+                                .foregroundStyle(AppColors.ink)
+                                .glassField()
+                                .frame(width: 200)
+                                .disabled(!isEditable)
+                            HStack {
+                                Picker("Customer", selection: Binding(
+                                    get: { invoice.customer },
+                                    set: { invoice.customer = $0; markDirty() }
+                                )) {
+                                    Text("Select…").tag(Customer?.none)
+                                    ForEach(filteredCustomers) { c in Text(c.displayName).tag(Customer?.some(c)) }
+                                }
+                                .labelsHidden()
+                                .accessibilityLabel("Select Customer")
+                                .disabled(!isEditable)
+                                Button(action: { showAddCustomerSheet = true }) {
+                                    Image(systemName: "plus.circle").foregroundStyle(AppColors.primary)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Add Customer")
+                                .opacity(isEditable ? 1 : 0)
                             }
-                            .labelsHidden()
-                            .accessibilityLabel("Select Customer")
-                            .disabled(!isEditable)
-                            Button(action: { showAddCustomerSheet = true }) {
-                                Image(systemName: "plus.circle").foregroundStyle(AppColors.primary)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel("Add Customer")
-                            .opacity(isEditable ? 1 : 0)
                         }
                     }
                     VStack(alignment: .leading, spacing: 4) {

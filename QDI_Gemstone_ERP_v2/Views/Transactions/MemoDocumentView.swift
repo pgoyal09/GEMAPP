@@ -16,6 +16,7 @@ struct MemoDocumentView: View {
     @State private var showLotSheet = false
     @State private var showAddCustomerSheet = false
     @State private var showDeleteConfirm = false
+    @State private var customerSearchText = ""
     @State private var hasUnsavedEdits = false
     @State private var isSaving = false
     @State private var isGeneratingPDF = false
@@ -25,6 +26,12 @@ struct MemoDocumentView: View {
     @State private var showUnsavedAlert = false
     @State private var duplicateWarning: String?
     @AccessibilityFocusState private var isHeaderFocused: Bool
+
+    private var filteredCustomers: [Customer] {
+        let q = customerSearchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !q.isEmpty else { return allCustomers }
+        return allCustomers.filter { $0.displayName.lowercased().contains(q) }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -135,21 +142,29 @@ struct MemoDocumentView: View {
                 HStack(spacing: AppSpacing.hero) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Customer").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        HStack {
-                            Picker("Customer", selection: Binding(
-                                get: { memo.customer },
-                                set: { memo.customer = $0; markDirty() }
-                            )) {
-                                Text("Select…").tag(Customer?.none)
-                                ForEach(allCustomers) { c in Text(c.displayName).tag(Customer?.some(c)) }
+                        VStack(spacing: AppSpacing.compact) {
+                            TextField("Search customers...", text: $customerSearchText)
+                                .textFieldStyle(.plain)
+                                .font(AppTypography.smallValue)
+                                .foregroundStyle(AppColors.ink)
+                                .glassField()
+                                .frame(width: 200)
+                            HStack {
+                                Picker("Customer", selection: Binding(
+                                    get: { memo.customer },
+                                    set: { memo.customer = $0; markDirty() }
+                                )) {
+                                    Text("Select…").tag(Customer?.none)
+                                    ForEach(filteredCustomers) { c in Text(c.displayName).tag(Customer?.some(c)) }
+                                }
+                                .labelsHidden()
+                                .accessibilityLabel("Select Customer")
+                                Button(action: { showAddCustomerSheet = true }) {
+                                    Image(systemName: "plus.circle").foregroundStyle(AppColors.primary)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Add Customer")
                             }
-                            .labelsHidden()
-                            .accessibilityLabel("Select Customer")
-                            Button(action: { showAddCustomerSheet = true }) {
-                                Image(systemName: "plus.circle").foregroundStyle(AppColors.primary)
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel("Add Customer")
                         }
                     }
                     VStack(alignment: .leading, spacing: 4) {

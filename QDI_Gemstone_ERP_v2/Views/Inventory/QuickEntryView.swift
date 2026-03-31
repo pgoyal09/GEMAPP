@@ -41,14 +41,11 @@ struct QuickEntryView: View {
                 .foregroundStyle(AppColors.ink)
 
             Picker("Category", selection: $selectedCategory) {
-                Text("Diamond").tag(StoneType.diamond)
-                Text("Ruby").tag(StoneType.ruby)
-                Text("Emerald").tag(StoneType.emerald)
-                Text("Sapphire").tag(StoneType.sapphire)
-                Text("Tanzanite").tag(StoneType.tanzanite)
+                ForEach(StoneType.allCases) { type in
+                    Text(type.rawValue).tag(type)
+                }
             }
-            .pickerStyle(.segmented)
-            .frame(maxWidth: 400)
+            .frame(maxWidth: 300)
             .accessibilityLabel("Stone Type Category")
             .onChange(of: selectedCategory) { _, newType in
                 for i in rows.indices { rows[i].stoneType = newType }
@@ -101,6 +98,7 @@ struct QuickEntryView: View {
             Text("Carat").frame(width: 70, alignment: .trailing)
             Text("Color").frame(width: 60, alignment: .leading)
             Text("Clarity").frame(width: 60, alignment: .leading)
+            Text("Treatment").frame(width: 80, alignment: .leading)
             Text("Cost $").frame(width: 80, alignment: .trailing)
             Text("Sell $").frame(width: 80, alignment: .trailing)
             Text("Origin").frame(width: 80, alignment: .leading)
@@ -150,6 +148,11 @@ struct QuickEntryView: View {
                 .frame(width: 60)
                 .glassField()
                 .focused($focusedField, equals: .clarity(row.id))
+
+            TextField("", text: binding(for: index, keyPath: \.treatment))
+                .frame(width: 80)
+                .glassField()
+                .focused($focusedField, equals: .treatment(row.id))
 
             TextField("", value: binding(for: index, keyPath: \.costPrice), format: .number)
                 .frame(width: 80)
@@ -238,6 +241,7 @@ struct QuickEntryView: View {
                 origin: row.origin,
                 color: row.color,
                 clarity: row.clarity,
+                treatment: row.treatment,
                 hasCert: !row.certLab.isEmpty,
                 certLab: row.certLab,
                 certNo: row.certNo,
@@ -268,6 +272,7 @@ struct QuickEntryView: View {
         case carat(UUID)
         case color(UUID)
         case clarity(UUID)
+        case treatment(UUID)
         case cost(UUID)
         case sell(UUID)
         case origin(UUID)
@@ -285,6 +290,7 @@ private struct QuickEntryRow: Identifiable {
     var caratWeight: Double = 0
     var color: String = ""
     var clarity: String = ""
+    var treatment: String = ""
     var costPrice: Decimal = 0
     var sellPrice: Decimal = 0
     var origin: String = ""
