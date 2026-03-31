@@ -107,6 +107,7 @@
 		76146595A695A198CD2574FC /* SortableViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB788FFE84CBD6FB2D45A564 /* SortableViewModel.swift */; };
 		7975E425CB137B9FE818E3DF /* InputValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D45A3823E9EF2FE28178AC3 /* InputValidator.swift */; };
 		79D64E872448970E69F593C9 /* FilterPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E7B6A77056D754FF2151496 /* FilterPill.swift */; };
+		7C3B91C05C59E619F5047F17 /* CloudBackupSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD75106A74B616171D252BED /* CloudBackupSettingsView.swift */; };
 		7DF3A45CF5D57B294A215367 /* PaymentMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 553A8056539CC98603A3A6EC /* PaymentMethod.swift */; };
 		7E295706AFD620C12A948AC9 /* LotTransactionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9453E5A1BB6929896AE1BE0A /* LotTransactionType.swift */; };
 		7EA01D623D3136817EE57733 /* InventorySelectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9299C8922C00C4B986D2EF8 /* InventorySelectSheet.swift */; };
@@ -135,6 +136,7 @@
 		ADE644F1B38D59234715CA9B /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82D39A3810995F0A808EB202 /* SectionHeader.swift */; };
 		AEB120D968D7BF9F4F12AA4B /* InventoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10E5E8CE863390404948AA94 /* InventoryViewModel.swift */; };
 		B02FE4C6341F52FB20F7C3A6 /* MemoWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E32BF5EC574469A8D3977C5F /* MemoWindowView.swift */; };
+		B0BEAF3E4F2D6D40F6DC305B /* CloudBackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F08287E3E3DC5168BD5E7D /* CloudBackupService.swift */; };
 		B15F66E68D3C2F70256ADFF0 /* BatchPDFExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B347B683BC41A381BAA1F00 /* BatchPDFExporter.swift */; };
 		B34DB3A3FF936FA5FFC60998 /* InvoiceListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB2959E2E58627DBE83E661 /* InvoiceListViewModel.swift */; };
 		B5E0D52AD619ABC57EB872A5 /* Memo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07EA69C23F35D6BFA7DBF3A /* Memo.swift */; };
@@ -151,6 +153,7 @@
 		C604BF9B9BE75A4DE210A592 /* LineItemKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D603B8B6A476C98E66B400 /* LineItemKind.swift */; };
 		C89F67E28F0C2DBC3FD9A39B /* LabelSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90706FF432765FB42B0C9E7 /* LabelSettingsView.swift */; };
 		C8D707A1F1797FFE711ABBC2 /* ORSSerial in Frameworks */ = {isa = PBXBuildFile; productRef = DB07F8E31C04219DAA692E41 /* ORSSerial */; };
+		C9CAB587DB2D45421902135D /* BackupManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA6B91E3BC94FDDE815F715 /* BackupManifest.swift */; };
 		CCB573CA20CF92C83B93FB5C /* CSVImportPreviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56EC23CBF87289FD1987521D /* CSVImportPreviewSheet.swift */; };
 		CF5C7C0597EB7E99DA8D3991 /* DetailRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */; };
 		D139FE43F09FB5A1B750B918 /* LineItemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CD014DC9A48F5870B67D2B /* LineItemStatus.swift */; };
@@ -180,6 +183,7 @@
 		02CB667D10C57F1B9EB42D6F /* GlassBackgroundModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassBackgroundModifier.swift; sourceTree = "<group>"; };
 		037857AF7FF32943A3CBC483 /* NavigationGuard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationGuard.swift; sourceTree = "<group>"; };
 		039BCEED1B46423BA633D16A /* DashboardRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardRoutes.swift; sourceTree = "<group>"; };
+		03F08287E3E3DC5168BD5E7D /* CloudBackupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudBackupService.swift; sourceTree = "<group>"; };
 		07A771D99AF395E25A383305 /* Customer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Customer.swift; sourceTree = "<group>"; };
 		0802F6FC50765CEE19C0FB4E /* InventoryListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryListView.swift; sourceTree = "<group>"; };
 		0AE8B1FC546208EE8FE5FE4D /* ScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerView.swift; sourceTree = "<group>"; };
@@ -341,7 +345,9 @@
 		F981D0C4218F1C904C0C296D /* MarginAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarginAnalysisView.swift; sourceTree = "<group>"; };
 		FB788FFE84CBD6FB2D45A564 /* SortableViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortableViewModel.swift; sourceTree = "<group>"; };
 		FBCAA0A67DB386B1FD7A631C /* TableHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableHeader.swift; sourceTree = "<group>"; };
+		FCA6B91E3BC94FDDE815F715 /* BackupManifest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupManifest.swift; sourceTree = "<group>"; };
 		FD62C45DBA9FE81C57C0BFF6 /* RFIDReconciliationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDReconciliationService.swift; sourceTree = "<group>"; };
+		FD75106A74B616171D252BED /* CloudBackupSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudBackupSettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -401,6 +407,7 @@
 		2FD4518DE6B46E3F000B6DED /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				FCA6B91E3BC94FDDE815F715 /* BackupManifest.swift */,
 				07A771D99AF395E25A383305 /* Customer.swift */,
 				865F7818A0D127059D5F79E6 /* Gemstone.swift */,
 				149AAED5205BD92D1632662A /* HistoryEvent.swift */,
@@ -461,6 +468,7 @@
 		359CF07916221247402486B8 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				FD75106A74B616171D252BED /* CloudBackupSettingsView.swift */,
 				9C951A2C6D4936DCB60254A7 /* CompanySettingsView.swift */,
 				2A8AAC8B96F94CF3DABE9258 /* GlossaryView.swift */,
 				A90706FF432765FB42B0C9E7 /* LabelSettingsView.swift */,
@@ -521,6 +529,7 @@
 				F464D9D94F7E4B377FB790FE /* BackupScheduler.swift */,
 				A9A597AF32983A1D01C6D562 /* BackupService.swift */,
 				1B347B683BC41A381BAA1F00 /* BatchPDFExporter.swift */,
+				03F08287E3E3DC5168BD5E7D /* CloudBackupService.swift */,
 				38BCD93D7AB62CF23C687BB7 /* CSVImportService.swift */,
 				90E295BFAC2A9465729BDF0A /* DemoDataService.swift */,
 				32D6DC60F80D7FC541834613 /* HistoryLogger.swift */,
@@ -853,12 +862,15 @@
 				0E22C31C27AC813031FCE9B9 /* AppShellView.swift in Sources */,
 				B665C2DFE7620630DAC22AA2 /* AppSpacing.swift in Sources */,
 				22F23D9F8E802FBD936767BE /* AppTypography.swift in Sources */,
+				C9CAB587DB2D45421902135D /* BackupManifest.swift in Sources */,
 				BBB0B529C5AF4BAC7BC63BCA /* BackupScheduler.swift in Sources */,
 				E0ADB3F0BDDB5B5F9A549701 /* BackupService.swift in Sources */,
 				B15F66E68D3C2F70256ADFF0 /* BatchPDFExporter.swift in Sources */,
 				0A9A8B7657619F2BB1632938 /* BulkEditSheet.swift in Sources */,
 				CCB573CA20CF92C83B93FB5C /* CSVImportPreviewSheet.swift in Sources */,
 				180E46B09947DC1253EAB51F /* CSVImportService.swift in Sources */,
+				B0BEAF3E4F2D6D40F6DC305B /* CloudBackupService.swift in Sources */,
+				7C3B91C05C59E619F5047F17 /* CloudBackupSettingsView.swift in Sources */,
 				3F9372EEFCB919D59C09C959 /* CompanySettingsView.swift in Sources */,
 				FF2A553EE82E73075D6FB33A /* CurrencyFormatter.swift in Sources */,
 				1BE2DAC96C3940E8D35B2D7E /* CurrencyType.swift in Sources */,

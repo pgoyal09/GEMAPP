@@ -250,6 +250,13 @@ struct CompanySettingsView: View {
                         )
                 )
 
+                // MARK: - Cloud Backup
+
+                SectionHeader(title: "Cloud Backup")
+
+                CloudBackupSettingsView()
+                    .frame(maxWidth: .infinity)
+
                 Spacer()
             }
             .padding(AppSpacing.hero)
