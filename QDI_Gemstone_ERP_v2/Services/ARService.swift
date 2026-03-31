@@ -55,6 +55,7 @@ enum ARService {
         var current: [Invoice] = []
         var d30: [Invoice] = []
         var d60: [Invoice] = []
+        var d90: [Invoice] = []
         var d90plus: [Invoice] = []
 
         for inv in invoices {
@@ -66,6 +67,8 @@ enum ARService {
                 d30.append(inv)
             } else if days <= 60 {
                 d60.append(inv)
+            } else if days <= 90 {
+                d90.append(inv)
             } else {
                 d90plus.append(inv)
             }
@@ -75,6 +78,7 @@ enum ARService {
             ARAgingBucket(label: "Current", daysRange: "Not due", invoices: current),
             ARAgingBucket(label: "1-30 Days", daysRange: "1-30", invoices: d30),
             ARAgingBucket(label: "31-60 Days", daysRange: "31-60", invoices: d60),
+            ARAgingBucket(label: "61-90 Days", daysRange: "61-90", invoices: d90),
             ARAgingBucket(label: "90+ Days", daysRange: "90+", invoices: d90plus),
         ]
     }

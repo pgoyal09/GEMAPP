@@ -149,14 +149,11 @@ final class CloudBackupService {
             let jsonData = try decompress(compressed)
             progress = 0.7
 
-            // Import (would replace local store — for now, save as temp for manual restore)
-            let tempDir = FileManager.default.temporaryDirectory
-                .appendingPathComponent("QDI_CloudRestore_\(UUID().uuidString)")
-            try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
-            try jsonData.write(to: tempDir.appendingPathComponent("backup_data.json"))
+            // Parse and reimport into live SwiftData store
+            try importJSON(jsonData, modelContext: modelContext)
 
             progress = 1.0
-            Self.logger.info("Cloud backup restored to: \(tempDir.path)")
+            Self.logger.info("Cloud backup restored and reimported into SwiftData")
 
             isRestoring = false
             return true
@@ -166,6 +163,63 @@ final class CloudBackupService {
             isRestoring = false
             return false
         }
+    }
+
+    // MARK: - JSON Import (Restore)
+
+    private func importJSON(_ data: Data, modelContext: ModelContext) throws {
+        guard let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            throw CloudBackupError.compressionFailed
+        }
+
+        // Delete existing data before reimport
+        try modelContext.delete(model: Gemstone.self)
+        try modelContext.delete(model: Customer.self)
+
+        // Restore customers
+        if let custArray = dict["customers"] as? [[String: Any]] {
+            for c in custArray {
+                let customer = Customer(
+                    firstName: c["firstName"] as? String ?? "",
+                    lastName: c["lastName"] as? String ?? "",
+                    company: c["company"] as? String ?? "",
+                    email: c["email"] as? String ?? "",
+                    phone: c["phone"] as? String ?? "",
+                    city: c["city"] as? String ?? "",
+                    country: c["country"] as? String ?? ""
+                )
+                modelContext.insert(customer)
+            }
+        }
+
+        // Restore stones
+        if let stoneArray = dict["stones"] as? [[String: Any]] {
+            for s in stoneArray {
+                let stoneType = StoneType(rawValue: s["type"] as? String ?? "diamond") ?? .diamond
+                let grouping = StoneGrouping(rawValue: s["grouping"] as? String ?? "S") ?? .single
+                let status = GemstoneStatus(rawValue: s["status"] as? String ?? "available") ?? .available
+                let costStr = s["costPrice"] as? String ?? "0"
+                let sellStr = s["sellPrice"] as? String ?? "0"
+
+                let stone = Gemstone(
+                    sku: s["sku"] as? String ?? "",
+                    stoneType: stoneType,
+                    caratWeight: s["caratWeight"] as? Double ?? 0,
+                    shape: s["shape"] as? String ?? "",
+                    grouping: grouping,
+                    origin: s["origin"] as? String ?? "",
+                    status: status,
+                    color: s["color"] as? String ?? "",
+                    clarity: s["clarity"] as? String ?? "",
+                    cut: s["cut"] as? String ?? "",
+                    costPrice: Decimal(string: costStr) ?? 0,
+                    sellPrice: Decimal(string: sellStr) ?? 0
+                )
+                modelContext.insert(stone)
+            }
+        }
+
+        try modelContext.save()
     }
 
     // MARK: - Delete Backup

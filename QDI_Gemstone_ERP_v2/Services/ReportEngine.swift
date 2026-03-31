@@ -303,17 +303,25 @@ enum ReportEngine {
 
     @MainActor
     static func generateMarginAnalysis(
+        startDate: Date? = nil,
+        endDate: Date? = nil,
         modelContext: ModelContext
     ) -> MarginAnalysisReport {
         let paidStatus = InvoiceStatus.paid
         let descriptor = FetchDescriptor<Invoice>(
             predicate: #Predicate<Invoice> { $0.status == paidStatus }
         )
-        let invoices = (try? modelContext.fetch(descriptor)) ?? []
+        let allInvoices = (try? modelContext.fetch(descriptor)) ?? []
+        let invoices: [Invoice]
+        if let startDate, let endDate {
+            invoices = allInvoices.filter { $0.invoiceDate >= startDate && $0.invoiceDate <= endDate }
+        } else {
+            invoices = allInvoices
+        }
 
         // Monthly trend (last 12 months)
         let calendar = Calendar.current
-        let now = Date()
+        let now = endDate ?? Date()
         var monthlyData: [(month: String, revenue: Decimal, cogs: Decimal)] = []
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM yyyy"

@@ -171,7 +171,7 @@ struct ReportsView: View {
         case .customerProfitability:
             CustomerProfitabilityView(startDate: effectiveDates.start, endDate: effectiveDates.end)
         case .marginAnalysis:
-            MarginAnalysisView()
+            MarginAnalysisView(startDate: effectiveDates.start, endDate: effectiveDates.end)
         }
     }
 
@@ -195,7 +195,7 @@ struct ReportsView: View {
             csv = ReportExportService.exportCustomerProfitabilityToCSV(report)
             filename = "customer_profitability.csv"
         case .marginAnalysis:
-            let report = ReportEngine.generateMarginAnalysis(modelContext: modelContext)
+            let report = ReportEngine.generateMarginAnalysis(startDate: dates.start, endDate: dates.end, modelContext: modelContext)
             csv = ReportExportService.exportMarginAnalysisToCSV(report)
             filename = "margin_analysis.csv"
         }

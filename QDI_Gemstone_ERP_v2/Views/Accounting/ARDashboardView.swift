@@ -81,7 +81,7 @@ struct ARDashboardView: View {
     // MARK: - Aging Summary Bars
 
     private var agingSummary: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: AppSpacing.section), count: 4), spacing: AppSpacing.section) {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: AppSpacing.section), count: buckets.count), spacing: AppSpacing.section) {
             ForEach(Array(buckets.enumerated()), id: \.element.id) { index, bucket in
                 GlassCard(padding: AppSpacing.section) {
                     VStack(spacing: AppSpacing.standard) {
@@ -108,6 +108,7 @@ struct ARDashboardView: View {
         case 0: return AppColors.success
         case 1: return AppColors.warning
         case 2: return AppColors.warningDeep
+        case 3: return AppColors.danger.opacity(0.8)
         default: return AppColors.danger
         }
     }

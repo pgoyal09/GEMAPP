@@ -5,6 +5,9 @@ struct MarginAnalysisView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    let startDate: Date
+    let endDate: Date
+
     @State private var report: MarginAnalysisReport?
 
     var body: some View {
@@ -20,10 +23,12 @@ struct MarginAnalysisView: View {
             }
         }
         .onAppear { loadReport() }
+        .onChange(of: startDate) { _, _ in loadReport() }
+        .onChange(of: endDate) { _, _ in loadReport() }
     }
 
     private func loadReport() {
-        report = ReportEngine.generateMarginAnalysis(modelContext: modelContext)
+        report = ReportEngine.generateMarginAnalysis(startDate: startDate, endDate: endDate, modelContext: modelContext)
     }
 
     // MARK: - Monthly Trend (Line Chart)

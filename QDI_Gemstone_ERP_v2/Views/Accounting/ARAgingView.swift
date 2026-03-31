@@ -19,7 +19,8 @@ struct ARAgingView: View {
             case "Current": return days <= 0
             case "30": return days > 0 && days <= 30
             case "60": return days > 30 && days <= 60
-            case "90+": return days > 60
+            case "90": return days > 60 && days <= 90
+            case "90+": return days > 90
             default: return true
             }
         }
@@ -32,7 +33,7 @@ struct ARAgingView: View {
                     SectionHeader(title: "Aging Detail")
                     Spacer()
                     HStack(spacing: AppSpacing.standard) {
-                        ForEach(["All", "Current", "30", "60", "90+"], id: \.self) { bucket in
+                        ForEach(["All", "Current", "30", "60", "90", "90+"], id: \.self) { bucket in
                             FilterPill(title: bucket, isActive: filterBucket == bucket) {
                                 filterBucket = bucket
                             }
