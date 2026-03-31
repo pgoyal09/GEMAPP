@@ -16,6 +16,7 @@ struct AppShellView: View {
     @AppStorage("onboardingComplete") private var onboardingComplete: Bool = false
     @AppStorage("companyName") private var companyName: String = ""
     @State private var showGlossary = false
+    @State private var showHelpCenter = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var resolvedColorScheme: ColorScheme? {
@@ -64,6 +65,9 @@ struct AppShellView: View {
         .preferredColorScheme(resolvedColorScheme)
         .sheet(isPresented: $showGlossary) {
             GlossaryView()
+        }
+        .sheet(isPresented: $showHelpCenter) {
+            HelpCenterView()
         }
     }
 
@@ -146,6 +150,9 @@ struct AppShellView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .menuOpenGlossary)) { _ in
             showGlossary = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .menuOpenHelpCenter)) { _ in
+            showHelpCenter = true
         }
         .animation(AppAnimation.standard, value: showSidebar)
     }

@@ -13,6 +13,7 @@ extension Notification.Name {
     static let menuToggleSidebar = Notification.Name("menuToggleSidebar")
     static let menuOpenSettings = Notification.Name("menuOpenSettings")
     static let menuOpenGlossary = Notification.Name("menuOpenGlossary")
+    static let menuOpenHelpCenter = Notification.Name("menuOpenHelpCenter")
 }
 
 @main
@@ -162,8 +163,15 @@ struct QDIGemstoneERPApp: App {
                 .keyboardShortcut("i", modifiers: .command)
             }
 
-            // Help → Glossary
+            // Help menu
             CommandGroup(replacing: .help) {
+                Button("QDI Help Center") {
+                    NotificationCenter.default.post(name: .menuOpenHelpCenter, object: nil)
+                }
+                .keyboardShortcut("?", modifiers: .command)
+
+                Divider()
+
                 Button("Gemstone Glossary") {
                     NotificationCenter.default.post(name: .menuOpenGlossary, object: nil)
                 }
