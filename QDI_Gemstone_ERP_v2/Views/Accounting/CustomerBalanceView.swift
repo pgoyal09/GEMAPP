@@ -323,9 +323,10 @@ struct CustomerBalanceView: View {
         // Check 7-day cooldown
         if !ARService.canSendReminder(customerName: customer.customerName, modelContext: modelContext) {
             // Find how many days ago the last reminder was sent
+            let name = customer.customerName
             let descriptor = FetchDescriptor<PaymentReminder>(
                 predicate: #Predicate<PaymentReminder> {
-                    $0.customerName == customer.customerName && $0.sent == true
+                    $0.customerName == name && $0.sent == true
                 }
             )
             if let reminders = try? modelContext.fetch(descriptor),

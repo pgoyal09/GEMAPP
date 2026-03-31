@@ -51,7 +51,7 @@ struct CustomerListView: View {
                 HStack(spacing: 0) {
                     customerSortableHeader("Name", key: "name", width: TableColumn.customer)
                     customerSortableHeader("Contact", key: "contact", width: TableColumn.description)
-                    customerSortableHeader("Open Memos", key: "memos", width: TableColumn.quantity)
+                    customerSortableHeader("Open Memos", key: "memos", width: TableColumn.quantity, alignment: .trailing)
                     customerSortableHeader("Status", key: "status", width: TableColumn.status)
                     Spacer()
                 }
@@ -104,7 +104,7 @@ struct CustomerListView: View {
                                     .font(AppTypography.mono)
                                     .foregroundStyle(AppColors.inkMuted)
                                     .lineLimit(1)
-                                    .frame(width: TableColumn.quantity, alignment: .center)
+                                    .frame(width: TableColumn.quantity, alignment: .trailing)
 
                                 StatusBadge(
                                     title: customer.isActive ? "Active" : "Inactive",
@@ -127,10 +127,11 @@ struct CustomerListView: View {
         .padding(.bottom, AppSpacing.hero)
     }
 
-    private func customerSortableHeader(_ title: String, key: String, width: CGFloat) -> TableHeader {
+    private func customerSortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment = .leading) -> TableHeader {
         TableHeader(
             title: title,
             width: width,
+            alignment: alignment,
             isSorted: viewModel.sortKey == key,
             ascending: viewModel.sortAscending,
             onTap: { viewModel.toggleSort(key) }

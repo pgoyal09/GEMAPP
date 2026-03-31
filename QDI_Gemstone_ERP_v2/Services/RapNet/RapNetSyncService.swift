@@ -94,7 +94,11 @@ final class RapNetSyncService {
     // MARK: - Upload Inventory
 
     func uploadInventory(modelContext: ModelContext) async {
-        guard let token = token ?? (try? await RapNetAPIService.authenticate(username: username, password: password)) else {
+        var resolvedToken = token
+        if resolvedToken == nil {
+            resolvedToken = await (try? RapNetAPIService.authenticate(username: username, password: password))
+        }
+        guard let token = resolvedToken else {
             lastError = "Not authenticated"
             addLog(action: "Upload", status: "Failed", detail: "Authentication failed")
             return
@@ -142,7 +146,11 @@ final class RapNetSyncService {
     // MARK: - Pull Price Sheet
 
     func pullPriceSheet(modelContext: ModelContext) async {
-        guard let token = token ?? (try? await RapNetAPIService.authenticate(username: username, password: password)) else {
+        var resolvedToken = token
+        if resolvedToken == nil {
+            resolvedToken = await (try? RapNetAPIService.authenticate(username: username, password: password))
+        }
+        guard let token = resolvedToken else {
             lastError = "Not authenticated"
             return
         }

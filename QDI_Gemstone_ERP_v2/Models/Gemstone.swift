@@ -84,7 +84,7 @@ final class Gemstone {
     // MARK: - RapNet Sync
 
     /// Sync status with RapNet marketplace.
-    var rapNetSyncStatus: RapNetSyncStatus = .notSynced
+    var rapNetSyncStatus: RapNetSyncStatus = RapNetSyncStatus.notSynced
     /// Last time this stone was synced to RapNet.
     var rapNetLastSynced: Date?
 

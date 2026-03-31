@@ -81,7 +81,7 @@ enum ReportExportService {
     // MARK: - PDF Export (HTML→PDF via WKWebView, matches existing PDFService pattern)
 
     @MainActor
-    static func exportReportToPDF(title: String, html: String, completion: @escaping (Result<URL, Error>) -> Void) {
+    static func exportReportToPDF(title: String, html: String, completion: @escaping @Sendable (Result<URL, Error>) -> Void) {
         PDFService.shared.renderHTMLToPDF(html: html, completion: completion)
     }
 
@@ -138,13 +138,3 @@ enum ReportExportService {
     }
 }
 
-// MARK: - CSV Escaping (matches existing pattern)
-
-private extension String {
-    var csvEscaped: String {
-        if contains(",") || contains("\"") || contains("\n") {
-            return "\"\(replacingOccurrences(of: "\"", with: "\"\""))\""
-        }
-        return self
-    }
-}
