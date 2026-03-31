@@ -107,16 +107,12 @@ final class RapNetSyncService {
         isSyncing = true
         lastError = nil
 
-        let availableStatus = GemstoneStatus.available
-        let diamondType = StoneType.diamond
-        let descriptor = FetchDescriptor<Gemstone>(
-            predicate: #Predicate<Gemstone> {
-                $0.status == availableStatus && $0.stoneType == diamondType
-            }
-        )
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        let descriptor = FetchDescriptor<Gemstone>()
 
         do {
             let diamonds = try modelContext.fetch(descriptor)
+                .filter { $0.status == .available && $0.stoneType == .diamond }
             guard !diamonds.isEmpty else {
                 isSyncing = false
                 addLog(action: "Upload", status: "Skipped", detail: "No available diamonds to upload")
@@ -161,11 +157,10 @@ final class RapNetSyncService {
             let prices = try await RapNetAPIService.fetchPriceList(token: token)
 
             // Update matching stones with Rapaport prices
-            let diamondType = StoneType.diamond
-            let descriptor = FetchDescriptor<Gemstone>(
-                predicate: #Predicate<Gemstone> { $0.stoneType == diamondType }
-            )
+            // SwiftData #Predicate does not support custom enum types as captured constants.
+            let descriptor = FetchDescriptor<Gemstone>()
             let diamonds = try modelContext.fetch(descriptor)
+                .filter { $0.stoneType == .diamond }
 
             var updated = 0
             for priceEntry in prices {

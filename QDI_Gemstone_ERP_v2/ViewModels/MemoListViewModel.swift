@@ -21,13 +21,15 @@ final class MemoListViewModel: SortableViewModel {
     func fetchPage(context: ModelContext) {
         currentOffset = 0
         hasMore = true
-        var descriptor = FetchDescriptor<Memo>(
-            predicate: buildPredicate(),
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        // Fetch all memos and filter in memory instead.
+        let descriptor = FetchDescriptor<Memo>(
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
-        descriptor.fetchLimit = pageSize
         do {
-            fetchedMemos = try context.fetch(descriptor)
+            let all = try context.fetch(descriptor)
+            let filtered = applyStatusFilter(all)
+            fetchedMemos = Array(filtered.prefix(pageSize))
         } catch {
             AppLogger.data.error("Memo fetch failed: \(error.localizedDescription, privacy: .public)")
             fetchedMemos = []
@@ -38,15 +40,14 @@ final class MemoListViewModel: SortableViewModel {
 
     func loadMore(context: ModelContext) {
         guard hasMore else { return }
-        var descriptor = FetchDescriptor<Memo>(
-            predicate: buildPredicate(),
+        let descriptor = FetchDescriptor<Memo>(
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
-        descriptor.fetchLimit = pageSize
-        descriptor.fetchOffset = currentOffset
         let page: [Memo]
         do {
-            page = try context.fetch(descriptor)
+            let all = try context.fetch(descriptor)
+            let filtered = applyStatusFilter(all)
+            page = Array(filtered.dropFirst(currentOffset).prefix(pageSize))
         } catch {
             AppLogger.data.error("Memo loadMore failed: \(error.localizedDescription, privacy: .public)")
             return
@@ -61,16 +62,9 @@ final class MemoListViewModel: SortableViewModel {
         fetchPage(context: context)
     }
 
-    private func buildPredicate() -> Predicate<Memo>? {
-        guard let status = statusFilter else { return nil }
-        let onMemoStatus = MemoStatus.onMemo
-        let returnedStatus = MemoStatus.returned
-        let soldStatus = MemoStatus.sold
-        switch status {
-        case .onMemo: return #Predicate<Memo> { $0.status == onMemoStatus }
-        case .returned: return #Predicate<Memo> { $0.status == returnedStatus }
-        case .sold: return #Predicate<Memo> { $0.status == soldStatus }
-        }
+    private func applyStatusFilter(_ memos: [Memo]) -> [Memo] {
+        guard let status = statusFilter else { return memos }
+        return memos.filter { $0.status == status }
     }
 
     func filtered(from memos: [Memo]) -> [Memo] {

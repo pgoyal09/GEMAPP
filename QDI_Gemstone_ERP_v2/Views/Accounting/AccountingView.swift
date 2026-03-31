@@ -15,11 +15,9 @@ struct AccountingView: View {
 
     /// Fetch sent invoices that fall into a specific aging bucket, computed locally.
     private func invoicesForAgingBucket(_ bucketID: String) -> [Invoice] {
-        let sentStatus = InvoiceStatus.sent
-        let descriptor = FetchDescriptor<Invoice>(
-            predicate: #Predicate<Invoice> { $0.status == sentStatus }
-        )
-        guard let invoices = try? modelContext.fetch(descriptor) else { return [] }
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        let descriptor = FetchDescriptor<Invoice>()
+        guard let invoices = try? modelContext.fetch(descriptor).filter({ $0.status == .sent }) else { return [] }
         let today = Date()
         let calendar = Calendar.current
         return invoices.filter { inv in

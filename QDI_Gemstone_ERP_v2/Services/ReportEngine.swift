@@ -115,11 +115,10 @@ enum ReportEngine {
         endDate: Date,
         modelContext: ModelContext
     ) -> PLReport {
-        let paidStatus = InvoiceStatus.paid
-        let descriptor = FetchDescriptor<Invoice>(
-            predicate: #Predicate<Invoice> { $0.status == paidStatus }
-        )
-        let invoices = (try? modelContext.fetch(descriptor)) ?? []
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        let descriptor = FetchDescriptor<Invoice>()
+        let invoices = ((try? modelContext.fetch(descriptor)) ?? [])
+            .filter { $0.status == .paid }
         let filtered = invoices.filter { $0.invoiceDate >= startDate && $0.invoiceDate <= endDate }
 
         var typeMap: [String: (units: Int, revenue: Decimal, cogs: Decimal)] = [:]
@@ -160,25 +159,18 @@ enum ReportEngine {
         endDate: Date,
         modelContext: ModelContext
     ) -> InventoryTurnoverReport {
-        let availableStatus = GemstoneStatus.available
-        let allDescriptor = FetchDescriptor<Gemstone>(
-            predicate: #Predicate<Gemstone> { $0.status == availableStatus }
-        )
-        let available = (try? modelContext.fetch(allDescriptor)) ?? []
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        let allDescriptor = FetchDescriptor<Gemstone>()
+        let allGemstones = (try? modelContext.fetch(allDescriptor)) ?? []
+        let available = allGemstones.filter { $0.status == .available }
         let currentCount = available.count
         let currentValue = available.reduce(Decimal.zero) { $0 + $1.costPrice }
 
-        let soldStatus = GemstoneStatus.sold
-        let soldDescriptor = FetchDescriptor<Gemstone>(
-            predicate: #Predicate<Gemstone> { $0.status == soldStatus }
-        )
-        _ = (try? modelContext.fetch(soldDescriptor)) ?? [] // available for future use
+        _ = allGemstones.filter { $0.status == .sold } // available for future use
 
-        let paidStatus = InvoiceStatus.paid
-        let invDescriptor = FetchDescriptor<Invoice>(
-            predicate: #Predicate<Invoice> { $0.status == paidStatus }
-        )
-        let invoices = (try? modelContext.fetch(invDescriptor)) ?? []
+        let invDescriptor = FetchDescriptor<Invoice>()
+        let invoices = ((try? modelContext.fetch(invDescriptor)) ?? [])
+            .filter { $0.status == .paid }
         let periodInvoices = invoices.filter { $0.invoiceDate >= startDate && $0.invoiceDate <= endDate }
 
         var soldCount = 0
@@ -259,11 +251,10 @@ enum ReportEngine {
         endDate: Date,
         modelContext: ModelContext
     ) -> CustomerProfitabilityReport {
-        let paidStatus = InvoiceStatus.paid
-        let descriptor = FetchDescriptor<Invoice>(
-            predicate: #Predicate<Invoice> { $0.status == paidStatus }
-        )
-        let invoices = (try? modelContext.fetch(descriptor)) ?? []
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        let descriptor = FetchDescriptor<Invoice>()
+        let invoices = ((try? modelContext.fetch(descriptor)) ?? [])
+            .filter { $0.status == .paid }
         let filtered = invoices.filter { $0.invoiceDate >= startDate && $0.invoiceDate <= endDate }
 
         var customerMap: [String: (id: PersistentIdentifier?, revenue: Decimal, cogs: Decimal, count: Int)] = [:]
@@ -307,11 +298,10 @@ enum ReportEngine {
         endDate: Date? = nil,
         modelContext: ModelContext
     ) -> MarginAnalysisReport {
-        let paidStatus = InvoiceStatus.paid
-        let descriptor = FetchDescriptor<Invoice>(
-            predicate: #Predicate<Invoice> { $0.status == paidStatus }
-        )
-        let allInvoices = (try? modelContext.fetch(descriptor)) ?? []
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        let descriptor = FetchDescriptor<Invoice>()
+        let allInvoices = ((try? modelContext.fetch(descriptor)) ?? [])
+            .filter { $0.status == .paid }
         let invoices: [Invoice]
         if let startDate, let endDate {
             invoices = allInvoices.filter { $0.invoiceDate >= startDate && $0.invoiceDate <= endDate }

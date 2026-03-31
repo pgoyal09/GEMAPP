@@ -45,6 +45,7 @@ final class DashboardViewModel {
     func load(modelContext: ModelContext) {
         isLoading = true
         defer { isLoading = false }
+        
         loadInventoryMetrics(modelContext: modelContext)
         loadMemoMetrics(modelContext: modelContext)
         loadSalesMetrics(modelContext: modelContext)
@@ -56,27 +57,18 @@ final class DashboardViewModel {
     // MARK: - Private
 
     private func loadInventoryMetrics(modelContext: ModelContext) {
-        // Use fetchCount for snapshot counts instead of fetching all records
+        // SwiftData #Predicate does not support custom enum types as captured constants
+        // ("Unsupported Predicate: Captured/constant values of type 'GemstoneStatus'").
+        // Fetch all stones and filter in memory instead.
+        let allStones = safeFetch(FetchDescriptor<Gemstone>(), modelContext: modelContext)
+        
         var snap = InventorySnapshot()
-        let availableStatus = GemstoneStatus.available
-        let onMemoStatus = GemstoneStatus.onMemo
-        let soldStatus = GemstoneStatus.sold
-        snap.availableCount = safeCount(FetchDescriptor<Gemstone>(
-            predicate: #Predicate<Gemstone> { $0.status == availableStatus }
-        ), modelContext: modelContext)
-        snap.onMemoCount = safeCount(FetchDescriptor<Gemstone>(
-            predicate: #Predicate<Gemstone> { $0.status == onMemoStatus }
-        ), modelContext: modelContext)
-        snap.soldCount = safeCount(FetchDescriptor<Gemstone>(
-            predicate: #Predicate<Gemstone> { $0.status == soldStatus }
-        ), modelContext: modelContext)
+        snap.availableCount = allStones.filter { $0.status == .available }.count
+        snap.onMemoCount = allStones.filter { $0.status == .onMemo }.count
+        snap.soldCount = allStones.filter { $0.status == .sold }.count
         inventorySnapshot = snap
 
-        // Fetch only available stones for carats/value calculation
-        let availableDesc = FetchDescriptor<Gemstone>(
-            predicate: #Predicate<Gemstone> { $0.status == availableStatus }
-        )
-        let availableStones = safeFetch(availableDesc, modelContext: modelContext)
+        let availableStones = allStones.filter { $0.status == .available }
 
         var carats: Double = 0
         var value: Decimal = 0
@@ -90,27 +82,19 @@ final class DashboardViewModel {
     }
 
     private func loadMemoMetrics(modelContext: ModelContext) {
-        let onMemoStatus = MemoStatus.onMemo
-        let descriptor = FetchDescriptor<Memo>(
-            predicate: #Predicate<Memo> { $0.status == onMemoStatus }
-        )
-        let memos = safeFetch(descriptor, modelContext: modelContext)
-        totalValueOnMemo = memos.reduce(Decimal.zero) { $0 + $1.openMemoAmount }
+        let allMemos = safeFetch(FetchDescriptor<Memo>(), modelContext: modelContext)
+        let openMemos = allMemos.filter { $0.status == .onMemo }
+        totalValueOnMemo = openMemos.reduce(Decimal.zero) { $0 + $1.openMemoAmount }
     }
 
     private func loadSalesMetrics(modelContext: ModelContext) {
         let calendar = Calendar.current
         let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: Date())) ?? Date()
-        let paidStatus = InvoiceStatus.paid
-        let sentStatus = InvoiceStatus.sent
-        let descriptor = FetchDescriptor<Invoice>(
-            predicate: #Predicate<Invoice> {
-                ($0.status == paidStatus || $0.status == sentStatus) &&
-                $0.invoiceDate >= startOfMonth
-            }
-        )
-        let invoices = safeFetch(descriptor, modelContext: modelContext)
-        monthlySales = invoices.reduce(Decimal.zero) { $0 + $1.totalAmount }
+        let allInvoices = safeFetch(FetchDescriptor<Invoice>(), modelContext: modelContext)
+        let periodInvoices = allInvoices.filter {
+            ($0.status == .paid || $0.status == .sent) && $0.invoiceDate >= startOfMonth
+        }
+        monthlySales = periodInvoices.reduce(Decimal.zero) { $0 + $1.totalAmount }
     }
 
     private func fetchRecentActivity(modelContext: ModelContext) -> [RecentActivityItem] {
@@ -139,13 +123,8 @@ final class DashboardViewModel {
     }
 
     private func fetchOldestOpenMemos(modelContext: ModelContext) -> [OldestMemoItem] {
-        let onMemoStatus = MemoStatus.onMemo
-        var descriptor = FetchDescriptor<Memo>(
-            predicate: #Predicate<Memo> { $0.status == onMemoStatus },
-            sortBy: [SortDescriptor(\.createdAt, order: .forward)]
-        )
-        descriptor.fetchLimit = 5
-        let memos = safeFetch(descriptor, modelContext: modelContext)
+        let allMemos = safeFetch(FetchDescriptor<Memo>(sortBy: [SortDescriptor(\.createdAt, order: .forward)]), modelContext: modelContext)
+        let memos = Array(allMemos.filter { $0.status == .onMemo }.prefix(5))
 
         return memos.map { memo in
             OldestMemoItem(
@@ -159,23 +138,25 @@ final class DashboardViewModel {
     }
 
     private func loadOverdueMemoCount(modelContext: ModelContext) {
-        let onMemoStatus = MemoStatus.onMemo
-        let descriptor = FetchDescriptor<Memo>(
-            predicate: #Predicate<Memo> { $0.status == onMemoStatus }
-        )
-        let memos = safeFetch(descriptor, modelContext: modelContext)
-        overdueMemoCount = memos.filter { $0.ageInDays > 60 }.count
+        let allMemos = safeFetch(FetchDescriptor<Memo>(), modelContext: modelContext)
+        overdueMemoCount = allMemos.filter { $0.status == .onMemo && $0.ageInDays > 60 }.count
     }
 
     // MARK: - Helpers
 
     private func safeFetch<T: PersistentModel>(_ descriptor: FetchDescriptor<T>, modelContext: ModelContext) -> [T] {
         do { return try modelContext.fetch(descriptor) }
-        catch { AppLogger.data.error("Dashboard fetch failed: \(error.localizedDescription, privacy: .public)"); return [] }
+        catch {
+            AppLogger.data.error("Dashboard fetch failed: \(error.localizedDescription, privacy: .public)")
+            return []
+        }
     }
 
     private func safeCount<T: PersistentModel>(_ descriptor: FetchDescriptor<T>, modelContext: ModelContext) -> Int {
         do { return try modelContext.fetchCount(descriptor) }
-        catch { AppLogger.data.error("Dashboard count failed: \(error.localizedDescription, privacy: .public)"); return 0 }
+        catch {
+            AppLogger.data.error("Dashboard count failed: \(error.localizedDescription, privacy: .public)")
+            return 0
+        }
     }
 }

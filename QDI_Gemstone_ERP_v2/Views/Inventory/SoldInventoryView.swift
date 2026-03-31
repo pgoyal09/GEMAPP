@@ -8,12 +8,9 @@ struct SoldInventoryView: View {
     @Query private var allStones: [Gemstone]
 
     init() {
-        let soldStatus = GemstoneStatus.sold
-        _allStones = Query(
-            filter: #Predicate<Gemstone> { $0.status == soldStatus },
-            sort: \Gemstone.createdAt,
-            order: .reverse
-        )
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        // Fetch all and filter in computed property instead.
+        _allStones = Query(sort: \Gemstone.createdAt, order: .reverse)
     }
 
     @State private var searchText = ""
@@ -40,7 +37,7 @@ struct SoldInventoryView: View {
     // MARK: - Computed
 
     private var filteredStones: [Gemstone] {
-        var result = Array(allStones)
+        var result = allStones.filter { $0.status == .sold }
 
         switch typeToggle {
         case .all: break

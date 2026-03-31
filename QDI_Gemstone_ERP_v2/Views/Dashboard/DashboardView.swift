@@ -37,6 +37,9 @@ struct DashboardView: View {
         }
         .onAppear { viewModel.load(modelContext: modelContext) }
         .onChange(of: showAddStoneSheet) { _, _ in viewModel.load(modelContext: modelContext) }
+        .onReceive(NotificationCenter.default.publisher(for: .dataStoreDidChange)) { _ in
+            viewModel.load(modelContext: modelContext)
+        }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             viewModel.load(modelContext: modelContext)
         }

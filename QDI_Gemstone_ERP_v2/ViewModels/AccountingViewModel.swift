@@ -112,15 +112,13 @@ final class AccountingViewModel {
         isLoading = true
         defer { isLoading = false }
 
-        // Single fetch: all paid + sent invoices, then partition client-side.
-        let paidStatus = InvoiceStatus.paid
-        let sentStatus = InvoiceStatus.sent
-        let descriptor = FetchDescriptor<Invoice>(
-            predicate: #Predicate<Invoice> { $0.status == paidStatus || $0.status == sentStatus }
-        )
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        // Fetch all invoices and filter in memory instead.
+        let descriptor = FetchDescriptor<Invoice>()
         let allInvoices: [Invoice]
         do {
             allInvoices = try modelContext.fetch(descriptor)
+                .filter { $0.status == .paid || $0.status == .sent }
         } catch {
             AppLogger.data.error("Accounting fetch failed: \(error.localizedDescription, privacy: .public)")
             allInvoices = []

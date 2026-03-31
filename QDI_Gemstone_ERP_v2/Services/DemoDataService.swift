@@ -20,6 +20,7 @@ struct DemoDataService {
     static func resetAllData(modelContext: ModelContext) throws {
         try deleteAllData(modelContext: modelContext)
         try seedDemoData(modelContext: modelContext)
+        NotificationCenter.default.post(name: .dataStoreDidChange, object: nil)
     }
 
     // MARK: - Delete All

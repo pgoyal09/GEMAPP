@@ -39,12 +39,13 @@ final class ReconcileViewModel {
 
     func load(modelContext: ModelContext) {
         self.modelContext = modelContext
-        let availableStatus = GemstoneStatus.available
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        // Fetch all stones and filter in memory instead.
         let descriptor = FetchDescriptor<Gemstone>(
-            predicate: #Predicate<Gemstone> { $0.status == availableStatus },
             sortBy: [SortDescriptor(\.sku)]
         )
-        availableStones = (try? modelContext.fetch(descriptor)) ?? []
+        availableStones = ((try? modelContext.fetch(descriptor)) ?? [])
+            .filter { $0.status == .available }
     }
 
     func startScanning() {

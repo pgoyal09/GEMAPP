@@ -34,15 +34,11 @@ enum ARService {
     /// Get all unpaid invoices (sent or draft with balance due > 0).
     @MainActor
     static func unpaidInvoices(modelContext: ModelContext) -> [Invoice] {
-        let sentStatus = InvoiceStatus.sent
-        let draftStatus = InvoiceStatus.draft
-        let descriptor = FetchDescriptor<Invoice>(
-            predicate: #Predicate<Invoice> {
-                $0.status == sentStatus || $0.status == draftStatus
-            }
-        )
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        // Fetch all invoices and filter in memory instead.
+        let descriptor = FetchDescriptor<Invoice>()
         let invoices = (try? modelContext.fetch(descriptor)) ?? []
-        return invoices.filter { $0.balanceDue > 0 }
+        return invoices.filter { ($0.status == .sent || $0.status == .draft) && $0.balanceDue > 0 }
     }
 
     /// Group unpaid invoices into aging buckets.

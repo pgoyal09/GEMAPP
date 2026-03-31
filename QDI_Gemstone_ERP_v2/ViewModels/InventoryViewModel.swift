@@ -102,13 +102,15 @@ final class InventoryViewModel: SortableViewModel {
         currentMode = mode
         currentOffset = 0
         hasMore = true
-        var descriptor = FetchDescriptor<Gemstone>(
-            predicate: buildPredicate(),
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        // Fetch all stones and filter in memory instead.
+        let descriptor = FetchDescriptor<Gemstone>(
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
-        descriptor.fetchLimit = pageSize
         do {
-            fetchedStones = try context.fetch(descriptor)
+            let allStones = try context.fetch(descriptor)
+            let filtered = applyModeAndStatusFilter(allStones)
+            fetchedStones = Array(filtered.prefix(pageSize))
         } catch {
             AppLogger.data.error("Inventory fetch failed: \(error.localizedDescription, privacy: .public)")
             fetchedStones = []
@@ -119,15 +121,14 @@ final class InventoryViewModel: SortableViewModel {
 
     func loadMore(context: ModelContext) {
         guard hasMore else { return }
-        var descriptor = FetchDescriptor<Gemstone>(
-            predicate: buildPredicate(),
+        let descriptor = FetchDescriptor<Gemstone>(
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
-        descriptor.fetchLimit = pageSize
-        descriptor.fetchOffset = currentOffset
         let page: [Gemstone]
         do {
-            page = try context.fetch(descriptor)
+            let allStones = try context.fetch(descriptor)
+            let filtered = applyModeAndStatusFilter(allStones)
+            page = Array(filtered.dropFirst(currentOffset).prefix(pageSize))
         } catch {
             AppLogger.data.error("Inventory loadMore failed: \(error.localizedDescription, privacy: .public)")
             return
@@ -142,37 +143,33 @@ final class InventoryViewModel: SortableViewModel {
         fetchPage(context: context, mode: currentMode)
     }
 
-    // MARK: - Predicate Builder
+    // MARK: - In-Memory Filter
 
-    /// Builds a #Predicate incorporating mode, status, and stone type filters
-    /// to push filtering to the database layer instead of client-side.
-    private func buildPredicate() -> Predicate<Gemstone> {
-        let lotGrouping = StoneGrouping.lot
-        let soldStatus = GemstoneStatus.sold
-        let availableStatus = GemstoneStatus.available
-        let onMemoStatus = GemstoneStatus.onMemo
-
-        if currentMode == .sold {
-            if let type = stoneTypeFilter {
-                return #Predicate<Gemstone> { $0.status == soldStatus && $0.stoneType == type }
+    /// Filters stones by mode, status, and stone type in memory
+    /// (replaces #Predicate which cannot capture custom enum types).
+    private func applyModeAndStatusFilter(_ stones: [Gemstone]) -> [Gemstone] {
+        stones.filter { stone in
+            if currentMode == .sold {
+                guard stone.status == .sold else { return false }
+                if let type = stoneTypeFilter { return stone.stoneType == type }
+                return true
             }
-            return #Predicate<Gemstone> { $0.status == soldStatus }
-        }
 
-        switch (statusFilter, stoneTypeFilter) {
-        case (.available, let type?):
-            return #Predicate<Gemstone> { $0.grouping != lotGrouping && $0.status == availableStatus && $0.stoneType == type }
-        case (.available, nil):
-            return #Predicate<Gemstone> { $0.grouping != lotGrouping && $0.status == availableStatus }
-        case (.onMemo, let type?):
-            return #Predicate<Gemstone> { $0.grouping != lotGrouping && $0.status == onMemoStatus && $0.stoneType == type }
-        case (.onMemo, nil):
-            return #Predicate<Gemstone> { $0.grouping != lotGrouping && $0.status == onMemoStatus }
-        default:
-            if let type = stoneTypeFilter {
-                return #Predicate<Gemstone> { $0.grouping != lotGrouping && $0.status != soldStatus && $0.stoneType == type }
+            guard stone.grouping != .lot else { return false }
+
+            switch statusFilter {
+            case .available:
+                guard stone.status == .available else { return false }
+            case .onMemo:
+                guard stone.status == .onMemo else { return false }
+            default:
+                guard stone.status != .sold else { return false }
             }
-            return #Predicate<Gemstone> { $0.grouping != lotGrouping && $0.status != soldStatus }
+
+            if let type = stoneTypeFilter {
+                guard stone.stoneType == type else { return false }
+            }
+            return true
         }
     }
 

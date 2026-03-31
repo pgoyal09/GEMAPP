@@ -57,22 +57,15 @@ struct GemstonesInventoryView: View {
 
     init(navigateTo: Binding<NavigationItem>) {
         self._navigateTo = navigateTo
-        let diamondType = StoneType.diamond
-        let lotGrouping = StoneGrouping.lot
-        let soldStatus = GemstoneStatus.sold
-        _allStones = Query(
-            filter: #Predicate<Gemstone> {
-                $0.stoneType != diamondType && $0.grouping != lotGrouping && $0.status != soldStatus
-            },
-            sort: \Gemstone.createdAt,
-            order: .reverse
-        )
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        // Fetch all and filter in computed property instead.
+        _allStones = Query(sort: \Gemstone.createdAt, order: .reverse)
     }
 
     // MARK: - Computed
 
     private var gemstones: [Gemstone] {
-        allStones
+        allStones.filter { $0.stoneType != .diamond && $0.grouping != .lot && $0.status != .sold }
     }
 
     private var filteredStones: [Gemstone] {

@@ -98,20 +98,16 @@ struct InventorySelectSheet: View {
     }
 
     private func fetchStones() {
-        let lotGrouping = StoneGrouping.lot
-        let availableStatus = GemstoneStatus.available
-        let descriptor: FetchDescriptor<Gemstone>
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        // Fetch all stones and filter in memory instead.
+        let descriptor = FetchDescriptor<Gemstone>(
+            sortBy: [SortDescriptor(\.sku)]
+        )
+        let all = (try? modelContext.fetch(descriptor)) ?? []
         if availableOnly {
-            descriptor = FetchDescriptor<Gemstone>(
-                predicate: #Predicate<Gemstone> { $0.grouping != lotGrouping && $0.status == availableStatus },
-                sortBy: [SortDescriptor(\.sku)]
-            )
+            fetchedStones = all.filter { $0.grouping != .lot && $0.status == .available }
         } else {
-            descriptor = FetchDescriptor<Gemstone>(
-                predicate: #Predicate<Gemstone> { $0.grouping != lotGrouping },
-                sortBy: [SortDescriptor(\.sku)]
-            )
+            fetchedStones = all.filter { $0.grouping != .lot }
         }
-        fetchedStones = (try? modelContext.fetch(descriptor)) ?? []
     }
 }

@@ -79,16 +79,12 @@ enum TransactionService {
         }
         // Guard: stone must not be on ANY other memo with an active line item
         let stoneID = stone.persistentModelID
-        let openStatus = LineItemStatus.open
-        let allLineItems = FetchDescriptor<LineItem>(
-            predicate: #Predicate<LineItem> { item in
-                item.gemstone?.persistentModelID == stoneID &&
-                item.memo != nil &&
-                item.status == openStatus
-            }
-        )
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        // Fetch all line items and filter in memory instead.
+        let allLineItems = FetchDescriptor<LineItem>()
         do {
             let existingItems = try modelContext.fetch(allLineItems)
+                .filter { $0.gemstone?.persistentModelID == stoneID && $0.memo != nil && $0.status == .open }
             if let existingItem = existingItems.first(where: { $0.memo?.persistentModelID != memo.persistentModelID }) {
                 let ref = existingItem.memo?.referenceNumber ?? "unknown"
                 throw TransactionError.stoneAlreadyOnMemo(sku: stone.sku, ref: ref)
@@ -173,17 +169,12 @@ enum TransactionService {
         }
         // Guard: stone must not be on ANY other invoice with an active line item
         let stoneID = stone.persistentModelID
-        let soldStatus = LineItemStatus.sold
-        let openStatus = LineItemStatus.open
-        let allInvoiceItems = FetchDescriptor<LineItem>(
-            predicate: #Predicate<LineItem> { item in
-                item.gemstone?.persistentModelID == stoneID &&
-                item.invoice != nil &&
-                (item.status == soldStatus || item.status == openStatus)
-            }
-        )
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        // Fetch all line items and filter in memory instead.
+        let allInvoiceItems = FetchDescriptor<LineItem>()
         do {
             let existingItems = try modelContext.fetch(allInvoiceItems)
+                .filter { $0.gemstone?.persistentModelID == stoneID && $0.invoice != nil && ($0.status == .sold || $0.status == .open) }
             if let existingItem = existingItems.first(where: { $0.invoice?.persistentModelID != invoice.persistentModelID }) {
                 let ref = existingItem.invoice?.referenceNumber ?? "unknown"
                 throw TransactionError.stoneAlreadyOnInvoice(sku: stone.sku, ref: ref)

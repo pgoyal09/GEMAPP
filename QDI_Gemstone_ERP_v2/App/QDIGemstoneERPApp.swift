@@ -64,7 +64,18 @@ struct QDIGemstoneERPApp: App {
         // observe it and re-fetch, preventing stale data across windows.
         let config = ModelConfiguration(schema: schema, url: storeURL)
         do {
-            return try ModelContainer(for: schema, configurations: [config])
+            let container = try ModelContainer(for: schema, configurations: [config])
+            #if DEBUG
+            // Seed demo data immediately so child views see it on first onAppear.
+            // Previously this ran in the WindowGroup.onAppear which fires AFTER
+            // child views' onAppear, leaving the dashboard empty on first launch.
+            do {
+                try DemoDataService.seedIfNeeded(modelContext: container.mainContext)
+            } catch {
+                AppLogger.data.error("Failed to seed demo data: \(error.localizedDescription)")
+            }
+            #endif
+            return container
         } catch {
             // Migration failed — don't silently delete user data.
             // Create a minimal in-memory container so the app can launch and show the alert.
@@ -92,14 +103,6 @@ struct QDIGemstoneERPApp: App {
                     startAPIServer()
                     runPhase2Migrations()
                     backupScheduler.configure(container: sharedModelContainer)
-                    #if DEBUG
-                    // Only seed demo data in debug builds — production starts with empty database
-                    do {
-                        try DemoDataService.seedIfNeeded(modelContext: sharedModelContainer.mainContext)
-                    } catch {
-                        AppLogger.data.error("Failed to seed demo data: \(error.localizedDescription)")
-                    }
-                    #endif
                     if Self.migrationDidFail {
                         migrationError = Self.migrationErrorMessage
                         showMigrationFailureAlert = true

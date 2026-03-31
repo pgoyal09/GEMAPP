@@ -107,12 +107,13 @@ struct LotSelectSheet: View {
     }
 
     private func fetchLots() {
-        let lotGrouping = StoneGrouping.lot
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        // Fetch all stones and filter in memory instead.
         let descriptor = FetchDescriptor<Gemstone>(
-            predicate: #Predicate<Gemstone> { $0.grouping == lotGrouping },
             sortBy: [SortDescriptor(\.sku)]
         )
-        fetchedLots = (try? modelContext.fetch(descriptor)) ?? []
+        fetchedLots = ((try? modelContext.fetch(descriptor)) ?? [])
+            .filter { $0.grouping == .lot }
     }
 
     private func confirmSelection() {

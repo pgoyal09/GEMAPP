@@ -21,13 +21,15 @@ final class InvoiceListViewModel: SortableViewModel {
     func fetchPage(context: ModelContext) {
         currentOffset = 0
         hasMore = true
-        var descriptor = FetchDescriptor<Invoice>(
-            predicate: buildPredicate(),
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        // Fetch all invoices and filter in memory instead.
+        let descriptor = FetchDescriptor<Invoice>(
             sortBy: [SortDescriptor(\.invoiceDate, order: .reverse)]
         )
-        descriptor.fetchLimit = pageSize
         do {
-            fetchedInvoices = try context.fetch(descriptor)
+            let all = try context.fetch(descriptor)
+            let filtered = applyStatusFilter(all)
+            fetchedInvoices = Array(filtered.prefix(pageSize))
         } catch {
             AppLogger.data.error("Invoice fetch failed: \(error.localizedDescription, privacy: .public)")
             fetchedInvoices = []
@@ -38,15 +40,14 @@ final class InvoiceListViewModel: SortableViewModel {
 
     func loadMore(context: ModelContext) {
         guard hasMore else { return }
-        var descriptor = FetchDescriptor<Invoice>(
-            predicate: buildPredicate(),
+        let descriptor = FetchDescriptor<Invoice>(
             sortBy: [SortDescriptor(\.invoiceDate, order: .reverse)]
         )
-        descriptor.fetchLimit = pageSize
-        descriptor.fetchOffset = currentOffset
         let page: [Invoice]
         do {
-            page = try context.fetch(descriptor)
+            let all = try context.fetch(descriptor)
+            let filtered = applyStatusFilter(all)
+            page = Array(filtered.dropFirst(currentOffset).prefix(pageSize))
         } catch {
             AppLogger.data.error("Invoice loadMore failed: \(error.localizedDescription, privacy: .public)")
             return
@@ -61,18 +62,9 @@ final class InvoiceListViewModel: SortableViewModel {
         fetchPage(context: context)
     }
 
-    private func buildPredicate() -> Predicate<Invoice>? {
-        guard let status = statusFilter else { return nil }
-        let draftStatus = InvoiceStatus.draft
-        let sentStatus = InvoiceStatus.sent
-        let paidStatus = InvoiceStatus.paid
-        let voidStatus = InvoiceStatus.void
-        switch status {
-        case .draft: return #Predicate<Invoice> { $0.status == draftStatus }
-        case .sent: return #Predicate<Invoice> { $0.status == sentStatus }
-        case .paid: return #Predicate<Invoice> { $0.status == paidStatus }
-        case .void: return #Predicate<Invoice> { $0.status == voidStatus }
-        }
+    private func applyStatusFilter(_ invoices: [Invoice]) -> [Invoice] {
+        guard let status = statusFilter else { return invoices }
+        return invoices.filter { $0.status == status }
     }
 
     func filtered(from invoices: [Invoice]) -> [Invoice] {

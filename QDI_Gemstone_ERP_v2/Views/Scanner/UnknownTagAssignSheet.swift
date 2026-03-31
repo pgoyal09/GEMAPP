@@ -13,20 +13,22 @@ struct UnknownTagAssignSheet: View {
     init(epc: String, tid: String) {
         self.epc = epc
         self.tid = tid
-        let availableStatus = GemstoneStatus.available
-        _allGemstones = Query(
-            filter: #Predicate<Gemstone> { $0.status == availableStatus },
-            sort: \Gemstone.sku
-        )
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        // Fetch all and filter in computed property instead.
+        _allGemstones = Query(sort: \Gemstone.sku)
     }
     @State private var searchText = ""
     @State private var selectedStoneID: PersistentIdentifier?
     @State private var errorMessage: String?
 
+    private var availableGemstones: [Gemstone] {
+        allGemstones.filter { $0.status == .available }
+    }
+
     private var filteredStones: [Gemstone] {
         let q = searchText.lowercased()
-        guard !q.isEmpty else { return Array(allGemstones.prefix(20)) }
-        return allGemstones.filter { $0.sku.lowercased().contains(q) || $0.stoneType.rawValue.lowercased().contains(q) }
+        guard !q.isEmpty else { return Array(availableGemstones.prefix(20)) }
+        return availableGemstones.filter { $0.sku.lowercased().contains(q) || $0.stoneType.rawValue.lowercased().contains(q) }
     }
 
     var body: some View {
@@ -95,7 +97,7 @@ struct UnknownTagAssignSheet: View {
 
     private func assignTag() {
         guard let id = selectedStoneID,
-              let stone = allGemstones.first(where: { $0.persistentModelID == id }) else { return }
+              let stone = availableGemstones.first(where: { $0.persistentModelID == id }) else { return }
         do {
             try rfidCoordinator?.assignTag(to: stone, modelContext: modelContext)
             dismiss()

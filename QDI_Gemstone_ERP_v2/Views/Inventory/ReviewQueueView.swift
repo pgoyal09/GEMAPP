@@ -6,12 +6,9 @@ struct ReviewQueueView: View {
     @Query private var allGemstones: [Gemstone]
 
     init() {
-        let soldStatus = GemstoneStatus.sold
-        _allGemstones = Query(
-            filter: #Predicate<Gemstone> { $0.status != soldStatus },
-            sort: \Gemstone.createdAt,
-            order: .reverse
-        )
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        // Fetch all and filter in computed property instead.
+        _allGemstones = Query(sort: \Gemstone.createdAt, order: .reverse)
     }
 
     @State private var selectedStoneID: PersistentIdentifier?
@@ -22,7 +19,7 @@ struct ReviewQueueView: View {
     // MARK: - Computed
 
     private var reviewStones: [Gemstone] {
-        var stones = allGemstones.filter { $0.needsReview }
+        var stones = allGemstones.filter { $0.status != .sold && $0.needsReview }
         if !searchText.isEmpty {
             let q = searchText.lowercased()
             stones = stones.filter {

@@ -11,11 +11,9 @@ struct LotInventoryView: View {
     // MARK: - Init
 
     init() {
-        let lotGrouping = StoneGrouping.lot
-        _allStones = Query(
-            filter: #Predicate<Gemstone> { $0.grouping == lotGrouping },
-            sort: \Gemstone.sku
-        )
+        // SwiftData #Predicate does not support custom enum types as captured constants.
+        // Fetch all and filter in computed property instead.
+        _allStones = Query(sort: \Gemstone.sku)
     }
     @State private var showHistorySheet = false
     @State private var historyLot: Gemstone?
@@ -25,7 +23,7 @@ struct LotInventoryView: View {
     // MARK: - Computed
 
     private var lots: [Gemstone] {
-        allStones
+        allStones.filter { $0.grouping == .lot }
     }
 
     private var filteredLots: [Gemstone] {
