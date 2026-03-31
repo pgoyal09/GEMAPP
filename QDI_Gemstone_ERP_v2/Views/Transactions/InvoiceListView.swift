@@ -5,6 +5,7 @@ import AppKit
 struct InvoiceListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var viewModel = InvoiceListViewModel()
     @State private var isExportingBatch = false
     @State private var batchToastMessage: String?
@@ -88,8 +89,9 @@ struct InvoiceListView: View {
                         .frame(height: 200)
                 } else {
                     LazyVStack(spacing: 2) {
-                        ForEach(filtered) { invoice in
+                        ForEach(Array(filtered.enumerated()), id: \.element.persistentModelID) { index, invoice in
                             invoiceRow(invoice)
+                                .staggeredRow(index: index, reduceMotion: reduceMotion)
                                 .onAppear {
                                     if invoice.id == filtered.last?.id && viewModel.hasMore {
                                         viewModel.loadMore(context: modelContext)

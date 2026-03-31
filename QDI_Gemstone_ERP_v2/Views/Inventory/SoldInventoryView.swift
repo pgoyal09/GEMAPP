@@ -3,6 +3,7 @@ import SwiftData
 
 struct SoldInventoryView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @Query private var allStones: [Gemstone]
 
@@ -148,8 +149,9 @@ struct SoldInventoryView: View {
                     EmptyStateView(icon: "tag.slash", title: "No sold stones", subtitle: "Sold inventory will appear here")
                 } else {
                     LazyVStack(spacing: 2) {
-                        ForEach(filteredStones, id: \.persistentModelID) { stone in
+                        ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
                             stoneRow(stone)
+                                .staggeredRow(index: index, reduceMotion: reduceMotion)
                         }
                     }
                     .padding(.vertical, AppSpacing.standard)

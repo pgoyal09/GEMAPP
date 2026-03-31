@@ -234,6 +234,12 @@ struct AppShellView: View {
                 CompanySettingsView()
             }
         }
+        .id(route)
+        .transition(reduceMotion ? .opacity : .asymmetric(
+            insertion: .opacity.combined(with: .offset(x: 20)),
+            removal: .opacity
+        ))
+        .animation(reduceMotion ? nil : AppAnimation.standard, value: route)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
             RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)

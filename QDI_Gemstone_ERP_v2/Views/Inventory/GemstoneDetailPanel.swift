@@ -6,6 +6,7 @@ struct GemstoneDetailPanel: View {
     let gemstone: Gemstone
     var onEdit: (() -> Void)? = nil
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var isDiamond: Bool { gemstone.stoneType == .diamond }
 
@@ -13,16 +14,25 @@ struct GemstoneDetailPanel: View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppSpacing.hero) {
                 headerCard
+                    .staggeredRow(index: 0, reduceMotion: reduceMotion)
                 overviewSection
+                    .staggeredRow(index: 1, reduceMotion: reduceMotion)
                 characteristicsSection
+                    .staggeredRow(index: 2, reduceMotion: reduceMotion)
                 dimensionsSection
+                    .staggeredRow(index: 3, reduceMotion: reduceMotion)
                 pricingSection
+                    .staggeredRow(index: 4, reduceMotion: reduceMotion)
                 rfidSection
+                    .staggeredRow(index: 5, reduceMotion: reduceMotion)
                 certificateSection
+                    .staggeredRow(index: 6, reduceMotion: reduceMotion)
                 historySection
+                    .staggeredRow(index: 7, reduceMotion: reduceMotion)
             }
             .padding(AppSpacing.hero)
         }
+        .id(gemstone.persistentModelID)
         .background(AppColors.panelBackground)
         .accessibilityIdentifier("GemstoneDetailPanel")
     }

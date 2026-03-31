@@ -4,6 +4,7 @@ import SwiftData
 struct MemoListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var viewModel = MemoListViewModel()
     @State private var toastMessage: String?
     @State private var toastIsError = false
@@ -84,8 +85,9 @@ struct MemoListView: View {
                         .frame(height: 200)
                 } else {
                     LazyVStack(spacing: 2) {
-                        ForEach(filtered) { memo in
+                        ForEach(Array(filtered.enumerated()), id: \.element.persistentModelID) { index, memo in
                             memoRow(memo)
+                                .staggeredRow(index: index, reduceMotion: reduceMotion)
                                 .onAppear {
                                     if memo.id == filtered.last?.id && viewModel.hasMore {
                                         viewModel.loadMore(context: modelContext)

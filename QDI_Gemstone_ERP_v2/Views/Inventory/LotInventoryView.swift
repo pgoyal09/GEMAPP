@@ -3,6 +3,7 @@ import SwiftData
 
 struct LotInventoryView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query private var allStones: [Gemstone]
 
     @State var viewModel = LotInventoryViewModel()
@@ -126,8 +127,9 @@ struct LotInventoryView: View {
             } else {
                 ScrollView {
                     LazyVStack(spacing: 2) {
-                        ForEach(filteredLots, id: \.persistentModelID) { lot in
+                        ForEach(Array(filteredLots.enumerated()), id: \.element.persistentModelID) { index, lot in
                             lotRow(lot)
+                                .staggeredRow(index: index, reduceMotion: reduceMotion)
                         }
                     }
                     .padding(.vertical, AppSpacing.standard)

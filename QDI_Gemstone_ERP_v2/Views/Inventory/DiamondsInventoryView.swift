@@ -6,6 +6,7 @@ struct DiamondsInventoryView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @Query private var allStones: [Gemstone]
 
@@ -263,8 +264,9 @@ struct DiamondsInventoryView: View {
                     EmptyStateView(icon: "sparkle", title: "No diamonds found", subtitle: "Try adjusting your search or filters")
                 } else {
                     LazyVStack(spacing: 2) {
-                        ForEach(filteredStones, id: \.persistentModelID) { stone in
+                        ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
                             stoneRow(stone)
+                                .staggeredRow(index: index, reduceMotion: reduceMotion)
                         }
                     }
                     .padding(.vertical, AppSpacing.standard)
