@@ -18,7 +18,7 @@ struct CustomerBalanceView: View {
     @State private var cooldownDaysAgo: Int = 0
 
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 4) {
             customerList
             if selectedCustomer != nil {
                 Divider().background(AppColors.cardStroke)
@@ -62,7 +62,7 @@ struct CustomerBalanceView: View {
                 if balances.isEmpty {
                     EmptyStateView(icon: "person.2", title: "No outstanding balances")
                 } else {
-                    HStack(spacing: 0) {
+                    HStack(spacing: 4) {
                         TableHeader(title: "Customer", width: TableColumn.customer)
                         TableHeader(title: "Outstanding", width: TableColumn.price, alignment: .trailing)
                         TableHeader(title: "Invoices", width: TableColumn.quantity, alignment: .trailing)
@@ -76,7 +76,7 @@ struct CustomerBalanceView: View {
                                 HoverRow(isSelected: selectedCustomer?.id == balance.id) {
                                     selectedCustomer = balance
                                 } content: {
-                                    HStack(spacing: 0) {
+                                    HStack(spacing: 4) {
                                         Text(balance.customerName)
                                             .font(AppTypography.body)
                                             .foregroundStyle(AppColors.ink)

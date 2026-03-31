@@ -8,7 +8,7 @@ struct CustomerListView: View {
     @State private var viewModel = CustomerListViewModel()
 
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 4) {
             // Left: list
             VStack(spacing: 0) {
                 HStack(spacing: AppSpacing.comfortable) {

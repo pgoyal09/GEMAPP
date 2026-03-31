@@ -387,7 +387,7 @@ struct DiamondsInventoryView: View {
     }
 
     private var tableHeader: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 4) {
             sortableHeader("SKU", key: "sku", width: TableColumn.sku, alignment: .leading)
             sortableHeader("Shape", key: "shape", width: TableColumn.shape, alignment: .leading)
             sortableHeader("Carat", key: "carat", width: TableColumn.carat, alignment: .trailing)

@@ -40,7 +40,7 @@ struct InventoryListView: View {
     // MARK: - Body
 
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 4) {
             // Main list area
             VStack(spacing: 0) {
                 topBar
@@ -279,7 +279,7 @@ struct InventoryListView: View {
     }
 
     private var tableHeader: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 4) {
             sortableHeader("SKU", key: "sku", width: TableColumn.sku, alignment: .leading)
             sortableHeader("Type", key: "type", width: TableColumn.type, alignment: .leading)
             sortableHeader("Shape", key: "shape", width: TableColumn.shape, alignment: .leading)

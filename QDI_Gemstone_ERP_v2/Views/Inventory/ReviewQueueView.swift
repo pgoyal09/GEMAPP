@@ -100,7 +100,7 @@ struct ReviewQueueView: View {
     }
 
     private var tableHeader: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 4) {
             TableHeader(title: "SKU", width: TableColumn.sku, alignment: .leading)
             TableHeader(title: "Type", width: TableColumn.type, alignment: .leading)
             TableHeader(title: "Shape", width: TableColumn.shape, alignment: .leading)
