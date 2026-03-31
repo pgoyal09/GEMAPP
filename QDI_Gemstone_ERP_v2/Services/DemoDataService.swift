@@ -26,16 +26,24 @@ struct DemoDataService {
 
     /// Deletes all entities in dependency-safe order using batch delete.
     static func deleteAllData(modelContext: ModelContext) throws {
-        try modelContext.delete(model: PaymentReminder.self)
-        try modelContext.delete(model: ReconciliationRecord.self)
-        try modelContext.delete(model: LotTransaction.self)
-        try modelContext.delete(model: HistoryEvent.self)
-        try modelContext.delete(model: LineItem.self)
-        try modelContext.delete(model: Invoice.self)
-        try modelContext.delete(model: Memo.self)
-        try modelContext.delete(model: RFIDTag.self)
-        try modelContext.delete(model: Gemstone.self)
-        try modelContext.delete(model: Customer.self)
+        // Use fetch-then-delete instead of batch delete.
+        // SwiftData batch delete bypasses relationship cascade rules,
+        // causing "mandatory OTO nullify inverse" errors on LotTransaction/gemstone.
+        func deleteAll<T: PersistentModel>(_ type: T.Type) throws {
+            let items = try modelContext.fetch(FetchDescriptor<T>())
+            for item in items { modelContext.delete(item) }
+        }
+        // Delete in dependency order (children before parents)
+        try deleteAll(PaymentReminder.self)
+        try deleteAll(ReconciliationRecord.self)
+        try deleteAll(LotTransaction.self)
+        try deleteAll(HistoryEvent.self)
+        try deleteAll(LineItem.self)
+        try deleteAll(Invoice.self)
+        try deleteAll(Memo.self)
+        try deleteAll(RFIDTag.self)
+        try deleteAll(Gemstone.self)
+        try deleteAll(Customer.self)
         try modelContext.save()
     }
 
