@@ -65,6 +65,12 @@ struct StoneFormView: View {
         } message: {
             Text("Stone has $0 price. Save anyway?")
         }
+        .onChange(of: viewModel.caratText) { _, _ in viewModel.validateInline() }
+        .onChange(of: viewModel.shapeText) { _, _ in viewModel.validateInline() }
+        .onChange(of: viewModel.costPriceText) { _, _ in viewModel.validateInline() }
+        .onChange(of: viewModel.sellPriceText) { _, _ in viewModel.validateInline() }
+        .onChange(of: viewModel.rapNetDiscountPctText) { _, _ in viewModel.validateInline() }
+        .onChange(of: viewModel.cashDiscountPctText) { _, _ in viewModel.validateInline() }
         .interactiveDismissDisabled(isSaving)
         .overlay {
             if let msg = viewModel.toastMessage {
@@ -97,10 +103,18 @@ struct StoneFormView: View {
                         .accessibilityLabel("Stone Type")
                         .onChange(of: viewModel.stoneTypeText) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
                     }
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: AppSpacing.compact) {
                         Text("Shape").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        TextField("Shape", text: $viewModel.shapeText).glassField()
+                        TextField("Shape", text: $viewModel.shapeText)
+                            .glassField()
+                            .overlay(
+                                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                                    .strokeBorder(viewModel.shapeError != nil ? AppColors.danger : Color.clear, lineWidth: 1.5)
+                            )
                             .onChange(of: viewModel.shapeText) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
+                        if let err = viewModel.shapeError {
+                            Text(err).font(AppTypography.caption).foregroundStyle(AppColors.danger)
+                        }
                     }
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Grouping").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
@@ -114,11 +128,18 @@ struct StoneFormView: View {
                     }
                 }
                 HStack(spacing: AppSpacing.section) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: AppSpacing.compact) {
                         Text("Carats").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                         TextField("0.00", text: $viewModel.caratText)
                             .glassField()
                             .focused($isCaratFieldFocused)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                                    .strokeBorder(viewModel.caratError != nil ? AppColors.danger : Color.clear, lineWidth: 1.5)
+                            )
+                        if let err = viewModel.caratError {
+                            Text(err).font(AppTypography.caption).foregroundStyle(AppColors.danger)
+                        }
                     }
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Origin").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
@@ -174,9 +195,9 @@ struct StoneFormView: View {
                 }
                 HStack(spacing: AppSpacing.section) {
                     field("RapNet Price", $viewModel.rapNetPriceText)
-                    field("RapNet Disc %", $viewModel.rapNetDiscountPctText)
+                    field("RapNet Disc %", $viewModel.rapNetDiscountPctText, error: viewModel.rapNetDiscountError)
                     field("Cash Price", $viewModel.cashPriceText)
-                    field("Cash Disc %", $viewModel.cashDiscountPctText)
+                    field("Cash Disc %", $viewModel.cashDiscountPctText, error: viewModel.cashDiscountError)
                 }
             }
         }
@@ -276,8 +297,8 @@ struct StoneFormView: View {
             VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Pricing")
                 HStack(spacing: AppSpacing.section) {
-                    field("Cost Price", $viewModel.costPriceText)
-                    field("Sell Price", $viewModel.sellPriceText)
+                    field("Cost Price", $viewModel.costPriceText, error: viewModel.costPriceError)
+                    field("Sell Price", $viewModel.sellPriceText, error: viewModel.sellPriceError)
                 }
                 HStack(spacing: AppSpacing.section) {
                     VStack(alignment: .leading, spacing: 4) {
@@ -387,7 +408,7 @@ struct StoneFormView: View {
 
     // MARK: - Helper
 
-    private func field(_ label: String, _ text: Binding<String>) -> some View {
-        FormField(label: label, text: text)
+    private func field(_ label: String, _ text: Binding<String>, error: String? = nil) -> some View {
+        FormField(label: label, text: text, error: error)
     }
 }

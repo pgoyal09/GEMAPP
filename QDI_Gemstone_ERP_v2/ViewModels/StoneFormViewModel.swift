@@ -113,6 +113,15 @@ final class StoneFormViewModel {
     var certificateImagePath: String? = nil
     var mediaPaths: [String] = []
 
+    // MARK: - Inline Validation Errors
+
+    var caratError: String? = nil
+    var shapeError: String? = nil
+    var costPriceError: String? = nil
+    var sellPriceError: String? = nil
+    var rapNetDiscountError: String? = nil
+    var cashDiscountError: String? = nil
+
     // MARK: - UI State
 
     var showSKUConfirmation: Bool = false
@@ -144,7 +153,60 @@ final class StoneFormViewModel {
     var costPrice: Decimal { Decimal(string: costPriceText) ?? 0 }
     var sellPrice: Decimal { Decimal(string: sellPriceText) ?? 0 }
 
-    var canSave: Bool { caratWeight > 0 && !sku.isEmpty }
+    var canSave: Bool { caratWeight > 0 && !sku.isEmpty && !hasInlineErrors }
+
+    var hasInlineErrors: Bool {
+        caratError != nil || shapeError != nil || costPriceError != nil ||
+        sellPriceError != nil || rapNetDiscountError != nil || cashDiscountError != nil
+    }
+
+    /// Validates fields inline and sets per-field error messages.
+    func validateInline() {
+        // Carat
+        let carat = Double(caratText) ?? 0
+        if !caratText.isEmpty && carat <= 0 {
+            caratError = "Carat weight must be positive."
+        } else if carat > 1000 {
+            caratError = "Carat cannot exceed 1,000."
+        } else {
+            caratError = nil
+        }
+
+        // Shape (required)
+        if shapeText.trimmingCharacters(in: .whitespaces).isEmpty {
+            shapeError = "Shape is required."
+        } else {
+            shapeError = nil
+        }
+
+        // Cost price
+        if let cost = Decimal(string: costPriceText), cost < 0 {
+            costPriceError = "Price cannot be negative."
+        } else {
+            costPriceError = nil
+        }
+
+        // Sell price
+        if let sell = Decimal(string: sellPriceText), sell < 0 {
+            sellPriceError = "Price cannot be negative."
+        } else {
+            sellPriceError = nil
+        }
+
+        // RapNet discount (diamond-only, max 100%)
+        if isDiamond, let d = Double(rapNetDiscountPctText), abs(d) > 100 {
+            rapNetDiscountError = "Discount cannot exceed 100%."
+        } else {
+            rapNetDiscountError = nil
+        }
+
+        // Cash discount (diamond-only, max 100%)
+        if isDiamond, let d = Double(cashDiscountPctText), abs(d) > 100 {
+            cashDiscountError = "Discount cannot exceed 100%."
+        } else {
+            cashDiscountError = nil
+        }
+    }
 
     /// Returns first validation error, or nil if all fields are valid.
     func validate() -> String? {

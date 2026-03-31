@@ -23,6 +23,10 @@ struct DiamondsInventoryView: View {
     @State private var csvImportRows: [CSVImportService.ImportRow] = []
     @State private var csvImportError: String?
 
+    // MARK: - Bulk Edit
+
+    @State private var bulkEditMode: BulkEditSheet.Mode?
+
     // MARK: - Sort State
 
     @State private var sortKey: String = "sku"
@@ -35,6 +39,12 @@ struct DiamondsInventoryView: View {
     @State private var clarityFilter: String?
     @State private var caratMin: Double?
     @State private var caratMax: Double?
+
+    // MARK: - Filter Presets
+
+    @State private var filterPresets: [FilterPreset] = FilterPresetStore.loadDiamondPresets()
+    @State private var showSavePreset = false
+    @State private var newPresetName = ""
 
     // MARK: - Init
 
@@ -177,6 +187,11 @@ struct DiamondsInventoryView: View {
         } message: {
             Text(csvImportError ?? "")
         }
+        .sheet(item: $bulkEditMode) { mode in
+            BulkEditSheet(mode: mode, stoneCount: selectedStones.count) { action in
+                applyBulkEdit(action)
+            }
+        }
     }
 
     // MARK: - Top Bar
@@ -186,6 +201,13 @@ struct DiamondsInventoryView: View {
             GlassSearchField(text: $searchText, placeholder: "Search by SKU, color, clarity...")
                 .frame(maxWidth: 320)
             Spacer()
+            filterPresetMenu
+            Button("Save Filter", systemImage: "square.and.arrow.down") {
+                newPresetName = ""
+                showSavePreset = true
+            }
+            .buttonStyle(.outline)
+            .disabled(!hasActiveFilters)
             Button("Quick Intake", systemImage: "plus.circle.fill") {
                 navigateTo = .quickIntake
             }.buttonStyle(.gradient)
@@ -202,6 +224,68 @@ struct DiamondsInventoryView: View {
         }
         .padding(.horizontal, AppSpacing.hero)
         .padding(.vertical, AppSpacing.section)
+        .alert("Save Filter Preset", isPresented: $showSavePreset) {
+            TextField("Preset name", text: $newPresetName)
+            Button("Save") { saveDiamondPreset() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Enter a name for this filter preset.")
+        }
+    }
+
+    private var hasActiveFilters: Bool {
+        shapeFilter != nil || colorFilter != nil || clarityFilter != nil || caratMin != nil || caratMax != nil
+    }
+
+    @ViewBuilder
+    private var filterPresetMenu: some View {
+        if !filterPresets.isEmpty {
+            Menu {
+                ForEach(filterPresets) { preset in
+                    Button(preset.name) { loadDiamondPreset(preset) }
+                }
+                Divider()
+                Menu("Delete") {
+                    ForEach(filterPresets) { preset in
+                        Button(preset.name, role: .destructive) { deleteDiamondPreset(preset) }
+                    }
+                }
+            } label: {
+                Label("Presets", systemImage: "line.3.horizontal.decrease.circle")
+            }
+            .menuStyle(.borderlessButton)
+            .fixedSize()
+        }
+    }
+
+    private func saveDiamondPreset() {
+        let name = newPresetName.trimmingCharacters(in: .whitespaces)
+        guard !name.isEmpty else { return }
+        let preset = FilterPreset(
+            name: name,
+            shapeFilter: shapeFilter,
+            colorFilter: colorFilter,
+            clarityFilter: clarityFilter,
+            caratMin: caratMin,
+            caratMax: caratMax
+        )
+        filterPresets.append(preset)
+        FilterPresetStore.saveDiamondPresets(filterPresets)
+        toastIsError = false
+        withAnimation { toastMessage = "Preset '\(name)' saved" }
+    }
+
+    private func loadDiamondPreset(_ preset: FilterPreset) {
+        shapeFilter = preset.shapeFilter
+        colorFilter = preset.colorFilter
+        clarityFilter = preset.clarityFilter
+        caratMin = preset.caratMin
+        caratMax = preset.caratMax
+    }
+
+    private func deleteDiamondPreset(_ preset: FilterPreset) {
+        filterPresets.removeAll { $0.id == preset.id }
+        FilterPresetStore.saveDiamondPresets(filterPresets)
     }
 
     // MARK: - Filter Chips
@@ -367,6 +451,11 @@ struct DiamondsInventoryView: View {
         HStack(spacing: AppSpacing.section) {
             Text("\(selectedStones.count) selected").font(AppTypography.body).foregroundStyle(AppColors.ink)
             Spacer()
+            if selectedStones.count >= 2 {
+                Button("Update Status", systemImage: "arrow.triangle.2.circlepath") { bulkEditMode = .updateStatus }.buttonStyle(.outline)
+                Button("Update Price", systemImage: "dollarsign.circle") { bulkEditMode = .updatePrice }.buttonStyle(.outline)
+                Button("Move to Lot", systemImage: "shippingbox") { bulkEditMode = .moveToLot }.buttonStyle(.outline)
+            }
             Button("Create Memo", systemImage: "doc.text") { createMemo() }.buttonStyle(.gradient)
             Button("Create Invoice", systemImage: "doc.text.fill") { createInvoice() }.buttonStyle(.gradient)
             Button { exportSelectedCSV() } label: {
@@ -456,6 +545,48 @@ struct DiamondsInventoryView: View {
             showCSVImportPreview = true
         } catch {
             csvImportError = error.localizedDescription
+        }
+    }
+
+    // MARK: - Bulk Edit
+
+    private func applyBulkEdit(_ action: BulkEditAction) {
+        let stones = filteredStones.filter { selectedStones.contains($0.persistentModelID) }
+        guard !stones.isEmpty else { return }
+        switch action {
+        case .setStatus(let status):
+            for stone in stones { stone.status = status }
+        case .setPrice(let field, let value):
+            for stone in stones {
+                switch field {
+                case .costPrice: stone.costPrice = value
+                case .sellPrice: stone.sellPrice = value
+                }
+            }
+        case .moveToLot(let sku):
+            for stone in stones {
+                stone.grouping = .lot
+                if stone.remainingCarats == nil {
+                    stone.remainingCarats = stone.caratWeight
+                }
+            }
+            // If a lot SKU is provided, update the SKU prefix
+            if !sku.isEmpty {
+                for (i, stone) in stones.enumerated() {
+                    stone.sku = "\(sku)-\(String(format: "%03d", i + 1))"
+                }
+            }
+        }
+        do {
+            try modelContext.save()
+            NotificationCenter.default.post(name: .gemstoneDidChange, object: nil)
+            NotificationCenter.default.post(name: .dataStoreDidChange, object: nil)
+            toastIsError = false
+            withAnimation { toastMessage = "Updated \(stones.count) stone\(stones.count == 1 ? "" : "s")" }
+            selectedStones.removeAll()
+        } catch {
+            toastIsError = true
+            withAnimation { toastMessage = "Bulk edit failed: \(ErrorMapper.userMessage(from: error))" }
         }
     }
 
