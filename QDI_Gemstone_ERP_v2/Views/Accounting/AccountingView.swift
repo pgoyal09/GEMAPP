@@ -233,13 +233,23 @@ struct AccountingView: View {
                 if viewModel.salesByStoneType.isEmpty {
                     Text("No sales data").font(AppTypography.body).foregroundStyle(AppColors.inkSubtle)
                 } else {
+                    let maxRevenue = viewModel.salesByStoneType.map { NSDecimalNumber(decimal: $0.revenue).doubleValue }.max() ?? 1.0
                     ForEach(viewModel.salesByStoneType) { row in
-                        HStack {
-                            StoneTypeBadge(type: row.stoneType)
-                            Spacer()
-                            Text(row.revenue.asCurrency)
-                                .font(AppTypography.mono)
-                                .foregroundStyle(AppColors.ink)
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                StoneTypeBadge(type: row.stoneType)
+                                Spacer()
+                                Text(row.revenue.asCurrency)
+                                    .font(AppTypography.mono)
+                                    .foregroundStyle(AppColors.ink)
+                            }
+                            GeometryReader { geo in
+                                let ratio = maxRevenue > 0 ? NSDecimalNumber(decimal: row.revenue).doubleValue / maxRevenue : 0
+                                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                                    .fill(AppColors.primaryGradient)
+                                    .frame(width: max(geo.size.width * ratio, 4))
+                            }
+                            .frame(height: 8)
                         }
                         .padding(.vertical, AppSpacing.compact)
                     }
@@ -257,15 +267,25 @@ struct AccountingView: View {
                 if viewModel.monthlySales.isEmpty {
                     Text("No sales data").font(AppTypography.body).foregroundStyle(AppColors.inkSubtle)
                 } else {
+                    let maxMonthlyRevenue = viewModel.monthlySales.map { NSDecimalNumber(decimal: $0.revenue).doubleValue }.max() ?? 1.0
                     ForEach(viewModel.monthlySales) { row in
-                        HStack {
-                            Text(row.month)
-                                .font(AppTypography.mono)
-                                .foregroundStyle(AppColors.inkMuted)
-                            Spacer()
-                            Text(row.revenue.asCurrency)
-                                .font(AppTypography.mono)
-                                .foregroundStyle(AppColors.ink)
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text(row.month)
+                                    .font(AppTypography.mono)
+                                    .foregroundStyle(AppColors.inkMuted)
+                                Spacer()
+                                Text(row.revenue.asCurrency)
+                                    .font(AppTypography.mono)
+                                    .foregroundStyle(AppColors.ink)
+                            }
+                            GeometryReader { geo in
+                                let ratio = maxMonthlyRevenue > 0 ? NSDecimalNumber(decimal: row.revenue).doubleValue / maxMonthlyRevenue : 0
+                                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                                    .fill(AppColors.primary)
+                                    .frame(width: max(geo.size.width * ratio, 4))
+                            }
+                            .frame(height: 8)
                         }
                         .padding(.vertical, AppSpacing.compact)
                     }

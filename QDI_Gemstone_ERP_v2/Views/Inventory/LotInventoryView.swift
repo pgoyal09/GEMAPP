@@ -247,9 +247,11 @@ struct LotInventoryView: View {
                 }
 
                 HStack(spacing: AppSpacing.comfortable) {
-                    Button("Add Quantity", systemImage: "plus.circle.fill") {
+                    Button("Add Qty", systemImage: "plus.circle.fill") {
                         viewModel.showAddQuantitySheet = true
-                    }.buttonStyle(.gradient)
+                    }
+                    .buttonStyle(.gradient)
+                    .fixedSize()
 
                     Button {
                         historyLot = lot

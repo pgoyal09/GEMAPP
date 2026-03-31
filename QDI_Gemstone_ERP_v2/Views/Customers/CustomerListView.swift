@@ -42,7 +42,7 @@ struct CustomerListView: View {
     }
 
     private let customerTableMinWidth: CGFloat =
-        TableColumn.customer + TableColumn.description + TableColumn.quantity + TableColumn.status + 60
+        TableColumn.customer + TableColumn.description + TableColumn.price + TableColumn.status + 60
 
     private var customerTable: some View {
         let filtered = viewModel.filtered(from: allCustomers)
@@ -51,7 +51,7 @@ struct CustomerListView: View {
                 HStack(spacing: 0) {
                     customerSortableHeader("Name", key: "name", width: TableColumn.customer)
                     customerSortableHeader("Contact", key: "contact", width: TableColumn.description)
-                    customerSortableHeader("Open Memos", key: "memos", width: TableColumn.quantity, alignment: .trailing)
+                    customerSortableHeader("Open Memos", key: "memos", width: TableColumn.price, alignment: .trailing)
                     customerSortableHeader("Status", key: "status", width: TableColumn.status)
                     Spacer()
                 }
@@ -104,7 +104,7 @@ struct CustomerListView: View {
                                     .font(AppTypography.mono)
                                     .foregroundStyle(AppColors.inkMuted)
                                     .lineLimit(1)
-                                    .frame(width: TableColumn.quantity, alignment: .trailing)
+                                    .frame(width: TableColumn.price, alignment: .trailing)
 
                                 StatusBadge(
                                     title: customer.isActive ? "Active" : "Inactive",

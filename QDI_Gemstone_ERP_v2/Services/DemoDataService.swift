@@ -381,6 +381,7 @@ struct DemoDataService {
         let openStoneIndices = [0, 1, 2, 10, 11, 12, 20, 21, 22, 23]
         var stoneCursor = 0
 
+        let salespersons = ["Amit Shah", "Priya Mehta", "Raj Kapoor", "Sarah Chen"]
         for (i, daysAgo) in openDaysAgo.enumerated() {
             let date = baseDate.addingTimeInterval(Double(-daysAgo) * 86400)
             let memo = Memo(
@@ -388,7 +389,8 @@ struct DemoDataService {
                 dateAssigned: date,
                 createdAt: date,
                 referenceNumber: "\(1001 + i)",
-                customer: customers[i % customers.count]
+                customer: customers[i % customers.count],
+                salesperson: salespersons[i % salespersons.count]
             )
             modelContext.insert(memo)
             openMemos.append(memo)
@@ -416,7 +418,8 @@ struct DemoDataService {
                 dateCompleted: date.addingTimeInterval(86400 * 30),
                 createdAt: date,
                 referenceNumber: "\(900 + i)",
-                customer: customers[(i + 2) % customers.count]
+                customer: customers[(i + 2) % customers.count],
+                salesperson: salespersons[(i + 1) % salespersons.count]
             )
             modelContext.insert(memo)
             returnedMemos.append(memo)
@@ -462,6 +465,7 @@ struct DemoDataService {
         let soldStoneIndices = [4, 5, 6, 7, 8, 9, 13, 14, 15, 16, 17, 18, 24, 25]
         var stoneCursor = 0
 
+        let invoiceSalespersons = ["Amit Shah", "Priya Mehta", "Raj Kapoor", "Sarah Chen"]
         for i in 0..<10 {
             let daysAgo = 50 - i * 4
             let invDate = baseDate.addingTimeInterval(Double(-daysAgo) * 86400)
@@ -473,7 +477,8 @@ struct DemoDataService {
                 referenceNumber: "INV-\(2000 + i)",
                 createdAt: invDate,
                 status: isPaid ? .paid : .sent,
-                customer: customers[(i + 3) % customers.count]
+                customer: customers[(i + 3) % customers.count],
+                salesperson: invoiceSalespersons[i % invoiceSalespersons.count]
             )
             modelContext.insert(inv)
 

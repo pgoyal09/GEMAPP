@@ -189,6 +189,14 @@ struct GemstonesInventoryView: View {
                 StoneFormView(mode: .edit(stone))
             }
         }
+        .sheet(item: $detailSheetStone) { stone in
+            GemstoneDetailPanel(gemstone: stone, onEdit: {
+                detailSheetStone = nil
+                editingStone = stone
+                showEditSheet = true
+            })
+            .frame(minWidth: 400, minHeight: 500)
+        }
         .alert("Export for RapNet", isPresented: $showExportConfirm) {
             Button("Cancel", role: .cancel) {}
             Button("Export") { performExport() }
@@ -399,6 +407,9 @@ struct GemstonesInventoryView: View {
                     LazyVStack(spacing: 2) {
                         ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
                             stoneRow(stone)
+                                .simultaneousGesture(TapGesture(count: 2).onEnded {
+                                    detailSheetStone = stone
+                                })
                                 .staggeredRow(index: index, reduceMotion: reduceMotion)
                         }
                     }
@@ -439,6 +450,8 @@ struct GemstonesInventoryView: View {
     private func sortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment) -> TableHeader {
         TableHeader(title: title, width: width, alignment: alignment, isSorted: sortKey == key, ascending: sortAscending, onTap: { toggleSort(key) })
     }
+
+    @State private var detailSheetStone: Gemstone?
 
     private func stoneRow(_ stone: Gemstone) -> some View {
         HoverRow(isSelected: selectedStoneID == stone.persistentModelID, onTap: {

@@ -18,10 +18,11 @@ enum ReportType: String, CaseIterable {
 }
 
 enum ReportDateRange: Hashable {
-    case thisMonth, lastMonth, thisQuarter, thisYear, custom
+    case allTime, thisMonth, lastMonth, thisQuarter, thisYear, custom
 
     var displayName: String {
         switch self {
+        case .allTime: return "All Time"
         case .thisMonth: return "This Month"
         case .lastMonth: return "Last Month"
         case .thisQuarter: return "This Quarter"
@@ -34,6 +35,9 @@ enum ReportDateRange: Hashable {
         let calendar = Calendar.current
         let now = Date()
         switch self {
+        case .allTime:
+            let start = calendar.date(from: DateComponents(year: 2000, month: 1, day: 1)) ?? now
+            return (start, now)
         case .thisMonth:
             let start = calendar.date(from: calendar.dateComponents([.year, .month], from: now)) ?? now
             return (start, now)
@@ -60,7 +64,7 @@ enum ReportDateRange: Hashable {
         }
     }
 
-    static let allOptions: [ReportDateRange] = [.thisMonth, .lastMonth, .thisQuarter, .thisYear, .custom]
+    static let allOptions: [ReportDateRange] = [.allTime, .thisMonth, .lastMonth, .thisQuarter, .thisYear, .custom]
 }
 
 struct ReportsView: View {
@@ -68,7 +72,7 @@ struct ReportsView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var selectedReport: ReportType = .profitLoss
-    @State private var selectedDateRange: ReportDateRange = .thisMonth
+    @State private var selectedDateRange: ReportDateRange = .allTime
     @State private var customStart = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
     @State private var customEnd = Date()
     @State private var toastMessage: String?

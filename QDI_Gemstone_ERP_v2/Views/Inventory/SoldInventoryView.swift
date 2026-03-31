@@ -216,7 +216,7 @@ struct SoldInventoryView: View {
             Text("\(stones.count) sold").font(AppTypography.caption.bold()).foregroundStyle(AppColors.ink)
             Text("Total: \(String(format: "%.2f", totalCarats)) ct").font(AppTypography.caption).foregroundStyle(AppColors.inkMuted)
             Text("Revenue: \(totalSell.asCurrency)").font(AppTypography.caption).foregroundStyle(AppColors.inkMuted)
-            Text("Margin: \(NSDecimalNumber(decimal: totalMargin).stringValue)%").font(AppTypography.caption).foregroundStyle(AppColors.success)
+            Text("Margin: \(String(format: "%.1f", NSDecimalNumber(decimal: totalMargin).doubleValue))%").font(AppTypography.caption).foregroundStyle(AppColors.success)
             Spacer()
         }
         .padding(.horizontal, AppSpacing.section).padding(.vertical, AppSpacing.comfortable)

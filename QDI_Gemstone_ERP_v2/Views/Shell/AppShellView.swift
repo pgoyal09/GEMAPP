@@ -17,6 +17,8 @@ struct AppShellView: View {
     @AppStorage("companyName") private var companyName: String = ""
     @State private var showGlossary = false
     @State private var showHelpCenter = false
+    @State private var showNotifications = false
+    @State private var showSearchOverlay = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var resolvedColorScheme: ColorScheme? {
@@ -149,7 +151,7 @@ struct AppShellView: View {
                 .tracking(0.3)
             Spacer()
             HStack(spacing: AppSpacing.comfortable) {
-                Button(action: {}) {
+                Button { showNotifications.toggle() } label: {
                     Image(systemName: "bell")
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.inkSubtle)
@@ -165,6 +167,9 @@ struct AppShellView: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("Notifications")
+                .popover(isPresented: $showNotifications, arrowEdge: .top) {
+                    notificationPopoverContent
+                }
 
                 ZStack {
                     RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
@@ -180,6 +185,26 @@ struct AppShellView: View {
         .padding(.horizontal, AppSpacing.hero)
         .padding(.vertical, AppSpacing.section)
         .frame(height: 56)
+    }
+
+    private var notificationPopoverContent: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Recent Activity")
+                .font(AppTypography.caption.bold())
+                .foregroundStyle(AppColors.ink)
+            Divider()
+            Text("🔔 Invoice INV-2009 is overdue")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+            Text("🔔 Memo #1001 – 45 days on memo")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+            Text("✅ 3 stones added via Quick Intake")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+        }
+        .padding()
+        .frame(width: 280)
     }
 
     // MARK: - Content Router
