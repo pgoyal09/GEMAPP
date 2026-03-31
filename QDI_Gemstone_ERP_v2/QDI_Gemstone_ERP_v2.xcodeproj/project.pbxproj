@@ -12,7 +12,6 @@
 		046BD734F3EFBCFEDF38AF56 /* SoldInventoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6A64976B35617FA1A3757B4 /* SoldInventoryView.swift */; };
 		07B845F1AA0F5EE6AF6CF6D0 /* String+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FA9BB5D29646A37FED67D4 /* String+Helpers.swift */; };
 		0D03B2B204E8B94FD9BE5B47 /* AccountingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B08E7202314CCAB62D6B4B /* AccountingViewModel.swift */; };
-		0D837AC79FC1183B054378DD /* GradientButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 314343D6A92F0E3A4BB66BBB /* GradientButton.swift */; };
 		0E22C31C27AC813031FCE9B9 /* AppShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C520DBB8403C8EC32DDD058 /* AppShellView.swift */; };
 		0E499D6C15EA875729D18B9A /* GradientButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 325C18F3512961657BDAD856 /* GradientButtonStyle.swift */; };
 		0ED668E60356DA0484B31263 /* StoneShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98BA838D1EBFB0FC5CD952B0 /* StoneShape.swift */; };
@@ -28,6 +27,7 @@
 		14913C4FE0D6647E9DDF6F02 /* TransactionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 839D3C084D42E8BF25F18F4B /* TransactionService.swift */; };
 		14CC1929E412754E2E088A23 /* GlassBackgroundModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02CB667D10C57F1B9EB42D6F /* GlassBackgroundModifier.swift */; };
 		16356103918657A1C69BC698 /* GlassFieldModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F178839EE6951B96D2016337 /* GlassFieldModifier.swift */; };
+		180E46B09947DC1253EAB51F /* CSVImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38BCD93D7AB62CF23C687BB7 /* CSVImportService.swift */; };
 		1989853CA2BB15A70FADE321 /* CustomerListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9036CD16C22CE2FC676144FB /* CustomerListViewModel.swift */; };
 		1BE2DAC96C3940E8D35B2D7E /* CurrencyType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62B99186D49AA8B177AE260B /* CurrencyType.swift */; };
 		1CD0AE33C4EAFD6907195D3F /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ECF159A5FC31BBD9D068E1C /* SidebarView.swift */; };
@@ -52,7 +52,9 @@
 		2F7BEB794576611CF1605802 /* HistoryEventType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C6A26598A73007FDECAF109 /* HistoryEventType.swift */; };
 		303AE869A631CC57C6648528 /* InventoryListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0802F6FC50765CEE19C0FB4E /* InventoryListView.swift */; };
 		320A9924011B5A7B3F4013C3 /* InvoiceStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5AD9B9980F9121A678A0051 /* InvoiceStatus.swift */; };
+		3343E4D7FA6F7E7D98EDB8B3 /* ShimmerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60E495D2C94F3357978ED2B1 /* ShimmerView.swift */; };
 		33A389AF89C4C2138E449298 /* RFIDTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC2C8DCD1516CDC38886FFC /* RFIDTag.swift */; };
+		3D307A1BC98BE9AC401B8979 /* Payment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6983F38D7795AC6D3DF1449A /* Payment.swift */; };
 		3E7253792457246D6128E747 /* MemoDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0F40EC01C97C5209D4F80E /* MemoDocumentView.swift */; };
 		3EAD38A014DAAD9ECA8D116F /* CustomerFormSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D3AC4AEFD6246352AEA546 /* CustomerFormSheet.swift */; };
 		3F9372EEFCB919D59C09C959 /* CompanySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C951A2C6D4936DCB60254A7 /* CompanySettingsView.swift */; };
@@ -89,6 +91,7 @@
 		76146595A695A198CD2574FC /* SortableViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB788FFE84CBD6FB2D45A564 /* SortableViewModel.swift */; };
 		7975E425CB137B9FE818E3DF /* InputValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D45A3823E9EF2FE28178AC3 /* InputValidator.swift */; };
 		79D64E872448970E69F593C9 /* FilterPill.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E7B6A77056D754FF2151496 /* FilterPill.swift */; };
+		7DF3A45CF5D57B294A215367 /* PaymentMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 553A8056539CC98603A3A6EC /* PaymentMethod.swift */; };
 		7E295706AFD620C12A948AC9 /* LotTransactionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9453E5A1BB6929896AE1BE0A /* LotTransactionType.swift */; };
 		7EA01D623D3136817EE57733 /* InventorySelectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9299C8922C00C4B986D2EF8 /* InventorySelectSheet.swift */; };
 		7EBBF92F4898FA347D76981A /* InvoiceDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977283232FDCB4E0C4840013 /* InvoiceDocumentView.swift */; };
@@ -106,6 +109,7 @@
 		9574F276BFBFEB86FD242007 /* StoneDescriptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C64C9459C79A0894AC0F0F0 /* StoneDescriptionBuilder.swift */; };
 		983E49E5F8888D2FC01A3A1B /* QDIGemstoneERPApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4BC3BE124CB7474DC325DA /* QDIGemstoneERPApp.swift */; };
 		98D7F9952F6786EA9D83D041 /* RFIDCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6538A7C8468B6A5E43E91FE9 /* RFIDCoordinator.swift */; };
+		A237AB362CAD8E17845BCC34 /* QuickEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8C27FE3D81DB349A0639CD /* QuickEntryView.swift */; };
 		A2514E098351502ACF15BA47 /* GlassSearchField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F52F24F5AFF74620899B4F36 /* GlassSearchField.swift */; };
 		A383795AC369B77EC9CBE678 /* InvoiceRoutes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAB45A470C117BD693FBF56B /* InvoiceRoutes.swift */; };
 		A53B4FF570C732F5F44679AA /* RFIDService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB4A70485C8693503BFC503 /* RFIDService.swift */; };
@@ -118,13 +122,16 @@
 		B5E0D52AD619ABC57EB872A5 /* Memo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A07EA69C23F35D6BFA7DBF3A /* Memo.swift */; };
 		B665C2DFE7620630DAC22AA2 /* AppSpacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C50CA93426BCF5FD29E8332 /* AppSpacing.swift */; };
 		B9511B99086636DD4D623C36 /* RFIDRoutes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34629E578B52CC028F17E132 /* RFIDRoutes.swift */; };
+		BBB0B529C5AF4BAC7BC63BCA /* BackupScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F464D9D94F7E4B377FB790FE /* BackupScheduler.swift */; };
 		BC17DD11E78530025CD2E549 /* RapNetOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B8F7CF92B06D9DC877D1D09 /* RapNetOptions.swift */; };
 		C17269AFC38428BC87160C85 /* GemstoneDetailPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 814CBBF32C678A903E1B3D9C /* GemstoneDetailPanel.swift */; };
 		C1981B0CE8BC8F335CF84748 /* KPICardRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 995BE77960F452E41F4E4BDF /* KPICardRow.swift */; };
+		C4F058B47AF4FFFE9E0E8824 /* FormField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D065D884DB94E48021A53A /* FormField.swift */; };
 		C57428D589CE37362E11A2CF /* CustomerDetailPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C836FB999C2771AA1719CA14 /* CustomerDetailPanel.swift */; };
 		C598F81E0453F9C995A49137 /* TableColumn.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07BBCDE21A8DEA71CC11956 /* TableColumn.swift */; };
 		C604BF9B9BE75A4DE210A592 /* LineItemKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D603B8B6A476C98E66B400 /* LineItemKind.swift */; };
 		C8D707A1F1797FFE711ABBC2 /* ORSSerial in Frameworks */ = {isa = PBXBuildFile; productRef = DB07F8E31C04219DAA692E41 /* ORSSerial */; };
+		CCB573CA20CF92C83B93FB5C /* CSVImportPreviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56EC23CBF87289FD1987521D /* CSVImportPreviewSheet.swift */; };
 		CF5C7C0597EB7E99DA8D3991 /* DetailRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */; };
 		D139FE43F09FB5A1B750B918 /* LineItemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CD014DC9A48F5870B67D2B /* LineItemStatus.swift */; };
 		D47EBBD8500619EF4147879A /* MemoStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 173E223EE059F1CF750C3941 /* MemoStatus.swift */; };
@@ -135,6 +142,7 @@
 		E87D650B61167FA6D12F2169 /* InventoryFilterBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A9B8686EE1663B720013FC /* InventoryFilterBar.swift */; };
 		E9EA1A74670EFB1C0D87AF61 /* RFIDScanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FFA42D7ADC3BDCCB4B372B4 /* RFIDScanService.swift */; };
 		EB9A2DCD8E6BCCAC13026227 /* NavigationGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 037857AF7FF32943A3CBC483 /* NavigationGuard.swift */; };
+		EFAEB611DA429B8C9688AEB4 /* PaymentListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEECFCA896C5C2177322AE1A /* PaymentListView.swift */; };
 		F0AC6557A35E1C3E15C169E2 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C611B9AA323E95C9B384F701 /* DashboardViewModel.swift */; };
 		F76E8FCAA742119E0D9A183D /* HistoryLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D6DC60F80D7FC541834613 /* HistoryLogger.swift */; };
 		F91A9927D6C94C662EACDE6F /* HistoryEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 149AAED5205BD92D1632662A /* HistoryEvent.swift */; };
@@ -169,7 +177,6 @@
 		2A8AAC8B96F94CF3DABE9258 /* GlossaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlossaryView.swift; sourceTree = "<group>"; };
 		2E2B071BCC76EE4FED2E41FA /* MemoRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoRoutes.swift; sourceTree = "<group>"; };
 		2ECF159A5FC31BBD9D068E1C /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
-		314343D6A92F0E3A4BB66BBB /* GradientButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientButton.swift; sourceTree = "<group>"; };
 		325C18F3512961657BDAD856 /* GradientButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientButtonStyle.swift; sourceTree = "<group>"; };
 		32D04B1F807ECBF7399A1576 /* SKUGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SKUGenerator.swift; sourceTree = "<group>"; };
 		32D6DC60F80D7FC541834613 /* HistoryLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryLogger.swift; sourceTree = "<group>"; };
@@ -179,27 +186,33 @@
 		37BDB32F92A33062485FDE23 /* OutlineButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutlineButtonStyle.swift; sourceTree = "<group>"; };
 		37C8229F5E0621428EC77070 /* CustomerActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerActivityView.swift; sourceTree = "<group>"; };
 		37D603B8B6A476C98E66B400 /* LineItemKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineItemKind.swift; sourceTree = "<group>"; };
+		38BCD93D7AB62CF23C687BB7 /* CSVImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVImportService.swift; sourceTree = "<group>"; };
 		3A9555B15E90483AC30BCFAC /* StoneTypeBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneTypeBadge.swift; sourceTree = "<group>"; };
 		3AC2C8DCD1516CDC38886FFC /* RFIDTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDTag.swift; sourceTree = "<group>"; };
 		41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailRow.swift; sourceTree = "<group>"; };
 		4A40AC13F11AC3673A4A1587 /* NavigationItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationItem.swift; sourceTree = "<group>"; };
 		4C520DBB8403C8EC32DDD058 /* AppShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShellView.swift; sourceTree = "<group>"; };
+		4D8C27FE3D81DB349A0639CD /* QuickEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickEntryView.swift; sourceTree = "<group>"; };
 		4F57C93F3894AAE530F52820 /* AppTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTypography.swift; sourceTree = "<group>"; };
 		51E9AFFB3AAD9F806B0F2A13 /* GemstonesInventoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GemstonesInventoryView.swift; sourceTree = "<group>"; };
 		53978275BA1221231FE9B922 /* MemoListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoListViewModel.swift; sourceTree = "<group>"; };
 		543D37A0F441617A309A7682 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		553A8056539CC98603A3A6EC /* PaymentMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentMethod.swift; sourceTree = "<group>"; };
 		565A4EA28FA3E61AE96AF9A5 /* InventoryRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryRoutes.swift; sourceTree = "<group>"; };
+		56EC23CBF87289FD1987521D /* CSVImportPreviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVImportPreviewSheet.swift; sourceTree = "<group>"; };
 		5831C493F0619CB48CD8EA23 /* DiamondsInventoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiamondsInventoryView.swift; sourceTree = "<group>"; };
 		5A289416B00D8AAD14EABADF /* SystemRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemRoutes.swift; sourceTree = "<group>"; };
 		5B8F7CF92B06D9DC877D1D09 /* RapNetOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RapNetOptions.swift; sourceTree = "<group>"; };
 		5C6A68A6B6618F2262EC858E /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
 		5E0F40EC01C97C5209D4F80E /* MemoDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoDocumentView.swift; sourceTree = "<group>"; };
 		5ED44A9E836CD59534C5F518 /* QDI_Gemstone_ERP_v2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QDI_Gemstone_ERP_v2.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		60E495D2C94F3357978ED2B1 /* ShimmerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerView.swift; sourceTree = "<group>"; };
 		626E3D17936BF2108324AF28 /* LotInventoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotInventoryViewModel.swift; sourceTree = "<group>"; };
 		62B99186D49AA8B177AE260B /* CurrencyType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyType.swift; sourceTree = "<group>"; };
 		6538A7C8468B6A5E43E91FE9 /* RFIDCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDCoordinator.swift; sourceTree = "<group>"; };
 		667B98EBC03A1403A73B6FA0 /* RecentActivityList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentActivityList.swift; sourceTree = "<group>"; };
 		68C8D448759F3A55942EAE97 /* ErrorMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorMapper.swift; sourceTree = "<group>"; };
+		6983F38D7795AC6D3DF1449A /* Payment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Payment.swift; sourceTree = "<group>"; };
 		69BA467836A257651957AC30 /* DocumentDirtyTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentDirtyTracker.swift; sourceTree = "<group>"; };
 		6D45A3823E9EF2FE28178AC3 /* InputValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputValidator.swift; sourceTree = "<group>"; };
 		706E45B47AFF9AD78C6EFC5B /* APIRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIRouter.swift; sourceTree = "<group>"; };
@@ -262,17 +275,20 @@
 		E6A9B8686EE1663B720013FC /* InventoryFilterBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryFilterBar.swift; sourceTree = "<group>"; };
 		EA6B133B323D833E799468EA /* StoneType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneType.swift; sourceTree = "<group>"; };
 		EDF43F66FC7402DC31864900 /* QuickActionsGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActionsGrid.swift; sourceTree = "<group>"; };
+		EEECFCA896C5C2177322AE1A /* PaymentListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentListView.swift; sourceTree = "<group>"; };
 		EFB2959E2E58627DBE83E661 /* InvoiceListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceListViewModel.swift; sourceTree = "<group>"; };
 		F07BBCDE21A8DEA71CC11956 /* TableColumn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableColumn.swift; sourceTree = "<group>"; };
 		F0B08E7202314CCAB62D6B4B /* AccountingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountingViewModel.swift; sourceTree = "<group>"; };
 		F0B0F11EF531CE6C3EF6C5CC /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
 		F0FC22A075D95D822A554438 /* MemoListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoListView.swift; sourceTree = "<group>"; };
 		F178839EE6951B96D2016337 /* GlassFieldModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassFieldModifier.swift; sourceTree = "<group>"; };
+		F464D9D94F7E4B377FB790FE /* BackupScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupScheduler.swift; sourceTree = "<group>"; };
 		F47C7B47FF4216140BA21E5A /* CustomerRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerRoutes.swift; sourceTree = "<group>"; };
 		F515C70472941C4AA201004D /* ReviewQueueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewQueueView.swift; sourceTree = "<group>"; };
 		F52F24F5AFF74620899B4F36 /* GlassSearchField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassSearchField.swift; sourceTree = "<group>"; };
 		F5EC08686561C814F4638EFB /* ReferenceNumberGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferenceNumberGenerator.swift; sourceTree = "<group>"; };
 		F62E27E8FE9B3748CF06DC50 /* MemoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoService.swift; sourceTree = "<group>"; };
+		F7D065D884DB94E48021A53A /* FormField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormField.swift; sourceTree = "<group>"; };
 		F82174E0400A9FC9A87E6B78 /* DashboardInfoPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardInfoPanel.swift; sourceTree = "<group>"; };
 		F8D30989C55A226CF4F6D747 /* RFIDLifecycleStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDLifecycleStatus.swift; sourceTree = "<group>"; };
 		F904E2E169D04A5E12A9BA24 /* TransactionEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionEditorViewModel.swift; sourceTree = "<group>"; };
@@ -344,6 +360,7 @@
 				816074071ED96F056B1712EA /* LineItem.swift */,
 				C3E2B54397410243BBF48929 /* LotTransaction.swift */,
 				A07EA69C23F35D6BFA7DBF3A /* Memo.swift */,
+				6983F38D7795AC6D3DF1449A /* Payment.swift */,
 				3AC2C8DCD1516CDC38886FFC /* RFIDTag.swift */,
 				CBA383056EAC752827E714A3 /* Enums */,
 			);
@@ -436,8 +453,10 @@
 		603BBD2C6BF00E3CE0F0E7CA /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				F464D9D94F7E4B377FB790FE /* BackupScheduler.swift */,
 				A9A597AF32983A1D01C6D562 /* BackupService.swift */,
 				1B347B683BC41A381BAA1F00 /* BatchPDFExporter.swift */,
+				38BCD93D7AB62CF23C687BB7 /* CSVImportService.swift */,
 				90E295BFAC2A9465729BDF0A /* DemoDataService.swift */,
 				32D6DC60F80D7FC541834613 /* HistoryLogger.swift */,
 				0F92992A54A6B3F94585D300 /* InvoiceService.swift */,
@@ -469,10 +488,11 @@
 				41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */,
 				7220B21A25317D921736B773 /* EmptyStateView.swift */,
 				9E7B6A77056D754FF2151496 /* FilterPill.swift */,
+				F7D065D884DB94E48021A53A /* FormField.swift */,
 				AAD2476C55F79206377ADE3C /* GlassCard.swift */,
 				F52F24F5AFF74620899B4F36 /* GlassSearchField.swift */,
-				314343D6A92F0E3A4BB66BBB /* GradientButton.swift */,
 				82D39A3810995F0A808EB202 /* SectionHeader.swift */,
+				60E495D2C94F3357978ED2B1 /* ShimmerView.swift */,
 				C5CDFA11A960E91FB0A818F3 /* StatusBadge.swift */,
 				3A9555B15E90483AC30BCFAC /* StoneTypeBadge.swift */,
 				0BCAC0BEB1EAB0CD639D6FA2 /* ToastOverlay.swift */,
@@ -583,12 +603,14 @@
 		B7ECECEC888072F7234C3F5E /* Inventory */ = {
 			isa = PBXGroup;
 			children = (
+				56EC23CBF87289FD1987521D /* CSVImportPreviewSheet.swift */,
 				5831C493F0619CB48CD8EA23 /* DiamondsInventoryView.swift */,
 				814CBBF32C678A903E1B3D9C /* GemstoneDetailPanel.swift */,
 				51E9AFFB3AAD9F806B0F2A13 /* GemstonesInventoryView.swift */,
 				E6A9B8686EE1663B720013FC /* InventoryFilterBar.swift */,
 				0802F6FC50765CEE19C0FB4E /* InventoryListView.swift */,
 				25CDDAACE2FF674CA40DBD20 /* LotInventoryView.swift */,
+				4D8C27FE3D81DB349A0639CD /* QuickEntryView.swift */,
 				98536087CF99CCD213E1EA5F /* ReconcileView.swift */,
 				F515C70472941C4AA201004D /* ReviewQueueView.swift */,
 				D6A64976B35617FA1A3757B4 /* SoldInventoryView.swift */,
@@ -618,6 +640,7 @@
 				B2CD014DC9A48F5870B67D2B /* LineItemStatus.swift */,
 				9453E5A1BB6929896AE1BE0A /* LotTransactionType.swift */,
 				173E223EE059F1CF750C3941 /* MemoStatus.swift */,
+				553A8056539CC98603A3A6EC /* PaymentMethod.swift */,
 				5B8F7CF92B06D9DC877D1D09 /* RapNetOptions.swift */,
 				F8D30989C55A226CF4F6D747 /* RFIDLifecycleStatus.swift */,
 				C3DCED9AB17D0D229DE8F7A1 /* StoneGrouping.swift */,
@@ -639,6 +662,7 @@
 				5E0F40EC01C97C5209D4F80E /* MemoDocumentView.swift */,
 				F0FC22A075D95D822A554438 /* MemoListView.swift */,
 				E32BF5EC574469A8D3977C5F /* MemoWindowView.swift */,
+				EEECFCA896C5C2177322AE1A /* PaymentListView.swift */,
 			);
 			path = Transactions;
 			sourceTree = "<group>";
@@ -737,8 +761,11 @@
 				0E22C31C27AC813031FCE9B9 /* AppShellView.swift in Sources */,
 				B665C2DFE7620630DAC22AA2 /* AppSpacing.swift in Sources */,
 				22F23D9F8E802FBD936767BE /* AppTypography.swift in Sources */,
+				BBB0B529C5AF4BAC7BC63BCA /* BackupScheduler.swift in Sources */,
 				E0ADB3F0BDDB5B5F9A549701 /* BackupService.swift in Sources */,
 				B15F66E68D3C2F70256ADFF0 /* BatchPDFExporter.swift in Sources */,
+				CCB573CA20CF92C83B93FB5C /* CSVImportPreviewSheet.swift in Sources */,
+				180E46B09947DC1253EAB51F /* CSVImportService.swift in Sources */,
 				3F9372EEFCB919D59C09C959 /* CompanySettingsView.swift in Sources */,
 				FF2A553EE82E73075D6FB33A /* CurrencyFormatter.swift in Sources */,
 				1BE2DAC96C3940E8D35B2D7E /* CurrencyType.swift in Sources */,
@@ -764,6 +791,7 @@
 				58D4B1FEBCB4D268F7209011 /* EmptyStateView.swift in Sources */,
 				8265C59EFCCF39D6AA1F221F /* ErrorMapper.swift in Sources */,
 				79D64E872448970E69F593C9 /* FilterPill.swift in Sources */,
+				C4F058B47AF4FFFE9E0E8824 /* FormField.swift in Sources */,
 				6E9460794A680AD3E74BE51D /* Gemstone.swift in Sources */,
 				C17269AFC38428BC87160C85 /* GemstoneDetailPanel.swift in Sources */,
 				1489D08237C341F76A599448 /* GemstoneStatus.swift in Sources */,
@@ -774,7 +802,6 @@
 				A2514E098351502ACF15BA47 /* GlassSearchField.swift in Sources */,
 				E2F00AFDAA6FD58267E75D7E /* GlassTableModifier.swift in Sources */,
 				704EA8B88F9067AFFABB8960 /* GlossaryView.swift in Sources */,
-				0D837AC79FC1183B054378DD /* GradientButton.swift in Sources */,
 				0E499D6C15EA875729D18B9A /* GradientButtonStyle.swift in Sources */,
 				F91A9927D6C94C662EACDE6F /* HistoryEvent.swift in Sources */,
 				2F7BEB794576611CF1605802 /* HistoryEventType.swift in Sources */,
@@ -817,8 +844,12 @@
 				F936F24EF660226730503D41 /* OnboardingView.swift in Sources */,
 				8445D20A1BA1A80DA0B7384E /* OutlineButtonStyle.swift in Sources */,
 				1D3823E437D7D660EE2A4797 /* PDFService.swift in Sources */,
+				3D307A1BC98BE9AC401B8979 /* Payment.swift in Sources */,
+				EFAEB611DA429B8C9688AEB4 /* PaymentListView.swift in Sources */,
+				7DF3A45CF5D57B294A215367 /* PaymentMethod.swift in Sources */,
 				983E49E5F8888D2FC01A3A1B /* QDIGemstoneERPApp.swift in Sources */,
 				2A0DDDDABE302401802C1A68 /* QuickActionsGrid.swift in Sources */,
+				A237AB362CAD8E17845BCC34 /* QuickEntryView.swift in Sources */,
 				98D7F9952F6786EA9D83D041 /* RFIDCoordinator.swift in Sources */,
 				655199E393D8F081A7941A84 /* RFIDLifecycleStatus.swift in Sources */,
 				131475971AEAEAA1815CF268 /* RFIDManager.swift in Sources */,
@@ -838,6 +869,7 @@
 				11FE247A849C307366FBD722 /* ScannerViewModel.swift in Sources */,
 				ADE644F1B38D59234715CA9B /* SectionHeader.swift in Sources */,
 				5314BCD3CD1F70801DB53110 /* ShareService.swift in Sources */,
+				3343E4D7FA6F7E7D98EDB8B3 /* ShimmerView.swift in Sources */,
 				1CD0AE33C4EAFD6907195D3F /* SidebarView.swift in Sources */,
 				046BD734F3EFBCFEDF38AF56 /* SoldInventoryView.swift in Sources */,
 				76146595A695A198CD2574FC /* SortableViewModel.swift in Sources */,

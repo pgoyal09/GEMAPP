@@ -27,7 +27,7 @@ struct QuickEntryView: View {
     // MARK: - Toolbar
 
     private var toolbar: some View {
-        HStack(spacing: AppSpacing.s) {
+        HStack(spacing: AppSpacing.comfortable) {
             Text("Quick Entry")
                 .font(AppTypography.heading)
                 .foregroundStyle(AppColors.ink)
@@ -41,13 +41,13 @@ struct QuickEntryView: View {
             }
             .buttonStyle(.outline)
             .disabled(rows.count == 1 && rows[0].isEmpty)
-            GradientButton(title: "Save All (\(validRowCount))", icon: "checkmark.circle.fill") {
+            Button("Save All (\(validRowCount))", systemImage: "checkmark.circle.fill") {
                 saveAll()
-            }
+            }.buttonStyle(.gradient)
             .disabled(validRowCount == 0)
         }
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.vertical, AppSpacing.m)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.vertical, AppSpacing.section)
     }
 
     // MARK: - Table
@@ -67,11 +67,11 @@ struct QuickEntryView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
-        .padding(AppSpacing.l)
+        .padding(AppSpacing.hero)
     }
 
     private var headerRow: some View {
-        HStack(spacing: AppSpacing.xs) {
+        HStack(spacing: AppSpacing.standard) {
             Text("#").frame(width: 30, alignment: .center)
             Text("Type").frame(width: 100, alignment: .leading)
             Text("Shape").frame(width: 80, alignment: .leading)
@@ -87,12 +87,12 @@ struct QuickEntryView: View {
         }
         .font(AppTypography.caption.bold())
         .foregroundStyle(AppColors.inkMuted)
-        .padding(.horizontal, AppSpacing.m)
-        .padding(.vertical, AppSpacing.s)
+        .padding(.horizontal, AppSpacing.section)
+        .padding(.vertical, AppSpacing.comfortable)
     }
 
     private func entryRow(index: Int, row: QuickEntryRow) -> some View {
-        HStack(spacing: AppSpacing.xs) {
+        HStack(spacing: AppSpacing.standard) {
             Text("\(index + 1)")
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkSubtle)
@@ -167,8 +167,8 @@ struct QuickEntryView: View {
             .buttonStyle(.plain)
             .disabled(rows.count <= 1)
         }
-        .padding(.horizontal, AppSpacing.m)
-        .padding(.vertical, AppSpacing.xs)
+        .padding(.horizontal, AppSpacing.section)
+        .padding(.vertical, AppSpacing.standard)
     }
 
     // MARK: - Helpers

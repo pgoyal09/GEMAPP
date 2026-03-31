@@ -45,8 +45,8 @@ struct InventoryListView: View {
                 activeFilterPillsRow
                 if viewModel.showFiltersPanel {
                     InventoryFilterBar(viewModel: viewModel)
-                        .padding(.horizontal, AppSpacing.l)
-                        .padding(.bottom, AppSpacing.s)
+                        .padding(.horizontal, AppSpacing.hero)
+                        .padding(.bottom, AppSpacing.comfortable)
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
                 tableContent
@@ -106,8 +106,8 @@ struct InventoryListView: View {
     // MARK: - Top Bar
 
     private var topBar: some View {
-        VStack(spacing: AppSpacing.s) {
-            HStack(spacing: AppSpacing.s) {
+        VStack(spacing: AppSpacing.comfortable) {
+            HStack(spacing: AppSpacing.comfortable) {
                 GlassSearchField(text: $viewModel.searchText, placeholder: "Search by SKU, type, color...")
                     .frame(maxWidth: 320)
 
@@ -118,9 +118,9 @@ struct InventoryListView: View {
                 filterToggleButton
 
                 if mode == .current {
-                    GradientButton(title: "Quick Intake", icon: "plus.circle.fill") {
+                    Button("Quick Intake", systemImage: "plus.circle.fill") {
                         navigateTo = .quickIntake
-                    }
+                    }.buttonStyle(.gradient)
 
                     Button {
                         navigateTo = .reviewQueue
@@ -131,12 +131,12 @@ struct InventoryListView: View {
                 }
             }
         }
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.vertical, AppSpacing.m)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.vertical, AppSpacing.section)
     }
 
     private var statusFilterPills: some View {
-        HStack(spacing: AppSpacing.xs) {
+        HStack(spacing: AppSpacing.standard) {
             if mode == .current {
                 ForEach([InventoryStatusFilter.all, .available, .onMemo], id: \.rawValue) { filter in
                     FilterPill(
@@ -169,10 +169,10 @@ struct InventoryListView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 7)
             .background(
-                RoundedRectangle(cornerRadius: AppCornerRadius.sm, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                     .fill(viewModel.showFiltersPanel ? AppColors.primary.opacity(0.15) : AppColors.panelBackground)
                     .overlay(
-                        RoundedRectangle(cornerRadius: AppCornerRadius.sm, style: .continuous)
+                        RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                             .strokeBorder(viewModel.showFiltersPanel ? AppColors.primary.opacity(0.20) : AppColors.cardElevated, lineWidth: 1)
                     )
             )
@@ -188,7 +188,7 @@ struct InventoryListView: View {
         let pills = viewModel.activeFilterPills
         if !pills.isEmpty {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppSpacing.xs) {
+                HStack(spacing: AppSpacing.standard) {
                     ForEach(pills, id: \.label) { pill in
                         HStack(spacing: 4) {
                             Text(pill.label)
@@ -207,7 +207,7 @@ struct InventoryListView: View {
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
                         .background(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.sm, style: .continuous)
+                            RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                                 .fill(AppColors.primary.opacity(0.12))
                         )
                     }
@@ -221,8 +221,8 @@ struct InventoryListView: View {
                     }
                     .buttonStyle(.plain)
                 }
-                .padding(.horizontal, AppSpacing.l)
-                .padding(.bottom, AppSpacing.s)
+                .padding(.horizontal, AppSpacing.hero)
+                .padding(.bottom, AppSpacing.comfortable)
             }
         }
     }
@@ -259,7 +259,7 @@ struct InventoryListView: View {
                                 }
                         }
                     }
-                    .padding(.vertical, AppSpacing.xs)
+                    .padding(.vertical, AppSpacing.standard)
 
                     summaryFooter
                 }
@@ -268,8 +268,8 @@ struct InventoryListView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.bottom, AppSpacing.l)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.bottom, AppSpacing.hero)
     }
 
     private var tableHeader: some View {
@@ -288,8 +288,8 @@ struct InventoryListView: View {
             sortableHeader("Date Added", key: "dateAdded", width: 90, alignment: .leading)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.m)
-        .padding(.vertical, AppSpacing.s)
+        .padding(.horizontal, AppSpacing.section)
+        .padding(.vertical, AppSpacing.comfortable)
     }
 
     private func sortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment) -> TableHeader {
@@ -395,7 +395,7 @@ struct InventoryListView: View {
         let stones = filteredStones
         let totalCarats = stones.reduce(0.0) { $0 + $1.caratWeight }
         let totalValue = stones.reduce(Decimal.zero) { $0 + $1.sellPrice * Decimal($1.caratWeight) }
-        return HStack(spacing: AppSpacing.l) {
+        return HStack(spacing: AppSpacing.hero) {
             Text("\(stones.count) stone\(stones.count == 1 ? "" : "s")")
                 .font(AppTypography.caption.bold())
                 .foregroundStyle(AppColors.ink)
@@ -412,8 +412,8 @@ struct InventoryListView: View {
             }
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.m)
-        .padding(.vertical, AppSpacing.s)
+        .padding(.horizontal, AppSpacing.section)
+        .padding(.vertical, AppSpacing.comfortable)
         .background(AppColors.softHighlight)
     }
 
@@ -438,39 +438,39 @@ struct InventoryListView: View {
     // MARK: - Multi-Select Action Bar
 
     private var multiSelectActionBar: some View {
-        HStack(spacing: AppSpacing.m) {
+        HStack(spacing: AppSpacing.section) {
             Text("\(selectedStones.count) stone\(selectedStones.count == 1 ? "" : "s") selected")
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.ink)
 
             Spacer()
 
-            GradientButton(title: "Create Memo with \(selectedStones.count) stones", icon: "doc.text") {
+            Button("Create Memo with \(selectedStones.count) stones", systemImage: "doc.text") {
                 createMemoWithSelectedStones()
-            }
+            }.buttonStyle(.gradient)
 
-            GradientButton(title: "Create Invoice with \(selectedStones.count) stones", icon: "doc.text.fill") {
+            Button("Create Invoice with \(selectedStones.count) stones", systemImage: "doc.text.fill") {
                 createInvoiceWithSelectedStones()
-            }
+            }.buttonStyle(.gradient)
 
             Button("Clear Selection") {
                 selectedStones.removeAll()
             }
             .buttonStyle(.outline)
         }
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.vertical, AppSpacing.m)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.vertical, AppSpacing.section)
         .background(
-            RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                 .fill(.ultraThinMaterial)
                 .overlay(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                         .strokeBorder(AppColors.primary.opacity(0.3), lineWidth: 1)
                 )
                 .shadow(color: .black.opacity(0.3), radius: 12, y: -4)
         )
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.bottom, AppSpacing.m)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.bottom, AppSpacing.section)
     }
 
     private func createMemoWithSelectedStones() {

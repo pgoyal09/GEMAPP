@@ -14,16 +14,16 @@ struct DashboardView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             ScrollView {
-                VStack(alignment: .leading, spacing: AppSpacing.section) {
+                VStack(alignment: .leading, spacing: AppSpacing.hero) {
                     KPICardRow(viewModel: viewModel)
                     QuickActionsGrid(navigateTo: $navigateTo, onAddStone: { showAddStoneSheet = true })
                     RecentActivityList(items: viewModel.recentActivity)
                     #if DEBUG
                     resetDataButton
                     #endif
-                    Spacer(minLength: AppSpacing.xl)
+                    Spacer(minLength: AppSpacing.hero)
                 }
-                .padding(AppSpacing.section)
+                .padding(AppSpacing.hero)
             }
             .frame(maxWidth: .infinity)
 
@@ -58,18 +58,18 @@ struct DashboardView: View {
 
     private var resetDataButton: some View {
         Button { showResetConfirm = true } label: {
-            HStack(spacing: AppSpacing.compact) {
+            HStack(spacing: AppSpacing.standard) {
                 Image(systemName: "arrow.clockwise.circle").font(.system(size: 13))
                 Text("Generate New Mock Data").font(AppTypography.body)
             }
             .foregroundStyle(AppColors.inkSubtle)
-            .padding(.horizontal, AppSpacing.standard)
+            .padding(.horizontal, AppSpacing.section)
             .padding(.vertical, 10)
             .background(
-                RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                     .fill(AppColors.softHighlight)
                     .overlay(
-                        RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                        RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                             .strokeBorder(AppColors.cardElevated, lineWidth: 1)
                     )
             )

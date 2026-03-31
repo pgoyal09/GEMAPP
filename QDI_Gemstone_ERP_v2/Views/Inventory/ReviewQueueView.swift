@@ -60,7 +60,7 @@ struct ReviewQueueView: View {
     // MARK: - Top Bar
 
     private var topBar: some View {
-        HStack(spacing: AppSpacing.s) {
+        HStack(spacing: AppSpacing.comfortable) {
             GlassSearchField(text: $searchText, placeholder: "Search review queue...")
                 .frame(maxWidth: 320)
 
@@ -68,8 +68,8 @@ struct ReviewQueueView: View {
 
             StatusBadge(title: "\(reviewStones.count) needs review", tone: .warning)
         }
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.vertical, AppSpacing.m)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.vertical, AppSpacing.section)
     }
 
     // MARK: - Table
@@ -92,14 +92,14 @@ struct ReviewQueueView: View {
                             reviewRow(stone)
                         }
                     }
-                    .padding(.vertical, AppSpacing.xs)
+                    .padding(.vertical, AppSpacing.standard)
                     .frame(maxWidth: .infinity)
                 }
             }
         }
         .glassTable()
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.bottom, AppSpacing.l)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.bottom, AppSpacing.hero)
     }
 
     private var tableHeader: some View {
@@ -111,8 +111,8 @@ struct ReviewQueueView: View {
             TableHeader(title: "Missing Fields", alignment: .leading)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.m)
-        .padding(.vertical, AppSpacing.s)
+        .padding(.horizontal, AppSpacing.section)
+        .padding(.vertical, AppSpacing.comfortable)
     }
 
     private func reviewRow(_ stone: Gemstone) -> some View {
@@ -148,7 +148,7 @@ struct ReviewQueueView: View {
     // MARK: - Missing Field Chips
 
     private func missingFieldChips(_ fields: [String]) -> some View {
-        HStack(spacing: AppSpacing.xxs) {
+        HStack(spacing: AppSpacing.compact) {
             ForEach(fields, id: \.self) { field in
                 Text(field)
                     .font(.system(size: 10, weight: .medium))
@@ -156,7 +156,7 @@ struct ReviewQueueView: View {
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
                     .background(
-                        RoundedRectangle(cornerRadius: AppCornerRadius.xs, style: .continuous)
+                        RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                             .fill(chipColor(for: field).opacity(0.15))
                     )
             }
@@ -185,9 +185,9 @@ struct ReviewQueueView: View {
                 Spacer()
 
                 if hasNext {
-                    GradientButton(title: "Save & Next", icon: "arrow.right") {
+                    Button("Save & Next", systemImage: "arrow.right") {
                         saveAndNext()
-                    }
+                    }.buttonStyle(.gradient)
                 }
 
                 Button("Done") {
@@ -195,7 +195,7 @@ struct ReviewQueueView: View {
                 }
                 .buttonStyle(.outline)
             }
-            .padding(AppSpacing.l)
+            .padding(AppSpacing.hero)
 
             StoneFormView(mode: .review(stone))
         }

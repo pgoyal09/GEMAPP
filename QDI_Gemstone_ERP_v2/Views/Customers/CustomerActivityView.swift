@@ -61,7 +61,7 @@ struct CustomerActivityView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.s) {
+        VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
             SectionHeader(title: "Activity Log")
 
             // Summary stats
@@ -95,7 +95,7 @@ struct CustomerActivityView: View {
                     }
                 }
             }
-            .padding(.bottom, AppSpacing.xs)
+            .padding(.bottom, AppSpacing.standard)
 
             if activities.isEmpty {
                 Text("No activity yet")
@@ -106,7 +106,7 @@ struct CustomerActivityView: View {
                     Button {
                         openWindow(id: activity.windowID, value: activity.documentID)
                     } label: {
-                        HStack(spacing: AppSpacing.s) {
+                        HStack(spacing: AppSpacing.comfortable) {
                             Image(systemName: activity.icon)
                                 .font(.system(size: 14))
                                 .foregroundStyle(activity.iconColor)

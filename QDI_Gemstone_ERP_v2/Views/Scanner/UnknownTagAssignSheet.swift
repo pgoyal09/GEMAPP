@@ -31,11 +31,11 @@ struct UnknownTagAssignSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             // Header
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 Text("Unknown Tag Detected")
                     .font(AppTypography.heading)
                     .foregroundStyle(AppColors.ink)
-                GlassCard(padding: AppSpacing.s) {
+                GlassCard(padding: AppSpacing.comfortable) {
                     VStack(alignment: .leading, spacing: 4) {
                         DetailRow(label: "EPC", value: epc)
                             .help("Electronic Product Code stored on RFID tags")
@@ -43,11 +43,11 @@ struct UnknownTagAssignSheet: View {
                     }
                 }
             }
-            .padding(AppSpacing.l)
+            .padding(AppSpacing.hero)
 
             // Search
             GlassSearchField(text: $searchText, placeholder: "Search by SKU…")
-                .padding(.horizontal, AppSpacing.l)
+                .padding(.horizontal, AppSpacing.hero)
 
             // Stone list
             ScrollView {
@@ -64,7 +64,7 @@ struct UnknownTagAssignSheet: View {
                         }
                     }
                 }
-                .padding(.horizontal, AppSpacing.m)
+                .padding(.horizontal, AppSpacing.section)
             }
 
             // Footer
@@ -75,7 +75,7 @@ struct UnknownTagAssignSheet: View {
                     .buttonStyle(.gradient)
                     .disabled(selectedStoneID == nil)
             }
-            .padding(AppSpacing.m)
+            .padding(AppSpacing.section)
         }
         .frame(minWidth: 500, minHeight: 400)
         .overlay {

@@ -26,10 +26,7 @@ struct CompanySettingsView: View {
                 SectionHeader(title: "Company Branding")
 
                 VStack(alignment: .leading, spacing: 16) {
-                    fieldRow(label: "Company Name") {
-                        TextField("e.g. Quality Diajewels Inc.", text: $companyName)
-                            .textFieldStyle(.roundedBorder)
-                    }
+                    FormField(label: "Company Name", text: $companyName)
 
                     fieldRow(label: "Address") {
                         TextEditor(text: $companyAddress)
@@ -37,25 +34,19 @@ struct CompanySettingsView: View {
                             .frame(height: 60)
                             .padding(4)
                             .background(
-                                RoundedRectangle(cornerRadius: AppCornerRadius.sm)
+                                RoundedRectangle(cornerRadius: AppCornerRadius.small)
                                     .fill(AppColors.cardBackground)
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: AppCornerRadius.sm)
+                                        RoundedRectangle(cornerRadius: AppCornerRadius.small)
                                             .strokeBorder(Color.white.opacity(0.10), lineWidth: 1)
                                     )
                             )
                             .scrollContentBackground(.hidden)
                     }
 
-                    fieldRow(label: "Phone") {
-                        TextField("e.g. +1 212-555-0100", text: $companyPhone)
-                            .textFieldStyle(.roundedBorder)
-                    }
+                    FormField(label: "Phone", text: $companyPhone)
 
-                    fieldRow(label: "Email") {
-                        TextField("e.g. info@company.com", text: $companyEmail)
-                            .textFieldStyle(.roundedBorder)
-                    }
+                    FormField(label: "Email", text: $companyEmail)
 
                     fieldRow(label: "Logo") {
                         HStack(spacing: 12) {
@@ -64,7 +55,7 @@ struct CompanySettingsView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(maxHeight: 56)
-                                    .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm))
+                                    .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.small))
 
                                 Button("Remove") {
                                     logoData = nil
@@ -80,12 +71,12 @@ struct CompanySettingsView: View {
                         }
                     }
                 }
-                .padding(AppSpacing.l)
+                .padding(AppSpacing.hero)
                 .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                         .fill(AppColors.panelBackground)
                         .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                                 .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                         )
                 )
@@ -114,12 +105,12 @@ struct CompanySettingsView: View {
                     .pickerStyle(.segmented)
                     .frame(maxWidth: 300)
                 }
-                .padding(AppSpacing.l)
+                .padding(AppSpacing.hero)
                 .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                         .fill(AppColors.panelBackground)
                         .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                                 .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                         )
                 )
@@ -136,12 +127,12 @@ struct CompanySettingsView: View {
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.inkSubtle)
                 }
-                .padding(AppSpacing.l)
+                .padding(AppSpacing.hero)
                 .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                         .fill(AppColors.panelBackground)
                         .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                                 .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                         )
                 )
@@ -197,12 +188,12 @@ struct CompanySettingsView: View {
                         }
                     }
                 }
-                .padding(AppSpacing.l)
+                .padding(AppSpacing.hero)
                 .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                         .fill(AppColors.panelBackground)
                         .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                                 .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                         )
                 )
@@ -235,12 +226,12 @@ struct CompanySettingsView: View {
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.inkSubtle)
                 }
-                .padding(AppSpacing.l)
+                .padding(AppSpacing.hero)
                 .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                         .fill(AppColors.panelBackground)
                         .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                                 .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                         )
                 )

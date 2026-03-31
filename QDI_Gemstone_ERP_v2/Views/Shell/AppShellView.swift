@@ -164,17 +164,17 @@ struct AppShellView: View {
                     .foregroundStyle(AppColors.inkSubtle)
             }
             Spacer()
-            HStack(spacing: AppSpacing.cozy) {
+            HStack(spacing: AppSpacing.comfortable) {
                 Button(action: {}) {
                     Image(systemName: "bell")
                         .font(.system(size: 14))
                         .foregroundStyle(AppColors.inkSubtle)
                         .frame(width: 36, height: 36)
                         .background(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                                 .fill(AppColors.cardElevated)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                                         .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                                 )
                         )
@@ -183,7 +183,7 @@ struct AppShellView: View {
                 .accessibilityLabel("Notifications")
 
                 ZStack {
-                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                         .fill(AppColors.primaryGradient)
                         .frame(width: 36, height: 36)
                         .shadow(color: AppColors.primary.opacity(0.20), radius: 6, y: 2)
@@ -193,8 +193,8 @@ struct AppShellView: View {
                 }
             }
         }
-        .padding(.horizontal, AppSpacing.section)
-        .padding(.vertical, AppSpacing.standard)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.vertical, AppSpacing.section)
     }
 
     // MARK: - Content Router
@@ -236,16 +236,16 @@ struct AppShellView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
-            RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous)
+            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                 .fill(AppColors.panelBackground)
                 .overlay(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                         .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                 )
         )
-        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous))
-        .padding(.horizontal, AppSpacing.standard)
-        .padding(.bottom, AppSpacing.standard)
+        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous))
+        .padding(.horizontal, AppSpacing.section)
+        .padding(.bottom, AppSpacing.section)
     }
 
     private func createSharedVMs() {

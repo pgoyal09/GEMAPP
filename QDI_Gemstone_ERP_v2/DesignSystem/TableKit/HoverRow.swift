@@ -17,12 +17,12 @@ struct HoverRow<Content: View>: View {
                 content()
             }
             .frame(maxWidth: .infinity)
-            .padding(.horizontal, AppSpacing.m)
-            .padding(.vertical, AppSpacing.s)
+            .padding(.horizontal, AppSpacing.section)
+            .padding(.vertical, AppSpacing.comfortable)
             .background(rowBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.s, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: AppCornerRadius.s, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
                     .strokeBorder(isFocused ? AppColors.primary : Color.clear, lineWidth: 2)
             )
             .scaleEffect(isHovered ? 1.005 : 1.0)

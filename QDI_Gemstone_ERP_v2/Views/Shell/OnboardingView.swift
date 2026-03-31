@@ -18,7 +18,7 @@ struct OnboardingView: View {
     var body: some View {
         VStack(spacing: 0) {
             Spacer()
-            VStack(spacing: AppSpacing.xl) {
+            VStack(spacing: AppSpacing.hero) {
                 stepIndicator
                 if step == 0 { welcomeStep }
                 else if step == 1 { companyStep }
@@ -28,7 +28,7 @@ struct OnboardingView: View {
             Spacer()
             navigationButtons
         }
-        .padding(AppSpacing.xl)
+        .padding(AppSpacing.hero)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .appBackground()
     }
@@ -36,7 +36,7 @@ struct OnboardingView: View {
     // MARK: - Step Indicator
 
     private var stepIndicator: some View {
-        HStack(spacing: AppSpacing.s) {
+        HStack(spacing: AppSpacing.comfortable) {
             ForEach(0..<3, id: \.self) { i in
                 Circle()
                     .fill(i <= step ? AppColors.primary : AppColors.cardStroke)
@@ -48,7 +48,7 @@ struct OnboardingView: View {
     // MARK: - Step 0: Welcome
 
     private var welcomeStep: some View {
-        VStack(spacing: AppSpacing.l) {
+        VStack(spacing: AppSpacing.hero) {
             Image(systemName: "sparkles")
                 .font(.system(size: 48))
                 .foregroundStyle(AppColors.primary)
@@ -65,7 +65,7 @@ struct OnboardingView: View {
     // MARK: - Step 1: Company Info
 
     private var companyStep: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.m) {
+        VStack(alignment: .leading, spacing: AppSpacing.section) {
             Text("Company Information")
                 .font(AppTypography.heading)
                 .foregroundStyle(AppColors.ink)
@@ -91,7 +91,7 @@ struct OnboardingView: View {
     // MARK: - Step 2: Finish
 
     private var finalStep: some View {
-        VStack(spacing: AppSpacing.l) {
+        VStack(spacing: AppSpacing.hero) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 48))
                 .foregroundStyle(AppColors.success)
@@ -116,16 +116,16 @@ struct OnboardingView: View {
             }
             Spacer()
             if step < 2 {
-                GradientButton(title: "Next", icon: "arrow.right") {
+                Button("Next", systemImage: "arrow.right") {
                     withAnimation { step += 1 }
-                }
+                }.buttonStyle(.gradient)
             } else {
-                GradientButton(title: "Get Started", icon: "arrow.right") {
+                Button("Get Started", systemImage: "arrow.right") {
                     completeOnboarding()
-                }
+                }.buttonStyle(.gradient)
             }
         }
-        .padding(.bottom, AppSpacing.l)
+        .padding(.bottom, AppSpacing.hero)
     }
 
     // MARK: - Complete

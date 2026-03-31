@@ -5,13 +5,13 @@ struct GlassFieldModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .textFieldStyle(.plain)
-            .padding(AppSpacing.s)
+            .padding(AppSpacing.comfortable)
             .background(
-                RoundedRectangle(cornerRadius: AppCornerRadius.s, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
                     .fill(Color.white.opacity(0.06))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppCornerRadius.s, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
                     .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
             )
     }

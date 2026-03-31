@@ -13,8 +13,8 @@ struct CustomerFormSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
-    enum FormField: Hashable { case firstName, lastName, company, email, phone, address, city, country, zip, notes }
-    @FocusState private var focusedField: FormField?
+    enum Field: Hashable { case firstName, lastName, company, email, phone, address, city, country, zip, notes }
+    @FocusState private var focusedField: Field?
     @State private var firstName = ""
     @State private var lastName = ""
     @State private var company = ""
@@ -35,15 +35,15 @@ struct CustomerFormSheet: View {
                 .font(AppTypography.heading)
                 .foregroundStyle(AppColors.ink)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(AppSpacing.l)
+                .padding(AppSpacing.hero)
 
             ScrollView {
-                VStack(alignment: .leading, spacing: AppSpacing.l) {
+                VStack(alignment: .leading, spacing: AppSpacing.hero) {
                     contactSection
                     addressSection
                     notesSection
                 }
-                .padding(.horizontal, AppSpacing.l)
+                .padding(.horizontal, AppSpacing.hero)
             }
 
             HStack {
@@ -55,7 +55,7 @@ struct CustomerFormSheet: View {
                     .buttonStyle(.gradient)
                     .disabled(isSaving || (firstName.trimmed.isEmpty && lastName.trimmed.isEmpty && company.trimmed.isEmpty))
             }
-            .padding(AppSpacing.m)
+            .padding(AppSpacing.section)
         }
         .frame(minWidth: 480, minHeight: 400)
         .appBackground()
@@ -82,69 +82,41 @@ struct CustomerFormSheet: View {
     }
 
     private var contactSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Contact")
-                HStack(spacing: AppSpacing.m) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("First Name").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        TextField("First", text: $firstName)
-                            .glassField()
-                            .textContentType(.givenName)
-                            .focused($focusedField, equals: .firstName)
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Last Name").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        TextField("Last", text: $lastName).glassField().textContentType(.familyName)
-                    }
+                HStack(spacing: AppSpacing.section) {
+                    FormField(label: "First Name", text: $firstName)
+                        .focused($focusedField, equals: .firstName)
+                    FormField(label: "Last Name", text: $lastName)
                 }
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Company").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                    TextField("Company", text: $company).glassField().textContentType(.organizationName)
-                }
-                HStack(spacing: AppSpacing.m) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Email").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        TextField("Email", text: $email).glassField().textContentType(.emailAddress)
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Phone").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        TextField("Phone", text: $phone).glassField().textContentType(.telephoneNumber)
-                    }
+                FormField(label: "Company", text: $company)
+                HStack(spacing: AppSpacing.section) {
+                    FormField(label: "Email", text: $email)
+                    FormField(label: "Phone", text: $phone)
                 }
             }
         }
     }
 
     private var addressSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Address")
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Street").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                    TextField("Address", text: $address).glassField().textContentType(.fullStreetAddress)
-                }
-                HStack(spacing: AppSpacing.m) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("City").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        TextField("City", text: $city).glassField().textContentType(.addressCity)
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Country").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        TextField("Country", text: $country).glassField().textContentType(.countryName)
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("ZIP").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        TextField("ZIP", text: $zip).glassField().textContentType(.postalCode).frame(width: 80)
-                    }
+                FormField(label: "Street", text: $address)
+                HStack(spacing: AppSpacing.section) {
+                    FormField(label: "City", text: $city)
+                    FormField(label: "Country", text: $country)
+                    FormField(label: "ZIP", text: $zip)
+                        .frame(width: 80)
                 }
             }
         }
     }
 
     private var notesSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Notes")
                 TextEditor(text: $notes)
                     .font(AppTypography.body)
@@ -153,10 +125,10 @@ struct CustomerFormSheet: View {
                     .frame(minHeight: 60)
                     .padding(4)
                     .background(
-                        RoundedRectangle(cornerRadius: AppCornerRadius.sm)
+                        RoundedRectangle(cornerRadius: AppCornerRadius.small)
                             .fill(AppColors.cardBackground)
                             .overlay(
-                                RoundedRectangle(cornerRadius: AppCornerRadius.sm)
+                                RoundedRectangle(cornerRadius: AppCornerRadius.small)
                                     .strokeBorder(Color.white.opacity(0.10), lineWidth: 1)
                             )
                     )

@@ -31,7 +31,7 @@ struct CSVImportPreviewSheet: View {
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
         }
-        .padding(AppSpacing.l)
+        .padding(AppSpacing.hero)
     }
 
     private var previewTable: some View {
@@ -51,8 +51,8 @@ struct CSVImportPreviewSheet: View {
                 }
                 .font(AppTypography.caption.bold())
                 .foregroundStyle(AppColors.inkMuted)
-                .padding(.horizontal, AppSpacing.m)
-                .padding(.vertical, AppSpacing.s)
+                .padding(.horizontal, AppSpacing.section)
+                .padding(.vertical, AppSpacing.comfortable)
 
                 Divider().background(AppColors.cardStroke)
 
@@ -70,14 +70,14 @@ struct CSVImportPreviewSheet: View {
                     }
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.ink)
-                    .padding(.horizontal, AppSpacing.m)
+                    .padding(.horizontal, AppSpacing.section)
                     .padding(.vertical, 4)
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
-        .padding(AppSpacing.m)
+        .padding(AppSpacing.section)
     }
 
     private var footer: some View {
@@ -95,12 +95,12 @@ struct CSVImportPreviewSheet: View {
             Spacer()
             Button("Cancel") { dismiss() }
                 .buttonStyle(.outline)
-            GradientButton(title: "Import \(rows.count) Stones") {
+            Button("Import \(rows.count) Stones") {
                 performImport()
-            }
+            }.buttonStyle(.gradient)
             .disabled(importedCount != nil)
         }
-        .padding(AppSpacing.l)
+        .padding(AppSpacing.hero)
     }
 
     private func performImport() {

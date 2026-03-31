@@ -11,13 +11,13 @@ struct FilterPill: View {
             Text(title)
                 .font(AppTypography.caption)
                 .foregroundStyle(isActive ? AppColors.primary : AppColors.inkSubtle)
-                .padding(.horizontal, AppSpacing.standard)
-                .padding(.vertical, AppSpacing.xs)
+                .padding(.horizontal, AppSpacing.section)
+                .padding(.vertical, AppSpacing.standard)
                 .background(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                         .fill(isActive ? AppColors.primary.opacity(0.20) : Color.white.opacity(0.03))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                                 .strokeBorder(
                                     isActive ? AppColors.primary.opacity(0.20) : Color.white.opacity(0.06),
                                     lineWidth: 1
@@ -26,7 +26,7 @@ struct FilterPill: View {
                 )
                 .overlay {
                     if isActive, let ns = animationNamespace {
-                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                             .strokeBorder(AppColors.primary.opacity(0.5), lineWidth: 2)
                             .matchedGeometryEffect(id: "filterPillIndicator", in: ns)
                     }

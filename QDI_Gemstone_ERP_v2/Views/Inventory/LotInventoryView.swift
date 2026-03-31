@@ -100,14 +100,14 @@ struct LotInventoryView: View {
     // MARK: - Top Bar
 
     private var topBar: some View {
-        HStack(spacing: AppSpacing.s) {
+        HStack(spacing: AppSpacing.comfortable) {
             GlassSearchField(text: $viewModel.searchText, placeholder: "Search lots...")
                 .frame(maxWidth: 320)
 
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.vertical, AppSpacing.m)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.vertical, AppSpacing.section)
     }
 
     // MARK: - Table
@@ -130,15 +130,15 @@ struct LotInventoryView: View {
                             lotRow(lot)
                         }
                     }
-                    .padding(.vertical, AppSpacing.xs)
+                    .padding(.vertical, AppSpacing.standard)
                     .frame(maxWidth: .infinity)
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.bottom, AppSpacing.s)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.bottom, AppSpacing.comfortable)
     }
 
     private var tableHeader: some View {
@@ -151,8 +151,8 @@ struct LotInventoryView: View {
             sortableHeader("Total Value", key: "value", width: TableColumn.price, alignment: .trailing)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.m)
-        .padding(.vertical, AppSpacing.s)
+        .padding(.horizontal, AppSpacing.section)
+        .padding(.vertical, AppSpacing.comfortable)
     }
 
     private func sortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment) -> TableHeader {
@@ -205,9 +205,9 @@ struct LotInventoryView: View {
 
     private func lotDetailPanel(_ lot: Gemstone) -> some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AppSpacing.l) {
-                GlassCard(padding: AppSpacing.m) {
-                    VStack(alignment: .leading, spacing: AppSpacing.s) {
+            VStack(alignment: .leading, spacing: AppSpacing.hero) {
+                GlassCard(padding: AppSpacing.section) {
+                    VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                         HStack {
                             Text(lot.sku)
                                 .font(AppTypography.mono)
@@ -221,8 +221,8 @@ struct LotInventoryView: View {
                     }
                 }
 
-                GlassCard(padding: AppSpacing.m) {
-                    VStack(alignment: .leading, spacing: AppSpacing.s) {
+                GlassCard(padding: AppSpacing.section) {
+                    VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                         SectionHeader(title: "Details")
                         DetailRow(label: "Color", value: lot.color.isEmpty ? "--" : lot.color)
                         DetailRow(label: "Origin", value: lot.origin.isEmpty ? "--" : lot.origin)
@@ -236,8 +236,8 @@ struct LotInventoryView: View {
                     }
                 }
 
-                GlassCard(padding: AppSpacing.m) {
-                    VStack(alignment: .leading, spacing: AppSpacing.s) {
+                GlassCard(padding: AppSpacing.section) {
+                    VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                         SectionHeader(title: "Pricing")
                         DetailRow(label: "Avg Cost/ct", value: formattedPrice(lot.effectiveAverageCost))
                         DetailRow(label: "Total Cost", value: formattedPrice(lot.effectiveAverageCost * Decimal(lot.effectiveRemainingCarats)))
@@ -246,10 +246,10 @@ struct LotInventoryView: View {
                     }
                 }
 
-                HStack(spacing: AppSpacing.s) {
-                    GradientButton(title: "Add Quantity", icon: "plus.circle.fill") {
+                HStack(spacing: AppSpacing.comfortable) {
+                    Button("Add Quantity", systemImage: "plus.circle.fill") {
                         viewModel.showAddQuantitySheet = true
-                    }
+                    }.buttonStyle(.gradient)
 
                     Button {
                         historyLot = lot
@@ -260,7 +260,7 @@ struct LotInventoryView: View {
                     .buttonStyle(.outline)
                 }
             }
-            .padding(AppSpacing.l)
+            .padding(AppSpacing.hero)
         }
         .background(AppColors.panelBackground)
     }
@@ -268,14 +268,14 @@ struct LotInventoryView: View {
     // MARK: - Summary Strip
 
     private var summaryStrip: some View {
-        HStack(spacing: AppSpacing.xl) {
+        HStack(spacing: AppSpacing.hero) {
             summaryItem(label: "Total Lots", value: "\(filteredLots.count)")
             summaryItem(label: "Remaining Carats", value: String(format: "%.2f ct", totalRemainingCarats))
             summaryItem(label: "Total Sell Value", value: formattedPrice(totalSellValue))
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.vertical, AppSpacing.s)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.vertical, AppSpacing.comfortable)
         .background(AppColors.cardBackground)
         .overlay(alignment: .top) {
             Rectangle()
@@ -299,12 +299,12 @@ struct LotInventoryView: View {
     // MARK: - Add Quantity Sheet
 
     private func addQuantitySheet(_ lot: Gemstone) -> some View {
-        VStack(alignment: .leading, spacing: AppSpacing.l) {
+        VStack(alignment: .leading, spacing: AppSpacing.hero) {
             Text("Add Quantity to \(lot.sku)")
                 .font(AppTypography.heading)
                 .foregroundStyle(AppColors.ink)
 
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 Text("Carats")
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.inkSubtle)
@@ -331,16 +331,16 @@ struct LotInventoryView: View {
                 }
                 .buttonStyle(.outline)
 
-                GradientButton(title: "Add") {
+                Button("Add") {
                     do {
                         try viewModel.addQuantity(to: lot, modelContext: modelContext)
                     } catch {
                         AppLogger.data.error("Failed to add quantity: \(error.localizedDescription)")
                     }
-                }
+                }.buttonStyle(.gradient)
             }
         }
-        .padding(AppSpacing.xl)
+        .padding(AppSpacing.hero)
         .frame(width: 400)
         .appBackground()
     }
@@ -348,7 +348,7 @@ struct LotInventoryView: View {
     // MARK: - History Sheet
 
     private func lotHistorySheet(_ lot: Gemstone) -> some View {
-        VStack(alignment: .leading, spacing: AppSpacing.l) {
+        VStack(alignment: .leading, spacing: AppSpacing.hero) {
             HStack {
                 Text("Lot History - \(lot.sku)")
                     .font(AppTypography.heading)
@@ -365,10 +365,10 @@ struct LotInventoryView: View {
                 EmptyStateView(icon: "clock", title: "No transactions yet")
             } else {
                 ScrollView {
-                    LazyVStack(spacing: AppSpacing.s) {
+                    LazyVStack(spacing: AppSpacing.comfortable) {
                         ForEach(transactions, id: \.persistentModelID) { tx in
-                            GlassCard(padding: AppSpacing.m) {
-                                HStack(spacing: AppSpacing.s) {
+                            GlassCard(padding: AppSpacing.section) {
+                                HStack(spacing: AppSpacing.comfortable) {
                                     Image(systemName: tx.type.displayIcon)
                                         .font(.system(size: 16))
                                         .foregroundStyle(transactionColor(tx.type))
@@ -405,7 +405,7 @@ struct LotInventoryView: View {
                 }
             }
         }
-        .padding(AppSpacing.xl)
+        .padding(AppSpacing.hero)
         .frame(minWidth: 560, minHeight: 400)
         .appBackground()
     }

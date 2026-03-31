@@ -34,7 +34,7 @@ struct LotSelectSheet: View {
             HStack {
                 GlassSearchField(text: $searchText, placeholder: "Search lots…")
             }
-            .padding(AppSpacing.m)
+            .padding(AppSpacing.section)
 
             // Lot list
             ScrollView {
@@ -46,7 +46,7 @@ struct LotSelectSheet: View {
                         TableHeader(title: "Sell/ct", width: TableColumn.price)
                         Spacer()
                     }
-                    .padding(.horizontal, AppSpacing.m)
+                    .padding(.horizontal, AppSpacing.section)
 
                     ForEach(lots) { lot in
                         let isSelected = selectedLotID == lot.persistentModelID
@@ -89,7 +89,7 @@ struct LotSelectSheet: View {
                         Text(msg).font(AppTypography.caption).foregroundStyle(AppColors.danger)
                     }
                 }
-                .padding(.horizontal, AppSpacing.m)
+                .padding(.horizontal, AppSpacing.section)
             }
 
             // Footer
@@ -100,7 +100,7 @@ struct LotSelectSheet: View {
                     .buttonStyle(.gradient)
                     .disabled(selectedLot == nil || (Double(caratsText) ?? 0) <= 0)
             }
-            .padding(AppSpacing.m)
+            .padding(AppSpacing.section)
         }
         .frame(minWidth: 680, minHeight: 460)
         .onAppear { fetchLots() }

@@ -8,15 +8,15 @@ struct SidebarView: View {
             sidebarHeader
 
             ScrollView {
-                VStack(alignment: .leading, spacing: AppSpacing.l) {
+                VStack(alignment: .leading, spacing: AppSpacing.hero) {
                     ForEach(NavigationItem.groups, id: \.label) { group in
                         VStack(alignment: .leading, spacing: 2) {
                             Text(group.label.uppercased())
                                 .font(AppTypography.caption)
                                 .foregroundStyle(AppColors.inkSubtle)
                                 .tracking(1.5)
-                                .padding(.horizontal, AppSpacing.cozy)
-                                .padding(.bottom, AppSpacing.tight)
+                                .padding(.horizontal, AppSpacing.comfortable)
+                                .padding(.bottom, AppSpacing.compact)
 
                             ForEach(group.items, id: \.self) { item in
                                 sidebarRow(item)
@@ -24,8 +24,8 @@ struct SidebarView: View {
                         }
                     }
                 }
-                .padding(.horizontal, AppSpacing.cozy)
-                .padding(.vertical, AppSpacing.standard)
+                .padding(.horizontal, AppSpacing.comfortable)
+                .padding(.vertical, AppSpacing.section)
             }
 
             Spacer(minLength: 0)
@@ -40,8 +40,8 @@ struct SidebarView: View {
                         .font(AppTypography.smallValue)
                 }
                 .foregroundStyle(selectedItem == .settings ? AppColors.ink : AppColors.inkSubtle)
-                .padding(.horizontal, AppSpacing.standard)
-                .padding(.vertical, AppSpacing.cozy)
+                .padding(.horizontal, AppSpacing.section)
+                .padding(.vertical, AppSpacing.comfortable)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
             }
@@ -52,22 +52,22 @@ struct SidebarView: View {
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous)
+            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                 .fill(AppColors.panelBackground)
                 .overlay(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                         .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                 )
-                .padding(AppSpacing.compact)
+                .padding(AppSpacing.standard)
         )
     }
 
     // MARK: - Header
 
     private var sidebarHeader: some View {
-        HStack(spacing: AppSpacing.cozy) {
+        HStack(spacing: AppSpacing.comfortable) {
             ZStack {
-                RoundedRectangle(cornerRadius: AppCornerRadius.s, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
                     .fill(AppColors.primaryGradient)
                     .frame(width: 36, height: 36)
                     .shadow(color: AppColors.primary.opacity(0.20), radius: 6, y: 2)
@@ -85,9 +85,9 @@ struct SidebarView: View {
                     .foregroundStyle(AppColors.inkSubtle)
             }
         }
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.top, AppSpacing.l)
-        .padding(.bottom, AppSpacing.standard)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.top, AppSpacing.hero)
+        .padding(.bottom, AppSpacing.section)
         .overlay(alignment: .bottom) {
             Divider().background(AppColors.cardElevated)
         }
@@ -108,16 +108,16 @@ struct SidebarView: View {
                     .font(AppTypography.smallValue)
             }
             .foregroundStyle(isActive ? AppColors.ink : AppColors.inkMuted)
-            .padding(.horizontal, AppSpacing.cozy)
-            .padding(.vertical, AppSpacing.compact)
+            .padding(.horizontal, AppSpacing.comfortable)
+            .padding(.vertical, AppSpacing.standard)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 Group {
                     if isActive {
-                        RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                        RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                             .fill(Color.white.opacity(0.10))
                             .overlay(
-                                RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                                RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                                     .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                             )
                     }

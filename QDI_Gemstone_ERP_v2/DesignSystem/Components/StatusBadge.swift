@@ -24,10 +24,10 @@ struct StatusBadge: View {
         Text(title)
             .font(AppTypography.caption)
             .foregroundStyle(tone.foreground)
-            .padding(.horizontal, AppSpacing.s)
-            .padding(.vertical, AppSpacing.xs)
+            .padding(.horizontal, AppSpacing.comfortable)
+            .padding(.vertical, AppSpacing.standard)
             .background(
-                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                     .fill(tone.background)
             )
             .accessibilityLabel("Status: \(title)")

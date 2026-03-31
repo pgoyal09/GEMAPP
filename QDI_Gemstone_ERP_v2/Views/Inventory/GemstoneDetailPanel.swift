@@ -10,7 +10,7 @@ struct GemstoneDetailPanel: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AppSpacing.l) {
+            VStack(alignment: .leading, spacing: AppSpacing.hero) {
                 headerCard
                 overviewSection
                 characteristicsSection
@@ -20,7 +20,7 @@ struct GemstoneDetailPanel: View {
                 certificateSection
                 historySection
             }
-            .padding(AppSpacing.l)
+            .padding(AppSpacing.hero)
         }
         .background(AppColors.panelBackground)
         .accessibilityIdentifier("GemstoneDetailPanel")
@@ -29,16 +29,16 @@ struct GemstoneDetailPanel: View {
     // MARK: - Header
 
     private var headerCard: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 HStack {
                     Text(gemstone.sku)
                         .font(AppTypography.mono)
                         .foregroundStyle(AppColors.primary)
-                        .padding(.horizontal, AppSpacing.s)
-                        .padding(.vertical, AppSpacing.xxs)
+                        .padding(.horizontal, AppSpacing.comfortable)
+                        .padding(.vertical, AppSpacing.compact)
                         .background(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.sm, style: .continuous)
+                            RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                                 .fill(AppColors.primary.opacity(0.12))
                         )
 
@@ -47,7 +47,7 @@ struct GemstoneDetailPanel: View {
                     statusBadge(for: gemstone.status)
                 }
 
-                HStack(spacing: AppSpacing.s) {
+                HStack(spacing: AppSpacing.comfortable) {
                     StoneTypeBadge(type: gemstone.stoneType.rawValue)
                     Text(String(format: "%.2f ct", gemstone.caratWeight))
                         .font(AppTypography.largeValue)
@@ -70,8 +70,8 @@ struct GemstoneDetailPanel: View {
     // MARK: - Sections
 
     private var overviewSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Overview")
                 DetailRow(label: "Type", value: gemstone.stoneType.rawValue)
                 DetailRow(label: "Shape", value: gemstone.shape.isEmpty ? "--" : gemstone.shape)
@@ -82,8 +82,8 @@ struct GemstoneDetailPanel: View {
     }
 
     private var characteristicsSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Characteristics")
                 DetailRow(label: "Color", value: gemstone.color.isEmpty ? "--" : gemstone.color)
                 DetailRow(label: "Clarity", value: gemstone.clarity.isEmpty ? "--" : gemstone.clarity)
@@ -98,8 +98,8 @@ struct GemstoneDetailPanel: View {
     }
 
     private var dimensionsSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Dimensions")
                 let l = gemstone.length.map { String(format: "%.2f", $0) } ?? "--"
                 let w = gemstone.width.map { String(format: "%.2f", $0) } ?? "--"
@@ -110,8 +110,8 @@ struct GemstoneDetailPanel: View {
     }
 
     private var pricingSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Pricing")
                 DetailRow(label: "Cost", value: formattedPrice(gemstone.costPrice))
                 DetailRow(label: "Sell", value: formattedPrice(gemstone.sellPrice))
@@ -120,8 +120,8 @@ struct GemstoneDetailPanel: View {
     }
 
     private var rfidSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "RFID")
                 DetailRow(label: "EPC", value: gemstone.rfidEpc ?? "--")
                     .help("Electronic Product Code stored on RFID tags")
@@ -142,8 +142,8 @@ struct GemstoneDetailPanel: View {
     }
 
     private var certificateSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Certificate")
                 if gemstone.hasCert {
                     DetailRow(label: "Lab", value: gemstone.certLab.isEmpty ? "--" : gemstone.certLab)
@@ -163,11 +163,11 @@ struct GemstoneDetailPanel: View {
     private var historySection: some View {
         let sortedEvents = gemstone.events.sorted { $0.date > $1.date }
         if !sortedEvents.isEmpty {
-            GlassCard(padding: AppSpacing.m) {
-                VStack(alignment: .leading, spacing: AppSpacing.s) {
+            GlassCard(padding: AppSpacing.section) {
+                VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                     SectionHeader(title: "History")
                     ForEach(sortedEvents, id: \.persistentModelID) { event in
-                        HStack(alignment: .top, spacing: AppSpacing.s) {
+                        HStack(alignment: .top, spacing: AppSpacing.comfortable) {
                             Circle()
                                 .fill(eventColor(event.eventType))
                                 .frame(width: 8, height: 8)

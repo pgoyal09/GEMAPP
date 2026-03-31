@@ -10,7 +10,7 @@ struct CustomerListView: View {
         HStack(spacing: 0) {
             // Left: list
             VStack(spacing: 0) {
-                HStack(spacing: AppSpacing.cozy) {
+                HStack(spacing: AppSpacing.comfortable) {
                     GlassSearchField(text: $viewModel.searchText, placeholder: "Search customers…")
                         .frame(maxWidth: 300)
                     Spacer()
@@ -19,8 +19,8 @@ struct CustomerListView: View {
                     }
                     .buttonStyle(.gradient)
                 }
-                .padding(.horizontal, AppSpacing.l)
-                .padding(.vertical, AppSpacing.m)
+                .padding(.horizontal, AppSpacing.hero)
+                .padding(.vertical, AppSpacing.section)
 
                 customerTable
             }
@@ -54,8 +54,8 @@ struct CustomerListView: View {
                     customerSortableHeader("Status", key: "status", width: TableColumn.status)
                     Spacer()
                 }
-                .padding(.horizontal, AppSpacing.m)
-                .padding(.vertical, AppSpacing.s)
+                .padding(.horizontal, AppSpacing.section)
+                .padding(.vertical, AppSpacing.comfortable)
 
                 Divider().background(AppColors.cardStroke)
 
@@ -115,15 +115,15 @@ struct CustomerListView: View {
                             }
                         }
                     }
-                    .padding(.vertical, AppSpacing.xs)
+                    .padding(.vertical, AppSpacing.standard)
                 }
             }
             .frame(minWidth: customerTableMinWidth, maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.bottom, AppSpacing.l)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.bottom, AppSpacing.hero)
     }
 
     private func customerSortableHeader(_ title: String, key: String, width: CGFloat) -> TableHeader {

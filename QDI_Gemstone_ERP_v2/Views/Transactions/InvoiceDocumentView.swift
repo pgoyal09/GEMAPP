@@ -32,14 +32,14 @@ struct InvoiceDocumentView: View {
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(alignment: .leading, spacing: AppSpacing.l) {
+                VStack(alignment: .leading, spacing: AppSpacing.hero) {
                     headerSection
                     lineItemsSection
                     totalsSection
                     PaymentListView(invoice: invoice, onDirty: { markDirty() })
                     notesSection
                 }
-                .padding(AppSpacing.l)
+                .padding(AppSpacing.hero)
             }
             bottomToolbar
         }
@@ -121,8 +121,8 @@ struct InvoiceDocumentView: View {
     // MARK: - Header
 
     private var headerSection: some View {
-        GlassCard(padding: AppSpacing.l) {
-            VStack(alignment: .leading, spacing: AppSpacing.m) {
+        GlassCard(padding: AppSpacing.hero) {
+            VStack(alignment: .leading, spacing: AppSpacing.section) {
                 HStack {
                     Text("Invoice \(invoice.referenceNumber)")
                         .font(AppTypography.heading)
@@ -131,7 +131,7 @@ struct InvoiceDocumentView: View {
                     invoiceStatusBadge
                 }
 
-                HStack(spacing: AppSpacing.l) {
+                HStack(spacing: AppSpacing.hero) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Customer").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                         HStack {
@@ -202,8 +202,8 @@ struct InvoiceDocumentView: View {
     // MARK: - Line Items
 
     private var lineItemsSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 HStack {
                     SectionHeader(title: "Line Items")
                     Spacer()
@@ -218,11 +218,11 @@ struct InvoiceDocumentView: View {
                     TableHeader(title: "Rate", width: TableColumn.price)
                     TableHeader(title: "Amount", width: TableColumn.price)
                 }
-                .padding(.horizontal, AppSpacing.s)
+                .padding(.horizontal, AppSpacing.comfortable)
 
                 ForEach(invoice.lineItems) { item in
                     EditableLineItemRow(item: item) { markDirty() }
-                        .padding(.horizontal, AppSpacing.s)
+                        .padding(.horizontal, AppSpacing.comfortable)
                         .padding(.vertical, 2)
                         .contextMenu {
                             if isEditable {
@@ -243,7 +243,7 @@ struct InvoiceDocumentView: View {
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.inkSubtle)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, AppSpacing.l)
+                        .padding(.vertical, AppSpacing.hero)
                 }
             }
         }
@@ -279,8 +279,8 @@ struct InvoiceDocumentView: View {
     // MARK: - Totals
 
     private var totalsSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .trailing, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .trailing, spacing: AppSpacing.comfortable) {
                 HStack {
                     Spacer()
                     VStack(alignment: .trailing, spacing: 4) {
@@ -294,7 +294,7 @@ struct InvoiceDocumentView: View {
                         }
 
                         if isEditable || invoice.discountAmount > 0 {
-                            HStack(spacing: AppSpacing.s) {
+                            HStack(spacing: AppSpacing.comfortable) {
                                 Text("Discount")
                                     .font(AppTypography.body)
                                     .foregroundStyle(AppColors.inkMuted)
@@ -313,7 +313,7 @@ struct InvoiceDocumentView: View {
                         }
 
                         if isEditable || invoice.taxRate > 0 {
-                            HStack(spacing: AppSpacing.s) {
+                            HStack(spacing: AppSpacing.comfortable) {
                                 Text("Tax Rate %")
                                     .font(AppTypography.body)
                                     .foregroundStyle(AppColors.inkMuted)
@@ -361,7 +361,7 @@ struct InvoiceDocumentView: View {
     // MARK: - Notes
 
     private var notesSection: some View {
-        GlassCard(padding: AppSpacing.m) {
+        GlassCard(padding: AppSpacing.section) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Notes").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                 TextEditor(text: $invoice.notes)
@@ -430,7 +430,7 @@ struct InvoiceDocumentView: View {
                 .buttonStyle(.gradient)
                 .keyboardShortcut("s", modifiers: .command)
         }
-        .padding(AppSpacing.m)
+        .padding(AppSpacing.section)
         .background(AppColors.panelBackground)
         .overlay(alignment: .top) { Divider().background(AppColors.cardElevated) }
         .alert("Unsaved Changes", isPresented: $showUnsavedAlert) {

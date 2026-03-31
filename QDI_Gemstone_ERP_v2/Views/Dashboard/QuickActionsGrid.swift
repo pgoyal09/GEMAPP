@@ -10,7 +10,7 @@ struct QuickActionCard: View {
         Button(action: action) {
             VStack(spacing: 8) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                         .fill(gradient)
                         .frame(width: 40, height: 40)
                     Image(systemName: icon)
@@ -25,10 +25,10 @@ struct QuickActionCard: View {
             .frame(maxWidth: .infinity)
             .padding(12)
             .background(
-                RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                     .fill(AppColors.softHighlight)
                     .overlay(
-                        RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                        RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                             .strokeBorder(AppColors.cardBackground, lineWidth: 1)
                     )
             )

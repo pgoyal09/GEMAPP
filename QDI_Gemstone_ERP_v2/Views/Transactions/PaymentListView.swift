@@ -13,8 +13,8 @@ struct PaymentListView: View {
     @State private var newReference: String = ""
 
     var body: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 HStack {
                     SectionHeader(title: "Payments")
                     Spacer()
@@ -33,7 +33,7 @@ struct PaymentListView: View {
                         .foregroundStyle(AppColors.inkSubtle)
                 } else {
                     ForEach(invoice.payments.sorted(by: { $0.date < $1.date })) { payment in
-                        HStack(spacing: AppSpacing.m) {
+                        HStack(spacing: AppSpacing.section) {
                             Text(payment.date.formatted(date: .abbreviated, time: .omitted))
                                 .font(AppTypography.caption)
                                 .foregroundStyle(AppColors.inkSubtle)
@@ -68,12 +68,12 @@ struct PaymentListView: View {
     }
 
     private var addPaymentSheet: some View {
-        VStack(spacing: AppSpacing.l) {
+        VStack(spacing: AppSpacing.hero) {
             Text("Record Payment")
                 .font(AppTypography.heading)
                 .foregroundStyle(AppColors.ink)
 
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 Text("Amount").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                 TextField("0.00", value: $newAmount, format: .number)
                     .glassField()
@@ -95,7 +95,7 @@ struct PaymentListView: View {
                 Button("Cancel") { showAddPayment = false }
                     .buttonStyle(.outline)
                 Spacer()
-                GradientButton(title: "Save Payment") {
+                Button("Save Payment") {
                     let payment = Payment(
                         date: Date(),
                         amount: newAmount,
@@ -109,10 +109,10 @@ struct PaymentListView: View {
                     newReference = ""
                     showAddPayment = false
                     onDirty()
-                }
+                }.buttonStyle(.gradient)
             }
         }
-        .padding(AppSpacing.l)
+        .padding(AppSpacing.hero)
         .frame(minWidth: 380)
         .appBackground()
     }

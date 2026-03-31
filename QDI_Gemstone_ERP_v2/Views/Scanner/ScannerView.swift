@@ -7,13 +7,13 @@ struct ScannerView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AppSpacing.l) {
+            VStack(alignment: .leading, spacing: AppSpacing.hero) {
                 statusCard
                 resultMessage
                 infoCardsRow
                 activityLog
             }
-            .padding(AppSpacing.l)
+            .padding(AppSpacing.hero)
         }
         .onAppear {
             viewModel.modelContext = modelContext
@@ -25,8 +25,8 @@ struct ScannerView: View {
     // MARK: - Status
 
     private var statusCard: some View {
-        GlassCard(padding: AppSpacing.l) {
-            HStack(spacing: AppSpacing.m) {
+        GlassCard(padding: AppSpacing.hero) {
+            HStack(spacing: AppSpacing.section) {
                 ZStack {
                     Circle()
                         .fill(viewModel.isScanning ? AppColors.success.opacity(0.2) : AppColors.cardElevated)
@@ -66,7 +66,7 @@ struct ScannerView: View {
     @ViewBuilder
     private var resultMessage: some View {
         if let result = viewModel.lastProcessResult {
-            GlassCard(padding: AppSpacing.m) {
+            GlassCard(padding: AppSpacing.section) {
                 Text(result)
                     .font(AppTypography.body)
                     .foregroundStyle(result.contains("Failed") || result.contains("sold") ? AppColors.danger : AppColors.success)
@@ -78,8 +78,8 @@ struct ScannerView: View {
     // MARK: - Info Cards
 
     private var infoCardsRow: some View {
-        HStack(spacing: AppSpacing.m) {
-            GlassCard(padding: AppSpacing.m) {
+        HStack(spacing: AppSpacing.section) {
+            GlassCard(padding: AppSpacing.section) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("LAST SCANNED EPC").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle).tracking(1)
                     Text(viewModel.lastDiscoveredTagID ?? "—")
@@ -91,7 +91,7 @@ struct ScannerView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            GlassCard(padding: AppSpacing.m) {
+            GlassCard(padding: AppSpacing.section) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("TOTAL EVENTS").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle).tracking(1)
                     Text("\(viewModel.discoveredTagIDs.count)")
@@ -106,8 +106,8 @@ struct ScannerView: View {
     // MARK: - Activity Log
 
     private var activityLog: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Scanner Activity")
                 if viewModel.discoveredTagIDs.isEmpty {
                     Text("No tags scanned yet.")

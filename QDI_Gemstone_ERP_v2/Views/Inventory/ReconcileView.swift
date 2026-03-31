@@ -15,12 +15,12 @@ struct ReconcileView: View {
             progressBar
 
             ScrollView {
-                VStack(spacing: AppSpacing.l) {
+                VStack(spacing: AppSpacing.hero) {
                     missingSection
                     foundSection
                     extraSection
                 }
-                .padding(AppSpacing.l)
+                .padding(AppSpacing.hero)
             }
         }
         .onAppear {
@@ -35,8 +35,8 @@ struct ReconcileView: View {
     // MARK: - Control Bar
 
     private var controlBar: some View {
-        VStack(alignment: .trailing, spacing: AppSpacing.xs) {
-            HStack(spacing: AppSpacing.s) {
+        VStack(alignment: .trailing, spacing: AppSpacing.standard) {
+            HStack(spacing: AppSpacing.comfortable) {
                 Text("RFID Reconciliation")
                     .font(AppTypography.heading)
                     .foregroundStyle(AppColors.ink)
@@ -50,7 +50,7 @@ struct ReconcileView: View {
                 Spacer()
 
                 if viewModel.isScanning {
-                    HStack(spacing: AppSpacing.xs) {
+                    HStack(spacing: AppSpacing.standard) {
                         ProgressView()
                             .controlSize(.small)
                             .tint(AppColors.primary)
@@ -76,9 +76,9 @@ struct ReconcileView: View {
                         }
                         .buttonStyle(.outline(AppColors.danger))
                     } else {
-                        GradientButton(title: "Start Scan", icon: "antenna.radiowaves.left.and.right") {
+                        Button("Start Scan", systemImage: "antenna.radiowaves.left.and.right") {
                             viewModel.startScanning()
-                        }
+                        }.buttonStyle(.gradient)
                     }
                 }
 
@@ -98,8 +98,8 @@ struct ReconcileView: View {
                 .buttonStyle(.outline)
             }
         }
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.vertical, AppSpacing.m)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.vertical, AppSpacing.section)
         .overlay {
             if showExportSuccess {
                 ToastOverlay(message: "Reconciliation report exported")
@@ -136,7 +136,7 @@ struct ReconcileView: View {
         let found = viewModel.foundStones.count
         let progress = total > 0 ? Double(found) / Double(total) : 0
 
-        return VStack(spacing: AppSpacing.xxs) {
+        return VStack(spacing: AppSpacing.compact) {
             HStack {
                 Text("\(found) of \(total) stones found")
                     .font(AppTypography.caption)
@@ -148,10 +148,10 @@ struct ReconcileView: View {
             }
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: AppCornerRadius.xs, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                         .fill(AppColors.cardElevated)
                         .frame(height: 6)
-                    RoundedRectangle(cornerRadius: AppCornerRadius.xs, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                         .fill(AppColors.primaryGradient)
                         .frame(width: geo.size.width * progress, height: 6)
                         .animation(.easeInOut(duration: 0.3), value: progress)
@@ -159,8 +159,8 @@ struct ReconcileView: View {
             }
             .frame(height: 6)
         }
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.bottom, AppSpacing.s)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.bottom, AppSpacing.comfortable)
     }
 
     // MARK: - Missing Section (Amber)
@@ -174,7 +174,7 @@ struct ReconcileView: View {
             emptyMessage: "All stones accounted for"
         ) {
             ForEach(viewModel.missingStones, id: \.persistentModelID) { stone in
-                HStack(spacing: AppSpacing.s) {
+                HStack(spacing: AppSpacing.comfortable) {
                     if viewModel.isManualMode {
                         Button {
                             viewModel.toggleManualVerification(for: stone)
@@ -202,7 +202,7 @@ struct ReconcileView: View {
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.inkSubtle)
                 }
-                .padding(.vertical, AppSpacing.xxs)
+                .padding(.vertical, AppSpacing.compact)
             }
         }
     }
@@ -218,7 +218,7 @@ struct ReconcileView: View {
             emptyMessage: "No stones scanned yet"
         ) {
             ForEach(viewModel.foundStones, id: \.persistentModelID) { stone in
-                HStack(spacing: AppSpacing.s) {
+                HStack(spacing: AppSpacing.comfortable) {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 12))
                         .foregroundStyle(AppColors.success)
@@ -231,7 +231,7 @@ struct ReconcileView: View {
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.inkMuted)
                 }
-                .padding(.vertical, AppSpacing.xxs)
+                .padding(.vertical, AppSpacing.compact)
             }
         }
     }
@@ -248,7 +248,7 @@ struct ReconcileView: View {
             emptyMessage: "No unexpected tags"
         ) {
             ForEach(extras, id: \.tagID) { scan in
-                HStack(spacing: AppSpacing.s) {
+                HStack(spacing: AppSpacing.comfortable) {
                     Image(systemName: "questionmark.circle.fill")
                         .font(.system(size: 12))
                         .foregroundStyle(AppColors.danger)
@@ -261,7 +261,7 @@ struct ReconcileView: View {
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.inkMuted)
                 }
-                .padding(.vertical, AppSpacing.xxs)
+                .padding(.vertical, AppSpacing.compact)
             }
         }
     }
@@ -276,8 +276,8 @@ struct ReconcileView: View {
         emptyMessage: String,
         @ViewBuilder content: () -> Content
     ) -> some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 HStack {
                     SectionHeader(title: title)
                     StatusBadge(title: "\(count)", tone: tone)
@@ -288,7 +288,7 @@ struct ReconcileView: View {
                     Text(emptyMessage)
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.inkSubtle)
-                        .padding(.vertical, AppSpacing.s)
+                        .padding(.vertical, AppSpacing.comfortable)
                 } else {
                     content()
                 }

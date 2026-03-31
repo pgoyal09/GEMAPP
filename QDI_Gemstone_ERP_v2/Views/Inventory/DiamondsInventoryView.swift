@@ -181,13 +181,13 @@ struct DiamondsInventoryView: View {
     // MARK: - Top Bar
 
     private var topBar: some View {
-        HStack(spacing: AppSpacing.s) {
+        HStack(spacing: AppSpacing.comfortable) {
             GlassSearchField(text: $searchText, placeholder: "Search by SKU, color, clarity...")
                 .frame(maxWidth: 320)
             Spacer()
-            GradientButton(title: "Quick Intake", icon: "plus.circle.fill") {
+            Button("Quick Intake", systemImage: "plus.circle.fill") {
                 navigateTo = .quickIntake
-            }
+            }.buttonStyle(.gradient)
             Toggle("Incl. Memo", isOn: $includeMemoStones)
                 .toggleStyle(.checkbox)
                 .font(AppTypography.caption)
@@ -199,8 +199,8 @@ struct DiamondsInventoryView: View {
             }
             .buttonStyle(.outline)
         }
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.vertical, AppSpacing.m)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.vertical, AppSpacing.section)
     }
 
     // MARK: - Filter Chips
@@ -210,7 +210,7 @@ struct DiamondsInventoryView: View {
         let hasFilters = shapeFilter != nil || colorFilter != nil || clarityFilter != nil || caratMin != nil || caratMax != nil
         if hasFilters {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppSpacing.xs) {
+                HStack(spacing: AppSpacing.standard) {
                     if let s = shapeFilter {
                         chipButton(s) { shapeFilter = nil }
                     }
@@ -229,8 +229,8 @@ struct DiamondsInventoryView: View {
                     }
                     .buttonStyle(.plain)
                 }
-                .padding(.horizontal, AppSpacing.l)
-                .padding(.bottom, AppSpacing.s)
+                .padding(.horizontal, AppSpacing.hero)
+                .padding(.bottom, AppSpacing.comfortable)
             }
         }
     }
@@ -245,7 +245,7 @@ struct DiamondsInventoryView: View {
             .accessibilityLabel("Remove \(label) filter")
         }
         .padding(.horizontal, 10).padding(.vertical, 5)
-        .background(RoundedRectangle(cornerRadius: AppCornerRadius.sm, style: .continuous).fill(AppColors.primary.opacity(0.12)))
+        .background(RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous).fill(AppColors.primary.opacity(0.12)))
     }
 
     private func clearAllFilters() {
@@ -267,7 +267,7 @@ struct DiamondsInventoryView: View {
                             stoneRow(stone)
                         }
                     }
-                    .padding(.vertical, AppSpacing.xs)
+                    .padding(.vertical, AppSpacing.standard)
                     summaryFooter
                 }
             }
@@ -275,8 +275,8 @@ struct DiamondsInventoryView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.bottom, AppSpacing.l)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.bottom, AppSpacing.hero)
     }
 
     private var tableHeader: some View {
@@ -299,8 +299,8 @@ struct DiamondsInventoryView: View {
             sortableHeader("Status", key: "status", width: TableColumn.status, alignment: .center)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.m)
-        .padding(.vertical, AppSpacing.s)
+        .padding(.horizontal, AppSpacing.section)
+        .padding(.vertical, AppSpacing.comfortable)
     }
 
     private func sortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment) -> TableHeader {
@@ -346,7 +346,7 @@ struct DiamondsInventoryView: View {
         let stones = filteredStones
         let totalCarats = stones.reduce(0.0) { $0 + $1.caratWeight }
         let totalValue = stones.reduce(Decimal.zero) { $0 + $1.sellPrice * Decimal($1.caratWeight) }
-        return HStack(spacing: AppSpacing.l) {
+        return HStack(spacing: AppSpacing.hero) {
             Text("\(stones.count) diamond\(stones.count == 1 ? "" : "s")")
                 .font(AppTypography.caption.bold()).foregroundStyle(AppColors.ink)
             Text("Total: \(String(format: "%.2f", totalCarats)) ct")
@@ -355,31 +355,31 @@ struct DiamondsInventoryView: View {
                 .font(AppTypography.caption).foregroundStyle(AppColors.inkMuted)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.m).padding(.vertical, AppSpacing.s)
+        .padding(.horizontal, AppSpacing.section).padding(.vertical, AppSpacing.comfortable)
         .background(AppColors.softHighlight)
     }
 
     // MARK: - Multi-Select
 
     private var multiSelectBar: some View {
-        HStack(spacing: AppSpacing.m) {
+        HStack(spacing: AppSpacing.section) {
             Text("\(selectedStones.count) selected").font(AppTypography.body).foregroundStyle(AppColors.ink)
             Spacer()
-            GradientButton(title: "Create Memo", icon: "doc.text") { createMemo() }
-            GradientButton(title: "Create Invoice", icon: "doc.text.fill") { createInvoice() }
+            Button("Create Memo", systemImage: "doc.text") { createMemo() }.buttonStyle(.gradient)
+            Button("Create Invoice", systemImage: "doc.text.fill") { createInvoice() }.buttonStyle(.gradient)
             Button { exportSelectedCSV() } label: {
                 Label("Export CSV", systemImage: "square.and.arrow.up")
             }.buttonStyle(.outline)
             Button("Clear") { selectedStones.removeAll() }.buttonStyle(.outline)
         }
-        .padding(.horizontal, AppSpacing.l).padding(.vertical, AppSpacing.m)
+        .padding(.horizontal, AppSpacing.hero).padding(.vertical, AppSpacing.section)
         .background(
-            RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                 .fill(.ultraThinMaterial)
-                .overlay(RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous).strokeBorder(AppColors.primary.opacity(0.3), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous).strokeBorder(AppColors.primary.opacity(0.3), lineWidth: 1))
                 .shadow(color: .black.opacity(0.3), radius: 12, y: -4)
         )
-        .padding(.horizontal, AppSpacing.l).padding(.bottom, AppSpacing.m)
+        .padding(.horizontal, AppSpacing.hero).padding(.bottom, AppSpacing.section)
     }
 
     // MARK: - Actions

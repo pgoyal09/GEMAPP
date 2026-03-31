@@ -7,7 +7,7 @@ struct EmptyStateView: View {
     var subtitle: String? = nil
 
     var body: some View {
-        VStack(spacing: AppSpacing.m) {
+        VStack(spacing: AppSpacing.section) {
             Image(systemName: icon)
                 .font(.system(size: 40))
                 .foregroundStyle(AppColors.inkSubtle)
@@ -21,7 +21,7 @@ struct EmptyStateView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(AppSpacing.xxl)
+        .padding(AppSpacing.page)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(title)\(subtitle.map { ". \($0)" } ?? "")")
     }

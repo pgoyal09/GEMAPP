@@ -39,7 +39,7 @@ struct InvoiceListView: View {
     }
 
     private var toolbar: some View {
-        HStack(spacing: AppSpacing.cozy) {
+        HStack(spacing: AppSpacing.comfortable) {
             GlassSearchField(text: $viewModel.searchText, placeholder: "Search invoices…")
                 .frame(maxWidth: 300)
             statusPills
@@ -55,8 +55,8 @@ struct InvoiceListView: View {
             }
             .buttonStyle(.gradient)
         }
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.vertical, AppSpacing.m)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.vertical, AppSpacing.section)
     }
 
     private var statusPills: some View {
@@ -97,7 +97,7 @@ struct InvoiceListView: View {
                                 }
                         }
                     }
-                    .padding(.vertical, AppSpacing.xs)
+                    .padding(.vertical, AppSpacing.standard)
 
                     invoiceSummaryFooter(filtered)
                 }
@@ -106,8 +106,8 @@ struct InvoiceListView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.bottom, AppSpacing.l)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.bottom, AppSpacing.hero)
     }
 
     private var headerRow: some View {
@@ -120,8 +120,8 @@ struct InvoiceListView: View {
             invoiceSortableHeader("Status", key: "status", width: TableColumn.status)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.m)
-        .padding(.vertical, AppSpacing.s)
+        .padding(.horizontal, AppSpacing.section)
+        .padding(.vertical, AppSpacing.comfortable)
     }
 
     private func invoiceSortableHeader(_ title: String, key: String, width: CGFloat) -> TableHeader {
@@ -177,7 +177,7 @@ struct InvoiceListView: View {
     private func invoiceSummaryFooter(_ invoices: [Invoice]) -> some View {
         let totalAmount = invoices.reduce(Decimal.zero) { $0 + $1.totalAmount }
         let paidCount = invoices.filter { $0.status == .paid }.count
-        return HStack(spacing: AppSpacing.l) {
+        return HStack(spacing: AppSpacing.hero) {
             Text("\(invoices.count) invoice\(invoices.count == 1 ? "" : "s")")
                 .font(AppTypography.caption.bold())
                 .foregroundStyle(AppColors.ink)
@@ -189,8 +189,8 @@ struct InvoiceListView: View {
                 .foregroundStyle(AppColors.inkMuted)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.m)
-        .padding(.vertical, AppSpacing.s)
+        .padding(.horizontal, AppSpacing.section)
+        .padding(.vertical, AppSpacing.comfortable)
         .background(AppColors.softHighlight)
     }
 

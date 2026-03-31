@@ -19,7 +19,7 @@ struct AgingBucketDetailSheet: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.l) {
+        VStack(alignment: .leading, spacing: AppSpacing.hero) {
             HStack {
                 Text("Aged Receivables — \(bucketLabel)")
                     .font(AppTypography.heading)
@@ -33,7 +33,7 @@ struct AgingBucketDetailSheet: View {
                 EmptyStateView(icon: "doc.text", title: "No invoices in this range")
             } else {
                 ScrollView {
-                    LazyVStack(spacing: AppSpacing.xs) {
+                    LazyVStack(spacing: AppSpacing.standard) {
                         ForEach(invoices) { invoice in
                             Button {
                                 openWindow(id: "invoice", value: invoice.persistentModelID)
@@ -57,9 +57,9 @@ struct AgingBucketDetailSheet: View {
                                             .foregroundStyle(AppColors.inkSubtle)
                                     }
                                 }
-                                .padding(AppSpacing.m)
+                                .padding(AppSpacing.section)
                                 .background(
-                                    RoundedRectangle(cornerRadius: AppCornerRadius.s, style: .continuous)
+                                    RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
                                         .fill(AppColors.softHighlight)
                                 )
                                 .contentShape(Rectangle())
@@ -80,7 +80,7 @@ struct AgingBucketDetailSheet: View {
                 }
             }
         }
-        .padding(AppSpacing.xl)
+        .padding(AppSpacing.hero)
         .frame(minWidth: 500, minHeight: 400)
         .appBackground()
     }

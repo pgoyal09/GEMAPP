@@ -7,10 +7,10 @@ struct StoneTypeBadge: View {
         Text(type)
             .font(AppTypography.sectionLabel)
             .foregroundStyle(AppColors.stoneColor(for: type))
-            .padding(.horizontal, AppSpacing.compact)
-            .padding(.vertical, AppSpacing.xxs)
+            .padding(.horizontal, AppSpacing.standard)
+            .padding(.vertical, AppSpacing.compact)
             .background(
-                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                     .fill(AppColors.stoneColor(for: type).opacity(0.15))
             )
             .accessibilityLabel("Stone type: \(type)")

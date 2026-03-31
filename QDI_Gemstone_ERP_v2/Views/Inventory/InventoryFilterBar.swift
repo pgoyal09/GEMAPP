@@ -5,16 +5,16 @@ struct InventoryFilterBar: View {
     @Bindable var viewModel: InventoryViewModel
 
     private let columns = [
-        GridItem(.flexible(), spacing: AppSpacing.m),
-        GridItem(.flexible(), spacing: AppSpacing.m),
+        GridItem(.flexible(), spacing: AppSpacing.section),
+        GridItem(.flexible(), spacing: AppSpacing.section),
     ]
 
     var body: some View {
-        GlassCard(padding: AppSpacing.m, cornerRadius: AppCornerRadius.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.m) {
+        GlassCard(padding: AppSpacing.section, cornerRadius: AppCornerRadius.large) {
+            VStack(alignment: .leading, spacing: AppSpacing.section) {
                 SectionHeader(title: "Filters")
 
-                LazyVGrid(columns: columns, alignment: .leading, spacing: AppSpacing.m) {
+                LazyVGrid(columns: columns, alignment: .leading, spacing: AppSpacing.section) {
                     // Stone type
                     filterField(label: "Stone Type") {
                         Picker("Stone Type", selection: Binding(
@@ -76,7 +76,7 @@ struct InventoryFilterBar: View {
 
                     // Carat range
                     filterField(label: "Carat Range") {
-                        HStack(spacing: AppSpacing.xs) {
+                        HStack(spacing: AppSpacing.standard) {
                             TextField("Min", text: Binding(
                                 get: { viewModel.caratMin.map { String(format: "%.2f", $0) } ?? "" },
                                 set: { viewModel.caratMin = Double($0) }
@@ -97,7 +97,7 @@ struct InventoryFilterBar: View {
 
                     // Sell price range
                     filterField(label: "Sell Price") {
-                        HStack(spacing: AppSpacing.xs) {
+                        HStack(spacing: AppSpacing.standard) {
                             TextField("Min $", text: Binding(
                                 get: { viewModel.sellMin.map { "\($0)" } ?? "" },
                                 set: { viewModel.sellMin = Decimal(string: $0) }
@@ -143,7 +143,7 @@ struct InventoryFilterBar: View {
     // MARK: - Helpers
 
     private func filterField<Content: View>(label: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xxs) {
+        VStack(alignment: .leading, spacing: AppSpacing.compact) {
             Text(label)
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkSubtle)

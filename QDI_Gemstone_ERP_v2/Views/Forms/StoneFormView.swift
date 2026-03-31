@@ -17,7 +17,7 @@ struct StoneFormView: View {
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(alignment: .leading, spacing: AppSpacing.l) {
+                VStack(alignment: .leading, spacing: AppSpacing.hero) {
                     identitySection
                     gradingSection
                     if viewModel.isDiamond { diamondSection }
@@ -28,7 +28,7 @@ struct StoneFormView: View {
                     pricingSection
                     rapNetSection
                 }
-                .padding(AppSpacing.l)
+                .padding(AppSpacing.hero)
             }
             bottomToolbar
         }
@@ -77,10 +77,10 @@ struct StoneFormView: View {
     // MARK: - Identity
 
     private var identitySection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Stone Identity")
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("SKU").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                         TextField("SKU", text: $viewModel.sku)
@@ -113,7 +113,7 @@ struct StoneFormView: View {
                         .onChange(of: viewModel.grouping) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
                     }
                 }
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Carats").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                         TextField("0.00", text: $viewModel.caratText)
@@ -132,10 +132,10 @@ struct StoneFormView: View {
     // MARK: - Grading
 
     private var gradingSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Grading")
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("Treatment", $viewModel.treatment)
                 }
             }
@@ -145,34 +145,34 @@ struct StoneFormView: View {
     // MARK: - Diamond-Specific
 
     private var diamondSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Diamond Grading")
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("Color", $viewModel.color)
                     field("Clarity", $viewModel.clarity)
                     field("Cut", $viewModel.cut)
                 }
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("Polish", $viewModel.polish)
                     field("Symmetry", $viewModel.symmetry)
                     field("Fluorescence", $viewModel.fluorescence)
                 }
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("Fluor. Intensity", $viewModel.fluorescenceIntensity)
                     field("Fluor. Color", $viewModel.fluorescenceColor)
                     field("Eye Clean", $viewModel.eyeClean)
                 }
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("Depth %", $viewModel.depthPctText)
                     field("Table %", $viewModel.tablePctText)
                 }
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("Fancy Color", $viewModel.fancyColor)
                     field("Fancy Intensity", $viewModel.fancyColorIntensity)
                     field("Fancy Overtone", $viewModel.fancyColorOvertone)
                 }
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("RapNet Price", $viewModel.rapNetPriceText)
                     field("RapNet Disc %", $viewModel.rapNetDiscountPctText)
                     field("Cash Price", $viewModel.cashPriceText)
@@ -185,26 +185,26 @@ struct StoneFormView: View {
     // MARK: - Gemstone-Specific
 
     private var gemstoneSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Gemstone Grading")
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("Color", $viewModel.color)
                     field("Clarity", $viewModel.clarity)
                 }
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("Primary Color", $viewModel.primaryColorVendor)
                     field("Color Intensity", $viewModel.colorIntensityVendor)
                 }
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("Color Modifiers", $viewModel.colorModifiersVendor)
                     field("Color Description", $viewModel.colorDescription)
                 }
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("Treatment 2", $viewModel.treatmentType2)
                     field("Treatment 3", $viewModel.treatmentType3)
                 }
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("Treatment Notes", $viewModel.treatmentNotes)
                     field("# of Stones", $viewModel.numberOfStonesText)
                 }
@@ -215,11 +215,11 @@ struct StoneFormView: View {
     // MARK: - Lot-Specific
 
     private var lotSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Lot Details")
                     .help("A group of similar stones sold by total carat weight")
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("Size Range", $viewModel.size)
                     field("Quality", $viewModel.quality)
                 }
@@ -230,15 +230,15 @@ struct StoneFormView: View {
     // MARK: - Certification
 
     private var certificationSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Certification")
                 Toggle("Has Certificate", isOn: $viewModel.hasCert)
                     .toggleStyle(.checkbox)
                     .foregroundStyle(AppColors.inkMuted)
                     .accessibilityLabel("Has Certificate")
                 if viewModel.hasCert {
-                    HStack(spacing: AppSpacing.m) {
+                    HStack(spacing: AppSpacing.section) {
                         field("Lab", $viewModel.certLab)
                         field("Cert No.", $viewModel.certNo)
                     }
@@ -250,16 +250,16 @@ struct StoneFormView: View {
     // MARK: - Dimensions
 
     private var dimensionsSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Dimensions (mm)")
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("Length", $viewModel.lengthText)
                     field("Width", $viewModel.widthText)
                     field("Height", $viewModel.heightText)
                 }
                 if viewModel.isPair {
-                    HStack(spacing: AppSpacing.m) {
+                    HStack(spacing: AppSpacing.section) {
                         field("Length 2", $viewModel.length2Text)
                         field("Width 2", $viewModel.width2Text)
                         field("Height 2", $viewModel.height2Text)
@@ -272,14 +272,14 @@ struct StoneFormView: View {
     // MARK: - Pricing
 
     private var pricingSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Pricing")
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("Cost Price", $viewModel.costPriceText)
                     field("Sell Price", $viewModel.sellPriceText)
                 }
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Currency").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                         Picker("", selection: $viewModel.currencyType) {
@@ -316,14 +316,14 @@ struct StoneFormView: View {
     // MARK: - RapNet / Listing
 
     private var rapNetSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 SectionHeader(title: "Listing Details")
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("Availability", $viewModel.availability)
                     field("Video URL", $viewModel.videoUrl)
                 }
-                HStack(spacing: AppSpacing.m) {
+                HStack(spacing: AppSpacing.section) {
                     field("Country", $viewModel.stoneCountry)
                     field("State", $viewModel.stoneState)
                     field("City", $viewModel.stoneCity)
@@ -380,7 +380,7 @@ struct StoneFormView: View {
             .disabled(!viewModel.canSave || isSaving)
             .keyboardShortcut("s", modifiers: .command)
         }
-        .padding(AppSpacing.m)
+        .padding(AppSpacing.section)
         .background(AppColors.panelBackground)
         .overlay(alignment: .top) { Divider().background(AppColors.cardElevated) }
     }
@@ -388,9 +388,6 @@ struct StoneFormView: View {
     // MARK: - Helper
 
     private func field(_ label: String, _ text: Binding<String>) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(label).font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-            TextField(label, text: text).glassField()
-        }
+        FormField(label: label, text: text)
     }
 }

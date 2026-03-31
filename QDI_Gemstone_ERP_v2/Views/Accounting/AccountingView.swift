@@ -35,14 +35,14 @@ struct AccountingView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AppSpacing.l) {
+            VStack(alignment: .leading, spacing: AppSpacing.hero) {
                 headerRow
                 quickDateFilters
                 statCardsRow
                 tabSelection
                 if selectedTab == 0 { overviewContent } else { transactionsContent }
             }
-            .padding(AppSpacing.l)
+            .padding(AppSpacing.hero)
         }
         .onAppear { viewModel.load(modelContext: modelContext) }
         .onChange(of: viewModel.dateRange) { _, _ in viewModel.load(modelContext: modelContext) }
@@ -57,7 +57,7 @@ struct AccountingView: View {
     // MARK: - Header
 
     private var headerRow: some View {
-        VStack(alignment: .trailing, spacing: AppSpacing.s) {
+        VStack(alignment: .trailing, spacing: AppSpacing.comfortable) {
             HStack {
                 Text("Internal tracking only — not a substitute for accounting software.")
                     .font(AppTypography.caption)
@@ -74,7 +74,7 @@ struct AccountingView: View {
                     .buttonStyle(.outline)
             }
             if viewModel.dateRange.isCustom {
-                HStack(spacing: AppSpacing.s) {
+                HStack(spacing: AppSpacing.comfortable) {
                     Spacer()
                     Text("From:")
                         .font(AppTypography.caption)
@@ -102,7 +102,7 @@ struct AccountingView: View {
     // MARK: - Quick Date Filters
 
     private var quickDateFilters: some View {
-        HStack(spacing: AppSpacing.xs) {
+        HStack(spacing: AppSpacing.standard) {
             FilterPill(title: "This Month", isActive: isRange(.thisMonth)) {
                 viewModel.dateRange = .thisMonth
             }
@@ -166,15 +166,15 @@ struct AccountingView: View {
     // MARK: - Overview Tab
 
     private var overviewContent: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.l) {
+        VStack(alignment: .leading, spacing: AppSpacing.hero) {
             agedReceivablesSection
             salesByTypeSection
         }
     }
 
     private var agedReceivablesSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.m) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.section) {
                 SectionHeader(title: "Aged Receivables")
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
                     ForEach(viewModel.agedReceivables) { bucket in
@@ -194,9 +194,9 @@ struct AccountingView: View {
                                     .foregroundStyle(AppColors.inkSubtle)
                             }
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, AppSpacing.s)
+                            .padding(.vertical, AppSpacing.comfortable)
                             .background(
-                                RoundedRectangle(cornerRadius: AppCornerRadius.s, style: .continuous)
+                                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
                                     .fill(AppColors.softHighlight)
                             )
                         }
@@ -216,8 +216,8 @@ struct AccountingView: View {
     }
 
     private var salesByTypeSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.m) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.section) {
                 SectionHeader(title: "Sales by Stone Type")
                 if viewModel.salesByStoneType.isEmpty {
                     Text("No sales data").font(AppTypography.body).foregroundStyle(AppColors.inkSubtle)
@@ -240,8 +240,8 @@ struct AccountingView: View {
     // MARK: - Transactions Tab
 
     private var transactionsContent: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.m) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.section) {
                 SectionHeader(title: "Sales by Month")
                 if viewModel.monthlySales.isEmpty {
                     Text("No sales data").font(AppTypography.body).foregroundStyle(AppColors.inkSubtle)

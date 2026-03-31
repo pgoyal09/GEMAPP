@@ -119,11 +119,11 @@ struct SoldInventoryView: View {
     // MARK: - Top Bar
 
     private var topBar: some View {
-        HStack(spacing: AppSpacing.s) {
+        HStack(spacing: AppSpacing.comfortable) {
             GlassSearchField(text: $searchText, placeholder: "Search sold stones...")
                 .frame(maxWidth: 320)
 
-            HStack(spacing: AppSpacing.xs) {
+            HStack(spacing: AppSpacing.standard) {
                 ForEach(SoldTypeToggle.allCases, id: \.rawValue) { toggle in
                     FilterPill(title: toggle.rawValue, isActive: typeToggle == toggle) {
                         typeToggle = toggle
@@ -133,8 +133,8 @@ struct SoldInventoryView: View {
 
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.vertical, AppSpacing.m)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.vertical, AppSpacing.section)
     }
 
     // MARK: - Table
@@ -152,7 +152,7 @@ struct SoldInventoryView: View {
                             stoneRow(stone)
                         }
                     }
-                    .padding(.vertical, AppSpacing.xs)
+                    .padding(.vertical, AppSpacing.standard)
                     summaryFooter
                 }
             }
@@ -160,8 +160,8 @@ struct SoldInventoryView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.bottom, AppSpacing.l)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.bottom, AppSpacing.hero)
     }
 
     private var tableHeader: some View {
@@ -177,8 +177,8 @@ struct SoldInventoryView: View {
             sortableHeader("Sold Date", key: "date", width: TableColumn.date, alignment: .leading)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.m)
-        .padding(.vertical, AppSpacing.s)
+        .padding(.horizontal, AppSpacing.section)
+        .padding(.vertical, AppSpacing.comfortable)
     }
 
     private func sortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment) -> TableHeader {
@@ -210,14 +210,14 @@ struct SoldInventoryView: View {
         let totalSell = stones.reduce(Decimal.zero) { $0 + $1.sellPrice * Decimal($1.caratWeight) }
         let totalCost = stones.reduce(Decimal.zero) { $0 + $1.costPrice * Decimal($1.caratWeight) }
         let totalMargin = totalSell > 0 ? ((totalSell - totalCost) / totalSell) * 100 : 0
-        return HStack(spacing: AppSpacing.l) {
+        return HStack(spacing: AppSpacing.hero) {
             Text("\(stones.count) sold").font(AppTypography.caption.bold()).foregroundStyle(AppColors.ink)
             Text("Total: \(String(format: "%.2f", totalCarats)) ct").font(AppTypography.caption).foregroundStyle(AppColors.inkMuted)
             Text("Revenue: \(totalSell.asCurrency)").font(AppTypography.caption).foregroundStyle(AppColors.inkMuted)
             Text("Margin: \(NSDecimalNumber(decimal: totalMargin).stringValue)%").font(AppTypography.caption).foregroundStyle(AppColors.success)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.m).padding(.vertical, AppSpacing.s)
+        .padding(.horizontal, AppSpacing.section).padding(.vertical, AppSpacing.comfortable)
         .background(AppColors.softHighlight)
     }
 

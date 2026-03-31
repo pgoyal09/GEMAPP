@@ -8,14 +8,14 @@ struct CustomerDetailPanel: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AppSpacing.l) {
+            VStack(alignment: .leading, spacing: AppSpacing.hero) {
                 headerCard
                 customerNotesSection
                 CustomerActivityView(customer: customer)
                 onMemoSection
                 pastPurchasesSection
             }
-            .padding(AppSpacing.l)
+            .padding(AppSpacing.hero)
         }
         .frame(width: 296)
         .background(AppColors.panelBackground)
@@ -29,8 +29,8 @@ struct CustomerDetailPanel: View {
     }
 
     private var headerCard: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 HStack {
                     Text(customer.displayName)
                         .font(AppTypography.heading)
@@ -59,7 +59,7 @@ struct CustomerDetailPanel: View {
     }
 
     private var customerNotesSection: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.s) {
+        VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
             SectionHeader(title: "Notes")
             if customer.notes.isEmpty {
                 Text("No notes")
@@ -75,7 +75,7 @@ struct CustomerDetailPanel: View {
     }
 
     private var onMemoSection: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.s) {
+        VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
             SectionHeader(title: "On Memo")
                 .help("Consignment agreement allowing customer to review stones before buying")
             if customer.activeMemos.isEmpty {
@@ -105,7 +105,7 @@ struct CustomerDetailPanel: View {
     }
 
     private var pastPurchasesSection: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.s) {
+        VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
             SectionHeader(title: "Past Purchases")
             let paidInvoices = customer.invoices.filter { $0.status == .paid || $0.status == .sent }
             if paidInvoices.isEmpty {

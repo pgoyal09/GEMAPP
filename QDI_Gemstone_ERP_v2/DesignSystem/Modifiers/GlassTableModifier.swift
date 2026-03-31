@@ -9,19 +9,19 @@ struct GlassTableModifier: ViewModifier {
         content
             .background(tableBackground)
             .overlay(
-                RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                     .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)
             )
-            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous))
     }
 
     @ViewBuilder
     private var tableBackground: some View {
         if reduceTransparency {
-            RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous)
+            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                 .fill(AppColors.cardBackground)
         } else {
-            RoundedRectangle(cornerRadius: AppCornerRadius.l, style: .continuous)
+            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                 .fill(.ultraThinMaterial)
                 .opacity(0.6)
         }

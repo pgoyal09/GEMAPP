@@ -8,11 +8,11 @@ struct GradientButtonStyle: ButtonStyle {
         configuration.label
             .font(AppTypography.body.weight(.semibold))
             .foregroundStyle(.white)
-            .padding(.horizontal, AppSpacing.l)
-            .padding(.vertical, AppSpacing.s)
+            .padding(.horizontal, AppSpacing.hero)
+            .padding(.vertical, AppSpacing.comfortable)
             .background(gradient)
-            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous))
-            .opacity(configuration.isPressed ? 0.8 : 1)
+            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous))
+            .shadow(color: AppColors.primary.opacity(configuration.isPressed ? 0.08 : 0.20), radius: configuration.isPressed ? 4 : 8, y: configuration.isPressed ? 2 : 4)
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
     }

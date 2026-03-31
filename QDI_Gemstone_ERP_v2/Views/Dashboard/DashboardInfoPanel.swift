@@ -7,18 +7,18 @@ struct DashboardInfoPanel: View {
     @AppStorage("memoAgingYellow") private var memoAgingYellow: Int = 14
     @AppStorage("memoAgingOrange") private var memoAgingOrange: Int = 30
 
-    private var backupScheduler = BackupScheduler()
+    @State private var backupScheduler = BackupScheduler()
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AppSpacing.l) {
+            VStack(alignment: .leading, spacing: AppSpacing.hero) {
                 oldestOpenMemosSection
                 inventorySnapshotSection
                 if backupScheduler.isEnabled {
                     autoBackupSection
                 }
             }
-            .padding(AppSpacing.l)
+            .padding(AppSpacing.hero)
         }
         .frame(width: 296)
         .background(AppColors.panelBackground)
@@ -30,7 +30,7 @@ struct DashboardInfoPanel: View {
     // MARK: - Oldest Open Memos
 
     private var oldestOpenMemosSection: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.compact) {
+        VStack(alignment: .leading, spacing: AppSpacing.standard) {
             SectionHeader(title: "Oldest Open Memos")
             if viewModel.overdueMemoCount > 0 {
                 HStack(spacing: 6) {
@@ -44,7 +44,7 @@ struct DashboardInfoPanel: View {
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
                 .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.sm, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                         .fill(AppColors.warningDeep.opacity(0.12))
                 )
             }
@@ -52,7 +52,7 @@ struct DashboardInfoPanel: View {
                 Text("No open memos")
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.inkSubtle)
-                    .padding(.vertical, AppSpacing.compact)
+                    .padding(.vertical, AppSpacing.standard)
             } else {
                 VStack(spacing: 0) {
                     ForEach(viewModel.oldestOpenMemos) { item in
@@ -78,8 +78,8 @@ struct DashboardInfoPanel: View {
                                         .foregroundStyle(AppColors.inkMuted)
                                 }
                             }
-                            .padding(.vertical, AppSpacing.compact)
-                            .padding(.horizontal, AppSpacing.s)
+                            .padding(.vertical, AppSpacing.standard)
+                            .padding(.horizontal, AppSpacing.comfortable)
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
@@ -92,7 +92,7 @@ struct DashboardInfoPanel: View {
     // MARK: - Inventory Snapshot
 
     private var inventorySnapshotSection: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.compact) {
+        VStack(alignment: .leading, spacing: AppSpacing.standard) {
             SectionHeader(title: "Inventory Snapshot")
             HStack(spacing: 10) {
                 snapshotChip("Available", viewModel.inventorySnapshot.availableCount, color: AppColors.success)
@@ -106,7 +106,7 @@ struct DashboardInfoPanel: View {
     // MARK: - Auto Backup Status
 
     private var autoBackupSection: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.compact) {
+        VStack(alignment: .leading, spacing: AppSpacing.standard) {
             SectionHeader(title: "Auto Backup")
             HStack(spacing: 6) {
                 Image(systemName: "externaldrive.fill.badge.checkmark")
@@ -116,8 +116,8 @@ struct DashboardInfoPanel: View {
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.inkMuted)
             }
-            .padding(.horizontal, AppSpacing.s)
-            .padding(.vertical, AppSpacing.compact)
+            .padding(.horizontal, AppSpacing.comfortable)
+            .padding(.vertical, AppSpacing.standard)
         }
     }
 
@@ -141,10 +141,10 @@ struct DashboardInfoPanel: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 10)
         .background(
-            RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                 .fill(AppColors.panelBackground)
                 .overlay(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                         .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                 )
         )

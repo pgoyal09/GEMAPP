@@ -41,7 +41,7 @@ struct InventorySelectSheet: View {
                 Toggle("Available only", isOn: $availableOnly)
                     .toggleStyle(.checkbox)
             }
-            .padding(AppSpacing.m)
+            .padding(AppSpacing.section)
 
             // Table
             ScrollView {
@@ -55,7 +55,7 @@ struct InventorySelectSheet: View {
                         TableHeader(title: "Price", width: TableColumn.price)
                         Spacer()
                     }
-                    .padding(.horizontal, AppSpacing.m)
+                    .padding(.horizontal, AppSpacing.section)
 
                     ForEach(filteredStones) { stone in
                         let isSelected = selectedIDs.contains(stone.persistentModelID)
@@ -90,7 +90,7 @@ struct InventorySelectSheet: View {
                 .buttonStyle(.gradient)
                 .disabled(selectedIDs.isEmpty)
             }
-            .padding(AppSpacing.m)
+            .padding(AppSpacing.section)
         }
         .frame(minWidth: 720, minHeight: 420)
         .onAppear { fetchStones() }

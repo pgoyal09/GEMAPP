@@ -15,16 +15,16 @@ struct GlossaryView: View {
                 Button("Done") { dismiss() }
                     .buttonStyle(.outline)
             }
-            .padding(AppSpacing.l)
+            .padding(AppSpacing.hero)
 
             GlassSearchField(text: $searchText, placeholder: "Search terms...")
-                .padding(.horizontal, AppSpacing.l)
-                .padding(.bottom, AppSpacing.m)
+                .padding(.horizontal, AppSpacing.hero)
+                .padding(.bottom, AppSpacing.section)
 
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: AppSpacing.s) {
+                LazyVStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                     ForEach(filteredTerms, id: \.term) { entry in
-                        GlassCard(padding: AppSpacing.m) {
+                        GlassCard(padding: AppSpacing.section) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(entry.term)
                                     .font(AppTypography.subheading)
@@ -36,8 +36,8 @@ struct GlossaryView: View {
                         }
                     }
                 }
-                .padding(.horizontal, AppSpacing.l)
-                .padding(.bottom, AppSpacing.l)
+                .padding(.horizontal, AppSpacing.hero)
+                .padding(.bottom, AppSpacing.hero)
             }
         }
         .frame(minWidth: 500, minHeight: 400)

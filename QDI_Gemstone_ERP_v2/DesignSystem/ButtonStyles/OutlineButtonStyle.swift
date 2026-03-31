@@ -8,14 +8,14 @@ struct OutlineButtonStyle: ButtonStyle {
         configuration.label
             .font(AppTypography.body.weight(.medium))
             .foregroundStyle(tint)
-            .padding(.horizontal, AppSpacing.l)
-            .padding(.vertical, AppSpacing.s)
+            .padding(.horizontal, AppSpacing.hero)
+            .padding(.vertical, AppSpacing.comfortable)
             .background(
-                RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                     .fill(tint.opacity(configuration.isPressed ? 0.12 : 0.06))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                     .strokeBorder(tint.opacity(0.3), lineWidth: 1)
             )
             .opacity(configuration.isPressed ? 0.8 : 1)

@@ -37,7 +37,7 @@ struct MemoListView: View {
     }
 
     private var toolbar: some View {
-        HStack(spacing: AppSpacing.cozy) {
+        HStack(spacing: AppSpacing.comfortable) {
             GlassSearchField(text: $viewModel.searchText, placeholder: "Search memos…")
                 .frame(maxWidth: 300)
             statusPills
@@ -47,8 +47,8 @@ struct MemoListView: View {
             }
             .buttonStyle(.gradient)
         }
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.vertical, AppSpacing.m)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.vertical, AppSpacing.section)
     }
 
     private var statusPills: some View {
@@ -93,7 +93,7 @@ struct MemoListView: View {
                                 }
                         }
                     }
-                    .padding(.vertical, AppSpacing.xs)
+                    .padding(.vertical, AppSpacing.standard)
 
                     memoSummaryFooter(filtered)
                 }
@@ -102,8 +102,8 @@ struct MemoListView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
-        .padding(.horizontal, AppSpacing.l)
-        .padding(.bottom, AppSpacing.l)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.bottom, AppSpacing.hero)
     }
 
     private var headerRow: some View {
@@ -117,8 +117,8 @@ struct MemoListView: View {
             memoSortableHeader("Status", key: "status", width: TableColumn.status)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.m)
-        .padding(.vertical, AppSpacing.s)
+        .padding(.horizontal, AppSpacing.section)
+        .padding(.vertical, AppSpacing.comfortable)
     }
 
     private func memoSortableHeader(_ title: String, key: String, width: CGFloat) -> TableHeader {
@@ -201,7 +201,7 @@ struct MemoListView: View {
     private func memoSummaryFooter(_ memos: [Memo]) -> some View {
         let totalAmount = memos.reduce(Decimal.zero) { $0 + $1.totalAmount }
         let openCount = memos.filter { $0.status == .onMemo }.count
-        return HStack(spacing: AppSpacing.l) {
+        return HStack(spacing: AppSpacing.hero) {
             Text("\(memos.count) memo\(memos.count == 1 ? "" : "s")")
                 .font(AppTypography.caption.bold())
                 .foregroundStyle(AppColors.ink)
@@ -213,8 +213,8 @@ struct MemoListView: View {
                 .foregroundStyle(AppColors.inkMuted)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.m)
-        .padding(.vertical, AppSpacing.s)
+        .padding(.horizontal, AppSpacing.section)
+        .padding(.vertical, AppSpacing.comfortable)
         .background(AppColors.softHighlight)
     }
 

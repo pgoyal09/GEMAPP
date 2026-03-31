@@ -28,13 +28,13 @@ struct MemoDocumentView: View {
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
-                VStack(alignment: .leading, spacing: AppSpacing.l) {
+                VStack(alignment: .leading, spacing: AppSpacing.hero) {
                     headerSection
                     lineItemsSection
                     totalsSection
                     notesSection
                 }
-                .padding(AppSpacing.l)
+                .padding(AppSpacing.hero)
             }
             bottomToolbar
         }
@@ -119,8 +119,8 @@ struct MemoDocumentView: View {
     // MARK: - Header
 
     private var headerSection: some View {
-        GlassCard(padding: AppSpacing.l) {
-            VStack(alignment: .leading, spacing: AppSpacing.m) {
+        GlassCard(padding: AppSpacing.hero) {
+            VStack(alignment: .leading, spacing: AppSpacing.section) {
                 HStack {
                     Text("Memo #\(memo.referenceNumber)")
                         .font(AppTypography.heading)
@@ -129,7 +129,7 @@ struct MemoDocumentView: View {
                     memoStatusBadge
                 }
 
-                HStack(spacing: AppSpacing.l) {
+                HStack(spacing: AppSpacing.hero) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Customer").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                         HStack {
@@ -184,8 +184,8 @@ struct MemoDocumentView: View {
     // MARK: - Line Items
 
     private var lineItemsSection: some View {
-        GlassCard(padding: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.s) {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                 HStack {
                     SectionHeader(title: "Line Items")
                     Spacer()
@@ -206,7 +206,7 @@ struct MemoDocumentView: View {
                     TableHeader(title: "Rate", width: TableColumn.price)
                     TableHeader(title: "Amount", width: TableColumn.price)
                 }
-                .padding(.horizontal, AppSpacing.s)
+                .padding(.horizontal, AppSpacing.comfortable)
 
                 ForEach(memo.lineItems) { item in
                     HStack(spacing: 0) {
@@ -221,7 +221,7 @@ struct MemoDocumentView: View {
                         lineItemStatusBadge(item)
                             .frame(width: 70, alignment: .trailing)
                     }
-                    .padding(.horizontal, AppSpacing.s)
+                    .padding(.horizontal, AppSpacing.comfortable)
                     .padding(.vertical, 2)
                     .contextMenu {
                         Button("Remove") {
@@ -240,7 +240,7 @@ struct MemoDocumentView: View {
                         .font(AppTypography.body)
                         .foregroundStyle(AppColors.inkSubtle)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, AppSpacing.l)
+                        .padding(.vertical, AppSpacing.hero)
                 }
             }
         }
@@ -304,7 +304,7 @@ struct MemoDocumentView: View {
             .buttonStyle(.gradient)
             .help("Creates a new invoice from selected memo items")
         }
-        .padding(.vertical, AppSpacing.xs)
+        .padding(.vertical, AppSpacing.standard)
     }
 
     @ViewBuilder
@@ -320,7 +320,7 @@ struct MemoDocumentView: View {
     // MARK: - Totals
 
     private var totalsSection: some View {
-        GlassCard(padding: AppSpacing.m) {
+        GlassCard(padding: AppSpacing.section) {
             HStack {
                 Spacer()
                 VStack(alignment: .trailing, spacing: 4) {
@@ -338,7 +338,7 @@ struct MemoDocumentView: View {
     // MARK: - Notes
 
     private var notesSection: some View {
-        GlassCard(padding: AppSpacing.m) {
+        GlassCard(padding: AppSpacing.section) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Notes").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                 TextEditor(text: $memo.notes)
@@ -387,7 +387,7 @@ struct MemoDocumentView: View {
             .disabled(isSaving)
             .keyboardShortcut("s", modifiers: .command)
         }
-        .padding(AppSpacing.m)
+        .padding(AppSpacing.section)
         .background(AppColors.panelBackground)
         .overlay(alignment: .top) { Divider().background(AppColors.cardElevated) }
         .alert("Unsaved Changes", isPresented: $showUnsavedAlert) {

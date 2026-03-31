@@ -1,23 +1,47 @@
 import SwiftUI
 
-/// Success/error toast that appears at the bottom of a view.
+/// Success/error toast with glass-morphism treatment matching GlassCard.
 struct ToastOverlay: View {
     let message: String
     var isError: Bool = false
 
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
+    private var icon: String {
+        isError ? "xmark.circle.fill" : "checkmark.circle.fill"
+    }
+
+    private var tint: Color {
+        isError ? AppColors.danger : AppColors.success
+    }
+
     var body: some View {
         VStack {
             Spacer()
-            Text(message)
-                .font(.subheadline)
-                .foregroundStyle(.white)
-                .padding(.horizontal, AppSpacing.l)
-                .padding(.vertical, AppSpacing.m)
-                .background(isError ? AppColors.danger : AppColors.success)
-                .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.m, style: .continuous))
-                .padding(.bottom, AppSpacing.xl)
+            HStack(spacing: AppSpacing.standard) {
+                Image(systemName: icon)
+                    .font(AppTypography.body)
+                    .foregroundStyle(tint)
+                Text(message)
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.ink)
+            }
+            .padding(.horizontal, AppSpacing.hero)
+            .padding(.vertical, AppSpacing.comfortable)
+            .background(
+                RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                    .fill(reduceTransparency ? AppColors.cardElevated : AppColors.cardBackground)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                            .strokeBorder(tint.opacity(0.3), lineWidth: 1)
+                    )
+            )
+            .shadow(color: Color.black.opacity(0.25), radius: 12, y: 6)
+            .padding(.bottom, AppSpacing.hero)
         }
         .transition(.move(edge: .bottom).combined(with: .opacity))
         .animation(AppAnimation.standard, value: message)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(isError ? "Error: \(message)" : "Success: \(message)")
     }
 }
