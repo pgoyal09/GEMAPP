@@ -40,6 +40,17 @@ struct MemoDocumentView: View {
         return allCustomers.filter { $0.displayName.lowercased().contains(q) }
     }
 
+    /// The best inline autocomplete match (first filtered customer).
+    private var inlineSuggestion: String? {
+        let q = customerSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !q.isEmpty, memo.customer == nil else { return nil }
+        if let match = filteredCustomers.first,
+           match.displayName.lowercased().hasPrefix(q.lowercased()) {
+            return match.displayName
+        }
+        return nil
+    }
+
     /// Sum of open memo values for the selected customer, excluding current memo.
     private var customerOpenMemoValue: Decimal {
         guard let customer = memo.customer else { return 0 }
@@ -203,15 +214,35 @@ struct MemoDocumentView: View {
                         ZStack(alignment: .topLeading) {
                             VStack(spacing: AppSpacing.compact) {
                                 HStack {
-                                    TextField("Search customers...", text: $customerSearchText)
-                                        .textFieldStyle(.plain)
-                                        .font(AppTypography.smallValue)
-                                        .foregroundStyle(AppColors.ink)
-                                        .glassField()
-                                        .frame(width: 200)
-                                        .onChange(of: customerSearchText) { _, newVal in
-                                            showCustomerDropdown = !newVal.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                                    ZStack(alignment: .leading) {
+                                        // Ghost inline suggestion
+                                        if let suggestion = inlineSuggestion {
+                                            Text(suggestion)
+                                                .font(AppTypography.smallValue)
+                                                .foregroundStyle(AppColors.inkSubtle.opacity(0.4))
+                                                .lineLimit(1)
+                                                .allowsHitTesting(false)
                                         }
+                                        TextField("Search customers...", text: $customerSearchText)
+                                            .textFieldStyle(.plain)
+                                            .font(AppTypography.smallValue)
+                                            .foregroundStyle(AppColors.ink)
+                                            .onChange(of: customerSearchText) { _, newVal in
+                                                showCustomerDropdown = !newVal.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                                            }
+                                            .onKeyPress(.tab) {
+                                                if let match = filteredCustomers.first, memo.customer == nil {
+                                                    memo.customer = match
+                                                    customerSearchText = ""
+                                                    showCustomerDropdown = false
+                                                    markDirty()
+                                                    return .handled
+                                                }
+                                                return .ignored
+                                            }
+                                    }
+                                    .glassField()
+                                    .frame(width: 200)
                                     Button(action: { showAddCustomerSheet = true }) {
                                         Image(systemName: "plus.circle").foregroundStyle(AppColors.primary)
                                     }
@@ -612,7 +643,10 @@ struct MemoDocumentView: View {
         .overlay(alignment: .top) { Divider().background(AppColors.cardElevated) }
         .alert("Unsaved Changes", isPresented: $showUnsavedAlert) {
             Button("Keep Editing", role: .cancel) {}
-            Button("Discard", role: .destructive) { dismiss() }
+            Button("Discard", role: .destructive) {
+                hasUnsavedEdits = false
+                NSApp.keyWindow?.close()
+            }
         } message: {
             Text("You have unsaved changes. Discard them?")
         }

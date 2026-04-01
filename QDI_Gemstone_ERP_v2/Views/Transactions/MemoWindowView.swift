@@ -19,7 +19,21 @@ struct MemoWindowView: View {
         .environment(\.documentDirtyTracker, dirtyTracker)
         .frame(minWidth: 1100, minHeight: 760)
         .appBackground()
-        .onExitCommand { dismiss() }
+        .onExitCommand {
+            if dirtyTracker.isDirty {
+                dirtyTracker.showUnsavedAlert = true
+            } else {
+                dismiss()
+            }
+        }
+        .alert("Unsaved Changes", isPresented: $dirtyTracker.showUnsavedAlert) {
+            Button("Keep Editing", role: .cancel) {}
+            Button("Discard", role: .destructive) {
+                dismiss()
+            }
+        } message: {
+            Text("You have unsaved changes. Discard them?")
+        }
         .onDisappear {
             cleanupEmptyMemo()
         }

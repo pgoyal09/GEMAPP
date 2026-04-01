@@ -5,9 +5,11 @@ import SwiftUI
 final class DocumentDirtyTracker {
     var hasUnsavedMemo = false
     var hasUnsavedInvoice = false
+    var showUnsavedAlert = false
     var onSaveAndClose: (() -> Void)?
 
     var hasAnyDirty: Bool { hasUnsavedMemo || hasUnsavedInvoice }
+    var isDirty: Bool { hasAnyDirty }
 
     func markDirty() { hasUnsavedMemo = true }
     func clearDirty() { hasUnsavedMemo = false; hasUnsavedInvoice = false }
