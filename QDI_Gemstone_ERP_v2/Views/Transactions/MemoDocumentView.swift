@@ -63,7 +63,7 @@ struct MemoDocumentView: View {
     }
 
     private var isNewMemo: Bool {
-        memo.lineItems.isEmpty && !hasUnsavedEdits && memo.createdAt.timeIntervalSinceNow > -2
+        memo.lineItems.isEmpty && memo.createdAt.timeIntervalSinceNow > -60
     }
 
     var body: some View {
@@ -138,6 +138,7 @@ struct MemoDocumentView: View {
         .sheet(isPresented: $showAddCustomerSheet) {
             CustomerFormSheet(mode: .add) { customer in
                 memo.customer = customer
+                customerSearchText = customer.displayName
                 markDirty()
             }
         }
@@ -220,13 +221,33 @@ struct MemoDocumentView: View {
                                             .font(AppTypography.smallValue)
                                             .foregroundStyle(AppColors.ink)
                                             .glassField()
+                                            .overlay(alignment: .trailing) {
+                                                if memo.customer != nil {
+                                                    Button {
+                                                        memo.customer = nil
+                                                        customerSearchText = ""
+                                                        markDirty()
+                                                    } label: {
+                                                        Image(systemName: "xmark.circle.fill")
+                                                            .foregroundStyle(AppColors.inkSubtle)
+                                                            .font(AppTypography.caption)
+                                                    }
+                                                    .buttonStyle(.plain)
+                                                    .padding(.trailing, AppSpacing.standard)
+                                                }
+                                            }
                                             .onChange(of: customerSearchText) { _, newVal in
-                                                showCustomerDropdown = !newVal.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                                                let trimmed = newVal.trimmingCharacters(in: .whitespacesAndNewlines)
+                                                if let c = memo.customer, trimmed != c.displayName {
+                                                    memo.customer = nil
+                                                    markDirty()
+                                                }
+                                                showCustomerDropdown = !trimmed.isEmpty && memo.customer == nil
                                             }
                                             .onKeyPress(.tab) {
                                                 if let match = filteredCustomers.first, memo.customer == nil {
                                                     memo.customer = match
-                                                    customerSearchText = ""
+                                                    customerSearchText = match.displayName
                                                     showCustomerDropdown = false
                                                     markDirty()
                                                     return .handled
@@ -249,23 +270,6 @@ struct MemoDocumentView: View {
                                     .buttonStyle(.plain)
                                     .accessibilityLabel("Add Customer")
                                 }
-                                if let c = memo.customer {
-                                    HStack(spacing: AppSpacing.compact) {
-                                        Text(c.displayName)
-                                            .font(AppTypography.smallValue)
-                                            .foregroundStyle(AppColors.ink)
-                                        Button {
-                                            memo.customer = nil
-                                            customerSearchText = ""
-                                            markDirty()
-                                        } label: {
-                                            Image(systemName: "xmark.circle.fill")
-                                                .foregroundStyle(AppColors.inkSubtle)
-                                                .font(AppTypography.caption)
-                                        }
-                                        .buttonStyle(.plain)
-                                    }
-                                }
                             }
                             if showCustomerDropdown && !filteredCustomers.isEmpty {
                                 ScrollView {
@@ -273,7 +277,7 @@ struct MemoDocumentView: View {
                                         ForEach(filteredCustomers) { c in
                                             Button {
                                                 memo.customer = c
-                                                customerSearchText = ""
+                                                customerSearchText = c.displayName
                                                 showCustomerDropdown = false
                                                 markDirty()
                                             } label: {
@@ -303,26 +307,34 @@ struct MemoDocumentView: View {
                         }
                     }
 
-                    // Date entry with manual typing + DatePicker
+                    // Date entry with manual typing + calendar icon
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Date").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        HStack(spacing: AppSpacing.compact) {
-                            TextField("MM/DD/YYYY", text: $dateText)
-                                .glassField()
-                                .frame(width: 110)
-                                .onSubmit { parseDateText() }
-                                .onChange(of: dateText) { _, _ in dateError = nil }
-                            DatePicker("", selection: Binding(
-                                get: { memo.dateAssigned ?? Date() },
-                                set: { newDate in
-                                    memo.dateAssigned = newDate
-                                    syncDateText(from: newDate)
-                                    markDirty()
+                        TextField("MM/DD/YYYY", text: $dateText)
+                            .glassField()
+                            .frame(width: 140)
+                            .onSubmit { parseDateText() }
+                            .onChange(of: dateText) { _, _ in dateError = nil }
+                            .overlay(alignment: .trailing) {
+                                DatePicker("", selection: Binding(
+                                    get: { memo.dateAssigned ?? Date() },
+                                    set: { newDate in
+                                        memo.dateAssigned = newDate
+                                        syncDateText(from: newDate)
+                                        markDirty()
+                                    }
+                                ), displayedComponents: .date)
+                                .labelsHidden()
+                                .frame(width: 20)
+                                .opacity(0.02)
+                                .overlay {
+                                    Image(systemName: "calendar")
+                                        .foregroundStyle(AppColors.primary)
+                                        .font(AppTypography.caption)
+                                        .allowsHitTesting(false)
                                 }
-                            ), displayedComponents: .date)
-                            .labelsHidden()
-                            .frame(width: 30)
-                        }
+                                .padding(.trailing, AppSpacing.standard)
+                            }
                         if let error = dateError {
                             Text(error)
                                 .font(AppTypography.caption)
@@ -347,6 +359,9 @@ struct MemoDocumentView: View {
         }
         .onAppear {
             syncDateText(from: memo.dateAssigned ?? Date())
+            if let c = memo.customer {
+                customerSearchText = c.displayName
+            }
         }
     }
 
@@ -441,9 +456,6 @@ struct MemoDocumentView: View {
                         .frame(width: 24)
 
                         EditableLineItemRow(item: item) { markDirty() }
-
-                        lineItemStatusBadge(item)
-                            .frame(width: 70, alignment: .trailing)
                     }
                     .padding(.horizontal, AppSpacing.comfortable)
                     .padding(.vertical, 2)

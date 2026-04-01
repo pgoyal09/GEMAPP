@@ -10,7 +10,7 @@ struct DetailRow: View {
             Text(label)
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkSubtle)
-                .frame(width: 110, alignment: .leading)
+                .frame(width: 80, alignment: .leading)
             Text(value)
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.ink)

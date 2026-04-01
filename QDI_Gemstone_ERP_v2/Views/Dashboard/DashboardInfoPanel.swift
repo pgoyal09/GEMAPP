@@ -13,7 +13,7 @@ struct DashboardInfoPanel: View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppSpacing.hero) {
                 oldestOpenMemosSection
-                inventorySnapshotSection
+                openMemosSummarySection
                 if backupScheduler.isEnabled {
                     autoBackupSection
                 }
@@ -89,16 +89,32 @@ struct DashboardInfoPanel: View {
         }
     }
 
-    // MARK: - Inventory Snapshot
+    // MARK: - Open Memos Summary
 
-    private var inventorySnapshotSection: some View {
+    private var openMemosSummarySection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.standard) {
-            SectionHeader(title: "Inventory Snapshot")
+            SectionHeader(title: "Open Memos")
             HStack(spacing: 10) {
-                snapshotChip("Available", viewModel.inventorySnapshot.availableCount, color: AppColors.success)
-                snapshotChip("On Memo", viewModel.inventorySnapshot.onMemoCount, color: AppColors.primary)
-                    .help("Consignment agreement allowing customer to review stones before buying")
-                snapshotChip("Sold", viewModel.inventorySnapshot.soldCount, color: AppColors.inkMuted)
+                snapshotChip("Count", viewModel.oldestOpenMemos.count, color: AppColors.primary)
+                VStack(spacing: 2) {
+                    Text(viewModel.totalValueOnMemo.asCurrency)
+                        .font(AppTypography.largeValue.monospacedDigit())
+                        .foregroundStyle(AppColors.warning)
+                    Text("TOTAL VALUE")
+                        .font(AppTypography.sectionLabel)
+                        .foregroundStyle(AppColors.inkSubtle)
+                        .tracking(0.5)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, AppSpacing.standard)
+                .background(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                        .fill(AppColors.panelBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                        )
+                )
             }
         }
     }

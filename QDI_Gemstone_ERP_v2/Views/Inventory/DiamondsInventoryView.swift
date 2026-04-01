@@ -131,8 +131,8 @@ struct DiamondsInventoryView: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 4) {
+        ZStack(alignment: .trailing) {
+            VStack(spacing: 0) {
                 VStack(spacing: 0) {
                     topBar
                     filterChips
@@ -140,18 +140,26 @@ struct DiamondsInventoryView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                if let stone = selectedStone {
-                    Divider().background(AppColors.cardStroke)
-                    GemstoneDetailPanel(gemstone: stone, onEdit: {
-                        editingStone = stone
-                        showEditSheet = true
-                    })
-                    .frame(minWidth: 260, idealWidth: 296, maxWidth: 360)
-                    .transition(reduceMotion ? .opacity : .move(edge: .trailing).combined(with: .opacity))
-                }
+                summaryFooter
             }
 
-            summaryFooter
+            if let stone = selectedStone {
+                Color.black.opacity(0.15)
+                    .ignoresSafeArea()
+                    .onTapGesture { selectedStoneID = nil }
+
+                GemstoneDetailPanel(gemstone: stone, onEdit: {
+                    editingStone = stone
+                    showEditSheet = true
+                })
+                .frame(width: 400)
+                .background(AppColors.panelBackground)
+                .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous))
+                .shadow(color: .black.opacity(0.3), radius: 16, x: -4)
+                .padding(.vertical, AppSpacing.section)
+                .padding(.trailing, AppSpacing.section)
+                .transition(reduceMotion ? .opacity : .move(edge: .trailing).combined(with: .opacity))
+            }
         }
         .accessibilityIdentifier("DiamondsInventoryView")
         .background {

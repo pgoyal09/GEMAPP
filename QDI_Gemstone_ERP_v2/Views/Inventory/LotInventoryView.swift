@@ -37,7 +37,7 @@ struct LotInventoryView: View {
             switch sortKey {
             case "type": asc = a.stoneType.rawValue.localizedCompare(b.stoneType.rawValue) == .orderedAscending
             case "remaining": asc = a.effectiveRemainingCarats < b.effectiveRemainingCarats
-            case "avgCost": asc = averageCostPerStone(a) < averageCostPerStone(b)
+            case "avgCost": asc = averageCostPerCarat(a) < averageCostPerCarat(b)
             case "sell": asc = a.sellPrice < b.sellPrice
             case "value": asc = (a.sellPrice * Decimal(a.effectiveRemainingCarats)) < (b.sellPrice * Decimal(b.effectiveRemainingCarats))
             default: asc = a.sku.localizedCompare(b.sku) == .orderedAscending
@@ -186,7 +186,7 @@ struct LotInventoryView: View {
                 .foregroundStyle(AppColors.ink)
                 .frame(width: TableColumn.carat + 20, alignment: .trailing)
 
-            Text(formattedPrice(averageCostPerStone(lot)))
+            Text(formattedPrice(averageCostPerCarat(lot)))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.inkMuted)
                 .frame(width: TableColumn.price, alignment: .trailing)
@@ -246,8 +246,8 @@ struct LotInventoryView: View {
                 GlassCard(padding: AppSpacing.section) {
                     VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                         SectionHeader(title: "Pricing")
-                        DetailRow(label: "Avg Cost/stone", value: formattedPrice(averageCostPerStone(lot)))
-                        DetailRow(label: "Total Cost", value: formattedPrice(averageCostPerStone(lot) * Decimal(lot.numberOfStones ?? 1)))
+                        DetailRow(label: "Avg Cost/ct", value: formattedPrice(averageCostPerCarat(lot)))
+                        DetailRow(label: "Total Cost", value: formattedPrice(averageCostPerCarat(lot) * Decimal(lot.effectiveRemainingCarats)))
                         DetailRow(label: "Sell/ct", value: formattedPrice(lot.sellPrice))
                         DetailRow(label: "Total Sell", value: formattedPrice(lot.sellPrice * Decimal(lot.effectiveRemainingCarats)))
                     }
@@ -435,9 +435,28 @@ struct LotInventoryView: View {
                             .foregroundStyle(AppColors.ink)
                         StoneTypeBadge(type: lot.stoneType.rawValue)
                     }
-                    Text(lot.color.isEmpty ? lot.stoneType.rawValue : "\(lot.stoneType.rawValue) — \(lot.color)")
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.inkSubtle)
+                    HStack(spacing: AppSpacing.hero) {
+                        let dims: String = {
+                            if let l = lot.length, let w = lot.width, let h = lot.height {
+                                return String(format: "%.2f x %.2f x %.2f", l, w, h)
+                            }
+                            return "N/A"
+                        }()
+                        let qualityText: String = {
+                            if let q = lot.quality, !q.isEmpty { return q }
+                            let parts = [lot.color, lot.clarity].filter { !$0.isEmpty }
+                            return parts.isEmpty ? "N/A" : parts.joined(separator: " / ")
+                        }()
+                        Text("Dimensions: \(dims)")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.inkSubtle)
+                        Text("Quality: \(qualityText)")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.inkSubtle)
+                        Text("Price: \(formattedPrice(lot.sellPrice))/ct")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.inkSubtle)
+                    }
                 }
                 Spacer()
                 Button("Done") { doubleClickedLot = nil }
@@ -452,7 +471,7 @@ struct LotInventoryView: View {
             HStack(spacing: AppSpacing.hero) {
                 lotInfoItem(label: "Total Added", value: String(format: "%.2f ct", totalPieces))
                 lotInfoItem(label: "Remaining", value: String(format: "%.2f ct", lot.effectiveRemainingCarats))
-                lotInfoItem(label: "Avg Cost/stone", value: formattedPrice(averageCostPerStone(lot)))
+                lotInfoItem(label: "Avg Cost/ct", value: formattedPrice(averageCostPerCarat(lot)))
                 lotInfoItem(label: "Sell/ct", value: formattedPrice(lot.sellPrice))
                 Spacer()
             }
@@ -565,13 +584,9 @@ struct LotInventoryView: View {
 
     // MARK: - Average Cost
 
-    /// Average cost per stone = totalCostOfLot / numberOfStones.
-    /// Falls back to effectiveAverageCost (cost per carat) when numberOfStones is unavailable.
-    private func averageCostPerStone(_ lot: Gemstone) -> Decimal {
-        let totalCost = lot.effectiveAverageCost * Decimal(lot.effectiveRemainingCarats)
-        let stones = lot.numberOfStones ?? 0
-        guard stones > 0 else { return lot.effectiveAverageCost }
-        return totalCost / Decimal(stones)
+    /// Average cost per carat from the lot's weighted-average cost.
+    private func averageCostPerCarat(_ lot: Gemstone) -> Decimal {
+        lot.effectiveAverageCost
     }
 
     // MARK: - Helpers

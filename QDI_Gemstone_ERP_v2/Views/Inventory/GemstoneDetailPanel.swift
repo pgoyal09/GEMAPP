@@ -88,23 +88,31 @@ struct GemstoneDetailPanel: View {
         .padding(.horizontal, AppSpacing.section)
     }
 
+    // MARK: - Two-Column Grid
+
+    private var twoColumnLayout: [GridItem] {
+        [GridItem(.flexible(), spacing: AppSpacing.comfortable), GridItem(.flexible(), spacing: AppSpacing.comfortable)]
+    }
+
     // MARK: - Identity
 
     private var identitySection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
             SectionHeader(title: "Identity")
-            DetailRow(label: "Stock #", value: gemstone.sku)
-            DetailRow(label: "Type", value: gemstone.stoneType.rawValue)
-            DetailRow(label: "Shape", value: gemstone.shape.isEmpty ? "--" : gemstone.shape)
-            DetailRow(label: "Carat Wt", value: String(format: "%.2f ct", gemstone.caratWeight))
-            DetailRow(label: "Color", value: gemstone.color.isEmpty ? "--" : gemstone.color)
-            DetailRow(label: "Clarity", value: gemstone.clarity.isEmpty ? "--" : gemstone.clarity)
-            DetailRow(label: "Cut Grade", value: gemstone.cut.isEmpty ? "--" : gemstone.cut)
-            DetailRow(label: "Origin", value: gemstone.origin.isEmpty ? "--" : gemstone.origin)
-            if !isDiamond {
-                DetailRow(label: "Treatment", value: gemstone.treatment.isEmpty ? "None" : gemstone.treatment)
+            LazyVGrid(columns: twoColumnLayout, alignment: .leading, spacing: AppSpacing.comfortable) {
+                DetailRow(label: "Stock #", value: gemstone.sku)
+                DetailRow(label: "Type", value: gemstone.stoneType.rawValue)
+                DetailRow(label: "Shape", value: gemstone.shape.isEmpty ? "--" : gemstone.shape)
+                DetailRow(label: "Carat Wt", value: String(format: "%.2f ct", gemstone.caratWeight))
+                DetailRow(label: "Color", value: gemstone.color.isEmpty ? "--" : gemstone.color)
+                DetailRow(label: "Clarity", value: gemstone.clarity.isEmpty ? "--" : gemstone.clarity)
+                DetailRow(label: "Cut Grade", value: gemstone.cut.isEmpty ? "--" : gemstone.cut)
+                DetailRow(label: "Origin", value: gemstone.origin.isEmpty ? "--" : gemstone.origin)
+                if !isDiamond {
+                    DetailRow(label: "Treatment", value: gemstone.treatment.isEmpty ? "None" : gemstone.treatment)
+                }
+                DetailRow(label: "Location", value: gemstone.currentLocation)
             }
-            DetailRow(label: "Location", value: gemstone.currentLocation)
         }
         .padding(.horizontal, AppSpacing.section)
     }
@@ -117,11 +125,13 @@ struct GemstoneDetailPanel: View {
             let l = gemstone.length.map { String(format: "%.2f", $0) } ?? "--"
             let w = gemstone.width.map { String(format: "%.2f", $0) } ?? "--"
             let h = gemstone.height.map { String(format: "%.2f", $0) } ?? "--"
-            DetailRow(label: "Length", value: "\(l) mm")
-            DetailRow(label: "Width", value: "\(w) mm")
-            DetailRow(label: "Depth", value: "\(h) mm")
-            DetailRow(label: "Table %", value: gemstone.tablePct.map { String(format: "%.1f%%", $0) } ?? "--")
-            DetailRow(label: "Depth %", value: gemstone.depthPct.map { String(format: "%.1f%%", $0) } ?? "--")
+            LazyVGrid(columns: twoColumnLayout, alignment: .leading, spacing: AppSpacing.comfortable) {
+                DetailRow(label: "Length", value: "\(l) mm")
+                DetailRow(label: "Width", value: "\(w) mm")
+                DetailRow(label: "Depth", value: "\(h) mm")
+                DetailRow(label: "Table %", value: gemstone.tablePct.map { String(format: "%.1f%%", $0) } ?? "--")
+                DetailRow(label: "Depth %", value: gemstone.depthPct.map { String(format: "%.1f%%", $0) } ?? "--")
+            }
         }
         .padding(.horizontal, AppSpacing.section)
     }
@@ -131,9 +141,11 @@ struct GemstoneDetailPanel: View {
     private var characteristicsSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
             SectionHeader(title: "Characteristics")
-            DetailRow(label: "Polish", value: gemstone.polish.isEmpty ? "--" : gemstone.polish)
-            DetailRow(label: "Symmetry", value: gemstone.symmetry.isEmpty ? "--" : gemstone.symmetry)
-            DetailRow(label: "Fluorescence", value: gemstone.fluorescence.isEmpty ? "--" : gemstone.fluorescence)
+            LazyVGrid(columns: twoColumnLayout, alignment: .leading, spacing: AppSpacing.comfortable) {
+                DetailRow(label: "Polish", value: gemstone.polish.isEmpty ? "--" : gemstone.polish)
+                DetailRow(label: "Symmetry", value: gemstone.symmetry.isEmpty ? "--" : gemstone.symmetry)
+                DetailRow(label: "Fluorescence", value: gemstone.fluorescence.isEmpty ? "--" : gemstone.fluorescence)
+            }
         }
         .padding(.horizontal, AppSpacing.section)
     }
@@ -144,8 +156,10 @@ struct GemstoneDetailPanel: View {
         VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
             SectionHeader(title: "Certification")
             if gemstone.hasCert {
-                DetailRow(label: "Lab", value: gemstone.certLab.isEmpty ? "--" : gemstone.certLab)
-                DetailRow(label: "Cert #", value: gemstone.certNo.isEmpty ? "--" : gemstone.certNo)
+                LazyVGrid(columns: twoColumnLayout, alignment: .leading, spacing: AppSpacing.comfortable) {
+                    DetailRow(label: "Lab", value: gemstone.certLab.isEmpty ? "--" : gemstone.certLab)
+                    DetailRow(label: "Cert #", value: gemstone.certNo.isEmpty ? "--" : gemstone.certNo)
+                }
             } else {
                 Text("No certificate")
                     .font(AppTypography.body)
@@ -160,11 +174,13 @@ struct GemstoneDetailPanel: View {
     private var pricingSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
             SectionHeader(title: "Pricing")
-            DetailRow(label: "Cost", value: formattedPrice(gemstone.costPrice))
-            DetailRow(label: "Price/ct", value: gemstone.caratWeight > 0
-                ? formattedPrice(gemstone.sellPrice)
-                : "--")
-            DetailRow(label: "Total Price", value: formattedPrice(gemstone.sellPrice * Decimal(gemstone.caratWeight)))
+            LazyVGrid(columns: twoColumnLayout, alignment: .leading, spacing: AppSpacing.comfortable) {
+                DetailRow(label: "Cost", value: formattedPrice(gemstone.costPrice))
+                DetailRow(label: "Price/ct", value: gemstone.caratWeight > 0
+                    ? formattedPrice(gemstone.sellPrice)
+                    : "--")
+                DetailRow(label: "Total Price", value: formattedPrice(gemstone.sellPrice * Decimal(gemstone.caratWeight)))
+            }
         }
         .padding(.horizontal, AppSpacing.section)
     }
