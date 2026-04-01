@@ -25,7 +25,7 @@ struct AppShellView: View {
         switch appAppearance {
         case "light": return .light
         case "dark": return .dark
-        default: return nil // system
+        default: return nil
         }
     }
 
@@ -61,7 +61,7 @@ struct AppShellView: View {
             }
         }
         .environment(\.navigationGuard, navigationGuard)
-        .appBackground()
+        .background(AppColors.background)
         .frame(minWidth: 1100, minHeight: 700)
         .accessibilityIdentifier("AppShellView")
         .preferredColorScheme(resolvedColorScheme)
@@ -81,7 +81,7 @@ struct AppShellView: View {
         HStack(spacing: 0) {
             if showSidebar {
                 SidebarView(selectedItem: routeBinding)
-                    .frame(width: 240)
+                    .frame(width: 220)
                     .transition(sidebarTransition)
             }
 
@@ -110,18 +110,18 @@ struct AppShellView: View {
                 UnknownTagAssignSheet(epc: coord.pendingEpc, tid: coord.pendingTid)
             }
         }
-        // Keyboard shortcuts for navigation (⌘1–9) and Escape
+        // Keyboard shortcuts: ⌘1-⌘8 match spec, ⌘0 = Scanner, ⌘, = Settings
         .background {
             Group {
                 Button("") { routeBinding.wrappedValue = .dashboard }.keyboardShortcut("1", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .scanner }.keyboardShortcut("2", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .diamonds }.keyboardShortcut("3", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .lots }.keyboardShortcut("4", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .sold }.keyboardShortcut("5", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .memos }.keyboardShortcut("6", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .invoices }.keyboardShortcut("7", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .customers }.keyboardShortcut("8", modifiers: .command)
-                Button("") { routeBinding.wrappedValue = .accounting }.keyboardShortcut("9", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .memos }.keyboardShortcut("2", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .invoices }.keyboardShortcut("3", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .customers }.keyboardShortcut("4", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .diamonds }.keyboardShortcut("5", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .gemstones }.keyboardShortcut("6", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .lots }.keyboardShortcut("7", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .sold }.keyboardShortcut("8", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .scanner }.keyboardShortcut("0", modifiers: .command)
                 Button("") { NotificationCenter.default.post(name: .menuEscapeDismiss, object: nil) }.keyboardShortcut(.escape, modifiers: [])
             }
             .frame(width: 0, height: 0).opacity(0)
@@ -157,10 +157,10 @@ struct AppShellView: View {
                         .foregroundStyle(AppColors.inkSubtle)
                         .frame(width: 36, height: 36)
                         .background(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                                 .fill(AppColors.cardElevated)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                                         .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                                 )
                         )
@@ -172,7 +172,7 @@ struct AppShellView: View {
                 }
 
                 ZStack {
-                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                         .fill(AppColors.primaryGradient)
                         .frame(width: 36, height: 36)
                         .shadow(color: AppColors.primary.opacity(AppOpacity.muted), radius: 6, y: 2)
@@ -193,13 +193,13 @@ struct AppShellView: View {
                 .font(AppTypography.caption.bold())
                 .foregroundStyle(AppColors.ink)
             Divider()
-            Text("🔔 Invoice INV-2009 is overdue")
+            Text("Invoice INV-2009 is overdue")
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
-            Text("🔔 Memo #1001 – 45 days on memo")
+            Text("Memo #1001 - 45 days on memo")
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
-            Text("✅ 3 stones added via Quick Intake")
+            Text("3 stones added via Quick Intake")
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
         }
@@ -258,14 +258,14 @@ struct AppShellView: View {
         .animation(reduceMotion ? nil : AppAnimation.standard, value: route)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
-            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                 .fill(AppColors.panelBackground)
                 .overlay(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                         .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                 )
         )
-        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous))
         .padding(.horizontal, AppSpacing.section)
         .padding(.bottom, AppSpacing.section)
     }

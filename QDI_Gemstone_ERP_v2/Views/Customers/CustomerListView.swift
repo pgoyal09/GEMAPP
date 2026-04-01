@@ -9,9 +9,9 @@ struct CustomerListView: View {
     @State private var doubleClickedCustomer: Customer?
 
     var body: some View {
-        HStack(spacing: 4) {
-            // Left: list
+        ZStack {
             VStack(spacing: 0) {
+                // Toolbar
                 HStack(spacing: AppSpacing.comfortable) {
                     GlassSearchField(text: $viewModel.searchText, placeholder: "Search customers…")
                         .frame(maxWidth: 300)
@@ -24,39 +24,54 @@ struct CustomerListView: View {
                 .padding(.horizontal, AppSpacing.hero)
                 .padding(.vertical, AppSpacing.section)
 
+                // Table
                 customerTable
-            }
-            .frame(maxWidth: .infinity)
 
-            // Right: detail
-            if let id = viewModel.selectedCustomerID,
-               let customer = allCustomers.first(where: { $0.persistentModelID == id }) {
-                CustomerDetailPanel(customer: customer)
-                    .transition(reduceMotion ? .opacity : .move(edge: .trailing).combined(with: .opacity))
+                // Sticky footer
+                footerBar
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            // Overlay panel for double-clicked customer
+            if let customer = doubleClickedCustomer {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                    .onTapGesture { doubleClickedCustomer = nil }
+
+                HStack(spacing: 0) {
+                    Spacer()
+                    CustomerFullDetailView(customer: customer, onDismiss: { doubleClickedCustomer = nil })
+                        .frame(width: 400)
+                        .background(AppColors.panelBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous))
+                        .shadow(color: Color.black.opacity(0.3), radius: 12, x: -4)
+                }
+                .transition(reduceMotion ? .opacity : .move(edge: .trailing).combined(with: .opacity))
+                .padding(.vertical, AppSpacing.hero)
+                .padding(.trailing, AppSpacing.hero)
             }
         }
         .accessibilityIdentifier("CustomerListView")
-        .animation(reduceMotion ? nil : AppAnimation.sheetSpring, value: viewModel.selectedCustomerID)
+        .animation(reduceMotion ? nil : AppAnimation.sheetSpring, value: doubleClickedCustomer?.persistentModelID)
         .sheet(isPresented: $viewModel.showAddCustomerSheet) {
             CustomerFormSheet(mode: .add)
         }
-        .sheet(item: $doubleClickedCustomer) { customer in
-            CustomerFullDetailView(customer: customer)
-        }
     }
 
-    private let customerTableMinWidth: CGFloat =
-        TableColumn.customer + TableColumn.description + TableColumn.price + TableColumn.status + 60
+    // MARK: - Table
 
     private var customerTable: some View {
         let filtered = viewModel.filtered(from: allCustomers)
         return ScrollView(.vertical) {
             VStack(spacing: 0) {
+                // Header row
                 HStack(spacing: 4) {
                     customerSortableHeader("Name", key: "name", width: TableColumn.customer)
-                    customerSortableHeader("Contact", key: "contact", width: TableColumn.description)
+                    customerSortableHeader("Company", key: "company", width: TableColumn.description)
+                    customerSortableHeader("Email", key: "contact", width: TableColumn.description)
+                    customerSortableHeader("Phone", key: "phone", width: TableColumn.memo)
                     customerSortableHeader("Open Memos", key: "memos", width: TableColumn.price, alignment: .trailing)
-                    customerSortableHeader("Status", key: "status", width: TableColumn.status)
+                    customerSortableHeader("Total Purchases", key: "purchases", width: TableColumn.price, alignment: .trailing)
                     Spacer()
                 }
                 .padding(.horizontal, AppSpacing.section)
@@ -66,7 +81,7 @@ struct CustomerListView: View {
 
                 if filtered.isEmpty {
                     EmptyStateView(icon: "person.2", title: "No customers found")
-                        .frame(minWidth: customerTableMinWidth)
+                        .frame(maxWidth: .infinity)
                         .frame(height: 200)
                 } else {
                     VStack(spacing: 2) {
@@ -82,42 +97,37 @@ struct CustomerListView: View {
                                     .truncationMode(.tail)
                                     .frame(width: TableColumn.customer, alignment: .leading)
 
-                                HStack(spacing: 8) {
-                                    if !customer.email.isEmpty {
-                                        HStack(spacing: 4) {
-                                            Image(systemName: "envelope").font(AppTypography.sectionLabel)
-                                                .accessibilityLabel("Email")
-                                            Text(customer.email).lineLimit(1)
-                                        }
-                                        .font(AppTypography.caption)
-                                        .foregroundStyle(AppColors.inkSubtle)
-                                    }
-                                    if !customer.phone.isEmpty {
-                                        HStack(spacing: 4) {
-                                            Image(systemName: "phone").font(AppTypography.sectionLabel)
-                                                .accessibilityLabel("Phone")
-                                            Text(customer.phone).lineLimit(1)
-                                        }
-                                        .font(AppTypography.caption)
-                                        .foregroundStyle(AppColors.inkSubtle)
-                                    }
-                                }
-                                .frame(width: TableColumn.description, alignment: .leading)
+                                Text(customer.company)
+                                    .font(AppTypography.caption)
+                                    .foregroundStyle(AppColors.inkSubtle)
+                                    .lineLimit(1)
+                                    .frame(width: TableColumn.description, alignment: .leading)
+
+                                Text(customer.email)
+                                    .font(AppTypography.caption)
+                                    .foregroundStyle(AppColors.inkSubtle)
+                                    .lineLimit(1)
+                                    .frame(width: TableColumn.description, alignment: .leading)
+
+                                Text(customer.phone)
+                                    .font(AppTypography.caption)
+                                    .foregroundStyle(AppColors.inkSubtle)
+                                    .lineLimit(1)
+                                    .frame(width: TableColumn.memo, alignment: .leading)
 
                                 Text("\(customer.activeMemos.count)")
                                     .font(AppTypography.mono)
                                     .foregroundStyle(AppColors.inkMuted)
-                                    .lineLimit(1)
                                     .frame(width: TableColumn.price, alignment: .trailing)
 
-                                StatusBadge(
-                                    title: customer.isActive ? "Active" : "Inactive",
-                                    tone: customer.isActive ? .success : .neutral
-                                )
-                                .frame(width: TableColumn.status, alignment: .leading)
+                                Text(customerTotalPurchases(customer).asCurrency)
+                                    .font(AppTypography.mono)
+                                    .foregroundStyle(AppColors.inkMuted)
+                                    .frame(width: TableColumn.price, alignment: .trailing)
 
                                 Spacer()
                             }
+                            .frame(height: 32)
                             .onTapGesture(count: 2) {
                                 doubleClickedCustomer = customer
                             }
@@ -129,10 +139,30 @@ struct CustomerListView: View {
             .frame(maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .glassTable()
+        .background(AppColors.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+        )
         .padding(.horizontal, AppSpacing.hero)
-        .padding(.bottom, AppSpacing.hero)
     }
+
+    // MARK: - Footer
+
+    private var footerBar: some View {
+        let filtered = viewModel.filtered(from: allCustomers)
+        return HStack {
+            Text("\(filtered.count) customer\(filtered.count == 1 ? "" : "s")")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkSubtle)
+            Spacer()
+        }
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.vertical, AppSpacing.comfortable)
+    }
+
+    // MARK: - Helpers
 
     private func customerSortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment = .leading) -> TableHeader {
         TableHeader(
@@ -143,5 +173,21 @@ struct CustomerListView: View {
             ascending: viewModel.sortAscending,
             onTap: { viewModel.toggleSort(key) }
         )
+    }
+
+    private func customerTotalPurchases(_ customer: Customer) -> Decimal {
+        var total = Decimal.zero
+        for memo in customer.memos {
+            for item in memo.lineItems where item.status == .sold {
+                total += item.netAmount
+            }
+        }
+        for invoice in customer.invoices {
+            for item in invoice.lineItems {
+                if item.originLineItem != nil { continue }
+                total += item.netAmount
+            }
+        }
+        return total
     }
 }

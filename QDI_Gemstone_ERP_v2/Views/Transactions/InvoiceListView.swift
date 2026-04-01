@@ -23,7 +23,7 @@ struct InvoiceListView: View {
         VStack(spacing: 0) {
             toolbar
             invoiceTable
-            invoiceSummaryFooter(filteredInvoices)
+            summaryFooter
         }
         .accessibilityIdentifier("InvoiceListView")
         .onAppear { viewModel.fetchPage(context: modelContext) }
@@ -44,9 +44,11 @@ struct InvoiceListView: View {
         }
     }
 
+    // MARK: - Toolbar
+
     private var toolbar: some View {
         HStack(spacing: AppSpacing.comfortable) {
-            GlassSearchField(text: $viewModel.searchText, placeholder: "Search invoices…")
+            GlassSearchField(text: $viewModel.searchText, placeholder: "Search invoices...")
                 .frame(maxWidth: 300)
             statusPills
             Spacer()
@@ -78,9 +80,7 @@ struct InvoiceListView: View {
         }
     }
 
-    private let invoiceTableMinWidth: CGFloat =
-        TableColumn.invoice + TableColumn.customer + TableColumn.salesperson + TableColumn.date
-        + TableColumn.price + TableColumn.status + 60
+    // MARK: - Table
 
     private var invoiceTable: some View {
         let filtered = filteredInvoices
@@ -94,9 +94,8 @@ struct InvoiceListView: View {
             } else {
                 ScrollView(.vertical) {
                     LazyVStack(spacing: 2) {
-                        ForEach(Array(filtered.enumerated()), id: \.element.persistentModelID) { index, invoice in
+                        ForEach(filtered, id: \.persistentModelID) { invoice in
                             invoiceRow(invoice)
-                                .staggeredRow(index: index, reduceMotion: reduceMotion)
                                 .onAppear {
                                     if invoice.id == filtered.last?.id && viewModel.hasMore {
                                         viewModel.loadMore(context: modelContext)
@@ -110,26 +109,31 @@ struct InvoiceListView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .glassTable()
+        .background(AppColors.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.card))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card)
+                .stroke(AppColors.cardStroke, lineWidth: 1)
+        )
         .padding(.horizontal, AppSpacing.hero)
         .padding(.bottom, AppSpacing.comfortable)
     }
 
     private var headerRow: some View {
         HStack(spacing: 4) {
-            invoiceSortableHeader("Invoice #", key: "reference", width: TableColumn.invoice)
-            invoiceSortableHeader("Customer", key: "customer", width: TableColumn.customer)
-            invoiceSortableHeader("Salesperson", key: "salesperson", width: TableColumn.salesperson)
-            invoiceSortableHeader("Date", key: "date", width: TableColumn.date)
-            invoiceSortableHeader("Total", key: "total", width: TableColumn.price, alignment: .trailing)
-            invoiceSortableHeader("Status", key: "status", width: TableColumn.status)
+            sortableHeader("Ref #", key: "reference", width: TableColumn.invoice)
+            sortableHeader("Customer", key: "customer", width: TableColumn.customer)
+            sortableHeader("Date", key: "date", width: TableColumn.date)
+            TableHeader(title: "Items", width: TableColumn.quantity, alignment: .trailing)
+            sortableHeader("Total", key: "total", width: TableColumn.price, alignment: .trailing)
+            sortableHeader("Status", key: "status", width: TableColumn.status)
             Spacer()
         }
         .padding(.horizontal, AppSpacing.section)
         .padding(.vertical, AppSpacing.comfortable)
     }
 
-    private func invoiceSortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment = .leading) -> TableHeader {
+    private func sortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment = .leading) -> TableHeader {
         TableHeader(
             title: title,
             width: width,
@@ -156,31 +160,45 @@ struct InvoiceListView: View {
                 .lineLimit(1)
                 .truncationMode(.tail)
                 .frame(width: TableColumn.customer, alignment: .leading)
-            Text(invoice.salesperson ?? "—")
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.inkMuted)
-                .lineLimit(1)
-                .frame(width: TableColumn.salesperson, alignment: .leading)
             Text(invoice.invoiceDate.formatted(date: .abbreviated, time: .omitted))
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkSubtle)
                 .lineLimit(1)
                 .frame(width: TableColumn.date, alignment: .leading)
+            Text("\(invoice.lineItems.count)")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+                .lineLimit(1)
+                .frame(width: TableColumn.quantity, alignment: .trailing)
             Text(invoice.totalAmount.asCurrency)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
                 .frame(width: TableColumn.price, alignment: .trailing)
-            invoiceStatusBadge(invoice.status)
+            statusBadge(invoice.status)
                 .frame(width: TableColumn.status, alignment: .leading)
             Spacer()
         }
+        .frame(height: 32)
         .simultaneousGesture(TapGesture(count: 2).onEnded {
             openWindow(id: "invoice", value: invoice.persistentModelID)
         })
     }
 
-    private func invoiceSummaryFooter(_ invoices: [Invoice]) -> some View {
+    private func statusBadge(_ status: InvoiceStatus) -> some View {
+        let tone: StatusBadge.Tone = switch status {
+        case .draft: .neutral
+        case .sent: .accent
+        case .paid: .success
+        case .void: .danger
+        }
+        return StatusBadge(title: status.rawValue, tone: tone)
+    }
+
+    // MARK: - Footer
+
+    private var summaryFooter: some View {
+        let invoices = filteredInvoices
         let totalAmount = invoices.reduce(Decimal.zero) { $0 + $1.totalAmount }
         let paidCount = invoices.filter { $0.status == .paid }.count
         return HStack(spacing: AppSpacing.hero) {
@@ -205,15 +223,7 @@ struct InvoiceListView: View {
         }
     }
 
-    private func invoiceStatusBadge(_ status: InvoiceStatus) -> some View {
-        let tone: StatusBadge.Tone = switch status {
-        case .draft: .neutral
-        case .sent: .accent
-        case .paid: .success
-        case .void: .danger
-        }
-        return StatusBadge(title: status.rawValue, tone: tone)
-    }
+    // MARK: - Actions
 
     private func batchExportPDFs() {
         let panel = NSOpenPanel()

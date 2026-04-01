@@ -3,13 +3,23 @@ import SwiftUI
 struct SidebarView: View {
     @Binding var selectedItem: NavigationItem
 
+    // MARK: - Sidebar Groups (matches spec grouping)
+
+    private static let sidebarGroups: [(label: String, items: [NavigationItem])] = [
+        ("Sales", [.dashboard, .memos, .invoices]),
+        ("Customers", [.customers]),
+        ("Inventory", [.diamonds, .gemstones, .lots, .sold, .quickIntake, .quickEntry, .reviewQueue]),
+        ("Scanner", [.scanner, .memoReturn, .reconcile]),
+        ("Reports", [.reports, .accounting, .accountsReceivable]),
+    ]
+
     var body: some View {
         VStack(spacing: 0) {
             sidebarHeader
 
             ScrollView {
                 VStack(alignment: .leading, spacing: AppSpacing.hero) {
-                    ForEach(NavigationItem.groups, id: \.label) { group in
+                    ForEach(Self.sidebarGroups, id: \.label) { group in
                         VStack(alignment: .leading, spacing: 2) {
                             Text(group.label.uppercased())
                                 .font(AppTypography.caption)
@@ -30,32 +40,13 @@ struct SidebarView: View {
 
             Spacer(minLength: 0)
 
-            Button {
-                selectedItem = .settings
-            } label: {
-                HStack(spacing: 10) {
-                    Image(systemName: "gearshape")
-                        .font(AppTypography.body)
-                    Text("Settings")
-                        .font(AppTypography.smallValue)
-                }
-                .foregroundStyle(selectedItem == .settings ? AppColors.ink : AppColors.inkSubtle)
-                .padding(.horizontal, AppSpacing.section)
-                .padding(.vertical, AppSpacing.comfortable)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Settings")
-            .overlay(alignment: .top) {
-                Divider().background(AppColors.cardElevated)
-            }
+            settingsButton
         }
         .background(
-            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                 .fill(AppColors.panelBackground)
                 .overlay(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                         .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                 )
                 .padding(AppSpacing.standard)
@@ -67,7 +58,7 @@ struct SidebarView: View {
     private var sidebarHeader: some View {
         HStack(spacing: AppSpacing.comfortable) {
             ZStack {
-                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                     .fill(AppColors.primaryGradient)
                     .frame(width: 36, height: 36)
                     .shadow(color: AppColors.primary.opacity(AppOpacity.muted), radius: 6, y: 2)
@@ -80,7 +71,7 @@ struct SidebarView: View {
                     .font(AppTypography.body.weight(.medium))
                     .foregroundStyle(AppColors.ink)
                     .tracking(0.3)
-                Text("ERP · RFID Studio")
+                Text("ERP")
                     .font(AppTypography.sectionLabel)
                     .foregroundStyle(AppColors.inkSubtle)
             }
@@ -89,6 +80,31 @@ struct SidebarView: View {
         .padding(.top, AppSpacing.hero)
         .padding(.bottom, AppSpacing.section)
         .overlay(alignment: .bottom) {
+            Divider().background(AppColors.cardElevated)
+        }
+    }
+
+    // MARK: - Settings Button
+
+    private var settingsButton: some View {
+        Button {
+            selectedItem = .settings
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "gearshape")
+                    .font(AppTypography.body)
+                Text("Settings")
+                    .font(AppTypography.smallValue)
+            }
+            .foregroundStyle(selectedItem == .settings ? AppColors.ink : AppColors.inkSubtle)
+            .padding(.horizontal, AppSpacing.section)
+            .padding(.vertical, AppSpacing.comfortable)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Settings")
+        .overlay(alignment: .top) {
             Divider().background(AppColors.cardElevated)
         }
     }
@@ -114,10 +130,10 @@ struct SidebarView: View {
             .background(
                 Group {
                     if isActive {
-                        RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                            .fill(Color.white.opacity(AppOpacity.subtle))
+                        RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                            .fill(AppColors.cardElevated)
                             .overlay(
-                                RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                                RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                                     .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                             )
                     }
