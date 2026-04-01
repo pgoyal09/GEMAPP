@@ -15,7 +15,6 @@ struct AccountingView: View {
 
     /// Fetch sent invoices that fall into a specific aging bucket, computed locally.
     private func invoicesForAgingBucket(_ bucketID: String) -> [Invoice] {
-        // SwiftData #Predicate does not support custom enum types as captured constants.
         let descriptor = FetchDescriptor<Invoice>()
         guard let invoices = try? modelContext.fetch(descriptor).filter({ $0.status == .sent }) else { return [] }
         let today = Date()
@@ -136,35 +135,74 @@ struct AccountingView: View {
     // MARK: - Stat Cards
 
     private var statCardsRow: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 3), spacing: 16) {
-            KPICard(title: "Total Revenue", value: viewModel.totalRevenue.asCurrency)
-            KPICard(title: "Total Cost", value: viewModel.totalCost.asCurrency)
-            GlassCard(padding: 20) {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("TOTAL PROFIT")
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.inkSubtle)
-                        .tracking(1.2)
-                    HStack(alignment: .firstTextBaseline, spacing: 8) {
-                        Text(viewModel.totalProfit.asCurrency)
-                            .font(AppTypography.largeValue)
-                            .foregroundStyle(viewModel.totalProfit >= 0 ? AppColors.success : AppColors.danger)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                        Text(String(format: "%.1f%%", viewModel.profitMargin))
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColors.inkSubtle)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: AppSpacing.section), count: 3), spacing: AppSpacing.section) {
+            statCard(title: "TOTAL REVENUE", value: viewModel.totalRevenue.asCurrency, color: AppColors.primary)
+            statCard(title: "TOTAL COST", value: viewModel.totalCost.asCurrency, color: AppColors.warning)
+            profitCard
+        }
+    }
+
+    private func statCard(title: String, value: String, color: Color) -> some View {
+        VStack(alignment: .leading, spacing: AppSpacing.standard) {
+            Text(title)
+                .font(AppTypography.sectionLabel)
+                .foregroundStyle(AppColors.inkSubtle)
+                .tracking(1.2)
+            Text(value)
+                .font(AppTypography.largeValue)
+                .foregroundStyle(color)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(AppSpacing.hero)
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                .fill(AppColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                )
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title): \(value)")
+    }
+
+    private var profitCard: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.standard) {
+            Text("TOTAL PROFIT")
+                .font(AppTypography.sectionLabel)
+                .foregroundStyle(AppColors.inkSubtle)
+                .tracking(1.2)
+            HStack(alignment: .firstTextBaseline, spacing: AppSpacing.standard) {
+                Text(viewModel.totalProfit.asCurrency)
+                    .font(AppTypography.largeValue)
+                    .foregroundStyle(viewModel.totalProfit >= 0 ? AppColors.success : AppColors.danger)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                Text(String(format: "%.1f%%", viewModel.profitMargin))
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(AppSpacing.hero)
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                .fill(AppColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                )
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Total Profit: \(viewModel.totalProfit.asCurrency), margin \(String(format: "%.1f%%", viewModel.profitMargin))")
     }
 
     // MARK: - Tabs
 
     private var tabSelection: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: AppSpacing.compact) {
             FilterPill(title: "Overview", isActive: selectedTab == 0) { selectedTab = 0 }
             FilterPill(title: "Transactions", isActive: selectedTab == 1) { selectedTab = 1 }
         }
@@ -180,42 +218,49 @@ struct AccountingView: View {
     }
 
     private var agedReceivablesSection: some View {
-        GlassCard(padding: AppSpacing.section) {
-            VStack(alignment: .leading, spacing: AppSpacing.section) {
-                SectionHeader(title: "Aged Receivables")
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
-                    ForEach(viewModel.agedReceivables) { bucket in
-                        Button {
-                            selectedAgingBucket = bucket.id
-                            showAgingDetail = true
-                        } label: {
-                            VStack(spacing: 4) {
-                                Text(bucket.amount.asCurrency)
-                                    .font(AppTypography.subheading)
-                                    .foregroundStyle(AppColors.ink)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.7)
-                                Text(bucket.label)
-                                    .font(AppTypography.caption)
-                                    .foregroundStyle(AppColors.inkSubtle)
-                                Text("\(bucket.count) invoice\(bucket.count == 1 ? "" : "s")")
-                                    .font(AppTypography.sectionLabel)
-                                    .foregroundStyle(AppColors.inkSubtle)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, AppSpacing.comfortable)
-                            .background(
-                                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
-                                    .fill(AppColors.softHighlight)
-                            )
+        VStack(alignment: .leading, spacing: AppSpacing.section) {
+            SectionHeader(title: "Aged Receivables")
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: AppSpacing.comfortable), count: 4), spacing: AppSpacing.comfortable) {
+                ForEach(viewModel.agedReceivables) { bucket in
+                    Button {
+                        selectedAgingBucket = bucket.id
+                        showAgingDetail = true
+                    } label: {
+                        VStack(spacing: AppSpacing.compact) {
+                            Text(bucket.amount.asCurrency)
+                                .font(AppTypography.subheading)
+                                .foregroundStyle(AppColors.ink)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                            Text(bucket.label)
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.inkSubtle)
+                            Text("\(bucket.count) invoice\(bucket.count == 1 ? "" : "s")")
+                                .font(AppTypography.sectionLabel)
+                                .foregroundStyle(AppColors.inkSubtle)
                         }
-                        .buttonStyle(.plain)
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("\(bucket.label) aged receivables: \(bucket.amount.asCurrency), \(bucket.count) invoice\(bucket.count == 1 ? "" : "s")")
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, AppSpacing.comfortable)
+                        .background(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                                .fill(AppColors.softHighlight)
+                        )
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("\(bucket.label) aged receivables: \(bucket.amount.asCurrency), \(bucket.count) invoice\(bucket.count == 1 ? "" : "s")")
                 }
             }
         }
+        .padding(AppSpacing.hero)
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                .fill(AppColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                )
+        )
         .sheet(isPresented: $showAgingDetail) {
             if let bucketID = selectedAgingBucket {
                 AgingBucketDetailSheet(
@@ -227,71 +272,89 @@ struct AccountingView: View {
     }
 
     private var salesByTypeSection: some View {
-        GlassCard(padding: AppSpacing.section) {
-            VStack(alignment: .leading, spacing: AppSpacing.section) {
-                SectionHeader(title: "Sales by Stone Type")
-                if viewModel.salesByStoneType.isEmpty {
-                    Text("No sales data").font(AppTypography.body).foregroundStyle(AppColors.inkSubtle)
-                } else {
-                    let maxRevenue = viewModel.salesByStoneType.map { NSDecimalNumber(decimal: $0.revenue).doubleValue }.max() ?? 1.0
-                    ForEach(viewModel.salesByStoneType) { row in
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                StoneTypeBadge(type: row.stoneType)
-                                Spacer()
-                                Text(row.revenue.asCurrency)
-                                    .font(AppTypography.mono)
-                                    .foregroundStyle(AppColors.ink)
-                            }
-                            GeometryReader { geo in
-                                let ratio = maxRevenue > 0 ? NSDecimalNumber(decimal: row.revenue).doubleValue / maxRevenue : 0
-                                RoundedRectangle(cornerRadius: 3, style: .continuous)
-                                    .fill(AppColors.primaryGradient)
-                                    .frame(width: max(geo.size.width * ratio, 4))
-                            }
-                            .frame(height: 8)
+        VStack(alignment: .leading, spacing: AppSpacing.section) {
+            SectionHeader(title: "Revenue by Stone Type")
+            if viewModel.salesByStoneType.isEmpty {
+                Text("No sales data")
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.inkSubtle)
+            } else {
+                let maxRevenue = viewModel.salesByStoneType.map { NSDecimalNumber(decimal: $0.revenue).doubleValue }.max() ?? 1.0
+                ForEach(viewModel.salesByStoneType) { row in
+                    VStack(alignment: .leading, spacing: AppSpacing.compact) {
+                        HStack {
+                            StoneTypeBadge(type: row.stoneType)
+                            Spacer()
+                            Text(row.revenue.asCurrency)
+                                .font(AppTypography.mono)
+                                .foregroundStyle(AppColors.ink)
                         }
-                        .padding(.vertical, AppSpacing.compact)
+                        GeometryReader { geo in
+                            let ratio = maxRevenue > 0 ? NSDecimalNumber(decimal: row.revenue).doubleValue / maxRevenue : 0
+                            RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                                .fill(AppColors.primaryGradient)
+                                .frame(width: max(geo.size.width * ratio, 4))
+                        }
+                        .frame(height: 8)
                     }
+                    .padding(.vertical, AppSpacing.compact)
                 }
             }
         }
+        .padding(AppSpacing.hero)
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                .fill(AppColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                )
+        )
     }
 
     // MARK: - Transactions Tab
 
     private var transactionsContent: some View {
-        GlassCard(padding: AppSpacing.section) {
-            VStack(alignment: .leading, spacing: AppSpacing.section) {
-                SectionHeader(title: "Sales by Month")
-                if viewModel.monthlySales.isEmpty {
-                    Text("No sales data").font(AppTypography.body).foregroundStyle(AppColors.inkSubtle)
-                } else {
-                    let maxMonthlyRevenue = viewModel.monthlySales.map { NSDecimalNumber(decimal: $0.revenue).doubleValue }.max() ?? 1.0
-                    ForEach(viewModel.monthlySales) { row in
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                Text(row.month)
-                                    .font(AppTypography.mono)
-                                    .foregroundStyle(AppColors.inkMuted)
-                                Spacer()
-                                Text(row.revenue.asCurrency)
-                                    .font(AppTypography.mono)
-                                    .foregroundStyle(AppColors.ink)
-                            }
-                            GeometryReader { geo in
-                                let ratio = maxMonthlyRevenue > 0 ? NSDecimalNumber(decimal: row.revenue).doubleValue / maxMonthlyRevenue : 0
-                                RoundedRectangle(cornerRadius: 3, style: .continuous)
-                                    .fill(AppColors.primary)
-                                    .frame(width: max(geo.size.width * ratio, 4))
-                            }
-                            .frame(height: 8)
+        VStack(alignment: .leading, spacing: AppSpacing.section) {
+            SectionHeader(title: "Monthly Revenue")
+            if viewModel.monthlySales.isEmpty {
+                Text("No sales data")
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.inkSubtle)
+            } else {
+                let maxMonthlyRevenue = viewModel.monthlySales.map { NSDecimalNumber(decimal: $0.revenue).doubleValue }.max() ?? 1.0
+                ForEach(viewModel.monthlySales) { row in
+                    VStack(alignment: .leading, spacing: AppSpacing.compact) {
+                        HStack {
+                            Text(row.month)
+                                .font(AppTypography.mono)
+                                .foregroundStyle(AppColors.inkMuted)
+                            Spacer()
+                            Text(row.revenue.asCurrency)
+                                .font(AppTypography.mono)
+                                .foregroundStyle(AppColors.ink)
                         }
-                        .padding(.vertical, AppSpacing.compact)
+                        GeometryReader { geo in
+                            let ratio = maxMonthlyRevenue > 0 ? NSDecimalNumber(decimal: row.revenue).doubleValue / maxMonthlyRevenue : 0
+                            RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                                .fill(AppColors.primaryGradient)
+                                .frame(width: max(geo.size.width * ratio, 4))
+                        }
+                        .frame(height: 8)
                     }
+                    .padding(.vertical, AppSpacing.compact)
                 }
             }
         }
+        .padding(AppSpacing.hero)
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                .fill(AppColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                )
+        )
     }
 
     // MARK: - Export

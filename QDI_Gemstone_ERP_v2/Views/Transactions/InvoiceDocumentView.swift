@@ -17,25 +17,40 @@ struct InvoiceDocumentView: View {
     @State private var showDeleteConfirm = false
     @State private var showVoidConfirm = false
     @State private var customerSearchText = ""
-    @State private var isEditingEnabled: Bool = true
+    @State private var showCustomerDropdown = false
     @State private var isGeneratingPDF = false
-    @State private var pdfError: String?
     @State private var toastMessage: String?
     @State private var toastIsError = false
     @State private var totalRefreshID = UUID()
     @State private var hasUnsavedEdits = false
     @State private var isSaving = false
     @State private var showUnsavedAlert = false
-    @AccessibilityFocusState private var isHeaderFocused: Bool
+    @State private var dateText = ""
+    @State private var dateError: String?
+    @State private var showDatePicker = false
 
     private var isEditable: Bool {
-        invoice.status == .draft && isEditingEnabled
+        invoice.status == .draft
+    }
+
+    private var isNewInvoice: Bool {
+        invoice.lineItems.isEmpty && invoice.createdAt.timeIntervalSinceNow > -60
     }
 
     private var filteredCustomers: [Customer] {
         let q = customerSearchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !q.isEmpty else { return allCustomers }
         return allCustomers.filter { $0.displayName.lowercased().contains(q) }
+    }
+
+    private var inlineSuggestion: String? {
+        let q = customerSearchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !q.isEmpty, invoice.customer == nil else { return nil }
+        if let match = filteredCustomers.first,
+           match.displayName.lowercased().hasPrefix(q.lowercased()) {
+            return match.displayName
+        }
+        return nil
     }
 
     var body: some View {
@@ -59,10 +74,13 @@ struct InvoiceDocumentView: View {
                     }
                     bottomToolbar
                 }
+                .onKeyPress(.escape) {
+                    handleCancel()
+                    return .handled
+                }
             }
         }
         .accessibilityIdentifier("InvoiceDocumentView")
-        .onAppear { isHeaderFocused = true }
         .id(totalRefreshID)
         .onChange(of: invoice.lineItems.count) { _, _ in totalRefreshID = UUID() }
         .sheet(isPresented: $showInventorySheet) {
@@ -77,7 +95,7 @@ struct InvoiceDocumentView: View {
                     }
                 }
                 if !zeroPriceSkus.isEmpty {
-                    showToast("⚠️ Zero price: \(zeroPriceSkus.joined(separator: ", "))", isError: false)
+                    showToast("Zero price: \(zeroPriceSkus.joined(separator: ", "))", isError: false)
                 }
                 markDirty()
             }
@@ -95,6 +113,7 @@ struct InvoiceDocumentView: View {
         .sheet(isPresented: $showAddCustomerSheet) {
             CustomerFormSheet(mode: .add) { customer in
                 invoice.customer = customer
+                customerSearchText = customer.displayName
                 markDirty()
             }
         }
@@ -129,92 +148,249 @@ struct InvoiceDocumentView: View {
                     }
             }
         }
-        .onChange(of: pdfError) { _, newVal in
-            if let err = newVal {
-                showToast(err, isError: true)
-                pdfError = nil
-            }
-        }
     }
 
     // MARK: - Header
 
     private var headerSection: some View {
-        GlassCard(padding: AppSpacing.hero) {
-            VStack(alignment: .leading, spacing: AppSpacing.section) {
-                HStack {
-                    Text(verbatim: "Invoice \(invoice.referenceNumber)")
-                        .font(AppTypography.heading)
-                        .foregroundStyle(AppColors.ink)
-                        .accessibilityFocused($isHeaderFocused)
-                    Spacer()
+        VStack(alignment: .leading, spacing: AppSpacing.section) {
+            // Title row
+            HStack {
+                Text("Invoice #\(invoice.referenceNumber)")
+                    .font(AppTypography.heading)
+                    .foregroundStyle(AppColors.ink)
+                Spacer()
+                if !isNewInvoice {
                     invoiceStatusBadge
                 }
+            }
 
-                HStack(spacing: AppSpacing.hero) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Customer").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        VStack(spacing: AppSpacing.compact) {
-                            TextField("Search customers...", text: $customerSearchText)
-                                .textFieldStyle(.plain)
-                                .font(AppTypography.smallValue)
-                                .foregroundStyle(AppColors.ink)
-                                .glassField()
-                                .frame(width: 200)
-                                .disabled(!isEditable)
-                            HStack {
-                                Picker("Customer", selection: Binding(
-                                    get: { invoice.customer },
-                                    set: { invoice.customer = $0; markDirty() }
-                                )) {
-                                    Text("Select…").tag(Customer?.none)
-                                    ForEach(filteredCustomers) { c in Text(c.displayName).tag(Customer?.some(c)) }
-                                }
-                                .labelsHidden()
-                                .accessibilityLabel("Select Customer")
-                                .disabled(!isEditable)
-                                Button(action: { showAddCustomerSheet = true }) {
-                                    Image(systemName: "plus.circle").foregroundStyle(AppColors.primary)
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel("Add Customer")
-                                .opacity(isEditable ? 1 : 0)
-                            }
-                        }
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Date").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        DatePicker("", selection: $invoice.invoiceDate, displayedComponents: .date)
-                            .labelsHidden()
-                            .disabled(!isEditable)
-                            .onChange(of: invoice.invoiceDate) { _, _ in markDirty() }
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Terms").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        Picker("", selection: $invoice.terms) {
-                            Text("Net 30").tag("Net 30")
-                            Text("Net 60").tag("Net 60")
-                            Text("Due on Receipt").tag("Due on Receipt")
-                            Text("COD").tag("COD")
-                        }
-                        .labelsHidden()
-                        .accessibilityLabel("Payment Terms")
-                        .disabled(!isEditable)
-                        .onChange(of: invoice.terms) { _, _ in markDirty() }
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Salesperson").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        TextField("Salesperson name", text: Binding(
-                            get: { invoice.salesperson ?? "" },
-                            set: { invoice.salesperson = $0.isEmpty ? nil : $0; markDirty() }
-                        ))
-                        .glassField()
-                        .frame(width: 160)
-                        .disabled(!isEditable)
-                    }
+            // Fields row (horizontal)
+            HStack(spacing: AppSpacing.hero) {
+                // Customer autocomplete
+                customerField
+
+                // Date field
+                dateField
+
+                // Salesperson
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Salesperson").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                    TextField("Salesperson name", text: Binding(
+                        get: { invoice.salesperson ?? "" },
+                        set: { invoice.salesperson = $0.isEmpty ? nil : $0; markDirty() }
+                    ))
+                    .glassField()
+                    .frame(width: 160)
+                    .disabled(!isEditable)
                 }
             }
         }
+        .padding(AppSpacing.hero)
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                .fill(AppColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                )
+        )
+        .onAppear {
+            syncDateText(from: invoice.invoiceDate)
+            if let c = invoice.customer {
+                customerSearchText = c.displayName
+            }
+        }
+    }
+
+    private var customerField: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Customer").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+            ZStack(alignment: .topLeading) {
+                HStack(spacing: AppSpacing.standard) {
+                    ZStack(alignment: .leading) {
+                        TextField("Search customers...", text: $customerSearchText)
+                            .textFieldStyle(.plain)
+                            .font(AppTypography.smallValue)
+                            .foregroundStyle(AppColors.ink)
+                            .glassField()
+                            .frame(width: 200)
+                            .disabled(!isEditable)
+                            .overlay(alignment: .trailing) {
+                                if invoice.customer != nil && isEditable {
+                                    Button {
+                                        invoice.customer = nil
+                                        customerSearchText = ""
+                                        markDirty()
+                                    } label: {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundStyle(AppColors.inkSubtle)
+                                            .font(AppTypography.caption)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .padding(.trailing, AppSpacing.standard)
+                                }
+                            }
+                            .onChange(of: customerSearchText) { _, newVal in
+                                let trimmed = newVal.trimmingCharacters(in: .whitespacesAndNewlines)
+                                if let c = invoice.customer, trimmed != c.displayName {
+                                    invoice.customer = nil
+                                    markDirty()
+                                }
+                                showCustomerDropdown = !trimmed.isEmpty && invoice.customer == nil && isEditable
+                            }
+                            .onKeyPress(.tab) {
+                                guard isEditable else { return .ignored }
+                                if let match = filteredCustomers.first, invoice.customer == nil {
+                                    invoice.customer = match
+                                    customerSearchText = match.displayName
+                                    showCustomerDropdown = false
+                                    markDirty()
+                                    return .handled
+                                }
+                                return .ignored
+                            }
+                    }
+                    if isEditable {
+                        Button(action: { showAddCustomerSheet = true }) {
+                            Image(systemName: "plus.circle").foregroundStyle(AppColors.primary)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Add Customer")
+                    }
+                }
+
+                // Dropdown
+                if showCustomerDropdown && !filteredCustomers.isEmpty {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 0) {
+                            ForEach(filteredCustomers) { c in
+                                Button {
+                                    invoice.customer = c
+                                    customerSearchText = c.displayName
+                                    showCustomerDropdown = false
+                                    markDirty()
+                                } label: {
+                                    Text(c.displayName)
+                                        .font(AppTypography.smallValue)
+                                        .foregroundStyle(AppColors.ink)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(.horizontal, AppSpacing.standard)
+                                        .padding(.vertical, AppSpacing.compact)
+                                }
+                                .buttonStyle(.plain)
+                                .background(AppColors.cardBackground)
+                            }
+                        }
+                    }
+                    .frame(minWidth: 200, maxWidth: 200, maxHeight: 150)
+                    .background(AppColors.panelBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.small))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AppCornerRadius.small)
+                            .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                    )
+                    .shadow(color: Color.black.opacity(0.3), radius: 8)
+                    .offset(y: 36)
+                    .zIndex(10)
+                }
+            }
+        }
+    }
+
+    private var dateField: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Date").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+            HStack(spacing: 0) {
+                TextField("MM/DD/YYYY", text: $dateText)
+                    .textFieldStyle(.plain)
+                    .font(AppTypography.smallValue)
+                    .foregroundStyle(AppColors.ink)
+                    .frame(width: 100)
+                    .disabled(!isEditable)
+                    .onSubmit { parseDateText() }
+                    .onChange(of: dateText) { _, _ in dateError = nil }
+
+                Button {
+                    showDatePicker.toggle()
+                } label: {
+                    Image(systemName: "calendar")
+                        .foregroundStyle(AppColors.primary)
+                        .font(AppTypography.caption)
+                }
+                .buttonStyle(.plain)
+                .disabled(!isEditable)
+                .popover(isPresented: $showDatePicker) {
+                    DatePicker("", selection: Binding(
+                        get: { invoice.invoiceDate },
+                        set: { newDate in
+                            invoice.invoiceDate = newDate
+                            syncDateText(from: newDate)
+                            showDatePicker = false
+                            markDirty()
+                        }
+                    ), displayedComponents: .date)
+                    .labelsHidden()
+                    .datePickerStyle(.graphical)
+                    .padding(AppSpacing.section)
+                }
+            }
+            .padding(AppSpacing.comfortable)
+            .background(
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                    .fill(AppColors.cardBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                    .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+            )
+            .frame(width: 150)
+
+            if let error = dateError {
+                Text(error)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.danger)
+            }
+        }
+    }
+
+    private func syncDateText(from date: Date) {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd/yyyy"
+        dateText = formatter.string(from: date)
+    }
+
+    private func parseDateText() {
+        let trimmed = dateText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd/yyyy"
+
+        if let date = formatter.date(from: trimmed) {
+            invoice.invoiceDate = date
+            syncDateText(from: date)
+            dateError = nil
+            markDirty()
+            return
+        }
+
+        let shortFormatter = DateFormatter()
+        shortFormatter.dateFormat = "MM/dd"
+        if let partial = shortFormatter.date(from: trimmed) {
+            let year = Calendar.current.component(.year, from: Date())
+            var components = Calendar.current.dateComponents([.month, .day], from: partial)
+            components.year = year
+            if let date = Calendar.current.date(from: components) {
+                invoice.invoiceDate = date
+                syncDateText(from: date)
+                dateError = nil
+                markDirty()
+                return
+            }
+        }
+
+        dateError = "Invalid date. Use MM/DD/YYYY"
     }
 
     @ViewBuilder
@@ -235,59 +411,69 @@ struct InvoiceDocumentView: View {
     // MARK: - Line Items
 
     private var lineItemsSection: some View {
-        GlassCard(padding: AppSpacing.section) {
-            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
-                HStack {
-                    SectionHeader(title: "Line Items")
-                    Spacer()
-                    if isEditable { addItemsMenu }
-                }
+        VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+            HStack {
+                SectionHeader(title: "Line Items")
+                Spacer()
+                if isEditable { addItemsMenu }
+            }
 
-                HStack(spacing: 0) {
-                    TableHeader(title: "SKU", width: TableColumn.sku)
-                    TableHeader(title: "Type", width: TableColumn.type)
-                    TableHeader(title: "Description", width: TableColumn.description)
-                    TableHeader(title: "Carats", width: TableColumn.carat)
-                    TableHeader(title: "Rate", width: TableColumn.price)
-                    TableHeader(title: "Amount", width: TableColumn.price)
-                }
-                .padding(.horizontal, AppSpacing.comfortable)
+            // Table header
+            HStack(spacing: 0) {
+                TableHeader(title: "SKU", width: TableColumn.sku)
+                TableHeader(title: "Type", width: TableColumn.type)
+                TableHeader(title: "Description", width: TableColumn.description)
+                TableHeader(title: "Carats", width: TableColumn.carat)
+                TableHeader(title: "Rate", width: TableColumn.price)
+                TableHeader(title: "Amount", width: TableColumn.price)
+            }
+            .padding(.horizontal, AppSpacing.comfortable)
+            .padding(.vertical, AppSpacing.compact)
+            .background(AppColors.cardElevated)
 
-                ForEach(invoice.lineItems) { item in
-                    EditableLineItemRow(item: item) { markDirty() }
-                        .padding(.horizontal, AppSpacing.comfortable)
-                        .padding(.vertical, 2)
-                        .contextMenu {
-                            if isEditable {
-                                Button("Remove") {
-                                    do {
-                                        try TransactionService.removeLineItem(item, modelContext: modelContext)
-                                        markDirty()
-                                    } catch {
-                                        showToast("Failed to remove item: \(ErrorMapper.userMessage(from: error))", isError: true)
-                                    }
+            // Rows
+            ForEach(invoice.lineItems) { item in
+                EditableLineItemRow(item: item) { markDirty() }
+                    .frame(height: 28)
+                    .padding(.horizontal, AppSpacing.comfortable)
+                    .contextMenu {
+                        if isEditable {
+                            Button("Remove") {
+                                do {
+                                    try TransactionService.removeLineItem(item, modelContext: modelContext)
+                                    markDirty()
+                                } catch {
+                                    showToast("Failed to remove item: \(ErrorMapper.userMessage(from: error))", isError: true)
                                 }
                             }
                         }
-                }
+                    }
+            }
 
-                if invoice.lineItems.isEmpty {
-                    Text("No line items.")
-                        .font(AppTypography.body)
-                        .foregroundStyle(AppColors.inkSubtle)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, AppSpacing.hero)
-                }
+            if invoice.lineItems.isEmpty {
+                Text("No line items.")
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.inkSubtle)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, AppSpacing.hero)
             }
         }
+        .padding(AppSpacing.section)
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                .fill(AppColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                )
+        )
     }
 
     private var addItemsMenu: some View {
-        HStack(spacing: 8) {
-            Button("Single/Pair") { showInventorySheet = true }
-            Button("Lot") { showLotSheet = true }
-                .help("A group of similar stones sold by total carat weight")
-            Button("Brokered") {
+        HStack(spacing: 2) {
+            addButton("Single/Pair") { showInventorySheet = true }
+            addButton("Lot") { showLotSheet = true }
+            addButton("Brokered") {
                 do {
                     try TransactionService.addBrokeredLine(to: invoice, modelContext: modelContext)
                     markDirty()
@@ -295,7 +481,7 @@ struct InvoiceDocumentView: View {
                     showToast("Failed to add brokered line: \(ErrorMapper.userMessage(from: error))", isError: true)
                 }
             }
-            Button("Service") {
+            addButton("Service") {
                 do {
                     try TransactionService.addServiceLine(to: invoice, modelContext: modelContext)
                     markDirty()
@@ -304,108 +490,143 @@ struct InvoiceDocumentView: View {
                 }
             }
         }
-        .font(AppTypography.caption)
-        .foregroundStyle(AppColors.primary)
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
+                .fill(AppColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                )
+        )
+    }
+
+    private func addButton(_ label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(label)
+                .font(AppTypography.caption)
+                .fontWeight(.medium)
+                .foregroundStyle(AppColors.primary)
+                .padding(.horizontal, AppSpacing.comfortable)
+                .padding(.vertical, AppSpacing.standard)
+        }
         .buttonStyle(.plain)
     }
 
     // MARK: - Totals
 
     private var totalsSection: some View {
-        GlassCard(padding: AppSpacing.section) {
-            VStack(alignment: .trailing, spacing: AppSpacing.comfortable) {
-                HStack {
-                    Spacer()
-                    VStack(alignment: .trailing, spacing: 4) {
-                        HStack {
-                            Text("Subtotal")
+        VStack(alignment: .trailing, spacing: AppSpacing.comfortable) {
+            HStack {
+                Spacer()
+                VStack(alignment: .trailing, spacing: 4) {
+                    HStack {
+                        Text("Subtotal")
+                            .font(AppTypography.body)
+                            .foregroundStyle(AppColors.inkMuted)
+                        Text(invoice.totalBeforeDiscount.asCurrency)
+                            .font(AppTypography.mono)
+                            .foregroundStyle(AppColors.ink)
+                    }
+
+                    Text("\(invoice.lineItems.count) item\(invoice.lineItems.count == 1 ? "" : "s")")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkSubtle)
+
+                    if isEditable || invoice.discountAmount > 0 {
+                        HStack(spacing: AppSpacing.comfortable) {
+                            Text("Discount")
                                 .font(AppTypography.body)
                                 .foregroundStyle(AppColors.inkMuted)
-                            Text(invoice.totalBeforeDiscount.asCurrency)
+                            if isEditable {
+                                TextField("0.00", value: $invoice.discountAmount, format: .number)
+                                    .glassField()
+                                    .frame(width: 100)
+                                    .multilineTextAlignment(.trailing)
+                                    .onChange(of: invoice.discountAmount) { _, _ in markDirty() }
+                            } else {
+                                Text("\u{2212}\(invoice.discountAmount.asCurrency)")
+                                    .font(AppTypography.mono)
+                                    .foregroundStyle(AppColors.danger)
+                            }
+                        }
+                    }
+
+                    if isEditable || invoice.taxRate > 0 {
+                        HStack(spacing: AppSpacing.comfortable) {
+                            Text("Tax Rate %")
+                                .font(AppTypography.body)
+                                .foregroundStyle(AppColors.inkMuted)
+                            if isEditable {
+                                TextField("0.0", value: $invoice.taxRate, format: .number)
+                                    .glassField()
+                                    .frame(width: 80)
+                                    .multilineTextAlignment(.trailing)
+                                    .onChange(of: invoice.taxRate) { _, _ in markDirty() }
+                            } else {
+                                Text(verbatim: "\(invoice.taxRate)%")
+                                    .font(AppTypography.mono)
+                                    .foregroundStyle(AppColors.inkMuted)
+                            }
+                        }
+                    }
+
+                    if invoice.taxAmount > 0 {
+                        HStack {
+                            Text("Tax")
+                                .font(AppTypography.body)
+                                .foregroundStyle(AppColors.inkMuted)
+                            Text(invoice.taxAmount.asCurrency)
                                 .font(AppTypography.mono)
                                 .foregroundStyle(AppColors.ink)
                         }
+                    }
 
-                        if isEditable || invoice.discountAmount > 0 {
-                            HStack(spacing: AppSpacing.comfortable) {
-                                Text("Discount")
-                                    .font(AppTypography.body)
-                                    .foregroundStyle(AppColors.inkMuted)
-                                if isEditable {
-                                    TextField("0.00", value: $invoice.discountAmount, format: .number)
-                                        .glassField()
-                                        .frame(width: 100)
-                                        .multilineTextAlignment(.trailing)
-                                        .onChange(of: invoice.discountAmount) { _, _ in markDirty() }
-                                } else {
-                                    Text("−\(invoice.discountAmount.asCurrency)")
-                                        .font(AppTypography.mono)
-                                        .foregroundStyle(AppColors.danger)
-                                }
-                            }
-                        }
+                    Divider().frame(width: 200)
 
-                        if isEditable || invoice.taxRate > 0 {
-                            HStack(spacing: AppSpacing.comfortable) {
-                                Text("Tax Rate %")
-                                    .font(AppTypography.body)
-                                    .foregroundStyle(AppColors.inkMuted)
-                                if isEditable {
-                                    TextField("0.0", value: $invoice.taxRate, format: .number)
-                                        .glassField()
-                                        .frame(width: 80)
-                                        .multilineTextAlignment(.trailing)
-                                        .onChange(of: invoice.taxRate) { _, _ in markDirty() }
-                                } else {
-                                    Text(verbatim: "\(invoice.taxRate)%")
-                                        .font(AppTypography.mono)
-                                        .foregroundStyle(AppColors.inkMuted)
-                                }
-                            }
-                        }
-
-                        if invoice.taxAmount > 0 {
-                            HStack {
-                                Text("Tax")
-                                    .font(AppTypography.body)
-                                    .foregroundStyle(AppColors.inkMuted)
-                                Text(invoice.taxAmount.asCurrency)
-                                    .font(AppTypography.mono)
-                                    .foregroundStyle(AppColors.ink)
-                            }
-                        }
-
-                        Divider().frame(width: 200)
-
-                        HStack {
-                            Text("Total")
-                                .font(AppTypography.heading)
-                                .foregroundStyle(AppColors.ink)
-                            Text(invoice.grandTotal.asCurrency)
-                                .font(AppTypography.heading)
-                                .foregroundStyle(AppColors.ink)
-                        }
+                    HStack {
+                        Text("Total")
+                            .font(AppTypography.heading)
+                            .foregroundStyle(AppColors.ink)
+                        Text(invoice.grandTotal.asCurrency)
+                            .font(AppTypography.heading)
+                            .foregroundStyle(AppColors.ink)
                     }
                 }
             }
         }
+        .padding(AppSpacing.section)
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                .fill(AppColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                )
+        )
     }
 
     // MARK: - Notes
 
     private var notesSection: some View {
-        GlassCard(padding: AppSpacing.section) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Notes").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                TextEditor(text: $invoice.notes)
-                    .font(AppTypography.body)
-                    .foregroundStyle(AppColors.ink)
-                    .scrollContentBackground(.hidden)
-                    .frame(minHeight: 60)
-                    .disabled(!isEditable)
-                    .onChange(of: invoice.notes) { _, _ in markDirty() }
-            }
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Notes").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+            TextEditor(text: $invoice.notes)
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.ink)
+                .scrollContentBackground(.hidden)
+                .frame(minHeight: 60)
+                .disabled(!isEditable)
+                .onChange(of: invoice.notes) { _, _ in markDirty() }
         }
+        .padding(AppSpacing.section)
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                .fill(AppColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                )
+        )
     }
 
     // MARK: - Bottom Toolbar
@@ -419,7 +640,6 @@ struct InvoiceDocumentView: View {
             if invoice.status != .void {
                 Button("Void") { showVoidConfirm = true }
                     .buttonStyle(.outline(AppColors.danger))
-                    .help("Cancel this invoice and return items to inventory")
             }
 
             Spacer()
@@ -436,41 +656,52 @@ struct InvoiceDocumentView: View {
                     }
                 }
                 .buttonStyle(.gradient(AppColors.emeraldGradient))
-                .help("Record payment received for this invoice")
             }
 
             Button("Export PDF") { exportPDF() }
                 .buttonStyle(.outline)
                 .disabled(isGeneratingPDF)
                 .keyboardShortcut("p", modifiers: .command)
-                .help("Generate a PDF document for printing or emailing")
 
             Button("Email PDF") { emailPDF() }
                 .buttonStyle(.outline)
                 .disabled(isGeneratingPDF)
-                .help("Generate PDF and open email compose with attachment")
 
-            Button("Cancel") {
-                if hasUnsavedEdits {
-                    showUnsavedAlert = true
-                } else {
-                    dismiss()
-                }
-            }
+            Button("Cancel") { handleCancel() }
                 .buttonStyle(.outline)
+                .disabled(isSaving)
 
-            Button("Save") { saveInvoice() }
-                .buttonStyle(.gradient)
-                .keyboardShortcut("s", modifiers: .command)
+            Button("Save") {
+                guard !isSaving else { return }
+                isSaving = true
+                defer { isSaving = false }
+                saveInvoice()
+            }
+            .buttonStyle(.gradient)
+            .disabled(isSaving)
+            .keyboardShortcut("s", modifiers: .command)
         }
         .padding(AppSpacing.section)
         .background(AppColors.panelBackground)
         .overlay(alignment: .top) { Divider().background(AppColors.cardElevated) }
         .alert("Unsaved Changes", isPresented: $showUnsavedAlert) {
             Button("Keep Editing", role: .cancel) {}
-            Button("Discard", role: .destructive) { dismiss() }
+            Button("Discard", role: .destructive) {
+                hasUnsavedEdits = false
+                NSApp.keyWindow?.close()
+            }
         } message: {
             Text("You have unsaved changes. Discard them?")
+        }
+    }
+
+    // MARK: - Actions
+
+    private func handleCancel() {
+        if hasUnsavedEdits {
+            showUnsavedAlert = true
+        } else {
+            NSApp.keyWindow?.close()
         }
     }
 
@@ -507,13 +738,13 @@ struct InvoiceDocumentView: View {
                                 }
                                 try FileManager.default.copyItem(at: tempURL, to: destURL)
                             } catch {
-                                pdfError = "Failed to save PDF: \(ErrorMapper.userMessage(from: error))"
+                                showToast("Failed to save PDF: \(ErrorMapper.userMessage(from: error))", isError: true)
                             }
                         }
                         PDFService.shared.cleanupTempFile(at: tempURL)
                     }
                 case .failure(let error):
-                    pdfError = "PDF generation failed: \(ErrorMapper.userMessage(from: error))"
+                    showToast("PDF generation failed: \(ErrorMapper.userMessage(from: error))", isError: true)
                 }
             }
         }
@@ -537,12 +768,11 @@ struct InvoiceDocumentView: View {
                             picker.show(relativeTo: .zero, of: contentView, preferredEdge: .minY)
                         }
                     }
-                    // Cleanup temp file after a delay to allow sharing service to finish
                     DispatchQueue.main.asyncAfter(deadline: .now() + 60) {
                         PDFService.shared.cleanupTempFile(at: tempURL)
                     }
                 case .failure(let error):
-                    pdfError = "PDF generation failed: \(ErrorMapper.userMessage(from: error))"
+                    showToast("PDF generation failed: \(ErrorMapper.userMessage(from: error))", isError: true)
                 }
             }
         }

@@ -18,13 +18,12 @@ enum ReportType: String, CaseIterable {
 }
 
 enum ReportDateRange: Hashable {
-    case allTime, thisMonth, lastMonth, thisQuarter, thisYear, custom
+    case allTime, thisMonth, thisQuarter, thisYear, custom
 
     var displayName: String {
         switch self {
         case .allTime: return "All Time"
         case .thisMonth: return "This Month"
-        case .lastMonth: return "Last Month"
         case .thisQuarter: return "This Quarter"
         case .thisYear: return "This Year"
         case .custom: return "Custom"
@@ -41,10 +40,6 @@ enum ReportDateRange: Hashable {
         case .thisMonth:
             let start = calendar.date(from: calendar.dateComponents([.year, .month], from: now)) ?? now
             return (start, now)
-        case .lastMonth:
-            let start = calendar.date(byAdding: .month, value: -1, to: calendar.date(from: calendar.dateComponents([.year, .month], from: now)) ?? now) ?? now
-            let end = calendar.date(from: calendar.dateComponents([.year, .month], from: now)) ?? now
-            return (start, end)
         case .thisQuarter:
             let month = calendar.component(.month, from: now)
             let quarterStart = ((month - 1) / 3) * 3 + 1
@@ -64,7 +59,7 @@ enum ReportDateRange: Hashable {
         }
     }
 
-    static let allOptions: [ReportDateRange] = [.allTime, .thisMonth, .lastMonth, .thisQuarter, .thisYear, .custom]
+    static let allOptions: [ReportDateRange] = [.allTime, .thisMonth, .thisQuarter, .thisYear, .custom]
 }
 
 struct ReportsView: View {
@@ -110,6 +105,7 @@ struct ReportsView: View {
 
     private var controlsBar: some View {
         VStack(alignment: .leading, spacing: AppSpacing.section) {
+            // Report type pills
             HStack(spacing: AppSpacing.standard) {
                 ForEach(ReportType.allCases, id: \.self) { type in
                     FilterPill(title: type.rawValue, isActive: selectedReport == type) {
@@ -119,6 +115,7 @@ struct ReportsView: View {
                 }
             }
 
+            // Date range pills + export
             HStack(spacing: AppSpacing.section) {
                 HStack(spacing: AppSpacing.standard) {
                     ForEach(ReportDateRange.allOptions, id: \.self) { range in
@@ -131,6 +128,7 @@ struct ReportsView: View {
                 exportMenu
             }
 
+            // Custom date pickers
             if selectedDateRange == .custom {
                 HStack(spacing: AppSpacing.comfortable) {
                     Text("From:")
@@ -146,6 +144,15 @@ struct ReportsView: View {
                         .labelsHidden()
                         .frame(width: 130)
                 }
+                .padding(AppSpacing.section)
+                .background(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                        .fill(AppColors.cardBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                        )
+                )
                 .accessibilityElement(children: .contain)
                 .accessibilityLabel("Custom date range")
             }

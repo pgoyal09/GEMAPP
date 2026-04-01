@@ -26,9 +26,10 @@ struct CompanySettingsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppSpacing.hero) {
-                SectionHeader(title: "Company Branding")
 
-                VStack(alignment: .leading, spacing: 16) {
+                // MARK: - Company Info
+
+                settingsSection(title: "Company Branding") {
                     FormField(label: "Company Name", text: $companyName)
 
                     fieldRow(label: "Address") {
@@ -37,28 +38,27 @@ struct CompanySettingsView: View {
                             .frame(height: 60)
                             .padding(AppSpacing.compact)
                             .background(
-                                RoundedRectangle(cornerRadius: AppCornerRadius.small)
+                                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                                     .fill(AppColors.cardBackground)
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: AppCornerRadius.small)
-                                            .strokeBorder(Color.white.opacity(AppOpacity.subtle), lineWidth: 1)
+                                        RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                                            .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                                     )
                             )
                             .scrollContentBackground(.hidden)
                     }
 
                     FormField(label: "Phone", text: $companyPhone)
-
                     FormField(label: "Email", text: $companyEmail)
 
                     fieldRow(label: "Logo") {
-                        HStack(spacing: 12) {
+                        HStack(spacing: AppSpacing.comfortable) {
                             if let data = logoData, let nsImage = NSImage(data: data) {
                                 Image(nsImage: nsImage)
                                     .resizable()
                                     .scaledToFit()
                                     .frame(maxHeight: 56)
-                                    .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.small))
+                                    .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.field))
 
                                 Button("Remove") {
                                     logoData = nil
@@ -74,18 +74,9 @@ struct CompanySettingsView: View {
                         }
                     }
                 }
-                .padding(AppSpacing.hero)
-                .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                        .fill(AppColors.panelBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
-                        )
-                )
 
                 if showSavedToast {
-                    HStack(spacing: 6) {
+                    HStack(spacing: AppSpacing.compact) {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundStyle(AppColors.success)
                         Text("Settings saved automatically")
@@ -95,55 +86,19 @@ struct CompanySettingsView: View {
                     .transition(.opacity)
                 }
 
-                // MARK: - Appearance
+                // MARK: - Salesperson Toggle
 
-                SectionHeader(title: "Appearance")
-
-                VStack(alignment: .leading, spacing: 12) {
-                    Picker("Theme", selection: $appAppearance) {
-                        Text("Dark").tag("dark")
-                        Text("Light").tag("light")
-                        Text("System").tag("system")
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(maxWidth: 300)
-                }
-                .padding(AppSpacing.hero)
-                .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                        .fill(AppColors.panelBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
-                        )
-                )
-
-                // MARK: - Memo Settings
-
-                SectionHeader(title: "Memo Settings")
-
-                VStack(alignment: .leading, spacing: 12) {
+                settingsSection(title: "Memo Settings") {
                     Toggle("Require Salesperson on Memos", isOn: $requireSalesperson)
                         .toggleStyle(.checkbox)
                     Text("When disabled, the salesperson field is hidden on memo forms.")
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.inkSubtle)
                 }
-                .padding(AppSpacing.hero)
-                .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                        .fill(AppColors.panelBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
-                        )
-                )
 
-                // MARK: - Display Font Size
+                // MARK: - Font Size Picker
 
-                SectionHeader(title: "Display Font Size")
-
-                VStack(alignment: .leading, spacing: 12) {
+                settingsSection(title: "Display Font Size") {
                     Picker("Font Size", selection: $displayFontSize) {
                         Text("Small").tag("Small")
                         Text("Medium").tag("Medium")
@@ -155,21 +110,10 @@ struct CompanySettingsView: View {
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.inkSubtle)
                 }
-                .padding(AppSpacing.hero)
-                .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                        .fill(AppColors.panelBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
-                        )
-                )
 
                 // MARK: - Memo Aging Thresholds
 
-                SectionHeader(title: "Memo Aging Alerts")
-
-                VStack(alignment: .leading, spacing: 12) {
+                settingsSection(title: "Memo Aging Alerts") {
                     agingRow(label: "Green → Yellow (days)", value: $memoAgingGreen)
                     agingRow(label: "Yellow → Orange (days)", value: $memoAgingYellow)
                     agingRow(label: "Orange → Red (days)", value: $memoAgingOrange)
@@ -177,78 +121,8 @@ struct CompanySettingsView: View {
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.inkSubtle)
                 }
-                .padding(AppSpacing.hero)
-                .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                        .fill(AppColors.panelBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
-                        )
-                )
 
-                Text("These details appear on generated PDF invoices and memos.")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-
-                // MARK: - Auto Backup
-
-                SectionHeader(title: "Automatic Backup")
-
-                VStack(alignment: .leading, spacing: 12) {
-                    Toggle("Enable scheduled backups", isOn: $backupScheduler.isEnabled)
-                        .toggleStyle(.checkbox)
-
-                    if backupScheduler.isEnabled {
-                        HStack(spacing: 12) {
-                            Text("Interval (hours)")
-                                .font(AppTypography.body)
-                                .foregroundStyle(AppColors.inkMuted)
-                            TextField("", value: $backupScheduler.intervalHours, format: .number)
-                                .frame(width: 60)
-                                .textFieldStyle(.roundedBorder)
-                                .multilineTextAlignment(.center)
-                        }
-
-                        HStack(spacing: 12) {
-                            Text("Backup folder")
-                                .font(AppTypography.body)
-                                .foregroundStyle(AppColors.inkMuted)
-                            Text(backupScheduler.backupDirectory?.path ?? "Not set")
-                                .font(AppTypography.caption)
-                                .foregroundStyle(AppColors.inkSubtle)
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-                            Spacer()
-                            Button("Choose…") { pickBackupDirectory() }
-                                .buttonStyle(.outline)
-                        }
-
-                        HStack(spacing: 6) {
-                            Image(systemName: "clock")
-                                .font(AppTypography.caption)
-                                .foregroundStyle(AppColors.inkSubtle)
-                            Text("Last backup: \(backupScheduler.lastBackupAgo)")
-                                .font(AppTypography.caption)
-                                .foregroundStyle(AppColors.inkMuted)
-                            Spacer()
-                            Button("Backup Now") { backupScheduler.performBackupNow() }
-                                .buttonStyle(.outline)
-                                .disabled(backupScheduler.backupDirectory == nil)
-                        }
-                    }
-                }
-                .padding(AppSpacing.hero)
-                .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                        .fill(AppColors.panelBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
-                        )
-                )
-
-                // MARK: - Label Printing
+                // MARK: - RFID / Label Settings
 
                 SectionHeader(title: "Label Printing")
 
@@ -262,12 +136,56 @@ struct CompanySettingsView: View {
                 RapNetSettingsView()
                     .frame(maxWidth: .infinity)
 
+                // MARK: - Automatic Backup
+
+                settingsSection(title: "Automatic Backup") {
+                    Toggle("Enable scheduled backups", isOn: $backupScheduler.isEnabled)
+                        .toggleStyle(.checkbox)
+
+                    if backupScheduler.isEnabled {
+                        HStack(spacing: AppSpacing.comfortable) {
+                            Text("Interval (hours)")
+                                .font(AppTypography.body)
+                                .foregroundStyle(AppColors.inkMuted)
+                            TextField("", value: $backupScheduler.intervalHours, format: .number)
+                                .frame(width: 60)
+                                .textFieldStyle(.roundedBorder)
+                                .multilineTextAlignment(.center)
+                        }
+
+                        HStack(spacing: AppSpacing.comfortable) {
+                            Text("Backup folder")
+                                .font(AppTypography.body)
+                                .foregroundStyle(AppColors.inkMuted)
+                            Text(backupScheduler.backupDirectory?.path ?? "Not set")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.inkSubtle)
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                            Spacer()
+                            Button("Choose…") { pickBackupDirectory() }
+                                .buttonStyle(.outline)
+                        }
+
+                        HStack(spacing: AppSpacing.compact) {
+                            Image(systemName: "clock")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.inkSubtle)
+                            Text("Last backup: \(backupScheduler.lastBackupAgo)")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.inkMuted)
+                            Spacer()
+                            Button("Backup Now") { backupScheduler.performBackupNow() }
+                                .buttonStyle(.outline)
+                                .disabled(backupScheduler.backupDirectory == nil)
+                        }
+                    }
+                }
+
                 // MARK: - Backup & Export
 
-                SectionHeader(title: "Backup & Export")
-
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack(spacing: 12) {
+                settingsSection(title: "Backup & Export") {
+                    HStack(spacing: AppSpacing.comfortable) {
                         Button("Export CSV Bundle…") { exportCSV() }
                             .buttonStyle(.outline)
                         Button("Export Database Copy…") { exportDatabase() }
@@ -277,7 +195,7 @@ struct CompanySettingsView: View {
                     }
 
                     if let msg = backupMessage {
-                        HStack(spacing: 6) {
+                        HStack(spacing: AppSpacing.compact) {
                             Image(systemName: backupIsError ? "xmark.circle.fill" : "checkmark.circle.fill")
                                 .foregroundStyle(backupIsError ? AppColors.danger : AppColors.success)
                             Text(msg)
@@ -290,15 +208,6 @@ struct CompanySettingsView: View {
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.inkSubtle)
                 }
-                .padding(AppSpacing.hero)
-                .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                        .fill(AppColors.panelBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
-                        )
-                )
 
                 // MARK: - Cloud Backup
 
@@ -307,26 +216,37 @@ struct CompanySettingsView: View {
                 CloudBackupSettingsView()
                     .frame(maxWidth: .infinity)
 
-                // MARK: - Accounting (Disabled)
+                // MARK: - Help Center
 
-                VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+                settingsSection(title: "Help Center") {
                     HStack(spacing: AppSpacing.standard) {
-                        Image(systemName: "chart.pie.fill")
+                        Image(systemName: "questionmark.circle")
+                            .font(AppTypography.heading)
+                            .foregroundStyle(AppColors.primary)
+                        VStack(alignment: .leading, spacing: AppSpacing.compact) {
+                            Text("Open Help Center")
+                                .font(AppTypography.body)
+                                .foregroundStyle(AppColors.ink)
+                            Text("Glossary, keyboard shortcuts, and guides")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.inkSubtle)
+                        }
+                        Spacer()
+                        Text("⌘?")
+                            .font(AppTypography.mono)
                             .foregroundStyle(AppColors.inkSubtle)
-                        Text("Accounting module coming soon")
-                            .font(AppTypography.body)
-                            .foregroundStyle(AppColors.inkSubtle)
+                            .padding(.horizontal, AppSpacing.standard)
+                            .padding(.vertical, AppSpacing.compact)
+                            .background(
+                                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                                    .fill(AppColors.softHighlight)
+                            )
                     }
                 }
-                .padding(AppSpacing.hero)
-                .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                        .fill(AppColors.panelBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
-                        )
-                )
+
+                Text("These details appear on generated PDF invoices and memos.")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
 
                 Spacer()
             }
@@ -341,7 +261,6 @@ struct CompanySettingsView: View {
             Text("This will replace ALL current data with the backup. This action cannot be undone. The app will quit and must be relaunched.")
         }
         .onAppear {
-            // Show saved toast briefly
             if !companyName.isEmpty {
                 showSavedToast = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -351,6 +270,28 @@ struct CompanySettingsView: View {
         }
     }
 
+    // MARK: - Reusable Section Card
+
+    private func settingsSection<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: AppSpacing.section) {
+            SectionHeader(title: title)
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+                content()
+            }
+            .padding(AppSpacing.hero)
+            .background(
+                RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                    .fill(AppColors.panelBackground)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                            .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                    )
+            )
+        }
+    }
+
+    // MARK: - Helpers
+
     private func fieldRow<Content: View>(label: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: AppSpacing.compact) {
             Text(label)
@@ -359,6 +300,21 @@ struct CompanySettingsView: View {
             content()
         }
     }
+
+    private func agingRow(label: String, value: Binding<Int>) -> some View {
+        HStack {
+            Text(label)
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.inkMuted)
+            Spacer()
+            TextField("", value: value, format: .number)
+                .frame(width: 60)
+                .textFieldStyle(.roundedBorder)
+                .multilineTextAlignment(.center)
+        }
+    }
+
+    // MARK: - Actions
 
     private func exportCSV() {
         do {
@@ -394,19 +350,6 @@ struct CompanySettingsView: View {
         }
     }
 
-    private func agingRow(label: String, value: Binding<Int>) -> some View {
-        HStack {
-            Text(label)
-                .font(AppTypography.body)
-                .foregroundStyle(AppColors.inkMuted)
-            Spacer()
-            TextField("", value: value, format: .number)
-                .frame(width: 60)
-                .textFieldStyle(.roundedBorder)
-                .multilineTextAlignment(.center)
-        }
-    }
-
     private func pickBackupToRestore() {
         let panel = NSOpenPanel()
         panel.title = "Select Database Backup Folder"
@@ -427,7 +370,6 @@ struct CompanySettingsView: View {
             try BackupService.restoreDatabase(from: backupURL, modelContext: modelContext)
             backupIsError = false
             backupMessage = "Restore successful. Quitting app — please relaunch."
-            // Quit after a short delay so the user can read the message
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 NSApplication.shared.terminate(nil)
             }
