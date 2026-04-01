@@ -17,7 +17,7 @@ struct EditableLineItemRow: View {
             Text(item.displaySku)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.inkMuted)
-                .frame(minWidth: TableColumn.sku, maxWidth: .infinity, alignment: .leading)
+                .frame(width: TableColumn.sku, alignment: .leading)
 
             // Stone Type
             if item.kind == .brokered {
@@ -28,18 +28,18 @@ struct EditableLineItemRow: View {
                     }
                 }
                 .labelsHidden()
-                .frame(minWidth: TableColumn.type, maxWidth: .infinity)
+                .frame(width: TableColumn.type)
             } else {
                 Text(item.stoneTypeDisplay)
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.inkMuted)
-                    .frame(minWidth: TableColumn.type, maxWidth: .infinity, alignment: .leading)
+                    .frame(width: TableColumn.type, alignment: .leading)
             }
 
             // Description
             TextField("Description", text: $descriptionText)
                 .glassField()
-                .frame(minWidth: TableColumn.description, maxWidth: .infinity)
+                .frame(width: TableColumn.description)
                 .onChange(of: descriptionText) { _, val in
                     guard !isSyncing else { return }
                     item.itemDescription = val
@@ -51,11 +51,11 @@ struct EditableLineItemRow: View {
                 Text("—")
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.inkSubtle)
-                    .frame(minWidth: TableColumn.carat, maxWidth: .infinity, alignment: .trailing)
+                    .frame(width: TableColumn.carat, alignment: .trailing)
             } else {
                 TextField("0.00", text: $caratsText)
                     .glassField()
-                    .frame(minWidth: TableColumn.carat, maxWidth: .infinity)
+                    .frame(width: TableColumn.carat)
                     .onChange(of: caratsText) { _, val in
                         guard !isSyncing else { return }
                         item.carats = Double(val) ?? 0
@@ -67,7 +67,7 @@ struct EditableLineItemRow: View {
             // Rate
             TextField("0.00", text: $rateText)
                 .glassField()
-                .frame(minWidth: TableColumn.price, maxWidth: .infinity)
+                .frame(width: TableColumn.price)
                 .onChange(of: rateText) { _, val in
                     guard !isSyncing else { return }
                     item.rate = Decimal(string: val) ?? 0
@@ -83,7 +83,7 @@ struct EditableLineItemRow: View {
             Text(item.amount.asCurrency)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
-                .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
+                .frame(width: TableColumn.price, alignment: .trailing)
         }
         .onAppear { syncFromModel() }
     }

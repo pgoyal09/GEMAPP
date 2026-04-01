@@ -67,42 +67,42 @@ struct ARAgingView: View {
                                     Text(inv.referenceNumber)
                                         .font(AppTypography.mono)
                                         .foregroundStyle(AppColors.ink)
-                                        .frame(minWidth: TableColumn.invoice, maxWidth: .infinity, alignment: .leading)
+                                        .frame(width: TableColumn.invoice, alignment: .leading)
 
                                     Text(inv.customer?.displayName ?? "—")
                                         .font(AppTypography.body)
                                         .foregroundStyle(AppColors.ink)
                                         .lineLimit(1)
-                                        .frame(minWidth: TableColumn.customer, maxWidth: .infinity, alignment: .leading)
+                                        .frame(width: TableColumn.customer, alignment: .leading)
 
                                     Text(inv.grandTotal.asCurrency)
                                         .font(AppTypography.mono)
                                         .foregroundStyle(AppColors.ink)
-                                        .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
+                                        .frame(width: TableColumn.price, alignment: .trailing)
 
                                     Text(inv.totalPaid.asCurrency)
                                         .font(AppTypography.mono)
                                         .foregroundStyle(AppColors.inkMuted)
-                                        .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
+                                        .frame(width: TableColumn.price, alignment: .trailing)
 
                                     Text(inv.balanceDue.asCurrency)
                                         .font(AppTypography.mono)
                                         .foregroundStyle(color)
-                                        .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
+                                        .frame(width: TableColumn.price, alignment: .trailing)
 
                                     Text(inv.dueDate?.formatted(date: .abbreviated, time: .omitted) ?? "—")
                                         .font(AppTypography.mono)
                                         .foregroundStyle(AppColors.inkMuted)
-                                        .frame(minWidth: TableColumn.date, maxWidth: .infinity, alignment: .leading)
+                                        .frame(width: TableColumn.date, alignment: .leading)
 
                                     Text(daysOverdue > 0 ? "\(daysOverdue)" : "—")
                                         .font(AppTypography.mono)
                                         .foregroundStyle(color)
-                                        .frame(minWidth: TableColumn.days, maxWidth: .infinity, alignment: .trailing)
+                                        .frame(width: TableColumn.days, alignment: .trailing)
 
                                     // Payment progress bar
                                     paymentProgress(inv)
-                                        .frame(minWidth: TableColumn.status, maxWidth: .infinity)
+                                        .frame(width: TableColumn.status)
                                 }
                                 .padding(.horizontal, AppSpacing.comfortable)
                                 .padding(.vertical, AppSpacing.standard)

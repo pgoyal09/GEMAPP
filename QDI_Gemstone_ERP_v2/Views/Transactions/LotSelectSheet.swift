@@ -44,18 +44,20 @@ struct LotSelectSheet: View {
                         TableHeader(title: "Type", width: TableColumn.type)
                         TableHeader(title: "Remaining", width: TableColumn.carat)
                         TableHeader(title: "Sell/ct", width: TableColumn.price)
+                        Spacer()
                     }
                     .padding(.horizontal, AppSpacing.section)
 
                     ForEach(lots) { lot in
                         let isSelected = selectedLotID == lot.persistentModelID
                         HoverRow(isSelected: isSelected, onTap: { selectedLotID = lot.persistentModelID }) {
-                            Text(lot.sku).font(AppTypography.mono).frame(minWidth: TableColumn.sku, maxWidth: .infinity, alignment: .leading)
-                            StoneTypeBadge(type: lot.stoneType.rawValue).frame(minWidth: TableColumn.type, maxWidth: .infinity, alignment: .leading)
+                            Text(lot.sku).font(AppTypography.mono).frame(width: TableColumn.sku, alignment: .leading)
+                            StoneTypeBadge(type: lot.stoneType.rawValue).frame(width: TableColumn.type, alignment: .leading)
                             Text(String(format: "%.2f ct", lot.effectiveRemainingCarats)).font(AppTypography.mono)
-                                .frame(minWidth: TableColumn.carat, maxWidth: .infinity, alignment: .trailing)
+                                .frame(width: TableColumn.carat, alignment: .trailing)
                             Text(lot.sellPrice.asCurrency).font(AppTypography.mono)
-                                .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
+                                .frame(width: TableColumn.price, alignment: .trailing)
+                            Spacer()
                         }
                     }
                 }

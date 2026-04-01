@@ -81,22 +81,22 @@ struct CustomerBalanceView: View {
                                             .font(AppTypography.body)
                                             .foregroundStyle(AppColors.ink)
                                             .lineLimit(1)
-                                            .frame(minWidth: TableColumn.customer, maxWidth: .infinity, alignment: .leading)
+                                            .frame(width: TableColumn.customer, alignment: .leading)
 
                                         Text(balance.totalOutstanding.asCurrency)
                                             .font(AppTypography.mono)
                                             .foregroundStyle(AppColors.warning)
-                                            .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
+                                            .frame(width: TableColumn.price, alignment: .trailing)
 
                                         Text("\(balance.invoices.count)")
                                             .font(AppTypography.mono)
                                             .foregroundStyle(AppColors.ink)
-                                            .frame(minWidth: TableColumn.quantity, maxWidth: .infinity, alignment: .trailing)
+                                            .frame(width: TableColumn.quantity, alignment: .trailing)
 
                                         Text("\(balance.overdueCount)")
                                             .font(AppTypography.mono)
                                             .foregroundStyle(balance.overdueCount > 0 ? AppColors.danger : AppColors.inkSubtle)
-                                            .frame(minWidth: TableColumn.quantity, maxWidth: .infinity, alignment: .trailing)
+                                            .frame(width: TableColumn.quantity, alignment: .trailing)
                                     }
                                 }
                                 .staggeredRow(index: index, reduceMotion: reduceMotion)
