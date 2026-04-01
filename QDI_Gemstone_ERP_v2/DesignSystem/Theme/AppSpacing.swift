@@ -15,29 +15,15 @@ enum AppSpacing {
     static let page: CGFloat = 32
 }
 
-enum AppCornerRadius {
-    /// 8pt — small elements (badges, pills)
-    static let small: CGFloat = 8
-    /// 12pt — medium elements (fields, cards)
-    static let medium: CGFloat = 12
-    /// 16pt — large containers
-    static let large: CGFloat = 16
-    /// 999pt — capsule / pill shape
-    static let pill: CGFloat = 999
-}
-
 enum AppShadows {
     static let outer = (color: AppColors.softShadow, radius: CGFloat(16), x: CGFloat(0), y: CGFloat(10))
 
-    /// Subtle shadow — radius 4, y 2
     static func subtle(_ content: some View) -> some View {
         content.shadow(color: Color.black.opacity(AppOpacity.muted), radius: 4, y: 2)
     }
-    /// Standard shadow — radius 8, y 4
     static func standard(_ content: some View) -> some View {
         content.shadow(color: Color.black.opacity(AppOpacity.muted), radius: 8, y: 4)
     }
-    /// Elevated shadow — radius 16, y 8
     static func elevated(_ content: some View) -> some View {
         content.shadow(color: Color.black.opacity(AppOpacity.medium), radius: 16, y: 8)
     }

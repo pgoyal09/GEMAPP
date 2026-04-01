@@ -20,15 +20,15 @@ enum AppColors {
     static let success          = Color(red: 0.20, green: 0.83, blue: 0.60)       // #34d399
     static let warning          = Color(red: 0.98, green: 0.75, blue: 0.14)       // #fbbf24
     static let danger           = Color(red: 0.96, green: 0.25, blue: 0.37)       // #f43f5e
-    static let warningDeep      = Color(red: 0.96, green: 0.58, blue: 0.12)       // #f5940f (aging orange)
+    static let warningDeep      = Color(red: 0.96, green: 0.58, blue: 0.12)       // #f5940f
 
-    // MARK: - Text Hierarchy
+    // MARK: - Text
 
     static let ink              = Color.white.opacity(0.90)
     static let inkMuted         = Color.white.opacity(0.75)
     static let inkSubtle        = Color.white.opacity(0.55)
 
-    // MARK: - Surfaces & Effects
+    // MARK: - Borders & Effects
 
     static let cardStroke       = Color.white.opacity(0.08)
     static let softHighlight    = Color.white.opacity(0.04)

@@ -62,6 +62,7 @@
 		320A9924011B5A7B3F4013C3 /* InvoiceStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5AD9B9980F9121A678A0051 /* InvoiceStatus.swift */; };
 		3343E4D7FA6F7E7D98EDB8B3 /* ShimmerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60E495D2C94F3357978ED2B1 /* ShimmerView.swift */; };
 		33A389AF89C4C2138E449298 /* RFIDTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC2C8DCD1516CDC38886FFC /* RFIDTag.swift */; };
+		340B098E7B1817772CD96ADC /* AppCornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64F6D755DDF84E681008790 /* AppCornerRadius.swift */; };
 		3566B3C5B8A48E4FDB40B557 /* FilterPreset.swift in Sources */ = {isa = PBXBuildFile; fileRef = A11407626D2258BD7C3092EC /* FilterPreset.swift */; };
 		3D307A1BC98BE9AC401B8979 /* Payment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6983F38D7795AC6D3DF1449A /* Payment.swift */; };
 		3E7253792457246D6128E747 /* MemoDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0F40EC01C97C5209D4F80E /* MemoDocumentView.swift */; };
@@ -314,6 +315,7 @@
 		C3E2B54397410243BBF48929 /* LotTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotTransaction.swift; sourceTree = "<group>"; };
 		C5CDFA11A960E91FB0A818F3 /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
 		C611B9AA323E95C9B384F701 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		C64F6D755DDF84E681008790 /* AppCornerRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCornerRadius.swift; sourceTree = "<group>"; };
 		C6B1D948539B890AD5C00871 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
 		C7D4C3B6657EA65471DAB44C /* RapNetAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RapNetAPIService.swift; sourceTree = "<group>"; };
 		C830FBAB085D765E82A476A2 /* LotSelectSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotSelectSheet.swift; sourceTree = "<group>"; };
@@ -781,6 +783,7 @@
 			children = (
 				DED693A192ADD983C01E381E /* AppAnimation.swift */,
 				F0B0F11EF531CE6C3EF6C5CC /* AppColors.swift */,
+				C64F6D755DDF84E681008790 /* AppCornerRadius.swift */,
 				8BFE0636FA5EBCA4C69466D0 /* AppOpacity.swift */,
 				0C50CA93426BCF5FD29E8332 /* AppSpacing.swift */,
 				4F57C93F3894AAE530F52820 /* AppTypography.swift */,
@@ -872,6 +875,7 @@
 				6190D114C77309087D80EF3C /* AppAnimation.swift in Sources */,
 				FA8502A655774E79FC240E64 /* AppColors.swift in Sources */,
 				E56A8D662F2E1D90E871A970 /* AppConstants.swift in Sources */,
+				340B098E7B1817772CD96ADC /* AppCornerRadius.swift in Sources */,
 				2F513ACE5EF0CD69A1C7B7D1 /* AppLogger.swift in Sources */,
 				D2843B6700DC493BEC33DFAB /* AppOpacity.swift in Sources */,
 				0E22C31C27AC813031FCE9B9 /* AppShellView.swift in Sources */,

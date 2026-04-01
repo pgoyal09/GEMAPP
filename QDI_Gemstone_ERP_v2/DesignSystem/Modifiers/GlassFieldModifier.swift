@@ -1,6 +1,5 @@
 import SwiftUI
 
-/// Applies glass-morphism styling to text fields and pickers with focus ring.
 struct GlassFieldModifier: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var isFocused: Bool
@@ -11,17 +10,16 @@ struct GlassFieldModifier: ViewModifier {
             .padding(AppSpacing.comfortable)
             .focused($isFocused)
             .background(
-                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
-                    .fill(Color.white.opacity(AppOpacity.subtle))
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                    .fill(AppColors.cardBackground)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                     .strokeBorder(
-                        isFocused ? AppColors.primary : Color.white.opacity(0.1),
+                        isFocused ? AppColors.primary : AppColors.cardStroke,
                         lineWidth: isFocused ? 1.5 : 1
                     )
             )
-            .shadow(color: isFocused ? AppColors.primary.opacity(AppOpacity.medium) : .clear, radius: 4, y: 0)
             .animation(reduceMotion ? nil : AppAnimation.fast, value: isFocused)
     }
 }

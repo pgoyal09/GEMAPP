@@ -6,27 +6,20 @@ enum AppAnimation {
     static let slow = Animation.easeInOut(duration: 0.35)
     static let spring = Animation.spring(response: 0.4, dampingFraction: 0.8)
     static let sheetSpring = Animation.spring(response: 0.35, dampingFraction: 0.85)
-
-    /// Continuous shimmer animation for loading placeholders (2s per cycle — gentle, not frantic).
     static let shimmer = Animation.easeInOut(duration: 2.0).repeatForever(autoreverses: false)
-
-    /// Brief scale pulse for value changes.
     static let pulse = Animation.spring(response: 0.3, dampingFraction: 0.5)
 
-    /// Stagger delay for list row appearance (capped at 15 rows).
     static func staggerDelay(index: Int) -> Double {
         Double(min(index, 15)) * 0.03
     }
 }
 
 extension View {
-    /// Animates only when the user hasn't enabled Reduce Motion.
     func animateIfAllowed<V: Equatable>(_ animation: Animation?, value: V, reduceMotion: Bool) -> some View {
         self.animation(reduceMotion ? nil : animation, value: value)
     }
 }
 
-/// Modifier that fades in a row with stagger delay based on index.
 struct StaggeredRowModifier: ViewModifier {
     let index: Int
     let reduceMotion: Bool

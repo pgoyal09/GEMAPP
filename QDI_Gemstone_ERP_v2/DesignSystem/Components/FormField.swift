@@ -1,6 +1,5 @@
 import SwiftUI
 
-/// Reusable label + text field with consistent styling, optional error state, and accessibility.
 struct FormField: View {
     let label: String
     @Binding var text: String
@@ -12,10 +11,17 @@ struct FormField: View {
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkSubtle)
             TextField(label, text: $text)
-                .glassField()
+                .textFieldStyle(.plain)
+                .font(AppTypography.body)
+                .padding(.horizontal, AppSpacing.standard)
+                .frame(height: 28)
+                .background(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                        .fill(AppColors.cardBackground)
+                )
                 .overlay(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
-                        .strokeBorder(error != nil ? AppColors.danger : Color.clear, lineWidth: 1.5)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                        .strokeBorder(error != nil ? AppColors.danger : AppColors.cardStroke, lineWidth: 1)
                 )
                 .accessibilityLabel(label)
             if let error {
