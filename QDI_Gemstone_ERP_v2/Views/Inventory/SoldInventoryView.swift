@@ -8,8 +8,6 @@ struct SoldInventoryView: View {
     @Query private var allStones: [Gemstone]
 
     init() {
-        // SwiftData #Predicate does not support custom enum types as captured constants.
-        // Fetch all and filter in computed property instead.
         _allStones = Query(sort: \Gemstone.createdAt, order: .reverse)
     }
 
@@ -53,7 +51,8 @@ struct SoldInventoryView: View {
                 $0.sku.lowercased().contains(q) ||
                 $0.stoneType.rawValue.lowercased().contains(q) ||
                 $0.color.lowercased().contains(q) ||
-                $0.currentLocation.lowercased().contains(q)
+                $0.currentLocation.lowercased().contains(q) ||
+                customerName(for: $0).lowercased().contains(q)
             }
         }
         return sortedStones(result)
@@ -65,12 +64,13 @@ struct SoldInventoryView: View {
             switch sortKey {
             case "type": asc = a.stoneType.rawValue.localizedCompare(b.stoneType.rawValue) == .orderedAscending
             case "carat": asc = a.caratWeight < b.caratWeight
-            case "price": asc = a.sellPrice < b.sellPrice
             case "cost": asc = a.costPrice < b.costPrice
+            case "sold": asc = a.sellPrice < b.sellPrice
             case "margin":
                 let mA = a.costPrice > 0 ? ((a.sellPrice - a.costPrice) / a.costPrice) : 0
                 let mB = b.costPrice > 0 ? ((b.sellPrice - b.costPrice) / b.costPrice) : 0
                 asc = mA < mB
+            case "customer": asc = customerName(for: a).localizedCompare(customerName(for: b)) == .orderedAscending
             case "date": asc = a.createdAt < b.createdAt
             default: asc = a.sku.localizedCompare(b.sku) == .orderedAscending
             }
@@ -86,6 +86,10 @@ struct SoldInventoryView: View {
     private var selectedStone: Gemstone? {
         guard let id = selectedStoneID else { return nil }
         return filteredStones.first { $0.persistentModelID == id }
+    }
+
+    private func customerName(for stone: Gemstone) -> String {
+        stone.memo?.customer?.displayName ?? "—"
     }
 
     // MARK: - Body
@@ -177,14 +181,13 @@ struct SoldInventoryView: View {
     private var tableHeader: some View {
         HStack(spacing: 4) {
             sortableHeader("SKU", key: "sku", width: TableColumn.sku, alignment: .leading)
-            sortableHeader("Type", key: "type", width: TableColumn.type, alignment: .leading)
-            TableHeader(title: "Shape", width: TableColumn.shape, alignment: .leading)
-            sortableHeader("Carat", key: "carat", width: TableColumn.carat, alignment: .trailing)
-            TableHeader(title: "Color", width: TableColumn.color, alignment: .leading)
-            sortableHeader("Ask $/ct", key: "price", width: TableColumn.price, alignment: .trailing)
-            sortableHeader("Cost $/ct", key: "cost", width: TableColumn.price, alignment: .trailing)
+            sortableHeader("Stone Type", key: "type", width: TableColumn.type, alignment: .leading)
+            sortableHeader("Carats", key: "carat", width: TableColumn.carat, alignment: .trailing)
+            sortableHeader("Cost", key: "cost", width: TableColumn.price, alignment: .trailing)
+            sortableHeader("Sold Price", key: "sold", width: TableColumn.price, alignment: .trailing)
             sortableHeader("Margin%", key: "margin", width: TableColumn.margin, alignment: .trailing)
-            sortableHeader("Sold Date", key: "date", width: TableColumn.date, alignment: .leading)
+            sortableHeader("Customer", key: "customer", width: TableColumn.customer, alignment: .leading)
+            sortableHeader("Date", key: "date", width: TableColumn.date, alignment: .leading)
             Spacer()
         }
         .padding(.horizontal, AppSpacing.section)
@@ -199,17 +202,49 @@ struct SoldInventoryView: View {
         HoverRow(isSelected: selectedStoneID == stone.persistentModelID, onTap: {
             selectedStoneID = selectedStoneID == stone.persistentModelID ? nil : stone.persistentModelID
         }) {
-            Text(stone.sku).font(AppTypography.mono).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.sku, alignment: .leading)
-            StoneTypeBadge(type: stone.stoneType.rawValue).frame(width: TableColumn.type, alignment: .leading)
-            Text(stone.shape).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.shape, alignment: .leading)
-            Text(String(format: "%.2f", stone.caratWeight)).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: TableColumn.carat, alignment: .trailing)
-            Text(stone.color).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.color, alignment: .leading)
-            Text(stone.sellPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: TableColumn.price, alignment: .trailing)
-            Text(stone.costPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.price, alignment: .trailing)
-            Text(marginText(stone)).font(AppTypography.mono).foregroundStyle(marginColor(stone)).frame(width: TableColumn.margin, alignment: .trailing)
-            Text(stone.createdAt.formatted(.dateTime.month(.abbreviated).day().year())).font(AppTypography.caption).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.date, alignment: .leading)
+            Text(stone.sku)
+                .font(AppTypography.mono)
+                .foregroundStyle(AppColors.ink)
+                .lineLimit(1)
+                .frame(width: TableColumn.sku, alignment: .leading)
+
+            StoneTypeBadge(type: stone.stoneType.rawValue)
+                .frame(width: TableColumn.type, alignment: .leading)
+
+            Text(String(format: "%.2f", stone.caratWeight))
+                .font(AppTypography.mono)
+                .foregroundStyle(AppColors.ink)
+                .frame(width: TableColumn.carat, alignment: .trailing)
+
+            Text(stone.costPrice.asCurrency)
+                .font(AppTypography.mono)
+                .foregroundStyle(AppColors.inkMuted)
+                .frame(width: TableColumn.price, alignment: .trailing)
+
+            Text(stone.sellPrice.asCurrency)
+                .font(AppTypography.mono)
+                .foregroundStyle(AppColors.ink)
+                .frame(width: TableColumn.price, alignment: .trailing)
+
+            Text(marginText(stone))
+                .font(AppTypography.mono)
+                .foregroundStyle(marginColor(stone))
+                .frame(width: TableColumn.margin, alignment: .trailing)
+
+            Text(customerName(for: stone))
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.ink)
+                .lineLimit(1)
+                .frame(width: TableColumn.customer, alignment: .leading)
+
+            Text(stone.createdAt.formatted(.dateTime.month(.abbreviated).day().year()))
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.inkMuted)
+                .frame(width: TableColumn.date, alignment: .leading)
+
             Spacer()
         }
+        .frame(height: 32)
         .onTapGesture(count: 2) {
             doubleClickedStone = stone
         }
@@ -248,18 +283,14 @@ struct SoldInventoryView: View {
         let totalCost = stone.costPrice * Decimal(stone.caratWeight)
         let totalMargin = totalSold - totalCost
 
-        // Find who it was sold to via line items
         let soldInfo: (customer: String, ref: String) = {
-            // Check invoices first
             for event in stone.events where event.eventType == .sold {
                 // Try to find from line items
             }
-            // Search memos and invoices that reference this stone
             if let memo = stone.memo {
                 let customerName = memo.customer?.displayName ?? "—"
                 return (customerName, "M-\(memo.referenceNumber)")
             }
-            // Fallback: check line items via events
             return (stone.currentLocation, "—")
         }()
 
@@ -286,7 +317,7 @@ struct SoldInventoryView: View {
 
             Divider().background(AppColors.cardStroke)
 
-            ScrollView {
+            ScrollView(.vertical) {
                 VStack(alignment: .leading, spacing: AppSpacing.hero) {
                     // Stone details + pricing side by side
                     HStack(alignment: .top, spacing: AppSpacing.hero) {
@@ -322,7 +353,7 @@ struct SoldInventoryView: View {
                                         .font(AppTypography.caption)
                                         .foregroundStyle(AppColors.inkSubtle)
                                         .frame(width: 110, alignment: .leading)
-                                    Text("\(totalMargin.asCurrency) (\(NSDecimalNumber(decimal: marginPct).intValue)%)")
+                                    Text("\(totalMargin.asCurrency) (\(String(format: "%.1f", NSDecimalNumber(decimal: marginPct).doubleValue))%)")
                                         .font(AppTypography.body.weight(.semibold))
                                         .foregroundStyle(margin >= 0 ? AppColors.success : AppColors.danger)
                                 }
@@ -400,7 +431,7 @@ struct SoldInventoryView: View {
     private func marginText(_ stone: Gemstone) -> String {
         guard stone.costPrice > 0 else { return "—" }
         let margin = ((stone.sellPrice - stone.costPrice) / stone.costPrice) * 100
-        return "\(NSDecimalNumber(decimal: margin).intValue)%"
+        return String(format: "%.1f%%", NSDecimalNumber(decimal: margin).doubleValue)
     }
 
     private func marginColor(_ stone: Gemstone) -> Color {

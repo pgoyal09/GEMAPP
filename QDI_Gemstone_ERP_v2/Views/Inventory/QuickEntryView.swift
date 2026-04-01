@@ -1,8 +1,8 @@
 import SwiftUI
 import SwiftData
 
-/// Tabular rapid-entry view for bulk stone intake.
-/// Users can tab through minimal fields per row and save multiple stones at once.
+/// Spreadsheet-style rapid-entry view for bulk stone intake.
+/// Tab between fields, Enter to add a new row. Each row has a type selector (Single/Pair/Lot).
 struct QuickEntryView: View {
     /// Default stone type based on which inventory tab user came from.
     var defaultStoneType: StoneType = .diamond
@@ -19,27 +19,25 @@ struct QuickEntryView: View {
 
     private enum Col {
         static let index: CGFloat = 30
-        static let rowType: CGFloat = 110
+        static let rowType: CGFloat = 100
         static let type: CGFloat = 100
         static let shape: CGFloat = 80
         static let carat: CGFloat = 70
         static let color: CGFloat = 60
         static let clarity: CGFloat = 60
-        static let treatment: CGFloat = 80
         static let cost: CGFloat = 80
         static let sell: CGFloat = 80
         static let origin: CGFloat = 80
         static let certLab: CGFloat = 70
         static let certNo: CGFloat = 90
-        static let pairID: CGFloat = 80
-        static let lotID: CGFloat = 80
         static let pieces: CGFloat = 60
+        static let action: CGFloat = 28
     }
 
     var body: some View {
         VStack(spacing: 0) {
             toolbar
-            Divider().background(AppColors.cardElevated)
+            Divider().background(AppColors.cardStroke)
             entryTable
         }
         .overlay {
@@ -76,16 +74,20 @@ struct QuickEntryView: View {
             Text("\(rows.count) row\(rows.count == 1 ? "" : "s")")
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkSubtle)
+
             Spacer()
+
             Button("Clear All") {
                 rows = [QuickEntryRow(stoneType: selectedCategory)]
-                focusedField = .type(rows[0].id)
+                focusedField = .shape(rows[0].id)
             }
             .buttonStyle(.outline)
             .disabled(rows.count == 1 && rows[0].isEmpty)
+
             Button("Save All (\(validRowCount))", systemImage: "checkmark.circle.fill") {
                 saveAll()
-            }.buttonStyle(.gradient)
+            }
+            .buttonStyle(.gradient)
             .disabled(validRowCount == 0)
         }
         .padding(.horizontal, AppSpacing.hero)
@@ -108,41 +110,59 @@ struct QuickEntryView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .glassTable()
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                .fill(AppColors.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+        )
         .padding(AppSpacing.hero)
     }
 
+    // MARK: - Header Row
+
     private var headerRow: some View {
         HStack(spacing: AppSpacing.standard) {
-            Text("#").frame(width: Col.index, alignment: .center)
-            Text("Row Type").frame(width: Col.rowType, alignment: .leading)
-            Text("Type").frame(width: Col.type, alignment: .leading)
-            Text("Shape").frame(width: Col.shape, alignment: .leading)
-            Text("Carat").frame(width: Col.carat, alignment: .trailing)
-            Text("Color").frame(width: Col.color, alignment: .leading)
-            Text("Clarity").frame(width: Col.clarity, alignment: .leading)
-            Text("Treatment").frame(width: Col.treatment, alignment: .leading)
-            Text("Cost $").frame(width: Col.cost, alignment: .trailing)
-            Text("Sell $").frame(width: Col.sell, alignment: .trailing)
-            Text("Origin").frame(width: Col.origin, alignment: .leading)
-            Text("Cert Lab").frame(width: Col.certLab, alignment: .leading)
-            Text("Cert #").frame(width: Col.certNo, alignment: .leading)
+            headerCell("#", width: Col.index, alignment: .center)
+            headerCell("Row Type", width: Col.rowType)
+            headerCell("Type", width: Col.type)
+            headerCell("Shape", width: Col.shape)
+            headerCell("Carat", width: Col.carat, alignment: .trailing)
+            headerCell("Color", width: Col.color)
+            headerCell("Clarity", width: Col.clarity)
+            headerCell("Cost $", width: Col.cost, alignment: .trailing)
+            headerCell("Sell $", width: Col.sell, alignment: .trailing)
+            headerCell("Origin", width: Col.origin)
+            headerCell("Cert Lab", width: Col.certLab)
+            headerCell("Cert #", width: Col.certNo)
             Spacer()
         }
-        .font(AppTypography.caption.bold())
-        .foregroundStyle(AppColors.inkMuted)
         .padding(.horizontal, AppSpacing.section)
         .padding(.vertical, AppSpacing.comfortable)
+        .background(AppColors.panelBackground)
     }
+
+    private func headerCell(_ title: String, width: CGFloat, alignment: Alignment = .leading) -> some View {
+        Text(title)
+            .font(AppTypography.caption.bold())
+            .foregroundStyle(AppColors.inkMuted)
+            .frame(width: width, alignment: alignment)
+    }
+
+    // MARK: - Data Row
 
     private func entryRow(index: Int, row: QuickEntryRow) -> some View {
         VStack(spacing: AppSpacing.compact) {
             HStack(spacing: AppSpacing.standard) {
+                // Row number
                 Text("\(index + 1)")
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.inkSubtle)
                     .frame(width: Col.index, alignment: .center)
 
+                // Row Type picker
                 Picker("", selection: binding(for: index, keyPath: \.rowType)) {
                     Text("Single").tag(RowType.single)
                     Text("Pair").tag(RowType.pair)
@@ -151,6 +171,7 @@ struct QuickEntryView: View {
                 .labelsHidden()
                 .frame(width: Col.rowType)
 
+                // Stone Type picker
                 Picker("", selection: binding(for: index, keyPath: \.stoneType)) {
                     ForEach(StoneType.allCases) { type in
                         Text(type.rawValue).tag(type)
@@ -158,64 +179,38 @@ struct QuickEntryView: View {
                 }
                 .labelsHidden()
                 .frame(width: Col.type)
-                .focused($focusedField, equals: .type(row.id))
 
-                TextField("", text: binding(for: index, keyPath: \.shape))
-                    .frame(width: Col.shape)
-                    .glassField()
-                    .focused($focusedField, equals: .shape(row.id))
+                // Shape
+                cellField(text: binding(for: index, keyPath: \.shape), width: Col.shape, focus: .shape(row.id))
 
-                TextField("", value: binding(for: index, keyPath: \.caratWeight), format: .number)
-                    .frame(width: Col.carat)
-                    .glassField()
-                    .multilineTextAlignment(.trailing)
-                    .focused($focusedField, equals: .carat(row.id))
+                // Carat
+                cellField(value: binding(for: index, keyPath: \.caratWeight), width: Col.carat, focus: .carat(row.id), trailing: true)
 
-                TextField("", text: binding(for: index, keyPath: \.color))
-                    .frame(width: Col.color)
-                    .glassField()
-                    .focused($focusedField, equals: .color(row.id))
+                // Color
+                cellField(text: binding(for: index, keyPath: \.color), width: Col.color, focus: .color(row.id))
 
-                TextField("", text: binding(for: index, keyPath: \.clarity))
-                    .frame(width: Col.clarity)
-                    .glassField()
-                    .focused($focusedField, equals: .clarity(row.id))
+                // Clarity
+                cellField(text: binding(for: index, keyPath: \.clarity), width: Col.clarity, focus: .clarity(row.id))
 
-                TextField("", text: binding(for: index, keyPath: \.treatment))
-                    .frame(width: Col.treatment)
-                    .glassField()
-                    .focused($focusedField, equals: .treatment(row.id))
+                // Cost
+                cellField(value: binding(for: index, keyPath: \.costPrice), width: Col.cost, focus: .cost(row.id), trailing: true)
 
-                TextField("", value: binding(for: index, keyPath: \.costPrice), format: .number)
-                    .frame(width: Col.cost)
-                    .glassField()
-                    .multilineTextAlignment(.trailing)
-                    .focused($focusedField, equals: .cost(row.id))
+                // Sell
+                cellField(value: binding(for: index, keyPath: \.sellPrice), width: Col.sell, focus: .sell(row.id), trailing: true)
 
-                TextField("", value: binding(for: index, keyPath: \.sellPrice), format: .number)
-                    .frame(width: Col.sell)
-                    .glassField()
-                    .multilineTextAlignment(.trailing)
-                    .focused($focusedField, equals: .sell(row.id))
+                // Origin
+                cellField(text: binding(for: index, keyPath: \.origin), width: Col.origin, focus: .origin(row.id))
 
-                TextField("", text: binding(for: index, keyPath: \.origin))
-                    .frame(width: Col.origin)
-                    .glassField()
-                    .focused($focusedField, equals: .origin(row.id))
+                // Cert Lab
+                cellField(text: binding(for: index, keyPath: \.certLab), width: Col.certLab, focus: .certLab(row.id))
 
-                TextField("", text: binding(for: index, keyPath: \.certLab))
-                    .frame(width: Col.certLab)
-                    .glassField()
-                    .focused($focusedField, equals: .certLab(row.id))
-
-                TextField("", text: binding(for: index, keyPath: \.certNo))
-                    .frame(width: Col.certNo)
-                    .glassField()
-                    .focused($focusedField, equals: .certNo(row.id))
+                // Cert No — Enter adds new row
+                cellField(text: binding(for: index, keyPath: \.certNo), width: Col.certNo, focus: .certNo(row.id))
                     .onSubmit { addRowIfNeeded(afterIndex: index) }
 
                 Spacer()
 
+                // Delete row button
                 Button {
                     if rows.count > 1 { rows.remove(at: index) }
                 } label: {
@@ -224,41 +219,18 @@ struct QuickEntryView: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(rows.count <= 1)
+                .frame(width: Col.action)
             }
 
-            // Extra fields for Pair / Lot
-            if row.rowType == .pair {
-                HStack(spacing: AppSpacing.standard) {
-                    Text("").frame(width: Col.index)
-                    Text("Pair ID")
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.inkMuted)
-                        .frame(width: Col.rowType, alignment: .trailing)
-                    TextField("Pair ID", text: binding(for: index, keyPath: \.pairID))
-                        .frame(width: Col.type)
-                        .glassField()
-                    Spacer()
-                }
-                .padding(.leading, AppSpacing.standard)
-            }
-
+            // Extra fields for Lot rows
             if row.rowType == .lot {
                 HStack(spacing: AppSpacing.standard) {
                     Text("").frame(width: Col.index)
-                    Text("Lot ID")
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.inkMuted)
-                        .frame(width: Col.rowType, alignment: .trailing)
-                    TextField("Lot ID", text: binding(for: index, keyPath: \.lotID))
-                        .frame(width: Col.type)
-                        .glassField()
                     Text("Pieces")
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.inkMuted)
-                    TextField("", value: binding(for: index, keyPath: \.pieces), format: .number)
-                        .frame(width: Col.pieces)
-                        .glassField()
-                        .multilineTextAlignment(.trailing)
+                        .frame(width: Col.rowType, alignment: .trailing)
+                    cellField(value: binding(for: index, keyPath: \.pieces), width: Col.pieces, focus: .pieces(row.id), trailing: true)
                     Spacer()
                 }
                 .padding(.leading, AppSpacing.standard)
@@ -266,6 +238,80 @@ struct QuickEntryView: View {
         }
         .padding(.horizontal, AppSpacing.section)
         .padding(.vertical, AppSpacing.standard)
+        .background(index % 2 == 0 ? Color.clear : AppColors.softHighlight)
+    }
+
+    // MARK: - Cell Field Builders
+
+    private func cellField(text: Binding<String>, width: CGFloat, focus: FieldFocus) -> some View {
+        TextField("", text: text)
+            .textFieldStyle(.plain)
+            .font(AppTypography.body)
+            .padding(.horizontal, AppSpacing.compact)
+            .frame(width: width, height: 28)
+            .background(
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                    .fill(AppColors.cardBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                    .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+            )
+            .focused($focusedField, equals: focus)
+    }
+
+    private func cellField(value: Binding<Double>, width: CGFloat, focus: FieldFocus, trailing: Bool = false) -> some View {
+        TextField("", value: value, format: .number)
+            .textFieldStyle(.plain)
+            .font(AppTypography.body)
+            .padding(.horizontal, AppSpacing.compact)
+            .frame(width: width, height: 28)
+            .multilineTextAlignment(trailing ? .trailing : .leading)
+            .background(
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                    .fill(AppColors.cardBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                    .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+            )
+            .focused($focusedField, equals: focus)
+    }
+
+    private func cellField(value: Binding<Decimal>, width: CGFloat, focus: FieldFocus, trailing: Bool = false) -> some View {
+        TextField("", value: value, format: .number)
+            .textFieldStyle(.plain)
+            .font(AppTypography.body)
+            .padding(.horizontal, AppSpacing.compact)
+            .frame(width: width, height: 28)
+            .multilineTextAlignment(trailing ? .trailing : .leading)
+            .background(
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                    .fill(AppColors.cardBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                    .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+            )
+            .focused($focusedField, equals: focus)
+    }
+
+    private func cellField(value: Binding<Int>, width: CGFloat, focus: FieldFocus, trailing: Bool = false) -> some View {
+        TextField("", value: value, format: .number)
+            .textFieldStyle(.plain)
+            .font(AppTypography.body)
+            .padding(.horizontal, AppSpacing.compact)
+            .frame(width: width, height: 28)
+            .multilineTextAlignment(trailing ? .trailing : .leading)
+            .background(
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                    .fill(AppColors.cardBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
+                    .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+            )
+            .focused($focusedField, equals: focus)
     }
 
     // MARK: - Helpers
@@ -285,10 +331,10 @@ struct QuickEntryView: View {
         if index == rows.count - 1 {
             let newRow = QuickEntryRow(stoneType: selectedCategory)
             rows.append(newRow)
-            focusedField = .type(newRow.id)
+            focusedField = .shape(newRow.id)
         } else {
             let nextRow = rows[index + 1]
-            focusedField = .type(nextRow.id)
+            focusedField = .shape(nextRow.id)
         }
     }
 
@@ -319,7 +365,7 @@ struct QuickEntryView: View {
                 origin: row.origin,
                 color: row.color,
                 clarity: row.clarity,
-                treatment: row.treatment,
+                treatment: "",
                 hasCert: !row.certLab.isEmpty,
                 certLab: row.certLab,
                 certNo: row.certNo,
@@ -342,7 +388,7 @@ struct QuickEntryView: View {
         toastIsError = false
         toastMessage = "Saved \(count) stone\(count == 1 ? "" : "s")"
         rows = [QuickEntryRow(stoneType: selectedCategory)]
-        focusedField = .type(rows[0].id)
+        focusedField = .shape(rows[0].id)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
             withAnimation(reduceMotion ? nil : .default) { toastMessage = nil }
@@ -352,17 +398,16 @@ struct QuickEntryView: View {
     // MARK: - Focus
 
     private enum FieldFocus: Hashable {
-        case type(UUID)
         case shape(UUID)
         case carat(UUID)
         case color(UUID)
         case clarity(UUID)
-        case treatment(UUID)
         case cost(UUID)
         case sell(UUID)
         case origin(UUID)
         case certLab(UUID)
         case certNo(UUID)
+        case pieces(UUID)
     }
 }
 
@@ -385,14 +430,11 @@ private struct QuickEntryRow: Identifiable {
     var caratWeight: Double = 0
     var color: String = ""
     var clarity: String = ""
-    var treatment: String = ""
     var costPrice: Decimal = 0
     var sellPrice: Decimal = 0
     var origin: String = ""
     var certLab: String = ""
     var certNo: String = ""
-    var pairID: String = ""
-    var lotID: String = ""
     var pieces: Int = 0
 
     var isEmpty: Bool {

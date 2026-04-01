@@ -11,10 +11,9 @@ struct LotInventoryView: View {
     // MARK: - Init
 
     init() {
-        // SwiftData #Predicate does not support custom enum types as captured constants.
-        // Fetch all and filter in computed property instead.
         _allStones = Query(sort: \Gemstone.sku)
     }
+
     @State private var showHistorySheet = false
     @State private var historyLot: Gemstone?
     @State private var doubleClickedLot: Gemstone?
@@ -36,10 +35,11 @@ struct LotInventoryView: View {
             let asc: Bool
             switch sortKey {
             case "type": asc = a.stoneType.rawValue.localizedCompare(b.stoneType.rawValue) == .orderedAscending
-            case "remaining": asc = a.effectiveRemainingCarats < b.effectiveRemainingCarats
+            case "carats": asc = a.effectiveRemainingCarats < b.effectiveRemainingCarats
+            case "stones": asc = (a.numberOfStones ?? 0) < (b.numberOfStones ?? 0)
             case "avgCost": asc = averageCostPerCarat(a) < averageCostPerCarat(b)
             case "sell": asc = a.sellPrice < b.sellPrice
-            case "value": asc = (a.sellPrice * Decimal(a.effectiveRemainingCarats)) < (b.sellPrice * Decimal(b.effectiveRemainingCarats))
+            case "status": asc = a.status.rawValue.localizedCompare(b.status.rawValue) == .orderedAscending
             default: asc = a.sku.localizedCompare(b.sku) == .orderedAscending
             }
             return sortAscending ? asc : !asc
@@ -127,7 +127,7 @@ struct LotInventoryView: View {
                     subtitle: "Lot inventory will appear here"
                 )
             } else {
-                ScrollView {
+                ScrollView(.vertical) {
                     LazyVStack(spacing: 2) {
                         ForEach(Array(filteredLots.enumerated()), id: \.element.persistentModelID) { index, lot in
                             lotRow(lot)
@@ -146,13 +146,14 @@ struct LotInventoryView: View {
     }
 
     private var tableHeader: some View {
-        HStack(spacing: 0) {
-            sortableHeader("SKU", key: "sku", width: TableColumn.sku, alignment: .leading)
-            sortableHeader("Type", key: "type", width: TableColumn.type, alignment: .leading)
-            sortableHeader("Remaining ct", key: "remaining", width: TableColumn.carat + 20, alignment: .trailing)
+        HStack(spacing: 4) {
+            sortableHeader("Lot#", key: "sku", width: TableColumn.sku, alignment: .leading)
+            sortableHeader("Stone Type", key: "type", width: TableColumn.type, alignment: .leading)
+            sortableHeader("Carats", key: "carats", width: TableColumn.carat, alignment: .trailing)
+            sortableHeader("Stones", key: "stones", width: TableColumn.quantity, alignment: .trailing)
             sortableHeader("Avg Cost/ct", key: "avgCost", width: TableColumn.price, alignment: .trailing)
-            sortableHeader("Sell/ct", key: "sell", width: TableColumn.price, alignment: .trailing)
-            sortableHeader("Total Value", key: "value", width: TableColumn.price, alignment: .trailing)
+            sortableHeader("Sell Price", key: "sell", width: TableColumn.price, alignment: .trailing)
+            sortableHeader("Status", key: "status", width: TableColumn.status, alignment: .leading)
             Spacer()
         }
         .padding(.horizontal, AppSpacing.section)
@@ -184,7 +185,12 @@ struct LotInventoryView: View {
             Text(String(format: "%.2f", lot.effectiveRemainingCarats))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
-                .frame(width: TableColumn.carat + 20, alignment: .trailing)
+                .frame(width: TableColumn.carat, alignment: .trailing)
+
+            Text(lot.numberOfStones.map { "\($0)" } ?? "—")
+                .font(AppTypography.mono)
+                .foregroundStyle(AppColors.inkMuted)
+                .frame(width: TableColumn.quantity, alignment: .trailing)
 
             Text(formattedPrice(averageCostPerCarat(lot)))
                 .font(AppTypography.mono)
@@ -196,22 +202,33 @@ struct LotInventoryView: View {
                 .foregroundStyle(AppColors.ink)
                 .frame(width: TableColumn.price, alignment: .trailing)
 
-            Text(formattedPrice(lot.sellPrice * Decimal(lot.effectiveRemainingCarats)))
-                .font(AppTypography.mono)
-                .foregroundStyle(AppColors.success)
-                .frame(width: TableColumn.price, alignment: .trailing)
+            statusBadge(for: lot.status)
+                .frame(width: TableColumn.status, alignment: .leading)
 
             Spacer()
         }
+        .frame(height: 32)
         .onTapGesture(count: 2) {
             doubleClickedLot = lot
+        }
+    }
+
+    private func statusBadge(for status: GemstoneStatus) -> StatusBadge {
+        switch status {
+        case .available:    return StatusBadge(title: "Available", tone: .success)
+        case .onMemo:       return StatusBadge(title: "On Memo", tone: .warning)
+        case .sold:         return StatusBadge(title: "Sold", tone: .accent)
+        case .atLab:        return StatusBadge(title: "At Lab", tone: .neutral)
+        case .reserved:     return StatusBadge(title: "Reserved", tone: .warning)
+        case .inTransit:    return StatusBadge(title: "In Transit", tone: .neutral)
+        case .consignment:  return StatusBadge(title: "Consignment", tone: .neutral)
         }
     }
 
     // MARK: - Detail Panel
 
     private func lotDetailPanel(_ lot: Gemstone) -> some View {
-        ScrollView {
+        ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: AppSpacing.hero) {
                 GlassCard(padding: AppSpacing.section) {
                     VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
@@ -231,14 +248,17 @@ struct LotInventoryView: View {
                 GlassCard(padding: AppSpacing.section) {
                     VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                         SectionHeader(title: "Details")
-                        DetailRow(label: "Color", value: lot.color.isEmpty ? "--" : lot.color)
-                        DetailRow(label: "Origin", value: lot.origin.isEmpty ? "--" : lot.origin)
-                        DetailRow(label: "Treatment", value: lot.treatment.isEmpty ? "--" : lot.treatment)
+                        DetailRow(label: "Color", value: lot.color.isEmpty ? "—" : lot.color)
+                        DetailRow(label: "Origin", value: lot.origin.isEmpty ? "—" : lot.origin)
+                        DetailRow(label: "Treatment", value: lot.treatment.isEmpty ? "—" : lot.treatment)
                         if let size = lot.size, !size.isEmpty {
                             DetailRow(label: "Size Range", value: size)
                         }
                         if let quality = lot.quality, !quality.isEmpty {
                             DetailRow(label: "Quality", value: quality)
+                        }
+                        if let stones = lot.numberOfStones {
+                            DetailRow(label: "Stones", value: "\(stones)")
                         }
                     }
                 }
@@ -373,7 +393,7 @@ struct LotInventoryView: View {
             if transactions.isEmpty {
                 EmptyStateView(icon: "clock", title: "No transactions yet")
             } else {
-                ScrollView {
+                ScrollView(.vertical) {
                     LazyVStack(spacing: AppSpacing.comfortable) {
                         ForEach(transactions, id: \.persistentModelID) { tx in
                             GlassCard(padding: AppSpacing.section) {
@@ -510,7 +530,7 @@ struct LotInventoryView: View {
                         .frame(maxWidth: .infinity)
                         .frame(height: 200)
                 } else {
-                    ScrollView {
+                    ScrollView(.vertical) {
                         LazyVStack(spacing: 2) {
                             ForEach(transactions, id: \.persistentModelID) { tx in
                                 HStack(spacing: 4) {
