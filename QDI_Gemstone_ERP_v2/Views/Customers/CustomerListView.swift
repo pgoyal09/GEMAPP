@@ -46,7 +46,7 @@ struct CustomerListView: View {
 
     private var customerTable: some View {
         let filtered = viewModel.filtered(from: allCustomers)
-        return ScrollView([.horizontal, .vertical]) {
+        return ScrollView(.vertical) {
             VStack(spacing: 0) {
                 HStack(spacing: 4) {
                     customerSortableHeader("Name", key: "name", width: TableColumn.customer)
@@ -119,7 +119,7 @@ struct CustomerListView: View {
                     .padding(.vertical, AppSpacing.standard)
                 }
             }
-            .frame(minWidth: customerTableMinWidth, maxWidth: .infinity)
+            .frame(maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()

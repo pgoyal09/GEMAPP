@@ -15,10 +15,15 @@ struct InvoiceListView: View {
 
     private var allInvoices: [Invoice] { viewModel.fetchedInvoices }
 
+    private var filteredInvoices: [Invoice] {
+        viewModel.filtered(from: allInvoices)
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             toolbar
             invoiceTable
+            invoiceSummaryFooter(filteredInvoices)
         }
         .accessibilityIdentifier("InvoiceListView")
         .onAppear { viewModel.fetchPage(context: modelContext) }
@@ -78,16 +83,16 @@ struct InvoiceListView: View {
         + TableColumn.price + TableColumn.status + 60
 
     private var invoiceTable: some View {
-        let filtered = viewModel.filtered(from: allInvoices)
-        return ScrollView([.horizontal, .vertical]) {
-            LazyVStack(spacing: 0) {
-                headerRow
-                Divider().background(AppColors.cardStroke)
-                if filtered.isEmpty {
-                    EmptyStateView(icon: "dollarsign.circle", title: "No invoices found")
-                        .frame(minWidth: invoiceTableMinWidth)
-                        .frame(height: 200)
-                } else {
+        let filtered = filteredInvoices
+        return VStack(spacing: 0) {
+            headerRow
+            Divider().background(AppColors.cardStroke)
+            if filtered.isEmpty {
+                EmptyStateView(icon: "dollarsign.circle", title: "No invoices found")
+                    .frame(height: 200)
+                    .frame(maxWidth: .infinity)
+            } else {
+                ScrollView(.vertical) {
                     LazyVStack(spacing: 2) {
                         ForEach(Array(filtered.enumerated()), id: \.element.persistentModelID) { index, invoice in
                             invoiceRow(invoice)
@@ -100,16 +105,14 @@ struct InvoiceListView: View {
                         }
                     }
                     .padding(.vertical, AppSpacing.standard)
-
-                    invoiceSummaryFooter(filtered)
+                    .frame(maxWidth: .infinity)
                 }
             }
-            .frame(minWidth: invoiceTableMinWidth, maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
         .padding(.horizontal, AppSpacing.hero)
-        .padding(.bottom, AppSpacing.hero)
+        .padding(.bottom, AppSpacing.comfortable)
     }
 
     private var headerRow: some View {
@@ -192,9 +195,14 @@ struct InvoiceListView: View {
                 .foregroundStyle(AppColors.inkMuted)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.section)
+        .padding(.horizontal, AppSpacing.hero)
         .padding(.vertical, AppSpacing.comfortable)
-        .background(AppColors.softHighlight)
+        .background(AppColors.cardBackground)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(AppColors.cardStroke)
+                .frame(height: 1)
+        }
     }
 
     private func invoiceStatusBadge(_ status: InvoiceStatus) -> some View {

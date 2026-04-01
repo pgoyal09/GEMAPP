@@ -90,21 +90,25 @@ struct SoldInventoryView: View {
     // MARK: - Body
 
     var body: some View {
-        HStack(spacing: 4) {
-            VStack(spacing: 0) {
-                topBar
-                tableContent
-            }
-            .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
+        VStack(spacing: 0) {
+            HStack(spacing: 4) {
+                VStack(spacing: 0) {
+                    topBar
+                    tableContent
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            if let stone = selectedStone {
-                Divider().background(AppColors.cardStroke)
-                GemstoneDetailPanel(gemstone: stone, onEdit: {
-                    editingStone = stone
-                    showEditSheet = true
-                })
-                .frame(minWidth: 260, idealWidth: 296, maxWidth: 350)
+                if let stone = selectedStone {
+                    Divider().background(AppColors.cardStroke)
+                    GemstoneDetailPanel(gemstone: stone, onEdit: {
+                        editingStone = stone
+                        showEditSheet = true
+                    })
+                    .frame(minWidth: 260, idealWidth: 296, maxWidth: 350)
+                }
             }
+
+            summaryFooter
         }
         .animation(reduceMotion ? nil : AppAnimation.sheetSpring, value: selectedStone?.persistentModelID)
         .sheet(isPresented: $showEditSheet) {
@@ -141,13 +145,14 @@ struct SoldInventoryView: View {
     // MARK: - Table
 
     private var tableContent: some View {
-        ScrollView([.horizontal, .vertical]) {
-            LazyVStack(spacing: 0) {
-                tableHeader
-                Divider().background(AppColors.cardStroke)
-                if filteredStones.isEmpty {
-                    EmptyStateView(icon: "tag.slash", title: "No sold stones", subtitle: "Sold inventory will appear here")
-                } else {
+        VStack(spacing: 0) {
+            tableHeader
+            Divider().background(AppColors.cardStroke)
+            if filteredStones.isEmpty {
+                EmptyStateView(icon: "tag.slash", title: "No sold stones", subtitle: "Sold inventory will appear here")
+                    .frame(maxWidth: .infinity)
+            } else {
+                ScrollView(.vertical) {
                     LazyVStack(spacing: 2) {
                         ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
                             stoneRow(stone)
@@ -155,15 +160,14 @@ struct SoldInventoryView: View {
                         }
                     }
                     .padding(.vertical, AppSpacing.standard)
-                    summaryFooter
+                    .frame(maxWidth: .infinity)
                 }
             }
-            .frame(minWidth: 1000, maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
         .padding(.horizontal, AppSpacing.hero)
-        .padding(.bottom, AppSpacing.hero)
+        .padding(.bottom, AppSpacing.comfortable)
     }
 
     private var tableHeader: some View {
@@ -219,8 +223,13 @@ struct SoldInventoryView: View {
             Text("Margin: \(String(format: "%.1f", NSDecimalNumber(decimal: totalMargin).doubleValue))%").font(AppTypography.caption).foregroundStyle(AppColors.success)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.section).padding(.vertical, AppSpacing.comfortable)
-        .background(AppColors.softHighlight)
+        .padding(.horizontal, AppSpacing.hero).padding(.vertical, AppSpacing.comfortable)
+        .background(AppColors.cardBackground)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(AppColors.cardStroke)
+                .frame(height: 1)
+        }
     }
 
     // MARK: - Helpers

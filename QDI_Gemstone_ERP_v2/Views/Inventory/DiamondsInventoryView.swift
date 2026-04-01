@@ -131,23 +131,27 @@ struct DiamondsInventoryView: View {
     // MARK: - Body
 
     var body: some View {
-        HStack(spacing: 4) {
-            VStack(spacing: 0) {
-                topBar
-                filterChips
-                tableContent
-            }
-            .frame(minWidth: 500, maxWidth: .infinity, maxHeight: .infinity)
+        VStack(spacing: 0) {
+            HStack(spacing: 4) {
+                VStack(spacing: 0) {
+                    topBar
+                    filterChips
+                    tableContent
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            if let stone = selectedStone {
-                Divider().background(AppColors.cardStroke)
-                GemstoneDetailPanel(gemstone: stone, onEdit: {
-                    editingStone = stone
-                    showEditSheet = true
-                })
-                .frame(minWidth: 260, idealWidth: 296, maxWidth: 360)
-                .transition(reduceMotion ? .opacity : .move(edge: .trailing).combined(with: .opacity))
+                if let stone = selectedStone {
+                    Divider().background(AppColors.cardStroke)
+                    GemstoneDetailPanel(gemstone: stone, onEdit: {
+                        editingStone = stone
+                        showEditSheet = true
+                    })
+                    .frame(minWidth: 260, idealWidth: 296, maxWidth: 360)
+                    .transition(reduceMotion ? .opacity : .move(edge: .trailing).combined(with: .opacity))
+                }
             }
+
+            summaryFooter
         }
         .accessibilityIdentifier("DiamondsInventoryView")
         .background {
@@ -358,32 +362,34 @@ struct DiamondsInventoryView: View {
     // MARK: - Table
 
     private var tableContent: some View {
-        ScrollView([.horizontal, .vertical]) {
-            LazyVStack(spacing: 0) {
-                tableHeader
-                Divider().background(AppColors.cardStroke)
-                if filteredStones.isEmpty {
-                    EmptyStateView(icon: "sparkle", title: "No diamonds found", subtitle: "Try adjusting your search or filters")
-                } else {
-                    LazyVStack(spacing: 2) {
-                        ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
-                            stoneRow(stone)
-                                .simultaneousGesture(TapGesture(count: 2).onEnded {
-                                    detailSheetStone = stone
-                                })
-                                .staggeredRow(index: index, reduceMotion: reduceMotion)
+        VStack(spacing: 0) {
+            tableHeader
+            Divider().background(AppColors.cardStroke)
+            if filteredStones.isEmpty {
+                EmptyStateView(icon: "sparkle", title: "No diamonds found", subtitle: "Try adjusting your search or filters")
+                    .frame(maxWidth: .infinity)
+            } else {
+                GeometryReader { geo in
+                    ScrollView([.horizontal, .vertical]) {
+                        LazyVStack(spacing: 2) {
+                            ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
+                                stoneRow(stone)
+                                    .simultaneousGesture(TapGesture(count: 2).onEnded {
+                                        detailSheetStone = stone
+                                    })
+                                    .staggeredRow(index: index, reduceMotion: reduceMotion)
+                            }
                         }
+                        .padding(.vertical, AppSpacing.standard)
+                        .frame(minWidth: 1200, maxWidth: .infinity, minHeight: geo.size.height, alignment: .top)
                     }
-                    .padding(.vertical, AppSpacing.standard)
-                    summaryFooter
                 }
             }
-            .frame(minWidth: 1200, maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
         .padding(.horizontal, AppSpacing.hero)
-        .padding(.bottom, AppSpacing.hero)
+        .padding(.bottom, AppSpacing.comfortable)
     }
 
     private var tableHeader: some View {
@@ -468,8 +474,13 @@ struct DiamondsInventoryView: View {
                 .font(AppTypography.caption).foregroundStyle(AppColors.inkMuted)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.section).padding(.vertical, AppSpacing.comfortable)
-        .background(AppColors.softHighlight)
+        .padding(.horizontal, AppSpacing.hero).padding(.vertical, AppSpacing.comfortable)
+        .background(AppColors.cardBackground)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(AppColors.cardStroke)
+                .frame(height: 1)
+        }
     }
 
     // MARK: - Multi-Select

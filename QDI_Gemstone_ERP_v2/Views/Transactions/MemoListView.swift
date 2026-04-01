@@ -13,6 +13,7 @@ struct MemoListView: View {
         VStack(spacing: 0) {
             toolbar
             memoTable
+            memoSummaryFooter(filteredMemos)
         }
         .accessibilityIdentifier("MemoListView")
         .onAppear { viewModel.fetchPage(context: modelContext) }
@@ -35,6 +36,10 @@ struct MemoListView: View {
                     }
             }
         }
+    }
+
+    private var filteredMemos: [Memo] {
+        viewModel.filtered(from: viewModel.fetchedMemos)
     }
 
     private var toolbar: some View {
@@ -69,21 +74,17 @@ struct MemoListView: View {
         }
     }
 
-    private let memoTableMinWidth: CGFloat =
-        TableColumn.memo + TableColumn.customer + TableColumn.salesperson + TableColumn.date
-        + TableColumn.quantity + TableColumn.price + TableColumn.status + 60
-
     private var memoTable: some View {
-        let filtered = viewModel.filtered(from: viewModel.fetchedMemos)
-        return ScrollView([.horizontal, .vertical]) {
-            LazyVStack(spacing: 0) {
-                headerRow
-                Divider().background(AppColors.cardStroke)
-                if filtered.isEmpty {
-                    EmptyStateView(icon: "doc.text", title: "No memos found")
-                        .frame(minWidth: memoTableMinWidth)
-                        .frame(height: 200)
-                } else {
+        let filtered = filteredMemos
+        return VStack(spacing: 0) {
+            headerRow
+            Divider().background(AppColors.cardStroke)
+            if filtered.isEmpty {
+                EmptyStateView(icon: "doc.text", title: "No memos found")
+                    .frame(height: 200)
+                    .frame(maxWidth: .infinity)
+            } else {
+                ScrollView(.vertical) {
                     LazyVStack(spacing: 2) {
                         ForEach(Array(filtered.enumerated()), id: \.element.persistentModelID) { index, memo in
                             memoRow(memo)
@@ -96,16 +97,14 @@ struct MemoListView: View {
                         }
                     }
                     .padding(.vertical, AppSpacing.standard)
-
-                    memoSummaryFooter(filtered)
+                    .frame(maxWidth: .infinity)
                 }
             }
-            .frame(minWidth: memoTableMinWidth, maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
         .padding(.horizontal, AppSpacing.hero)
-        .padding(.bottom, AppSpacing.hero)
+        .padding(.bottom, AppSpacing.comfortable)
     }
 
     private var headerRow: some View {
@@ -136,7 +135,6 @@ struct MemoListView: View {
 
     private func memoRow(_ memo: Memo) -> some View {
         let isSelected = viewModel.selectedMemoID == memo.persistentModelID
-        let isOverdue = memo.status == .onMemo && memo.ageInDays >= 30
         return HoverRow(isSelected: isSelected, onTap: {
             viewModel.selectedMemoID = memo.persistentModelID
         }) {
@@ -173,23 +171,11 @@ struct MemoListView: View {
                 .frame(width: TableColumn.price, alignment: .trailing)
             memoStatusBadge(memo.status)
                 .frame(width: TableColumn.status, alignment: .leading)
-            if isOverdue {
-                Button("Follow Up") {
-                    followUpMemo(memo)
-                }
-                .font(AppTypography.caption)
-                .buttonStyle(.outline(AppColors.warning))
-                .help("Open memo for follow-up — overdue \(memo.ageInDays) days")
-            }
             Spacer()
         }
         .simultaneousGesture(TapGesture(count: 2).onEnded {
             openWindow(id: "memo", value: memo.persistentModelID)
         })
-    }
-
-    private func followUpMemo(_ memo: Memo) {
-        openWindow(id: "memo", value: memo.persistentModelID)
     }
 
     private func memoStatusBadge(_ status: MemoStatus) -> some View {
@@ -216,9 +202,14 @@ struct MemoListView: View {
                 .foregroundStyle(AppColors.inkMuted)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.section)
+        .padding(.horizontal, AppSpacing.hero)
         .padding(.vertical, AppSpacing.comfortable)
-        .background(AppColors.softHighlight)
+        .background(AppColors.cardBackground)
+        .overlay(alignment: .top) {
+            Rectangle()
+                .fill(AppColors.cardStroke)
+                .frame(height: 1)
+        }
     }
 
     private func memoAgingColor(days: Int) -> Color {
