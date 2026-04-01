@@ -544,8 +544,8 @@ struct GemstonesInventoryView: View {
         .padding(.horizontal, AppSpacing.hero).padding(.vertical, AppSpacing.section)
         .background(
             RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                .fill(.ultraThinMaterial)
-                .overlay(RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous).strokeBorder(AppColors.primary.opacity(AppOpacity.medium), lineWidth: 1))
+                .fill(AppColors.cardBackground)
+                .overlay(RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous).strokeBorder(AppColors.primary.opacity(AppOpacity.medium), lineWidth: 1))
                 .shadow(color: .black.opacity(AppOpacity.medium), radius: 12, y: -4)
         )
         .padding(.horizontal, AppSpacing.hero).padding(.bottom, AppSpacing.section)

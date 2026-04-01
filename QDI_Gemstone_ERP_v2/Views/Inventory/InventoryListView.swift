@@ -468,7 +468,7 @@ struct InventoryListView: View {
         .padding(.vertical, AppSpacing.section)
         .background(
             RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                .fill(.ultraThinMaterial)
+                .fill(AppColors.cardBackground)
                 .overlay(
                     RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
                         .strokeBorder(AppColors.primary.opacity(AppOpacity.medium), lineWidth: 1)
