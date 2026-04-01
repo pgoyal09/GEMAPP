@@ -11,6 +11,9 @@ packages:
   ORSSerialPort:
     url: https://github.com/armadsen/ORSSerialPort
     majorVersion: 2.1.0
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    majorVersion: 2.0.0
 
 settings:
   base:
@@ -45,5 +48,7 @@ targets:
     dependencies:
       - package: ORSSerialPort
         product: ORSSerial
+      - package: Supabase
+        product: Supabase
     entitlements:
       path: Resources/QDI_Gemstone_ERP_v2.entitlements

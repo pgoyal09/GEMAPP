@@ -107,6 +107,7 @@
 		72AD8359D7575C77CFE5B1CF /* MemoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62E27E8FE9B3748CF06DC50 /* MemoService.swift */; };
 		72DDA78BD6DCEBA65A238C75 /* LineItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816074071ED96F056B1712EA /* LineItem.swift */; };
 		748169DF4ED8777BCBEC80AF /* Invoice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 230BF8E5988671BEFE23C0E0 /* Invoice.swift */; };
+		74BC9558A87D40327DF72CEA /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 9B496C79AE17A63658DFB4D0 /* Supabase */; };
 		75DCAB009D62E00D1737C994 /* AccountingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FBD15DCE21EE1BD176D04F /* AccountingView.swift */; };
 		76146595A695A198CD2574FC /* SortableViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB788FFE84CBD6FB2D45A564 /* SortableViewModel.swift */; };
 		7975E425CB137B9FE818E3DF /* InputValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D45A3823E9EF2FE28178AC3 /* InputValidator.swift */; };
@@ -114,6 +115,7 @@
 		7C3B91C05C59E619F5047F17 /* CloudBackupSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD75106A74B616171D252BED /* CloudBackupSettingsView.swift */; };
 		7DF3A45CF5D57B294A215367 /* PaymentMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 553A8056539CC98603A3A6EC /* PaymentMethod.swift */; };
 		7E295706AFD620C12A948AC9 /* LotTransactionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9453E5A1BB6929896AE1BE0A /* LotTransactionType.swift */; };
+		7E8E9000C65A1DF9F38FC0D2 /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E77251A0991E8AD031C0ED28 /* SupabaseManager.swift */; };
 		7EA01D623D3136817EE57733 /* InventorySelectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9299C8922C00C4B986D2EF8 /* InventorySelectSheet.swift */; };
 		7EB45EAE9544AE22B7990EA6 /* RapNetSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3818E4471F1235B71AE81E /* RapNetSettingsView.swift */; };
 		7EBBF92F4898FA347D76981A /* InvoiceDocumentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 977283232FDCB4E0C4840013 /* InvoiceDocumentView.swift */; };
@@ -335,6 +337,7 @@
 		E32BF5EC574469A8D3977C5F /* MemoWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoWindowView.swift; sourceTree = "<group>"; };
 		E5FBD15DCE21EE1BD176D04F /* AccountingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountingView.swift; sourceTree = "<group>"; };
 		E6A9B8686EE1663B720013FC /* InventoryFilterBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryFilterBar.swift; sourceTree = "<group>"; };
+		E77251A0991E8AD031C0ED28 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
 		EA6B133B323D833E799468EA /* StoneType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneType.swift; sourceTree = "<group>"; };
 		EDF43F66FC7402DC31864900 /* QuickActionsGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActionsGrid.swift; sourceTree = "<group>"; };
 		EEECFCA896C5C2177322AE1A /* PaymentListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentListView.swift; sourceTree = "<group>"; };
@@ -368,6 +371,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C8D707A1F1797FFE711ABBC2 /* ORSSerial in Frameworks */,
+				74BC9558A87D40327DF72CEA /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -563,6 +567,7 @@
 				839D3C084D42E8BF25F18F4B /* TransactionService.swift */,
 				330E255CE518FFDDD05CE56F /* RapNet */,
 				9FC5D2310DE64791AE466D83 /* RFID */,
+				B7CF55DA77CAFB74E3122377 /* Supabase */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -698,6 +703,14 @@
 			);
 			sourceTree = "<group>";
 		};
+		B7CF55DA77CAFB74E3122377 /* Supabase */ = {
+			isa = PBXGroup;
+			children = (
+				E77251A0991E8AD031C0ED28 /* SupabaseManager.swift */,
+			);
+			path = Supabase;
+			sourceTree = "<group>";
+		};
 		B7ECECEC888072F7234C3F5E /* Inventory */ = {
 			isa = PBXGroup;
 			children = (
@@ -820,6 +833,7 @@
 			name = QDI_Gemstone_ERP_v2;
 			packageProductDependencies = (
 				DB07F8E31C04219DAA692E41 /* ORSSerial */,
+				9B496C79AE17A63658DFB4D0 /* Supabase */,
 			);
 			productName = QDI_Gemstone_ERP_v2;
 			productReference = 5ED44A9E836CD59534C5F518 /* QDI_Gemstone_ERP_v2.app */;
@@ -847,6 +861,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				1F15277C4EF30C7C6E3F1E0D /* XCRemoteSwiftPackageReference "ORSSerialPort" */,
+				B8499EF0243859CA402229AF /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6BFEBA9541F23905158C0AF3 /* Products */;
@@ -1030,6 +1045,7 @@
 				2F4FB98D7BC8F79ABD16DDA7 /* StoneType.swift in Sources */,
 				2E40205CB293FB5D0F8C1BBC /* StoneTypeBadge.swift in Sources */,
 				07B845F1AA0F5EE6AF6CF6D0 /* String+Helpers.swift in Sources */,
+				7E8E9000C65A1DF9F38FC0D2 /* SupabaseManager.swift in Sources */,
 				438CB430621BF2CE8D98529F /* SystemRoutes.swift in Sources */,
 				C598F81E0453F9C995A49137 /* TableColumn.swift in Sources */,
 				10B427329AA2467F2FDC9AE6 /* TableHeader.swift in Sources */,
@@ -1236,9 +1252,22 @@
 				minimumVersion = 2.1.0;
 			};
 		};
+		B8499EF0243859CA402229AF /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		9B496C79AE17A63658DFB4D0 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B8499EF0243859CA402229AF /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
 		DB07F8E31C04219DAA692E41 /* ORSSerial */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1F15277C4EF30C7C6E3F1E0D /* XCRemoteSwiftPackageReference "ORSSerialPort" */;
