@@ -441,7 +441,6 @@ struct GemstonesInventoryView: View {
             sortableHeader("Cost $/ct", key: "cost", width: TableColumn.price, alignment: .trailing)
             TableHeader(title: "Margin %", width: TableColumn.margin, alignment: .trailing)
             sortableHeader("Status", key: "status", width: TableColumn.status, alignment: .center)
-            Spacer()
         }
         .padding(.horizontal, AppSpacing.section)
         .padding(.vertical, AppSpacing.comfortable)
@@ -466,21 +465,20 @@ struct GemstonesInventoryView: View {
             )) { EmptyView() }
             .toggleStyle(.checkbox).frame(width: 24)
 
-            highlightedText(stone.sku, highlight: searchText).font(AppTypography.mono).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.sku, alignment: .leading)
-            StoneTypeBadge(type: stone.stoneType.rawValue).frame(width: TableColumn.type, alignment: .leading)
-            Text(stone.shape).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.shape, alignment: .leading)
-            Text(String(format: "%.2f", stone.caratWeight)).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: TableColumn.carat, alignment: .trailing)
-            Text(stone.primaryColorVendor ?? stone.color).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.color, alignment: .leading)
-            Text(stone.clarity).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.clarity, alignment: .leading)
-            Text(stone.origin).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.origin, alignment: .leading)
-            Text(stone.treatment).font(AppTypography.body).foregroundStyle(AppColors.inkMuted).lineLimit(1).frame(width: TableColumn.origin, alignment: .leading)
+            highlightedText(stone.sku, highlight: searchText).font(AppTypography.mono).foregroundStyle(AppColors.ink).lineLimit(1).frame(minWidth: TableColumn.sku, maxWidth: .infinity, alignment: .leading)
+            StoneTypeBadge(type: stone.stoneType.rawValue).frame(minWidth: TableColumn.type, maxWidth: .infinity, alignment: .leading)
+            Text(stone.shape).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(minWidth: TableColumn.shape, maxWidth: .infinity, alignment: .leading)
+            Text(String(format: "%.2f", stone.caratWeight)).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(minWidth: TableColumn.carat, maxWidth: .infinity, alignment: .trailing)
+            Text(stone.primaryColorVendor ?? stone.color).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(minWidth: TableColumn.color, maxWidth: .infinity, alignment: .leading)
+            Text(stone.clarity).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(minWidth: TableColumn.clarity, maxWidth: .infinity, alignment: .leading)
+            Text(stone.origin).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(minWidth: TableColumn.origin, maxWidth: .infinity, alignment: .leading)
+            Text(stone.treatment).font(AppTypography.body).foregroundStyle(AppColors.inkMuted).lineLimit(1).frame(minWidth: TableColumn.origin, maxWidth: .infinity, alignment: .leading)
             Text(stone.certLab).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: 50, alignment: .leading)
             Text(stone.certNo).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).lineLimit(1).frame(width: 90, alignment: .leading)
-            Text(stone.sellPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: TableColumn.price, alignment: .trailing)
-            Text(stone.costPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.price, alignment: .trailing)
-            Text(marginText(cost: stone.costPrice, sell: stone.sellPrice)).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.margin, alignment: .trailing)
-            statusBadge(for: stone.status).frame(width: TableColumn.status, alignment: .center)
-            Spacer()
+            Text(stone.sellPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
+            Text(stone.costPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
+            Text(marginText(cost: stone.costPrice, sell: stone.sellPrice)).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(minWidth: TableColumn.margin, maxWidth: .infinity, alignment: .trailing)
+            statusBadge(for: stone.status).frame(minWidth: TableColumn.status, maxWidth: .infinity, alignment: .center)
         }
     }
 

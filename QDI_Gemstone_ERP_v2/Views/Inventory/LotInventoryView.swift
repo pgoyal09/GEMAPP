@@ -149,7 +149,6 @@ struct LotInventoryView: View {
             sortableHeader("Avg Cost/ct", key: "avgCost", width: TableColumn.price, alignment: .trailing)
             sortableHeader("Sell/ct", key: "sell", width: TableColumn.price, alignment: .trailing)
             sortableHeader("Total Value", key: "value", width: TableColumn.price, alignment: .trailing)
-            Spacer()
         }
         .padding(.horizontal, AppSpacing.section)
         .padding(.vertical, AppSpacing.comfortable)
@@ -172,32 +171,30 @@ struct LotInventoryView: View {
             Text(lot.sku)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
-                .frame(width: TableColumn.sku, alignment: .leading)
+                .frame(minWidth: TableColumn.sku, maxWidth: .infinity, alignment: .leading)
 
             StoneTypeBadge(type: lot.stoneType.rawValue)
-                .frame(width: TableColumn.type, alignment: .leading)
+                .frame(minWidth: TableColumn.type, maxWidth: .infinity, alignment: .leading)
 
             Text(String(format: "%.2f", lot.effectiveRemainingCarats))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
-                .frame(width: TableColumn.carat + 20, alignment: .trailing)
+                .frame(minWidth: TableColumn.carat + 20, maxWidth: .infinity, alignment: .trailing)
 
             Text(formattedPrice(lot.effectiveAverageCost))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.inkMuted)
-                .frame(width: TableColumn.price, alignment: .trailing)
+                .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
 
             Text(formattedPrice(lot.sellPrice))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
-                .frame(width: TableColumn.price, alignment: .trailing)
+                .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
 
             Text(formattedPrice(lot.sellPrice * Decimal(lot.effectiveRemainingCarats)))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.success)
-                .frame(width: TableColumn.price, alignment: .trailing)
-
-            Spacer()
+                .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
         }
     }
 

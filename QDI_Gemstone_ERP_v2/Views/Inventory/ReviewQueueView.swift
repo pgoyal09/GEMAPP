@@ -106,7 +106,6 @@ struct ReviewQueueView: View {
             TableHeader(title: "Shape", width: TableColumn.shape, alignment: .leading)
             TableHeader(title: "Created", width: TableColumn.date, alignment: .leading)
             TableHeader(title: "Missing Fields", alignment: .leading)
-            Spacer()
         }
         .padding(.horizontal, AppSpacing.section)
         .padding(.vertical, AppSpacing.comfortable)
@@ -121,24 +120,22 @@ struct ReviewQueueView: View {
             Text(stone.sku)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
-                .frame(width: TableColumn.sku, alignment: .leading)
+                .frame(minWidth: TableColumn.sku, maxWidth: .infinity, alignment: .leading)
 
             StoneTypeBadge(type: stone.stoneType.rawValue)
-                .frame(width: TableColumn.type, alignment: .leading)
+                .frame(minWidth: TableColumn.type, maxWidth: .infinity, alignment: .leading)
 
             Text(stone.shape.isEmpty ? "--" : stone.shape)
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.ink)
-                .frame(width: TableColumn.shape, alignment: .leading)
+                .frame(minWidth: TableColumn.shape, maxWidth: .infinity, alignment: .leading)
 
             Text(formattedDate(stone.createdAt))
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
-                .frame(width: TableColumn.date, alignment: .leading)
+                .frame(minWidth: TableColumn.date, maxWidth: .infinity, alignment: .leading)
 
             missingFieldChips(stone.missingFieldsSummary)
-
-            Spacer()
         }
     }
 

@@ -82,37 +82,37 @@ struct CustomerProfitabilityView: View {
                                                     .foregroundStyle(AppColors.ink)
                                                     .lineLimit(1)
                                             }
-                                            .frame(width: TableColumn.customer, alignment: .leading)
+                                            .frame(minWidth: TableColumn.customer, maxWidth: .infinity, alignment: .leading)
 
                                             Text(row.totalRevenue.asCurrency)
                                                 .font(AppTypography.mono)
                                                 .foregroundStyle(AppColors.ink)
-                                                .frame(width: TableColumn.price, alignment: .trailing)
+                                                .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
 
                                             Text(row.totalCOGS.asCurrency)
                                                 .font(AppTypography.mono)
                                                 .foregroundStyle(AppColors.inkMuted)
-                                                .frame(width: TableColumn.price, alignment: .trailing)
+                                                .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
 
                                             Text(row.profit.asCurrency)
                                                 .font(AppTypography.mono)
                                                 .foregroundStyle(row.profit >= 0 ? AppColors.success : AppColors.danger)
-                                                .frame(width: TableColumn.price, alignment: .trailing)
+                                                .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
 
                                             Text(String(format: "%.1f%%", row.marginPercent))
                                                 .font(AppTypography.mono)
                                                 .foregroundStyle(AppColors.ink)
-                                                .frame(width: TableColumn.percent, alignment: .trailing)
+                                                .frame(minWidth: TableColumn.percent, maxWidth: .infinity, alignment: .trailing)
 
                                             Text("\(row.transactionCount)")
                                                 .font(AppTypography.mono)
                                                 .foregroundStyle(AppColors.ink)
-                                                .frame(width: TableColumn.quantity, alignment: .trailing)
+                                                .frame(minWidth: TableColumn.quantity, maxWidth: .infinity, alignment: .trailing)
 
                                             Text(row.avgOrderValue.asCurrency)
                                                 .font(AppTypography.mono)
                                                 .foregroundStyle(AppColors.inkSubtle)
-                                                .frame(width: TableColumn.price, alignment: .trailing)
+                                                .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
                                         }
                                     }
                                     .staggeredRow(index: index, reduceMotion: reduceMotion)

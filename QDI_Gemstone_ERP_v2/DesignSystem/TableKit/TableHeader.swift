@@ -18,7 +18,7 @@ struct TableHeader: View {
                 label
             }
         }
-        .frame(width: width, alignment: alignment)
+        .frame(minWidth: width, maxWidth: .infinity, alignment: alignment)
         .accessibilityLabel(isSorted ? "\(title), sorted \(ascending ? "ascending" : "descending")" : title)
         .accessibilityAddTraits(onTap != nil ? .isButton : [])
     }

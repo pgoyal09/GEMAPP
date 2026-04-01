@@ -53,7 +53,6 @@ struct InventorySelectSheet: View {
                         TableHeader(title: "Color", width: TableColumn.color)
                         TableHeader(title: "Shape", width: TableColumn.shape)
                         TableHeader(title: "Price", width: TableColumn.price)
-                        Spacer()
                     }
                     .padding(.horizontal, AppSpacing.section)
 
@@ -63,13 +62,12 @@ struct InventorySelectSheet: View {
                             if isSelected { selectedIDs.remove(stone.persistentModelID) }
                             else { selectedIDs.insert(stone.persistentModelID) }
                         }) {
-                            Text(stone.sku).font(AppTypography.mono).frame(width: TableColumn.sku, alignment: .leading)
-                            StoneTypeBadge(type: stone.stoneType.rawValue).frame(width: TableColumn.type, alignment: .leading)
-                            Text(String(format: "%.2f", stone.caratWeight)).font(AppTypography.mono).frame(width: TableColumn.carat, alignment: .trailing)
-                            Text(stone.color).font(AppTypography.body).frame(width: TableColumn.color, alignment: .leading)
-                            Text(stone.shape).font(AppTypography.body).frame(width: TableColumn.shape, alignment: .leading)
-                            Text(stone.sellPrice.asCurrency).font(AppTypography.mono).frame(width: TableColumn.price, alignment: .trailing)
-                            Spacer()
+                            Text(stone.sku).font(AppTypography.mono).frame(minWidth: TableColumn.sku, maxWidth: .infinity, alignment: .leading)
+                            StoneTypeBadge(type: stone.stoneType.rawValue).frame(minWidth: TableColumn.type, maxWidth: .infinity, alignment: .leading)
+                            Text(String(format: "%.2f", stone.caratWeight)).font(AppTypography.mono).frame(minWidth: TableColumn.carat, maxWidth: .infinity, alignment: .trailing)
+                            Text(stone.color).font(AppTypography.body).frame(minWidth: TableColumn.color, maxWidth: .infinity, alignment: .leading)
+                            Text(stone.shape).font(AppTypography.body).frame(minWidth: TableColumn.shape, maxWidth: .infinity, alignment: .leading)
+                            Text(stone.sellPrice.asCurrency).font(AppTypography.mono).frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
                         }
                     }
                 }

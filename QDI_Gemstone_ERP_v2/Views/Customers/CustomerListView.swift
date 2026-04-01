@@ -53,7 +53,6 @@ struct CustomerListView: View {
                     customerSortableHeader("Contact", key: "contact", width: TableColumn.description)
                     customerSortableHeader("Open Memos", key: "memos", width: TableColumn.price, alignment: .trailing)
                     customerSortableHeader("Status", key: "status", width: TableColumn.status)
-                    Spacer()
                 }
                 .padding(.horizontal, AppSpacing.section)
                 .padding(.vertical, AppSpacing.comfortable)
@@ -76,7 +75,7 @@ struct CustomerListView: View {
                                     .foregroundStyle(AppColors.ink)
                                     .lineLimit(1)
                                     .truncationMode(.tail)
-                                    .frame(width: TableColumn.customer, alignment: .leading)
+                                    .frame(minWidth: TableColumn.customer, maxWidth: .infinity, alignment: .leading)
 
                                 HStack(spacing: 8) {
                                     if !customer.email.isEmpty {
@@ -98,21 +97,19 @@ struct CustomerListView: View {
                                         .foregroundStyle(AppColors.inkSubtle)
                                     }
                                 }
-                                .frame(width: TableColumn.description, alignment: .leading)
+                                .frame(minWidth: TableColumn.description, maxWidth: .infinity, alignment: .leading)
 
                                 Text("\(customer.activeMemos.count)")
                                     .font(AppTypography.mono)
                                     .foregroundStyle(AppColors.inkMuted)
                                     .lineLimit(1)
-                                    .frame(width: TableColumn.price, alignment: .trailing)
+                                    .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
 
                                 StatusBadge(
                                     title: customer.isActive ? "Active" : "Inactive",
                                     tone: customer.isActive ? .success : .neutral
                                 )
-                                .frame(width: TableColumn.status, alignment: .leading)
-
-                                Spacer()
+                                .frame(minWidth: TableColumn.status, maxWidth: .infinity, alignment: .leading)
                             }
                         }
                     }

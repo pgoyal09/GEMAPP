@@ -292,7 +292,6 @@ struct InventoryListView: View {
             }
             sortableHeader("Status", key: "status", width: TableColumn.status, alignment: .center)
             sortableHeader("Date Added", key: "dateAdded", width: 90, alignment: .leading)
-            Spacer()
         }
         .padding(.horizontal, AppSpacing.section)
         .padding(.vertical, AppSpacing.comfortable)
@@ -335,43 +334,43 @@ struct InventoryListView: View {
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .frame(width: TableColumn.sku, alignment: .leading)
+                .frame(minWidth: TableColumn.sku, maxWidth: .infinity, alignment: .leading)
 
             StoneTypeBadge(type: stone.stoneType.rawValue)
-                .frame(width: TableColumn.type, alignment: .leading)
+                .frame(minWidth: TableColumn.type, maxWidth: .infinity, alignment: .leading)
 
             Text(stone.shape)
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .frame(width: TableColumn.shape, alignment: .leading)
+                .frame(minWidth: TableColumn.shape, maxWidth: .infinity, alignment: .leading)
 
             Text(String(format: "%.2f", stone.caratWeight))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
-                .frame(width: TableColumn.carat, alignment: .trailing)
+                .frame(minWidth: TableColumn.carat, maxWidth: .infinity, alignment: .trailing)
 
             Text(stone.color)
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .frame(width: TableColumn.color, alignment: .leading)
+                .frame(minWidth: TableColumn.color, maxWidth: .infinity, alignment: .leading)
 
             Text(stone.clarity)
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .frame(width: TableColumn.clarity, alignment: .leading)
+                .frame(minWidth: TableColumn.clarity, maxWidth: .infinity, alignment: .leading)
 
             Text(formattedPrice(stone.sellPrice))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
-                .frame(width: TableColumn.price, alignment: .trailing)
+                .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
 
             if mode == .sold {
                 Text(stone.currentLocation)
@@ -379,19 +378,17 @@ struct InventoryListView: View {
                     .foregroundStyle(AppColors.inkMuted)
                     .lineLimit(1)
                     .truncationMode(.tail)
-                    .frame(width: TableColumn.customer, alignment: .leading)
+                    .frame(minWidth: TableColumn.customer, maxWidth: .infinity, alignment: .leading)
             }
 
             statusBadge(for: stone.status)
-                .frame(width: TableColumn.status, alignment: .center)
+                .frame(minWidth: TableColumn.status, maxWidth: .infinity, alignment: .center)
 
             Text(stone.createdAt.formatted(.dateTime.month(.abbreviated).day()))
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
                 .lineLimit(1)
                 .frame(width: 90, alignment: .leading)
-
-            Spacer()
         }
     }
 
