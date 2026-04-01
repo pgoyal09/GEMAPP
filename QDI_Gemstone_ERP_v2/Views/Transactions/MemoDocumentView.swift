@@ -214,19 +214,12 @@ struct MemoDocumentView: View {
                         ZStack(alignment: .topLeading) {
                             VStack(spacing: AppSpacing.compact) {
                                 HStack {
-                                    ZStack(alignment: .leading) {
-                                        // Ghost inline suggestion
-                                        if let suggestion = inlineSuggestion {
-                                            Text(suggestion)
-                                                .font(AppTypography.smallValue)
-                                                .foregroundStyle(AppColors.inkSubtle.opacity(0.4))
-                                                .lineLimit(1)
-                                                .allowsHitTesting(false)
-                                        }
+                                    VStack(alignment: .leading, spacing: 0) {
                                         TextField("Search customers...", text: $customerSearchText)
                                             .textFieldStyle(.plain)
                                             .font(AppTypography.smallValue)
                                             .foregroundStyle(AppColors.ink)
+                                            .glassField()
                                             .onChange(of: customerSearchText) { _, newVal in
                                                 showCustomerDropdown = !newVal.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                                             }
@@ -240,8 +233,15 @@ struct MemoDocumentView: View {
                                                 }
                                                 return .ignored
                                             }
+                                        // Inline hint: Tab to complete
+                                        if let suggestion = inlineSuggestion {
+                                            Text("⇥ \(suggestion)")
+                                                .font(AppTypography.caption)
+                                                .foregroundStyle(AppColors.inkSubtle.opacity(0.6))
+                                                .padding(.leading, AppSpacing.compact)
+                                                .padding(.top, 2)
+                                        }
                                     }
-                                    .glassField()
                                     .frame(width: 200)
                                     Button(action: { showAddCustomerSheet = true }) {
                                         Image(systemName: "plus.circle").foregroundStyle(AppColors.primary)
@@ -623,7 +623,7 @@ struct MemoDocumentView: View {
                 if hasUnsavedEdits {
                     showUnsavedAlert = true
                 } else {
-                    dismiss()
+                    NSApp.keyWindow?.close()
                 }
             }
             .buttonStyle(.outline)

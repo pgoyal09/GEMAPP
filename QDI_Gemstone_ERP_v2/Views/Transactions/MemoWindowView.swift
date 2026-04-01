@@ -6,6 +6,7 @@ struct MemoWindowView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var dirtyTracker = DocumentDirtyTracker()
+    @State private var showCloseConfirm = false
 
     var body: some View {
         Group {
@@ -19,17 +20,14 @@ struct MemoWindowView: View {
         .environment(\.documentDirtyTracker, dirtyTracker)
         .frame(minWidth: 1100, minHeight: 760)
         .appBackground()
-        .onExitCommand {
-            if dirtyTracker.isDirty {
-                dirtyTracker.showUnsavedAlert = true
-            } else {
-                dismiss()
-            }
+        .onKeyPress(.escape) {
+            requestClose()
+            return .handled
         }
-        .alert("Unsaved Changes", isPresented: $dirtyTracker.showUnsavedAlert) {
+        .alert("Unsaved Changes", isPresented: $showCloseConfirm) {
             Button("Keep Editing", role: .cancel) {}
             Button("Discard", role: .destructive) {
-                dismiss()
+                closeWindow()
             }
         } message: {
             Text("You have unsaved changes. Discard them?")
@@ -37,6 +35,18 @@ struct MemoWindowView: View {
         .onDisappear {
             cleanupEmptyMemo()
         }
+    }
+
+    private func requestClose() {
+        if dirtyTracker.hasAnyDirty {
+            showCloseConfirm = true
+        } else {
+            closeWindow()
+        }
+    }
+
+    private func closeWindow() {
+        NSApp.keyWindow?.close()
     }
 
     private func fetchMemo() -> Memo? {
