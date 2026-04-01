@@ -8,6 +8,7 @@ struct StoneFormView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var isCaratFieldFocused: Bool
     @State private var isSaving = false
+    @State private var showAdvanced = false
     var navigateTo: Binding<NavigationItem>?
 
     init(mode: StoneFormMode, navigateTo: Binding<NavigationItem>? = nil) {
@@ -20,14 +21,33 @@ struct StoneFormView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: AppSpacing.hero) {
                     identitySection
-                    gradingSection
-                    if viewModel.isDiamond { diamondSection }
-                    if !viewModel.isDiamond { gemstoneSection }
-                    if viewModel.isLot { lotSection }
+                    essentialGradingSection
                     certificationSection
-                    dimensionsSection
                     pricingSection
-                    rapNetSection
+
+                    // Advanced toggle
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            showAdvanced.toggle()
+                        }
+                    } label: {
+                        HStack(spacing: AppSpacing.compact) {
+                            Image(systemName: showAdvanced ? "chevron.up" : "chevron.down")
+                            Text(showAdvanced ? "Hide Advanced" : "Show Advanced")
+                        }
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.primary)
+                    }
+                    .buttonStyle(.plain)
+
+                    if showAdvanced {
+                        gradingSection
+                        if viewModel.isDiamond { diamondAdvancedSection }
+                        if !viewModel.isDiamond { gemstoneSection }
+                        if viewModel.isLot { lotSection }
+                        dimensionsSection
+                        rapNetSection
+                    }
                 }
                 .padding(AppSpacing.hero)
             }
@@ -118,12 +138,26 @@ struct StoneFormView: View {
         }
     }
 
-    // MARK: - Grading
+    // MARK: - Essential Grading (Color, Clarity — always visible)
+
+    private var essentialGradingSection: some View {
+        GlassCard(padding: AppSpacing.section) {
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+                SectionHeader(title: viewModel.isDiamond ? "Diamond Grading" : "Grading")
+                HStack(spacing: AppSpacing.section) {
+                    field("Color", $viewModel.color).accessibilitySortPriority(4)
+                    field("Clarity", $viewModel.clarity).accessibilitySortPriority(3)
+                }
+            }
+        }
+    }
+
+    // MARK: - Grading (Advanced)
 
     private var gradingSection: some View {
         GlassCard(padding: AppSpacing.section) {
             VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
-                SectionHeader(title: "Grading")
+                SectionHeader(title: "Treatment")
                 HStack(spacing: AppSpacing.section) {
                     field("Treatment", $viewModel.treatment)
                 }
@@ -131,28 +165,24 @@ struct StoneFormView: View {
         }
     }
 
-    // MARK: - Diamond-Specific
+    // MARK: - Diamond Advanced
 
-    private var diamondSection: some View {
+    private var diamondAdvancedSection: some View {
         GlassCard(padding: AppSpacing.section) {
             VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
-                SectionHeader(title: "Diamond Grading")
+                SectionHeader(title: "Diamond Details")
                 HStack(spacing: AppSpacing.section) {
-                    field("Color", $viewModel.color).accessibilitySortPriority(4)
-                    field("Clarity", $viewModel.clarity).accessibilitySortPriority(3)
                     field("Cut", $viewModel.cut).accessibilitySortPriority(2)
-                }
-                HStack(spacing: AppSpacing.section) {
                     field("Polish", $viewModel.polish)
                     field("Symmetry", $viewModel.symmetry)
-                    field("Fluorescence", $viewModel.fluorescence)
                 }
                 HStack(spacing: AppSpacing.section) {
+                    field("Fluorescence", $viewModel.fluorescence)
                     field("Fluor. Intensity", $viewModel.fluorescenceIntensity)
                     field("Fluor. Color", $viewModel.fluorescenceColor)
-                    field("Eye Clean", $viewModel.eyeClean)
                 }
                 HStack(spacing: AppSpacing.section) {
+                    field("Eye Clean", $viewModel.eyeClean)
                     field("Depth %", $viewModel.depthPctText)
                     field("Table %", $viewModel.tablePctText)
                 }

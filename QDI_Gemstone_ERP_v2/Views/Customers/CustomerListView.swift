@@ -6,6 +6,7 @@ struct CustomerListView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query(sort: [SortDescriptor(\Customer.lastName), SortDescriptor(\Customer.firstName)]) private var allCustomers: [Customer]
     @State private var viewModel = CustomerListViewModel()
+    @State private var doubleClickedCustomer: Customer?
 
     var body: some View {
         HStack(spacing: 4) {
@@ -38,6 +39,9 @@ struct CustomerListView: View {
         .animation(reduceMotion ? nil : AppAnimation.sheetSpring, value: viewModel.selectedCustomerID)
         .sheet(isPresented: $viewModel.showAddCustomerSheet) {
             CustomerFormSheet(mode: .add)
+        }
+        .sheet(item: $doubleClickedCustomer) { customer in
+            CustomerFullDetailView(customer: customer)
         }
     }
 
@@ -113,6 +117,9 @@ struct CustomerListView: View {
                                 .frame(width: TableColumn.status, alignment: .leading)
 
                                 Spacer()
+                            }
+                            .onTapGesture(count: 2) {
+                                doubleClickedCustomer = customer
                             }
                         }
                     }

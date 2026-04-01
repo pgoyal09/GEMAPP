@@ -12,175 +12,183 @@ struct GemstoneDetailPanel: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AppSpacing.hero) {
-                headerCard
-                    .staggeredRow(index: 0, reduceMotion: reduceMotion)
-                overviewSection
-                    .staggeredRow(index: 1, reduceMotion: reduceMotion)
-                characteristicsSection
-                    .staggeredRow(index: 2, reduceMotion: reduceMotion)
-                dimensionsSection
-                    .staggeredRow(index: 3, reduceMotion: reduceMotion)
+            VStack(alignment: .leading, spacing: 0) {
+                headerSection
+                sectionDivider
+                identitySection
+                sectionDivider
+                measurementsSection
+                if isDiamond {
+                    sectionDivider
+                    characteristicsSection
+                }
+                sectionDivider
+                certificationSection
+                sectionDivider
                 pricingSection
-                    .staggeredRow(index: 4, reduceMotion: reduceMotion)
+                sectionDivider
                 rfidSection
-                    .staggeredRow(index: 5, reduceMotion: reduceMotion)
-                certificateSection
-                    .staggeredRow(index: 6, reduceMotion: reduceMotion)
                 historySection
-                    .staggeredRow(index: 7, reduceMotion: reduceMotion)
             }
-            .padding(AppSpacing.hero)
+            .padding(.vertical, AppSpacing.comfortable)
         }
         .id(gemstone.persistentModelID)
         .background(AppColors.panelBackground)
         .accessibilityIdentifier("GemstoneDetailPanel")
     }
 
+    // MARK: - Section Divider
+
+    private var sectionDivider: some View {
+        Divider()
+            .background(AppColors.cardStroke.opacity(0.5))
+            .padding(.horizontal, AppSpacing.section)
+            .padding(.vertical, AppSpacing.comfortable)
+    }
+
     // MARK: - Header
 
-    private var headerCard: some View {
-        GlassCard(padding: AppSpacing.section) {
-            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
-                HStack {
-                    Text(gemstone.sku)
-                        .font(AppTypography.mono)
-                        .foregroundStyle(AppColors.primary)
-                        .padding(.horizontal, AppSpacing.comfortable)
-                        .padding(.vertical, AppSpacing.compact)
-                        .background(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                                .fill(AppColors.primary.opacity(AppOpacity.muted))
-                        )
+    private var headerSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+            HStack {
+                Text(gemstone.sku)
+                    .font(AppTypography.mono)
+                    .foregroundStyle(AppColors.primary)
+                Spacer()
+                statusBadge(for: gemstone.status)
+            }
 
-                    Spacer()
+            HStack(spacing: AppSpacing.comfortable) {
+                StoneTypeBadge(type: gemstone.stoneType.rawValue)
+                Text(String(format: "%.2f ct", gemstone.caratWeight))
+                    .font(AppTypography.largeValue)
+                    .foregroundStyle(AppColors.ink)
+            }
 
-                    statusBadge(for: gemstone.status)
+            if let onEdit {
+                Button {
+                    onEdit()
+                } label: {
+                    Label("Edit Stone", systemImage: "pencil")
                 }
+                .buttonStyle(.outline)
+                .frame(maxWidth: .infinity)
+            }
 
-                HStack(spacing: AppSpacing.comfortable) {
-                    StoneTypeBadge(type: gemstone.stoneType.rawValue)
-                    Text(String(format: "%.2f ct", gemstone.caratWeight))
-                        .font(AppTypography.largeValue)
-                        .foregroundStyle(AppColors.ink)
+            if let memo = gemstone.memo {
+                Button {
+                    openWindow(id: "memo", value: memo.persistentModelID)
+                } label: {
+                    Label("View Memo", systemImage: "arrow.right.circle")
                 }
-
-                if let onEdit {
-                    Button {
-                        onEdit()
-                    } label: {
-                        Label("Edit Stone", systemImage: "pencil")
-                    }
-                    .buttonStyle(.outline)
-                    .frame(maxWidth: .infinity)
-                }
-
-                if let memo = gemstone.memo {
-                    Button {
-                        openWindow(id: "memo", value: memo.persistentModelID)
-                    } label: {
-                        Label("View Memo", systemImage: "arrow.right.circle")
-                    }
-                    .buttonStyle(.outline(AppColors.warning))
-                    .frame(maxWidth: .infinity)
-                }
+                .buttonStyle(.outline(AppColors.warning))
+                .frame(maxWidth: .infinity)
             }
         }
+        .padding(.horizontal, AppSpacing.section)
     }
 
-    // MARK: - Sections
+    // MARK: - Identity
 
-    private var overviewSection: some View {
-        GlassCard(padding: AppSpacing.section) {
-            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
-                SectionHeader(title: "Overview")
-                DetailRow(label: "Type", value: gemstone.stoneType.rawValue)
-                DetailRow(label: "Shape", value: gemstone.shape.isEmpty ? "--" : gemstone.shape)
-                if !isDiamond {
-                    DetailRow(label: "Origin", value: gemstone.origin.isEmpty ? "--" : gemstone.origin)
-                    DetailRow(label: "Treatment", value: gemstone.treatment.isEmpty ? "None" : gemstone.treatment)
-                } else {
-                    DetailRow(label: "Origin", value: gemstone.origin.isEmpty ? "--" : gemstone.origin)
-                }
-                DetailRow(label: "Location", value: gemstone.currentLocation)
+    private var identitySection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+            SectionHeader(title: "Identity")
+            DetailRow(label: "Stock #", value: gemstone.sku)
+            DetailRow(label: "Type", value: gemstone.stoneType.rawValue)
+            DetailRow(label: "Shape", value: gemstone.shape.isEmpty ? "--" : gemstone.shape)
+            DetailRow(label: "Carat Wt", value: String(format: "%.2f ct", gemstone.caratWeight))
+            DetailRow(label: "Color", value: gemstone.color.isEmpty ? "--" : gemstone.color)
+            DetailRow(label: "Clarity", value: gemstone.clarity.isEmpty ? "--" : gemstone.clarity)
+            DetailRow(label: "Cut Grade", value: gemstone.cut.isEmpty ? "--" : gemstone.cut)
+            DetailRow(label: "Origin", value: gemstone.origin.isEmpty ? "--" : gemstone.origin)
+            if !isDiamond {
+                DetailRow(label: "Treatment", value: gemstone.treatment.isEmpty ? "None" : gemstone.treatment)
             }
+            DetailRow(label: "Location", value: gemstone.currentLocation)
         }
+        .padding(.horizontal, AppSpacing.section)
     }
+
+    // MARK: - Measurements
+
+    private var measurementsSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+            SectionHeader(title: "Measurements")
+            let l = gemstone.length.map { String(format: "%.2f", $0) } ?? "--"
+            let w = gemstone.width.map { String(format: "%.2f", $0) } ?? "--"
+            let h = gemstone.height.map { String(format: "%.2f", $0) } ?? "--"
+            DetailRow(label: "Length", value: "\(l) mm")
+            DetailRow(label: "Width", value: "\(w) mm")
+            DetailRow(label: "Depth", value: "\(h) mm")
+            DetailRow(label: "Table %", value: gemstone.tablePct.map { String(format: "%.1f%%", $0) } ?? "--")
+            DetailRow(label: "Depth %", value: gemstone.depthPct.map { String(format: "%.1f%%", $0) } ?? "--")
+        }
+        .padding(.horizontal, AppSpacing.section)
+    }
+
+    // MARK: - Characteristics (Diamond-specific)
 
     private var characteristicsSection: some View {
-        GlassCard(padding: AppSpacing.section) {
-            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
-                SectionHeader(title: "Characteristics")
-                DetailRow(label: "Color", value: gemstone.color.isEmpty ? "--" : gemstone.color)
-                DetailRow(label: "Clarity", value: gemstone.clarity.isEmpty ? "--" : gemstone.clarity)
-                DetailRow(label: "Cut", value: gemstone.cut.isEmpty ? "--" : gemstone.cut)
-                if isDiamond {
-                    DetailRow(label: "Polish", value: gemstone.polish.isEmpty ? "--" : gemstone.polish)
-                    DetailRow(label: "Symmetry", value: gemstone.symmetry.isEmpty ? "--" : gemstone.symmetry)
-                    DetailRow(label: "Fluorescence", value: gemstone.fluorescence.isEmpty ? "--" : gemstone.fluorescence)
-                }
-            }
+        VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+            SectionHeader(title: "Characteristics")
+            DetailRow(label: "Polish", value: gemstone.polish.isEmpty ? "--" : gemstone.polish)
+            DetailRow(label: "Symmetry", value: gemstone.symmetry.isEmpty ? "--" : gemstone.symmetry)
+            DetailRow(label: "Fluorescence", value: gemstone.fluorescence.isEmpty ? "--" : gemstone.fluorescence)
         }
+        .padding(.horizontal, AppSpacing.section)
     }
 
-    private var dimensionsSection: some View {
-        GlassCard(padding: AppSpacing.section) {
-            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
-                SectionHeader(title: "Dimensions")
-                let l = gemstone.length.map { String(format: "%.2f", $0) } ?? "--"
-                let w = gemstone.width.map { String(format: "%.2f", $0) } ?? "--"
-                let h = gemstone.height.map { String(format: "%.2f", $0) } ?? "--"
-                DetailRow(label: "L x W x H", value: "\(l) x \(w) x \(h) mm")
+    // MARK: - Certification
+
+    private var certificationSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+            SectionHeader(title: "Certification")
+            if gemstone.hasCert {
+                DetailRow(label: "Lab", value: gemstone.certLab.isEmpty ? "--" : gemstone.certLab)
+                DetailRow(label: "Cert #", value: gemstone.certNo.isEmpty ? "--" : gemstone.certNo)
+            } else {
+                Text("No certificate")
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.inkSubtle)
             }
         }
+        .padding(.horizontal, AppSpacing.section)
     }
+
+    // MARK: - Pricing
 
     private var pricingSection: some View {
-        GlassCard(padding: AppSpacing.section) {
-            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
-                SectionHeader(title: "Pricing")
-                DetailRow(label: "Cost", value: formattedPrice(gemstone.costPrice))
-                DetailRow(label: "Sell", value: formattedPrice(gemstone.sellPrice))
-            }
+        VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+            SectionHeader(title: "Pricing")
+            DetailRow(label: "Cost", value: formattedPrice(gemstone.costPrice))
+            DetailRow(label: "Price/ct", value: gemstone.caratWeight > 0
+                ? formattedPrice(gemstone.sellPrice)
+                : "--")
+            DetailRow(label: "Total Price", value: formattedPrice(gemstone.sellPrice * Decimal(gemstone.caratWeight)))
         }
+        .padding(.horizontal, AppSpacing.section)
     }
+
+    // MARK: - RFID
 
     private var rfidSection: some View {
-        GlassCard(padding: AppSpacing.section) {
-            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
-                SectionHeader(title: "RFID")
-                DetailRow(label: "EPC", value: gemstone.rfidEpc ?? "--")
-                    .help("Electronic Product Code stored on RFID tags")
-                DetailRow(label: "TID", value: gemstone.rfidTid ?? "--")
-                if let assignedAt = gemstone.rfidAssignedAt {
-                    DetailRow(label: "Assigned", value: formattedDate(assignedAt))
-                }
-                if let lastSeen = gemstone.rfidLastSeenAt {
-                    DetailRow(label: "Last Seen", value: formattedDate(lastSeen))
-                }
-                if gemstone.rfidEpc != nil {
-                    StatusBadge(title: "Tagged", tone: .success)
-                } else {
-                    StatusBadge(title: "Not Tagged", tone: .neutral)
-                }
+        VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+            SectionHeader(title: "RFID")
+            DetailRow(label: "EPC", value: gemstone.rfidEpc ?? "--")
+            DetailRow(label: "TID", value: gemstone.rfidTid ?? "--")
+            if let assignedAt = gemstone.rfidAssignedAt {
+                DetailRow(label: "Assigned", value: formattedDate(assignedAt))
+            }
+            if let lastSeen = gemstone.rfidLastSeenAt {
+                DetailRow(label: "Last Seen", value: formattedDate(lastSeen))
+            }
+            if gemstone.rfidEpc != nil {
+                StatusBadge(title: "Tagged", tone: .success)
+            } else {
+                StatusBadge(title: "Not Tagged", tone: .neutral)
             }
         }
-    }
-
-    private var certificateSection: some View {
-        GlassCard(padding: AppSpacing.section) {
-            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
-                SectionHeader(title: "Certificate")
-                if gemstone.hasCert {
-                    DetailRow(label: "Lab", value: gemstone.certLab.isEmpty ? "--" : gemstone.certLab)
-                    DetailRow(label: "Number", value: gemstone.certNo.isEmpty ? "--" : gemstone.certNo)
-                } else {
-                    Text("No certificate")
-                        .font(AppTypography.body)
-                        .foregroundStyle(AppColors.inkSubtle)
-                }
-            }
-        }
+        .padding(.horizontal, AppSpacing.section)
     }
 
     // MARK: - History Timeline
@@ -189,34 +197,34 @@ struct GemstoneDetailPanel: View {
     private var historySection: some View {
         let sortedEvents = gemstone.events.sorted { $0.date > $1.date }
         if !sortedEvents.isEmpty {
-            GlassCard(padding: AppSpacing.section) {
-                VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
-                    SectionHeader(title: "History")
-                    ForEach(sortedEvents, id: \.persistentModelID) { event in
-                        HStack(alignment: .top, spacing: AppSpacing.comfortable) {
-                            Circle()
-                                .fill(eventColor(event.eventType))
-                                .frame(width: 8, height: 8)
-                                .padding(.top, AppSpacing.compact)
+            sectionDivider
+            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+                SectionHeader(title: "History")
+                ForEach(sortedEvents, id: \.persistentModelID) { event in
+                    HStack(alignment: .top, spacing: AppSpacing.comfortable) {
+                        Circle()
+                            .fill(eventColor(event.eventType))
+                            .frame(width: 8, height: 8)
+                            .padding(.top, AppSpacing.compact)
 
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(event.eventDescription)
-                                    .font(AppTypography.body)
-                                    .foregroundStyle(AppColors.ink)
-                                Text(formattedDate(event.date))
-                                    .font(AppTypography.caption)
-                                    .foregroundStyle(AppColors.inkSubtle)
-                            }
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(event.eventDescription)
+                                .font(AppTypography.body)
+                                .foregroundStyle(AppColors.ink)
+                            Text(formattedDate(event.date))
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.inkSubtle)
                         }
-                        if event.persistentModelID != sortedEvents.last?.persistentModelID {
-                            Rectangle()
-                                .fill(AppColors.cardStroke)
-                                .frame(width: 1, height: 12)
-                                .padding(.leading, 3.5)
-                        }
+                    }
+                    if event.persistentModelID != sortedEvents.last?.persistentModelID {
+                        Rectangle()
+                            .fill(AppColors.cardStroke)
+                            .frame(width: 1, height: 12)
+                            .padding(.leading, 3.5)
                     }
                 }
             }
+            .padding(.horizontal, AppSpacing.section)
         }
     }
 

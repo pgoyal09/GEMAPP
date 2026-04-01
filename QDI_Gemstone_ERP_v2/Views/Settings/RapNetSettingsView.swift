@@ -19,6 +19,16 @@ struct RapNetSettingsView: View {
             credentialsSection
             syncControlsSection
             syncLogSection
+
+            NavigationLink(destination: RapNetFieldsView()) {
+                HStack(spacing: AppSpacing.standard) {
+                    Image(systemName: "list.bullet.rectangle.portrait")
+                    Text("RapNet Upload Fields Reference")
+                }
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.primary)
+            }
+            .buttonStyle(.plain)
         }
         .onAppear { syncService.cachedContext = modelContext }
         .overlay {

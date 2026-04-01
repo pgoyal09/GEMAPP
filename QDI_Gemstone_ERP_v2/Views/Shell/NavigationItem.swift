@@ -46,7 +46,7 @@ enum NavigationItem: String, CaseIterable {
     static let groups: [(label: String, items: [NavigationItem])] = [
         ("Get Started", [.dashboard, .scanner]),
         ("Sales", [.memos, .invoices, .customers]),
-        ("Accounting", [.accounting, .reports, .accountsReceivable]),
+        // DISABLED: Accounting section (accounting, reports, AR) — to be rebuilt later
         ("Inventory", [.diamonds, .gemstones, .lots, .sold, .quickIntake, .quickEntry, .reviewQueue, .reconcile, .memoReturn]),
         ("System", [.settings]),
     ]

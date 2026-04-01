@@ -1,9 +1,11 @@
 import SwiftUI
+import SwiftData
 
 struct KPICard: View {
     let title: String
     let value: String
     var unit: String? = nil
+    var icon: String? = nil
 
     @State private var pulseScale: CGFloat = 1.0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -11,10 +13,17 @@ struct KPICard: View {
     var body: some View {
         GlassCard(padding: AppSpacing.hero) {
             VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
-                Text(title.uppercased())
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .tracking(1.2)
+                HStack(spacing: AppSpacing.compact) {
+                    if let icon {
+                        Image(systemName: icon)
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.inkSubtle)
+                    }
+                    Text(title.uppercased())
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkSubtle)
+                        .tracking(1.2)
+                }
                 HStack(alignment: .firstTextBaseline, spacing: AppSpacing.compact) {
                     Text(value)
                         .font(AppTypography.largeValue)
@@ -48,13 +57,18 @@ struct KPICard: View {
 
 struct KPICardRow: View {
     let viewModel: DashboardViewModel
+    @Query private var allMemos: [Memo]
+
+    private var openMemoCount: Int {
+        allMemos.filter { $0.status == .onMemo }.count
+    }
 
     var body: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: AppSpacing.section), count: 4), spacing: AppSpacing.section) {
             KPICard(title: "Total Carats", value: String(format: "%.2f", viewModel.totalCaratsInStock), unit: "ct")
             KPICard(title: "Value on Memo", value: viewModel.totalValueOnMemo.asCurrencyShort)
             KPICard(title: "Items on Memo", value: "\(viewModel.inventorySnapshot.onMemoCount)")
-            KPICard(title: "Available", value: "\(viewModel.inventorySnapshot.availableCount)")
+            KPICard(title: "Open Memos", value: "\(openMemoCount)", icon: "doc.text.magnifyingglass")
         }
     }
 }

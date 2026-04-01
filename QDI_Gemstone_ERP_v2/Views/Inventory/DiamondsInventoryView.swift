@@ -381,7 +381,7 @@ struct DiamondsInventoryView: View {
                             }
                         }
                         .padding(.vertical, AppSpacing.standard)
-                        .frame(minWidth: 1200)
+                        .frame(maxWidth: .infinity)
                     }
                 }
             }

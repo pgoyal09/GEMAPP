@@ -17,6 +17,7 @@ struct LotInventoryView: View {
     }
     @State private var showHistorySheet = false
     @State private var historyLot: Gemstone?
+    @State private var doubleClickedLot: Gemstone?
     @State private var sortKey: String = "sku"
     @State private var sortAscending: Bool = true
 
@@ -36,7 +37,7 @@ struct LotInventoryView: View {
             switch sortKey {
             case "type": asc = a.stoneType.rawValue.localizedCompare(b.stoneType.rawValue) == .orderedAscending
             case "remaining": asc = a.effectiveRemainingCarats < b.effectiveRemainingCarats
-            case "avgCost": asc = a.effectiveAverageCost < b.effectiveAverageCost
+            case "avgCost": asc = averageCostPerStone(a) < averageCostPerStone(b)
             case "sell": asc = a.sellPrice < b.sellPrice
             case "value": asc = (a.sellPrice * Decimal(a.effectiveRemainingCarats)) < (b.sellPrice * Decimal(b.effectiveRemainingCarats))
             default: asc = a.sku.localizedCompare(b.sku) == .orderedAscending
@@ -93,6 +94,9 @@ struct LotInventoryView: View {
             if let lot = historyLot {
                 lotHistorySheet(lot)
             }
+        }
+        .sheet(item: $doubleClickedLot) { lot in
+            lotFullDetailSheet(lot)
         }
     }
 
@@ -182,7 +186,7 @@ struct LotInventoryView: View {
                 .foregroundStyle(AppColors.ink)
                 .frame(width: TableColumn.carat + 20, alignment: .trailing)
 
-            Text(formattedPrice(lot.effectiveAverageCost))
+            Text(formattedPrice(averageCostPerStone(lot)))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.inkMuted)
                 .frame(width: TableColumn.price, alignment: .trailing)
@@ -198,6 +202,9 @@ struct LotInventoryView: View {
                 .frame(width: TableColumn.price, alignment: .trailing)
 
             Spacer()
+        }
+        .onTapGesture(count: 2) {
+            doubleClickedLot = lot
         }
     }
 
@@ -239,8 +246,8 @@ struct LotInventoryView: View {
                 GlassCard(padding: AppSpacing.section) {
                     VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                         SectionHeader(title: "Pricing")
-                        DetailRow(label: "Avg Cost/ct", value: formattedPrice(lot.effectiveAverageCost))
-                        DetailRow(label: "Total Cost", value: formattedPrice(lot.effectiveAverageCost * Decimal(lot.effectiveRemainingCarats)))
+                        DetailRow(label: "Avg Cost/stone", value: formattedPrice(averageCostPerStone(lot)))
+                        DetailRow(label: "Total Cost", value: formattedPrice(averageCostPerStone(lot) * Decimal(lot.numberOfStones ?? 1)))
                         DetailRow(label: "Sell/ct", value: formattedPrice(lot.sellPrice))
                         DetailRow(label: "Total Sell", value: formattedPrice(lot.sellPrice * Decimal(lot.effectiveRemainingCarats)))
                     }
@@ -410,6 +417,161 @@ struct LotInventoryView: View {
         .padding(AppSpacing.hero)
         .frame(minWidth: 560, minHeight: 400)
         .appBackground()
+    }
+
+    // MARK: - Lot Full Detail Sheet (Double-Click)
+
+    private func lotFullDetailSheet(_ lot: Gemstone) -> some View {
+        let transactions = lot.lotTransactions.sorted { $0.date > $1.date }
+        let totalPieces = transactions.filter { $0.type == .added }.reduce(0.0) { $0 + $1.carats }
+
+        return VStack(spacing: 0) {
+            // Header
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: AppSpacing.comfortable) {
+                        Text(lot.sku)
+                            .font(AppTypography.heading)
+                            .foregroundStyle(AppColors.ink)
+                        StoneTypeBadge(type: lot.stoneType.rawValue)
+                    }
+                    Text(lot.color.isEmpty ? lot.stoneType.rawValue : "\(lot.stoneType.rawValue) — \(lot.color)")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkSubtle)
+                }
+                Spacer()
+                Button("Done") { doubleClickedLot = nil }
+                    .buttonStyle(.outline)
+            }
+            .padding(.horizontal, AppSpacing.hero)
+            .padding(.vertical, AppSpacing.section)
+
+            Divider().background(AppColors.cardStroke)
+
+            // Info strip
+            HStack(spacing: AppSpacing.hero) {
+                lotInfoItem(label: "Total Added", value: String(format: "%.2f ct", totalPieces))
+                lotInfoItem(label: "Remaining", value: String(format: "%.2f ct", lot.effectiveRemainingCarats))
+                lotInfoItem(label: "Avg Cost/stone", value: formattedPrice(averageCostPerStone(lot)))
+                lotInfoItem(label: "Sell/ct", value: formattedPrice(lot.sellPrice))
+                Spacer()
+            }
+            .padding(.horizontal, AppSpacing.hero)
+            .padding(.vertical, AppSpacing.comfortable)
+            .background(AppColors.cardBackground)
+
+            Divider().background(AppColors.cardStroke)
+
+            // History table
+            VStack(spacing: 0) {
+                HStack(spacing: 4) {
+                    Text("Date")
+                        .frame(width: TableColumn.date, alignment: .leading)
+                    Text("Action")
+                        .frame(width: TableColumn.status, alignment: .leading)
+                    Text("Carats")
+                        .frame(width: TableColumn.carat, alignment: .trailing)
+                    Text("Rate/ct")
+                        .frame(width: TableColumn.price, alignment: .trailing)
+                    Text("Amount")
+                        .frame(width: TableColumn.price, alignment: .trailing)
+                    Text("Notes")
+                        .frame(width: TableColumn.description, alignment: .leading)
+                    Spacer()
+                }
+                .font(AppTypography.sectionLabel)
+                .foregroundStyle(AppColors.inkSubtle)
+                .padding(.horizontal, AppSpacing.section)
+                .padding(.vertical, AppSpacing.comfortable)
+
+                Divider().background(AppColors.cardStroke)
+
+                if transactions.isEmpty {
+                    EmptyStateView(icon: "clock", title: "No lot history yet")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 200)
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: 2) {
+                            ForEach(transactions, id: \.persistentModelID) { tx in
+                                HStack(spacing: 4) {
+                                    Text(tx.date.formatted(.dateTime.month(.abbreviated).day().year()))
+                                        .font(AppTypography.caption)
+                                        .foregroundStyle(AppColors.inkMuted)
+                                        .frame(width: TableColumn.date, alignment: .leading)
+
+                                    HStack(spacing: 4) {
+                                        Image(systemName: tx.type.displayIcon)
+                                            .foregroundStyle(transactionColor(tx.type))
+                                            .font(.system(size: 10))
+                                        Text(tx.type.rawValue)
+                                            .foregroundStyle(AppColors.ink)
+                                    }
+                                    .font(AppTypography.body)
+                                    .frame(width: TableColumn.status, alignment: .leading)
+
+                                    Text(String(format: "%.2f", tx.carats))
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(AppColors.ink)
+                                        .frame(width: TableColumn.carat, alignment: .trailing)
+
+                                    Text(formattedPrice(tx.pricePerCarat))
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(AppColors.inkMuted)
+                                        .frame(width: TableColumn.price, alignment: .trailing)
+
+                                    Text(formattedPrice(tx.totalPrice))
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(AppColors.ink)
+                                        .frame(width: TableColumn.price, alignment: .trailing)
+
+                                    Text(tx.notes.isEmpty ? "—" : tx.notes)
+                                        .font(AppTypography.caption)
+                                        .foregroundStyle(AppColors.inkSubtle)
+                                        .lineLimit(1)
+                                        .frame(width: TableColumn.description, alignment: .leading)
+
+                                    Spacer()
+                                }
+                                .padding(.horizontal, AppSpacing.section)
+                                .padding(.vertical, AppSpacing.comfortable)
+                            }
+                        }
+                        .padding(.vertical, AppSpacing.standard)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .glassTable()
+            .padding(.horizontal, AppSpacing.hero)
+            .padding(.bottom, AppSpacing.hero)
+            .padding(.top, AppSpacing.comfortable)
+        }
+        .frame(minWidth: 780, minHeight: 460)
+        .appBackground()
+    }
+
+    private func lotInfoItem(label: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label.uppercased())
+                .font(AppTypography.sectionLabel)
+                .foregroundStyle(AppColors.inkSubtle)
+                .tracking(1)
+            Text(value)
+                .font(AppTypography.smallValue)
+                .foregroundStyle(AppColors.ink)
+        }
+    }
+
+    // MARK: - Average Cost
+
+    /// Average cost per stone = totalCostOfLot / numberOfStones.
+    /// Falls back to effectiveAverageCost (cost per carat) when numberOfStones is unavailable.
+    private func averageCostPerStone(_ lot: Gemstone) -> Decimal {
+        let totalCost = lot.effectiveAverageCost * Decimal(lot.effectiveRemainingCarats)
+        let stones = lot.numberOfStones ?? 0
+        guard stones > 0 else { return lot.effectiveAverageCost }
+        return totalCost / Decimal(stones)
     }
 
     // MARK: - Helpers

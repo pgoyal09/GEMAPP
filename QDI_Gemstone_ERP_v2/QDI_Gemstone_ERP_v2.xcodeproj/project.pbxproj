@@ -95,6 +95,7 @@
 		63E60C3FAFB3C3F4D3871585 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B1D948539B890AD5C00871 /* KeychainHelper.swift */; };
 		64B8C9AFC1F6C00E988DF60D /* PLReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86B1221016374D919DB5E08F /* PLReportView.swift */; };
 		655199E393D8F081A7941A84 /* RFIDLifecycleStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8D30989C55A226CF4F6D747 /* RFIDLifecycleStatus.swift */; };
+		66CC686FC19E3E110E75C5A5 /* CustomerFullDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44570E8A87472A93C5DE42F6 /* CustomerFullDetailView.swift */; };
 		66FF1931D85581CE3FA6E272 /* UnknownTagAssignSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1615490722ED65602953FB1 /* UnknownTagAssignSheet.swift */; };
 		67B2AAA74D6698A0B1B91324 /* LotInventoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 626E3D17936BF2108324AF28 /* LotInventoryViewModel.swift */; };
 		6AA436000DB086EE953682C6 /* LotTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E2B54397410243BBF48929 /* LotTransaction.swift */; };
@@ -160,6 +161,7 @@
 		CD2E5901B7ECEE2B8037CCDE /* HelpCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25D68E76CCBB93921824588C /* HelpCenterView.swift */; };
 		CF5C7C0597EB7E99DA8D3991 /* DetailRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */; };
 		D139FE43F09FB5A1B750B918 /* LineItemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CD014DC9A48F5870B67D2B /* LineItemStatus.swift */; };
+		D18359C9265BF91CD5F4D384 /* RapNetFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3598D6F4D1B55E26035865 /* RapNetFieldsView.swift */; };
 		D2843B6700DC493BEC33DFAB /* AppOpacity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFE0636FA5EBCA4C69466D0 /* AppOpacity.swift */; };
 		D2DE6918D7C5FCE9055649C7 /* ReportEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C5221D976D0DADF9D9857C4 /* ReportEngine.swift */; };
 		D47EBBD8500619EF4147879A /* MemoStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 173E223EE059F1CF750C3941 /* MemoStatus.swift */; };
@@ -226,6 +228,7 @@
 		3A9555B15E90483AC30BCFAC /* StoneTypeBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneTypeBadge.swift; sourceTree = "<group>"; };
 		3AC2C8DCD1516CDC38886FFC /* RFIDTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDTag.swift; sourceTree = "<group>"; };
 		41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailRow.swift; sourceTree = "<group>"; };
+		44570E8A87472A93C5DE42F6 /* CustomerFullDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerFullDetailView.swift; sourceTree = "<group>"; };
 		4A40AC13F11AC3673A4A1587 /* NavigationItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationItem.swift; sourceTree = "<group>"; };
 		4C520DBB8403C8EC32DDD058 /* AppShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShellView.swift; sourceTree = "<group>"; };
 		4D6E8EFB8EC4B3037F101043 /* MemoReturnScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoReturnScanView.swift; sourceTree = "<group>"; };
@@ -261,6 +264,7 @@
 		7220B21A25317D921736B773 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		75E8694EA6DA5A3AF102B5B6 /* CustomerListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerListView.swift; sourceTree = "<group>"; };
 		78DFE5A014C55EA551D7D16D /* EPCanonical.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EPCanonical.swift; sourceTree = "<group>"; };
+		7A3598D6F4D1B55E26035865 /* RapNetFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RapNetFieldsView.swift; sourceTree = "<group>"; };
 		7CF324231D372B593459E1DE /* InventoryTurnoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryTurnoverView.swift; sourceTree = "<group>"; };
 		7DAC44C95038D141D0930061 /* InvoiceWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceWindowView.swift; sourceTree = "<group>"; };
 		7FFA42D7ADC3BDCCB4B372B4 /* RFIDScanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDScanService.swift; sourceTree = "<group>"; };
@@ -480,6 +484,7 @@
 				2A8AAC8B96F94CF3DABE9258 /* GlossaryView.swift */,
 				25D68E76CCBB93921824588C /* HelpCenterView.swift */,
 				A90706FF432765FB42B0C9E7 /* LabelSettingsView.swift */,
+				7A3598D6F4D1B55E26035865 /* RapNetFieldsView.swift */,
 				1F3818E4471F1235B71AE81E /* RapNetSettingsView.swift */,
 			);
 			path = Settings;
@@ -716,6 +721,7 @@
 				37C8229F5E0621428EC77070 /* CustomerActivityView.swift */,
 				C836FB999C2771AA1719CA14 /* CustomerDetailPanel.swift */,
 				C0D3AC4AEFD6246352AEA546 /* CustomerFormSheet.swift */,
+				44570E8A87472A93C5DE42F6 /* CustomerFullDetailView.swift */,
 				75E8694EA6DA5A3AF102B5B6 /* CustomerListView.swift */,
 			);
 			path = Customers;
@@ -888,6 +894,7 @@
 				433B3CD633846AD7E5E89D25 /* CustomerBalanceView.swift in Sources */,
 				C57428D589CE37362E11A2CF /* CustomerDetailPanel.swift in Sources */,
 				3EAD38A014DAAD9ECA8D116F /* CustomerFormSheet.swift in Sources */,
+				66CC686FC19E3E110E75C5A5 /* CustomerFullDetailView.swift in Sources */,
 				4B2BE11085FE92583CC52B7D /* CustomerListView.swift in Sources */,
 				1989853CA2BB15A70FADE321 /* CustomerListViewModel.swift in Sources */,
 				1891021B0BF06E2AE1F66315 /* CustomerProfitabilityView.swift in Sources */,
@@ -987,6 +994,7 @@
 				33A389AF89C4C2138E449298 /* RFIDTag.swift in Sources */,
 				A5AC4B481FE072F735912275 /* RapNetAPIService.swift in Sources */,
 				82EC0525E8F0CC297615CDB9 /* RapNetExportService.swift in Sources */,
+				D18359C9265BF91CD5F4D384 /* RapNetFieldsView.swift in Sources */,
 				BC17DD11E78530025CD2E549 /* RapNetOptions.swift in Sources */,
 				7EB45EAE9544AE22B7990EA6 /* RapNetSettingsView.swift in Sources */,
 				15A41E4907E9D23F0DF4E6D8 /* RapNetSyncService.swift in Sources */,

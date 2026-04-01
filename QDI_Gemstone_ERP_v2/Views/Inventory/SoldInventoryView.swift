@@ -17,6 +17,7 @@ struct SoldInventoryView: View {
     @State private var selectedStoneID: PersistentIdentifier?
     @State private var showEditSheet = false
     @State private var editingStone: Gemstone?
+    @State private var doubleClickedStone: Gemstone?
 
     // MARK: - Sort State
 
@@ -116,6 +117,9 @@ struct SoldInventoryView: View {
                 StoneFormView(mode: .edit(stone))
             }
         }
+        .sheet(item: $doubleClickedStone) { stone in
+            soldStoneDetailSheet(stone)
+        }
     }
 
     // MARK: - Top Bar
@@ -206,6 +210,9 @@ struct SoldInventoryView: View {
             Text(stone.createdAt.formatted(.dateTime.month(.abbreviated).day().year())).font(AppTypography.caption).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.date, alignment: .leading)
             Spacer()
         }
+        .onTapGesture(count: 2) {
+            doubleClickedStone = stone
+        }
     }
 
     // MARK: - Summary
@@ -230,6 +237,162 @@ struct SoldInventoryView: View {
                 .fill(AppColors.cardStroke)
                 .frame(height: 1)
         }
+    }
+
+    // MARK: - Sold Stone Detail Sheet (Double-Click)
+
+    private func soldStoneDetailSheet(_ stone: Gemstone) -> some View {
+        let margin = stone.sellPrice - stone.costPrice
+        let marginPct: Decimal = stone.costPrice > 0 ? (margin / stone.costPrice) * 100 : 0
+        let totalSold = stone.sellPrice * Decimal(stone.caratWeight)
+        let totalCost = stone.costPrice * Decimal(stone.caratWeight)
+        let totalMargin = totalSold - totalCost
+
+        // Find who it was sold to via line items
+        let soldInfo: (customer: String, ref: String) = {
+            // Check invoices first
+            for event in stone.events where event.eventType == .sold {
+                // Try to find from line items
+            }
+            // Search memos and invoices that reference this stone
+            if let memo = stone.memo {
+                let customerName = memo.customer?.displayName ?? "—"
+                return (customerName, "M-\(memo.referenceNumber)")
+            }
+            // Fallback: check line items via events
+            return (stone.currentLocation, "—")
+        }()
+
+        let history = stone.events.sorted { $0.date > $1.date }
+
+        return VStack(spacing: 0) {
+            // Header
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: AppSpacing.comfortable) {
+                        Text(stone.sku)
+                            .font(AppTypography.heading)
+                            .foregroundStyle(AppColors.ink)
+                        StoneTypeBadge(type: stone.stoneType.rawValue)
+                        StatusBadge(title: "Sold", tone: .success)
+                    }
+                }
+                Spacer()
+                Button("Done") { doubleClickedStone = nil }
+                    .buttonStyle(.outline)
+            }
+            .padding(.horizontal, AppSpacing.hero)
+            .padding(.vertical, AppSpacing.section)
+
+            Divider().background(AppColors.cardStroke)
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: AppSpacing.hero) {
+                    // Stone details + pricing side by side
+                    HStack(alignment: .top, spacing: AppSpacing.hero) {
+                        // Stone details card
+                        GlassCard(padding: AppSpacing.section) {
+                            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+                                SectionHeader(title: "Stone Details")
+                                DetailRow(label: "Shape", value: stone.shape.isEmpty ? "—" : stone.shape)
+                                DetailRow(label: "Weight", value: String(format: "%.2f ct", stone.caratWeight))
+                                DetailRow(label: "Color", value: stone.color.isEmpty ? "—" : stone.color)
+                                DetailRow(label: "Clarity", value: stone.clarity.isEmpty ? "—" : stone.clarity)
+                                if let l = stone.length, let w = stone.width, let h = stone.height {
+                                    DetailRow(label: "Dimensions", value: String(format: "%.2f x %.2f x %.2f mm", l, w, h))
+                                }
+                                DetailRow(label: "Origin", value: stone.origin.isEmpty ? "—" : stone.origin)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+
+                        // Pricing card
+                        GlassCard(padding: AppSpacing.section) {
+                            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+                                SectionHeader(title: "Pricing")
+                                DetailRow(label: "Cost $/ct", value: stone.costPrice.asCurrency)
+                                DetailRow(label: "Sell $/ct", value: stone.sellPrice.asCurrency)
+                                DetailRow(label: "Total Cost", value: totalCost.asCurrency)
+                                DetailRow(label: "Total Sold", value: totalSold.asCurrency)
+
+                                Divider().background(AppColors.cardStroke)
+
+                                HStack {
+                                    Text("Margin")
+                                        .font(AppTypography.caption)
+                                        .foregroundStyle(AppColors.inkSubtle)
+                                        .frame(width: 110, alignment: .leading)
+                                    Text("\(totalMargin.asCurrency) (\(NSDecimalNumber(decimal: marginPct).intValue)%)")
+                                        .font(AppTypography.body.weight(.semibold))
+                                        .foregroundStyle(margin >= 0 ? AppColors.success : AppColors.danger)
+                                }
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+
+                    // Sold to card
+                    GlassCard(padding: AppSpacing.section) {
+                        VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+                            SectionHeader(title: "Sold To")
+                            DetailRow(label: "Customer", value: soldInfo.customer)
+                            DetailRow(label: "Reference", value: soldInfo.ref)
+                        }
+                    }
+
+                    // History table
+                    VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+                        SectionHeader(title: "Stone History")
+
+                        VStack(spacing: 0) {
+                            HStack(spacing: 4) {
+                                Text("Date")
+                                    .frame(width: TableColumn.date, alignment: .leading)
+                                Text("Action")
+                                    .frame(width: TableColumn.description, alignment: .leading)
+                                Spacer()
+                            }
+                            .font(AppTypography.sectionLabel)
+                            .foregroundStyle(AppColors.inkSubtle)
+                            .padding(.horizontal, AppSpacing.section)
+                            .padding(.vertical, AppSpacing.comfortable)
+
+                            Divider().background(AppColors.cardStroke)
+
+                            if history.isEmpty {
+                                Text("No history events")
+                                    .font(AppTypography.caption)
+                                    .foregroundStyle(AppColors.inkSubtle)
+                                    .padding(AppSpacing.section)
+                            } else {
+                                ForEach(history, id: \.persistentModelID) { event in
+                                    HStack(spacing: 4) {
+                                        Text(event.date.formatted(.dateTime.month(.abbreviated).day().year()))
+                                            .font(AppTypography.caption)
+                                            .foregroundStyle(AppColors.inkMuted)
+                                            .frame(width: TableColumn.date, alignment: .leading)
+
+                                        Text(event.eventDescription)
+                                            .font(AppTypography.body)
+                                            .foregroundStyle(AppColors.ink)
+                                            .lineLimit(1)
+                                            .frame(width: TableColumn.description, alignment: .leading)
+
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal, AppSpacing.section)
+                                    .padding(.vertical, AppSpacing.comfortable)
+                                }
+                            }
+                        }
+                        .glassTable()
+                    }
+                }
+                .padding(AppSpacing.hero)
+            }
+        }
+        .frame(minWidth: 740, minHeight: 520)
+        .appBackground()
     }
 
     // MARK: - Helpers

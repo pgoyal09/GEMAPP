@@ -12,7 +12,7 @@ struct EditableLineItemRow: View {
     @State private var isSyncing = false
 
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: AppSpacing.standard) {
             // SKU
             Text(item.displaySku)
                 .font(AppTypography.mono)

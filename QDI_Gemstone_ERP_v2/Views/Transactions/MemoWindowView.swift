@@ -4,6 +4,7 @@ import SwiftData
 struct MemoWindowView: View {
     let memoID: PersistentIdentifier
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
     @State private var dirtyTracker = DocumentDirtyTracker()
 
     var body: some View {
@@ -18,7 +19,7 @@ struct MemoWindowView: View {
         .environment(\.documentDirtyTracker, dirtyTracker)
         .frame(minWidth: 1100, minHeight: 760)
         .appBackground()
-        
+        .onExitCommand { dismiss() }
         .onDisappear {
             cleanupEmptyMemo()
         }

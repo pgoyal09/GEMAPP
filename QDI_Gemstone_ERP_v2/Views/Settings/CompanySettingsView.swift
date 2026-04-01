@@ -11,6 +11,8 @@ struct CompanySettingsView: View {
     @State private var logoData: Data? = UserDefaults.standard.data(forKey: PDFService.companyLogoUserDefaultsKey)
     @State private var showSavedToast = false
     @AppStorage("appAppearance") private var appAppearance: String = "dark"
+    @AppStorage("requireSalespersonOnMemos") private var requireSalesperson: Bool = true
+    @AppStorage("displayFontSize") private var displayFontSize: String = "Small"
     @AppStorage("memoAgingGreen") private var memoAgingGreen: Int = 7
     @AppStorage("memoAgingYellow") private var memoAgingYellow: Int = 14
     @AppStorage("memoAgingOrange") private var memoAgingOrange: Int = 30
@@ -105,6 +107,53 @@ struct CompanySettingsView: View {
                     }
                     .pickerStyle(.segmented)
                     .frame(maxWidth: 300)
+                }
+                .padding(AppSpacing.hero)
+                .background(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                        .fill(AppColors.panelBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                        )
+                )
+
+                // MARK: - Memo Settings
+
+                SectionHeader(title: "Memo Settings")
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Toggle("Require Salesperson on Memos", isOn: $requireSalesperson)
+                        .toggleStyle(.checkbox)
+                    Text("When disabled, the salesperson field is hidden on memo forms.")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkSubtle)
+                }
+                .padding(AppSpacing.hero)
+                .background(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                        .fill(AppColors.panelBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                        )
+                )
+
+                // MARK: - Display Font Size
+
+                SectionHeader(title: "Display Font Size")
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Picker("Font Size", selection: $displayFontSize) {
+                        Text("Small").tag("Small")
+                        Text("Medium").tag("Medium")
+                        Text("Large").tag("Large")
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(maxWidth: 300)
+                    Text("Small = default sizes. Medium = +2pt. Large = +4pt.")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkSubtle)
                 }
                 .padding(AppSpacing.hero)
                 .background(
@@ -257,6 +306,27 @@ struct CompanySettingsView: View {
 
                 CloudBackupSettingsView()
                     .frame(maxWidth: .infinity)
+
+                // MARK: - Accounting (Disabled)
+
+                VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+                    HStack(spacing: AppSpacing.standard) {
+                        Image(systemName: "chart.pie.fill")
+                            .foregroundStyle(AppColors.inkSubtle)
+                        Text("Accounting module coming soon")
+                            .font(AppTypography.body)
+                            .foregroundStyle(AppColors.inkSubtle)
+                    }
+                }
+                .padding(AppSpacing.hero)
+                .background(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                        .fill(AppColors.panelBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                        )
+                )
 
                 Spacer()
             }

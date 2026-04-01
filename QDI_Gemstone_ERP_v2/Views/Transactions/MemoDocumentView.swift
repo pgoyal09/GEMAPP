@@ -26,12 +26,33 @@ struct MemoDocumentView: View {
     @State private var totalRefreshID = UUID()
     @State private var showUnsavedAlert = false
     @State private var duplicateWarning: String?
+    @State private var showCustomerDropdown = false
+    @State private var dateText = ""
+    @State private var dateError: String?
+    @State private var selectedItemType: LineItemKind?
     @AccessibilityFocusState private var isHeaderFocused: Bool
+
+    @AppStorage("requireSalespersonOnMemos") private var requireSalesperson: Bool = true
 
     private var filteredCustomers: [Customer] {
         let q = customerSearchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !q.isEmpty else { return allCustomers }
         return allCustomers.filter { $0.displayName.lowercased().contains(q) }
+    }
+
+    /// Sum of open memo values for the selected customer, excluding current memo.
+    private var customerOpenMemoValue: Decimal {
+        guard let customer = memo.customer else { return 0 }
+        let currentID = memo.persistentModelID
+        let descriptor = FetchDescriptor<Memo>()
+        let allMemos = (try? modelContext.fetch(descriptor)) ?? []
+        return allMemos
+            .filter { $0.customer?.persistentModelID == customer.persistentModelID && $0.persistentModelID != currentID && $0.status == .onMemo }
+            .reduce(Decimal.zero) { $0 + $1.openMemoAmount }
+    }
+
+    private var isNewMemo: Bool {
+        memo.lineItems.isEmpty && !hasUnsavedEdits && memo.createdAt.timeIntervalSinceNow > -2
     }
 
     var body: some View {
@@ -146,57 +167,197 @@ struct MemoDocumentView: View {
                         .foregroundStyle(AppColors.ink)
                         .accessibilityFocused($isHeaderFocused)
                     Spacer()
-                    memoStatusBadge
+                    // Only show status badge on existing memos
+                    if !isNewMemo {
+                        memoStatusBadge
+                    }
+                }
+
+                // Current Open Memo Value for selected customer
+                if memo.customer != nil {
+                    let openValue = customerOpenMemoValue
+                    if openValue > 0 {
+                        HStack(spacing: AppSpacing.standard) {
+                            Image(systemName: "doc.text.magnifyingglass")
+                                .foregroundStyle(AppColors.primary)
+                            Text("Current Open Memo Value: \(openValue.asCurrency)")
+                                .font(AppTypography.subheading)
+                                .foregroundStyle(AppColors.ink)
+                        }
+                        .padding(AppSpacing.comfortable)
+                        .background(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
+                                .fill(AppColors.primary.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
+                                        .strokeBorder(AppColors.primary.opacity(0.3), lineWidth: 1)
+                                )
+                        )
+                    }
                 }
 
                 HStack(spacing: AppSpacing.hero) {
+                    // Customer autocomplete
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Customer").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        VStack(spacing: AppSpacing.compact) {
-                            TextField("Search customers...", text: $customerSearchText)
-                                .textFieldStyle(.plain)
-                                .font(AppTypography.smallValue)
-                                .foregroundStyle(AppColors.ink)
-                                .glassField()
-                                .frame(width: 200)
-                            HStack {
-                                Picker("Customer", selection: Binding(
-                                    get: { memo.customer },
-                                    set: { memo.customer = $0; markDirty() }
-                                )) {
-                                    Text("Select…").tag(Customer?.none)
-                                    ForEach(filteredCustomers) { c in Text(c.displayName).tag(Customer?.some(c)) }
+                        ZStack(alignment: .topLeading) {
+                            VStack(spacing: AppSpacing.compact) {
+                                HStack {
+                                    TextField("Search customers...", text: $customerSearchText)
+                                        .textFieldStyle(.plain)
+                                        .font(AppTypography.smallValue)
+                                        .foregroundStyle(AppColors.ink)
+                                        .glassField()
+                                        .frame(width: 200)
+                                        .onChange(of: customerSearchText) { _, newVal in
+                                            showCustomerDropdown = !newVal.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                                        }
+                                    Button(action: { showAddCustomerSheet = true }) {
+                                        Image(systemName: "plus.circle").foregroundStyle(AppColors.primary)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .accessibilityLabel("Add Customer")
                                 }
-                                .labelsHidden()
-                                .accessibilityLabel("Select Customer")
-                                Button(action: { showAddCustomerSheet = true }) {
-                                    Image(systemName: "plus.circle").foregroundStyle(AppColors.primary)
+                                if let c = memo.customer {
+                                    HStack(spacing: AppSpacing.compact) {
+                                        Text(c.displayName)
+                                            .font(AppTypography.smallValue)
+                                            .foregroundStyle(AppColors.ink)
+                                        Button {
+                                            memo.customer = nil
+                                            customerSearchText = ""
+                                            markDirty()
+                                        } label: {
+                                            Image(systemName: "xmark.circle.fill")
+                                                .foregroundStyle(AppColors.inkSubtle)
+                                                .font(AppTypography.caption)
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
                                 }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel("Add Customer")
+                            }
+                            if showCustomerDropdown && !filteredCustomers.isEmpty {
+                                ScrollView {
+                                    VStack(alignment: .leading, spacing: 0) {
+                                        ForEach(filteredCustomers) { c in
+                                            Button {
+                                                memo.customer = c
+                                                customerSearchText = ""
+                                                showCustomerDropdown = false
+                                                markDirty()
+                                            } label: {
+                                                Text(c.displayName)
+                                                    .font(AppTypography.smallValue)
+                                                    .foregroundStyle(AppColors.ink)
+                                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                                    .padding(.horizontal, AppSpacing.standard)
+                                                    .padding(.vertical, AppSpacing.compact)
+                                            }
+                                            .buttonStyle(.plain)
+                                            .background(Color.white.opacity(0.05))
+                                        }
+                                    }
+                                }
+                                .frame(minWidth: 200, maxWidth: 200, maxHeight: 150)
+                                .background(AppColors.panelBackground)
+                                .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.small))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppCornerRadius.small)
+                                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                                )
+                                .shadow(radius: 8)
+                                .offset(y: 32)
+                                .zIndex(10)
                             }
                         }
                     }
+
+                    // Date entry with manual typing + DatePicker
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Date").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        DatePicker("", selection: Binding(
-                            get: { memo.dateAssigned ?? Date() },
-                            set: { memo.dateAssigned = $0; markDirty() }
-                        ), displayedComponents: .date)
-                        .labelsHidden()
+                        HStack(spacing: AppSpacing.compact) {
+                            TextField("MM/DD/YYYY", text: $dateText)
+                                .glassField()
+                                .frame(width: 110)
+                                .onSubmit { parseDateText() }
+                                .onChange(of: dateText) { _, _ in dateError = nil }
+                            DatePicker("", selection: Binding(
+                                get: { memo.dateAssigned ?? Date() },
+                                set: { newDate in
+                                    memo.dateAssigned = newDate
+                                    syncDateText(from: newDate)
+                                    markDirty()
+                                }
+                            ), displayedComponents: .date)
+                            .labelsHidden()
+                            .frame(width: 30)
+                        }
+                        if let error = dateError {
+                            Text(error)
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.danger)
+                        }
                     }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Salesperson").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        TextField("Salesperson name", text: Binding(
-                            get: { memo.salesperson ?? "" },
-                            set: { memo.salesperson = $0.isEmpty ? nil : $0; markDirty() }
-                        ))
-                        .glassField()
-                        .frame(width: 160)
+
+                    // Salesperson (conditionally shown)
+                    if requireSalesperson {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Salesperson").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                            TextField("Salesperson name", text: Binding(
+                                get: { memo.salesperson ?? "" },
+                                set: { memo.salesperson = $0.isEmpty ? nil : $0; markDirty() }
+                            ))
+                            .glassField()
+                            .frame(width: 160)
+                        }
                     }
                 }
             }
         }
+        .onAppear {
+            syncDateText(from: memo.dateAssigned ?? Date())
+        }
+    }
+
+    private func syncDateText(from date: Date) {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd/yyyy"
+        dateText = formatter.string(from: date)
+    }
+
+    private func parseDateText() {
+        let trimmed = dateText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM/dd/yyyy"
+
+        // Try full format first
+        if let date = formatter.date(from: trimmed) {
+            memo.dateAssigned = date
+            syncDateText(from: date)
+            dateError = nil
+            markDirty()
+            return
+        }
+
+        // Try MM/DD without year — autofill current year
+        let shortFormatter = DateFormatter()
+        shortFormatter.dateFormat = "MM/dd"
+        if let partial = shortFormatter.date(from: trimmed) {
+            let year = Calendar.current.component(.year, from: Date())
+            var components = Calendar.current.dateComponents([.month, .day], from: partial)
+            components.year = year
+            if let date = Calendar.current.date(from: components) {
+                memo.dateAssigned = date
+                syncDateText(from: date)
+                dateError = nil
+                markDirty()
+                return
+            }
+        }
+
+        dateError = "Invalid date. Use MM/DD/YYYY"
     }
 
     @ViewBuilder
@@ -279,11 +440,11 @@ struct MemoDocumentView: View {
     }
 
     private var addItemsMenu: some View {
-        HStack(spacing: 8) {
-            Button("Single/Pair") { showInventorySheet = true }
-            Button("Lot") { showLotSheet = true }
+        HStack(spacing: 2) {
+            itemTypeButton(label: "Single/Pair", kind: .inventory) { showInventorySheet = true }
+            itemTypeButton(label: "Lot", kind: nil) { showLotSheet = true }
                 .help("A group of similar stones sold by total carat weight")
-            Button("Brokered") {
+            itemTypeButton(label: "Brokered", kind: .brokered) {
                 do {
                     try TransactionService.addBrokeredLine(to: memo, modelContext: modelContext)
                     markDirty()
@@ -291,7 +452,7 @@ struct MemoDocumentView: View {
                     showToast("Failed to add brokered line: \(ErrorMapper.userMessage(from: error))", isError: true)
                 }
             }
-            Button("Service") {
+            itemTypeButton(label: "Service", kind: .service) {
                 do {
                     try TransactionService.addServiceLine(to: memo, modelContext: modelContext)
                     markDirty()
@@ -300,8 +461,33 @@ struct MemoDocumentView: View {
                 }
             }
         }
-        .font(AppTypography.caption)
-        .foregroundStyle(AppColors.primary)
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
+                .fill(AppColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                )
+        )
+    }
+
+    private func itemTypeButton(label: String, kind: LineItemKind?, action: @escaping () -> Void) -> some View {
+        let isSelected = selectedItemType == kind
+        return Button {
+            selectedItemType = kind
+            action()
+        } label: {
+            Text(label)
+                .font(AppTypography.caption)
+                .fontWeight(.medium)
+                .foregroundStyle(isSelected ? Color.white : AppColors.primary)
+                .padding(.horizontal, AppSpacing.comfortable)
+                .padding(.vertical, AppSpacing.standard)
+                .background(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.small - 1, style: .continuous)
+                        .fill(isSelected ? AppColors.primary : Color.clear)
+                )
+        }
         .buttonStyle(.plain)
     }
 
@@ -341,12 +527,14 @@ struct MemoDocumentView: View {
 
     @ViewBuilder
     private func lineItemStatusBadge(_ item: LineItem) -> some View {
-        let tone: StatusBadge.Tone = switch item.status {
-        case .open: .neutral
-        case .returned: .warning
-        case .sold: .success
+        if item.status != .open {
+            let tone: StatusBadge.Tone = switch item.status {
+            case .open: .neutral
+            case .returned: .warning
+            case .sold: .success
+            }
+            StatusBadge(title: item.status.rawValue, tone: tone)
         }
-        StatusBadge(title: item.status.rawValue, tone: tone)
     }
 
     // MARK: - Totals
