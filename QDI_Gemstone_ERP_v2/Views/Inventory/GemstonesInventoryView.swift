@@ -408,8 +408,8 @@ struct GemstonesInventoryView: View {
                 EmptyStateView(icon: "aqi.medium", title: "No gemstones found", subtitle: "Try adjusting your search or filters")
                     .frame(maxWidth: .infinity)
             } else {
-                GeometryReader { geo in
-                    ScrollView([.horizontal, .vertical]) {
+                ScrollView(.vertical) {
+                    ScrollView(.horizontal, showsIndicators: false) {
                         LazyVStack(spacing: 2) {
                             ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
                                 stoneRow(stone)
@@ -420,7 +420,7 @@ struct GemstonesInventoryView: View {
                             }
                         }
                         .padding(.vertical, AppSpacing.standard)
-                        .frame(minWidth: 1100, maxWidth: .infinity, minHeight: geo.size.height, alignment: .top)
+                        .frame(minWidth: 1100)
                     }
                 }
             }

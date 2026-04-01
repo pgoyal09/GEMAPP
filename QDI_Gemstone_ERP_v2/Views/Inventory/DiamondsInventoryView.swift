@@ -369,8 +369,8 @@ struct DiamondsInventoryView: View {
                 EmptyStateView(icon: "sparkle", title: "No diamonds found", subtitle: "Try adjusting your search or filters")
                     .frame(maxWidth: .infinity)
             } else {
-                GeometryReader { geo in
-                    ScrollView([.horizontal, .vertical]) {
+                ScrollView(.vertical) {
+                    ScrollView(.horizontal, showsIndicators: false) {
                         LazyVStack(spacing: 2) {
                             ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
                                 stoneRow(stone)
@@ -381,7 +381,7 @@ struct DiamondsInventoryView: View {
                             }
                         }
                         .padding(.vertical, AppSpacing.standard)
-                        .frame(minWidth: 1200, maxWidth: .infinity, minHeight: geo.size.height, alignment: .top)
+                        .frame(minWidth: 1200)
                     }
                 }
             }
