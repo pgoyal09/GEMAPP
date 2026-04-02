@@ -299,7 +299,7 @@ struct SoldInventoryView: View {
             sortableHeader("Date", key: "date", width: TableColumn.date, alignment: .leading)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.section)
+        .padding(.horizontal, AppSpacing.standard)
         .padding(.vertical, AppSpacing.comfortable)
     }
 

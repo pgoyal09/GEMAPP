@@ -478,6 +478,7 @@ struct GemstonesInventoryView: View {
 
     private var tableHeader: some View {
         HStack(spacing: 4) {
+            Color.clear.frame(width: 24)
             sortableHeader("SKU", key: "sku", width: TableColumn.sku, alignment: .leading)
             sortableHeader("Type", key: "type", width: TableColumn.type, alignment: .leading)
             TableHeader(title: "Shape", width: TableColumn.shape, alignment: .leading)
@@ -494,7 +495,7 @@ struct GemstonesInventoryView: View {
             sortableHeader("Status", key: "status", width: TableColumn.status, alignment: .center)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.section)
+        .padding(.horizontal, AppSpacing.standard)
         .padding(.vertical, AppSpacing.comfortable)
     }
 

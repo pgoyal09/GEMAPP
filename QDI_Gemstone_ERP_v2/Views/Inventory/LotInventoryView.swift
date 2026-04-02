@@ -214,7 +214,7 @@ struct LotInventoryView: View {
             sortableHeader("Status", key: "status", width: TableColumn.status, alignment: .leading)
             Spacer()
         }
-        .padding(.horizontal, AppSpacing.section)
+        .padding(.horizontal, AppSpacing.standard)
         .padding(.vertical, AppSpacing.comfortable)
     }
 
