@@ -4,7 +4,9 @@ import SwiftData
 struct InvoiceWindowView: View {
     let invoiceID: PersistentIdentifier
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
     @State private var dirtyTracker = DocumentDirtyTracker()
+    @State private var showCloseConfirm = false
 
     var body: some View {
         Group {
@@ -18,10 +20,47 @@ struct InvoiceWindowView: View {
         .environment(\.documentDirtyTracker, dirtyTracker)
         .frame(minWidth: 1100, minHeight: 760)
         .appBackground()
-        
+        .onKeyPress(.escape) {
+            requestClose()
+            return .handled
+        }
+        .alert("Unsaved Changes", isPresented: $showCloseConfirm) {
+            Button("Keep Editing", role: .cancel) {}
+            Button("Save & Exit") {
+                saveAndClose()
+            }
+            Button("Discard", role: .destructive) {
+                dirtyTracker.clearDirty()
+                closeWindow()
+            }
+        } message: {
+            Text("You have unsaved changes.")
+        }
         .onDisappear {
             cleanupEmptyInvoice()
         }
+    }
+
+    private func requestClose() {
+        if dirtyTracker.hasAnyDirty {
+            showCloseConfirm = true
+        } else {
+            closeWindow()
+        }
+    }
+
+    private func saveAndClose() {
+        do {
+            try modelContext.save()
+            dirtyTracker.clearDirty()
+        } catch {
+            AppLogger.data.error("Failed to save invoice: \(error.localizedDescription)")
+        }
+        closeWindow()
+    }
+
+    private func closeWindow() {
+        dismiss()
     }
 
     private func fetchInvoice() -> Invoice? {
@@ -34,7 +73,6 @@ struct InvoiceWindowView: View {
         }
     }
 
-    /// Mirror of MemoWindowView cleanup: delete invoices with 0 line items on dismiss.
     private func cleanupEmptyInvoice() {
         guard let invoice = fetchInvoice() else { return }
         if invoice.lineItems.isEmpty && invoice.status == .draft {

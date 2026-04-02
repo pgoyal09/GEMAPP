@@ -726,12 +726,17 @@ struct MemoDocumentView: View {
         .overlay(alignment: .top) { Divider().background(AppColors.cardElevated) }
         .alert("Unsaved Changes", isPresented: $showUnsavedAlert) {
             Button("Keep Editing", role: .cancel) {}
+            Button("Save & Exit") {
+                saveMemo()
+                dismiss()
+            }
             Button("Discard", role: .destructive) {
                 hasUnsavedEdits = false
-                NSApp.keyWindow?.close()
+                dirtyTracker.clearDirty()
+                dismiss()
             }
         } message: {
-            Text("You have unsaved changes. Discard them?")
+            Text("You have unsaved changes.")
         }
     }
 
@@ -741,7 +746,7 @@ struct MemoDocumentView: View {
         if hasUnsavedEdits {
             showUnsavedAlert = true
         } else {
-            NSApp.keyWindow?.close()
+            dismiss()
         }
     }
 

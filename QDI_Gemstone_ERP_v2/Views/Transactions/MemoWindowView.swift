@@ -26,11 +26,15 @@ struct MemoWindowView: View {
         }
         .alert("Unsaved Changes", isPresented: $showCloseConfirm) {
             Button("Keep Editing", role: .cancel) {}
+            Button("Save & Exit") {
+                saveAndClose()
+            }
             Button("Discard", role: .destructive) {
+                dirtyTracker.clearDirty()
                 closeWindow()
             }
         } message: {
-            Text("You have unsaved changes. Discard them?")
+            Text("You have unsaved changes.")
         }
         .onDisappear {
             cleanupEmptyMemo()
@@ -45,8 +49,18 @@ struct MemoWindowView: View {
         }
     }
 
+    private func saveAndClose() {
+        do {
+            try modelContext.save()
+            dirtyTracker.clearDirty()
+        } catch {
+            AppLogger.data.error("Failed to save memo: \(error.localizedDescription)")
+        }
+        closeWindow()
+    }
+
     private func closeWindow() {
-        NSApp.keyWindow?.close()
+        dismiss()
     }
 
     private func fetchMemo() -> Memo? {

@@ -776,12 +776,17 @@ struct InvoiceDocumentView: View {
         .overlay(alignment: .top) { Divider().background(AppColors.cardElevated) }
         .alert("Unsaved Changes", isPresented: $showUnsavedAlert) {
             Button("Keep Editing", role: .cancel) {}
+            Button("Save & Exit") {
+                saveInvoice()
+                dismiss()
+            }
             Button("Discard", role: .destructive) {
                 hasUnsavedEdits = false
-                NSApp.keyWindow?.close()
+                dirtyTracker.clearDirty()
+                dismiss()
             }
         } message: {
-            Text("You have unsaved changes. Discard them?")
+            Text("You have unsaved changes.")
         }
     }
 
@@ -791,7 +796,7 @@ struct InvoiceDocumentView: View {
         if hasUnsavedEdits {
             showUnsavedAlert = true
         } else {
-            NSApp.keyWindow?.close()
+            dismiss()
         }
     }
 
