@@ -52,7 +52,7 @@ struct EditableLineItemRow: View {
             // Description
             TextField("Description", text: $descriptionText)
                 .textFieldStyle(.plain)
-                .frame(width: w(2))
+                .frame(width: w(2), alignment: .leading)
                 .onChange(of: descriptionText) { _, val in
                     guard !isSyncing else { return }
                     item.itemDescription = val
@@ -68,7 +68,8 @@ struct EditableLineItemRow: View {
             } else {
                 TextField("0.00", text: $caratsText)
                     .textFieldStyle(.plain)
-                    .frame(width: w(3))
+                    .frame(width: w(3), alignment: .trailing)
+                    .multilineTextAlignment(.trailing)
                     .onChange(of: caratsText) { _, val in
                         guard !isSyncing else { return }
                         item.carats = Double(val) ?? 0
@@ -80,7 +81,8 @@ struct EditableLineItemRow: View {
             // Rate
             TextField("0.00", text: $rateText)
                 .textFieldStyle(.plain)
-                .frame(width: w(4))
+                .frame(width: w(4), alignment: .trailing)
+                .multilineTextAlignment(.trailing)
                 .onChange(of: rateText) { _, val in
                     guard !isSyncing else { return }
                     item.rate = Decimal(string: val) ?? 0

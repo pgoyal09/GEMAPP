@@ -43,13 +43,18 @@ struct MemoDocumentView: View {
         ColumnDef("amount", weight: 1.5, minWidth: 65, alignment: .trailing),
     ], spacing: 4)
 
-    /// Column widths derived from measured card width
+    /// Column widths derived from measured card width.
+    /// lineItemTableWidth = background GeometryReader on padded card.
+    /// Subtract: section padding (both sides), row horizontal padding (both sides),
+    /// fixed-width columns (row# 28 + trash 28), and spacing gaps adjacent to
+    /// fixed columns only (row#↔sku + amount↔trash = 2 gaps × 4pt).
+    /// TableColumnLayout.widths(for:) handles spacing between the 6 data columns internally.
     private var lineItemWidths: [CGFloat] {
-        let padding = AppSpacing.section * 2 // card outer padding
-        let hPad = AppSpacing.comfortable * 2 // row horizontal padding
-        let fixedCols: CGFloat = 28 + 28 // row# + trash
-        let spacing: CGFloat = 4 * 7 // 8 items, 7 gaps at spacing 4
-        let available = max(0, lineItemTableWidth - padding - hPad - fixedCols - spacing)
+        let sectionPad = AppSpacing.section * 2      // 16 × 2 = 32
+        let rowHPad = AppSpacing.comfortable * 2      // 12 × 2 = 24
+        let fixedCols: CGFloat = 28 + 28               // row# + trash
+        let fixedGaps: CGFloat = 4 * 2                 // gaps adjacent to fixed cols
+        let available = max(0, lineItemTableWidth - sectionPad - rowHPad - fixedCols - fixedGaps)
         return Self.lineItemLayout.widths(for: available)
     }
 

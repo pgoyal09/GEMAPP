@@ -40,11 +40,11 @@ struct InvoiceDocumentView: View {
     ], spacing: 4)
 
     private var lineItemWidths: [CGFloat] {
-        let padding = AppSpacing.section * 2
-        let hPad = AppSpacing.comfortable * 2
-        let fixedCols: CGFloat = 28 + 28
-        let spacing: CGFloat = 4 * 7
-        let available = max(0, lineItemTableWidth - padding - hPad - fixedCols - spacing)
+        let sectionPad = AppSpacing.section * 2      // 16 × 2 = 32
+        let rowHPad = AppSpacing.comfortable * 2      // 12 × 2 = 24
+        let fixedCols: CGFloat = 28 + 28               // row# + trash
+        let fixedGaps: CGFloat = 4 * 2                 // gaps adjacent to fixed cols
+        let available = max(0, lineItemTableWidth - sectionPad - rowHPad - fixedCols - fixedGaps)
         return Self.lineItemLayout.widths(for: available)
     }
 
