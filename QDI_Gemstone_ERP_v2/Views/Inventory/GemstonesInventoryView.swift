@@ -413,15 +413,15 @@ struct GemstonesInventoryView: View {
     // MARK: - Table
 
     private var tableContent: some View {
-        VStack(spacing: 0) {
-            tableHeader
-            Divider().background(AppColors.cardStroke)
-            if filteredStones.isEmpty {
-                EmptyStateView(icon: "aqi.medium", title: "No gemstones found", subtitle: "Try adjusting your search or filters")
-                    .frame(maxWidth: .infinity)
-            } else {
-                ScrollView(.vertical) {
-                    ScrollView(.horizontal, showsIndicators: false) {
+        ScrollView(.horizontal, showsIndicators: true) {
+            VStack(spacing: 0) {
+                tableHeader
+                Divider().background(AppColors.cardStroke)
+                if filteredStones.isEmpty {
+                    EmptyStateView(icon: "aqi.medium", title: "No gemstones found", subtitle: "Try adjusting your search or filters")
+                        .frame(maxWidth: .infinity)
+                } else {
+                    ScrollView(.vertical) {
                         LazyVStack(spacing: 2) {
                             ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
                                 stoneRow(stone)
@@ -432,7 +432,6 @@ struct GemstonesInventoryView: View {
                             }
                         }
                         .padding(.vertical, AppSpacing.standard)
-                        .frame(minWidth: 1100)
                     }
                 }
             }

@@ -116,26 +116,27 @@ struct LotInventoryView: View {
     // MARK: - Table
 
     private var tableContent: some View {
-        VStack(spacing: 0) {
-            tableHeader
-            Divider().background(AppColors.cardStroke)
+        ScrollView(.horizontal, showsIndicators: true) {
+            VStack(spacing: 0) {
+                tableHeader
+                Divider().background(AppColors.cardStroke)
 
-            if filteredLots.isEmpty {
-                EmptyStateView(
-                    icon: "cube.box",
-                    title: "No lot stones",
-                    subtitle: "Lot inventory will appear here"
-                )
-            } else {
-                ScrollView(.vertical) {
-                    LazyVStack(spacing: 2) {
-                        ForEach(Array(filteredLots.enumerated()), id: \.element.persistentModelID) { index, lot in
-                            lotRow(lot)
-                                .staggeredRow(index: index, reduceMotion: reduceMotion)
+                if filteredLots.isEmpty {
+                    EmptyStateView(
+                        icon: "cube.box",
+                        title: "No lot stones",
+                        subtitle: "Lot inventory will appear here"
+                    )
+                } else {
+                    ScrollView(.vertical) {
+                        LazyVStack(spacing: 2) {
+                            ForEach(Array(filteredLots.enumerated()), id: \.element.persistentModelID) { index, lot in
+                                lotRow(lot)
+                                    .staggeredRow(index: index, reduceMotion: reduceMotion)
+                            }
                         }
+                        .padding(.vertical, AppSpacing.standard)
                     }
-                    .padding(.vertical, AppSpacing.standard)
-                    .frame(maxWidth: .infinity)
                 }
             }
         }

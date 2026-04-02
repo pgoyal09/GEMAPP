@@ -153,22 +153,23 @@ struct SoldInventoryView: View {
     // MARK: - Table
 
     private var tableContent: some View {
-        VStack(spacing: 0) {
-            tableHeader
-            Divider().background(AppColors.cardStroke)
-            if filteredStones.isEmpty {
-                EmptyStateView(icon: "tag.slash", title: "No sold stones", subtitle: "Sold inventory will appear here")
-                    .frame(maxWidth: .infinity)
-            } else {
-                ScrollView(.vertical) {
-                    LazyVStack(spacing: 2) {
-                        ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
-                            stoneRow(stone)
-                                .staggeredRow(index: index, reduceMotion: reduceMotion)
+        ScrollView(.horizontal, showsIndicators: true) {
+            VStack(spacing: 0) {
+                tableHeader
+                Divider().background(AppColors.cardStroke)
+                if filteredStones.isEmpty {
+                    EmptyStateView(icon: "tag.slash", title: "No sold stones", subtitle: "Sold inventory will appear here")
+                        .frame(maxWidth: .infinity)
+                } else {
+                    ScrollView(.vertical) {
+                        LazyVStack(spacing: 2) {
+                            ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
+                                stoneRow(stone)
+                                    .staggeredRow(index: index, reduceMotion: reduceMotion)
+                            }
                         }
+                        .padding(.vertical, AppSpacing.standard)
                     }
-                    .padding(.vertical, AppSpacing.standard)
-                    .frame(maxWidth: .infinity)
                 }
             }
         }
