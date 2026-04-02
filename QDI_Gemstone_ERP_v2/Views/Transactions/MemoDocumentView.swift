@@ -544,6 +544,7 @@ struct MemoDocumentView: View {
             }
             .frame(minHeight: CGFloat(memo.lineItems.count + 2) * 44 + 30)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(AppSpacing.section)
         .background(
             RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
