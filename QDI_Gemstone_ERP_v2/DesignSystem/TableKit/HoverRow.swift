@@ -18,16 +18,14 @@ struct HoverRow<Content: View>: View {
                 content()
             }
             .frame(maxWidth: .infinity)
-            .padding(.horizontal, AppSpacing.section)
-            .padding(.vertical, AppSpacing.comfortable)
+            .padding(.horizontal, AppSpacing.standard)
+            .padding(.vertical, AppSpacing.compact)
             .background(rowBackground)
             .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
-                    .strokeBorder(isFocused ? AppColors.primary : Color.clear, lineWidth: 2)
+                    .strokeBorder(isFocused ? AppColors.primary : Color.clear, lineWidth: 1)
             )
-            .scaleEffect(isHovered ? 1.005 : 1.0)
-            .shadow(color: isHovered ? AppColors.softShadow.opacity(AppOpacity.medium) : Color.clear, radius: isHovered ? 4 : 0, y: 1)
         }
         .buttonStyle(.plain)
         .focusable()

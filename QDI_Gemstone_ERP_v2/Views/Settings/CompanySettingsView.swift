@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import AppKit
+import Supabase
 
 struct CompanySettingsView: View {
     @Environment(\.modelContext) private var modelContext
@@ -22,6 +23,10 @@ struct CompanySettingsView: View {
     @State private var pendingRestoreURL: URL?
     @State private var backupScheduler = BackupScheduler()
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var showLoginSheet = false
+    private var authService: SupabaseAuthService { SupabaseAuthService.shared }
+    private var syncService: SupabaseSyncService { SupabaseSyncService.shared }
+    private var syncTracker: SyncTracker { SyncTracker.shared }
 
     var body: some View {
         ScrollView {
@@ -216,6 +221,86 @@ struct CompanySettingsView: View {
                 CloudBackupSettingsView()
                     .frame(maxWidth: .infinity)
 
+                // MARK: - Cloud Sync
+
+                settingsSection(title: "Cloud Sync") {
+                    if authService.isAuthenticated {
+                        HStack(spacing: AppSpacing.standard) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(AppColors.success)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Signed in as \(authService.currentUserEmail ?? "—")")
+                                    .font(AppTypography.body)
+                                    .foregroundStyle(AppColors.ink)
+                                if let lastSync = syncTracker.newestSync {
+                                    Text("Last sync: \(lastSync.formatted(date: .abbreviated, time: .shortened))")
+                                        .font(AppTypography.caption)
+                                        .foregroundStyle(AppColors.inkSubtle)
+                                } else {
+                                    Text("Never synced")
+                                        .font(AppTypography.caption)
+                                        .foregroundStyle(AppColors.inkSubtle)
+                                }
+                            }
+                            Spacer()
+                            Button("Sign Out") {
+                                Task { await authService.signOut() }
+                            }
+                            .buttonStyle(.outline(AppColors.warning))
+                            .disabled(authService.isLoading)
+                        }
+
+                        HStack(spacing: AppSpacing.comfortable) {
+                            Button {
+                                Task { await syncService.syncAll(modelContext: modelContext) }
+                            } label: {
+                                HStack(spacing: AppSpacing.compact) {
+                                    if syncService.isSyncing {
+                                        ProgressView()
+                                            .controlSize(.small)
+                                    }
+                                    Text(syncService.isSyncing ? "Syncing..." : "Sync Now")
+                                }
+                            }
+                            .buttonStyle(.gradient)
+                            .disabled(syncService.isSyncing)
+
+                            if let progress = syncService.syncProgress {
+                                Text(progress)
+                                    .font(AppTypography.caption)
+                                    .foregroundStyle(AppColors.inkMuted)
+                            }
+                        }
+
+                        if let error = syncService.syncError {
+                            HStack(spacing: AppSpacing.compact) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundStyle(AppColors.danger)
+                                Text(error)
+                                    .font(AppTypography.caption)
+                                    .foregroundStyle(AppColors.danger)
+                            }
+                        }
+                    } else {
+                        HStack(spacing: AppSpacing.standard) {
+                            Image(systemName: "cloud.fill")
+                                .font(AppTypography.heading)
+                                .foregroundStyle(AppColors.inkMuted)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Not signed in")
+                                    .font(AppTypography.body)
+                                    .foregroundStyle(AppColors.ink)
+                                Text("Sign in to sync data across devices")
+                                    .font(AppTypography.caption)
+                                    .foregroundStyle(AppColors.inkSubtle)
+                            }
+                            Spacer()
+                            Button("Sign In") { showLoginSheet = true }
+                                .buttonStyle(.gradient)
+                        }
+                    }
+                }
+
                 // MARK: - Help Center
 
                 settingsSection(title: "Help Center") {
@@ -259,6 +344,9 @@ struct CompanySettingsView: View {
             Button("Replace All Data", role: .destructive) { performRestore() }
         } message: {
             Text("This will replace ALL current data with the backup. This action cannot be undone. The app will quit and must be relaunched.")
+        }
+        .sheet(isPresented: $showLoginSheet) {
+            LoginView()
         }
         .onAppear {
             if !companyName.isEmpty {

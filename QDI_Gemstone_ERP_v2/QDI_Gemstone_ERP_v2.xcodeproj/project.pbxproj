@@ -143,6 +143,7 @@
 		ADE644F1B38D59234715CA9B /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82D39A3810995F0A808EB202 /* SectionHeader.swift */; };
 		AE341CC079FDF5EF9134B361 /* SupabaseSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1742F82944BFE30CC0E8DEB4 /* SupabaseSyncService.swift */; };
 		AEB120D968D7BF9F4F12AA4B /* InventoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10E5E8CE863390404948AA94 /* InventoryViewModel.swift */; };
+		B01FF9DEEA42A060CA1ABCC2 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562693C9ED9E7551334A4BF1 /* LoginView.swift */; };
 		B02FE4C6341F52FB20F7C3A6 /* MemoWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E32BF5EC574469A8D3977C5F /* MemoWindowView.swift */; };
 		B0BEAF3E4F2D6D40F6DC305B /* CloudBackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F08287E3E3DC5168BD5E7D /* CloudBackupService.swift */; };
 		B15F66E68D3C2F70256ADFF0 /* BatchPDFExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B347B683BC41A381BAA1F00 /* BatchPDFExporter.swift */; };
@@ -251,6 +252,7 @@
 		53978275BA1221231FE9B922 /* MemoListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoListViewModel.swift; sourceTree = "<group>"; };
 		543D37A0F441617A309A7682 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		553A8056539CC98603A3A6EC /* PaymentMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentMethod.swift; sourceTree = "<group>"; };
+		562693C9ED9E7551334A4BF1 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		565A4EA28FA3E61AE96AF9A5 /* InventoryRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryRoutes.swift; sourceTree = "<group>"; };
 		56EC23CBF87289FD1987521D /* CSVImportPreviewSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVImportPreviewSheet.swift; sourceTree = "<group>"; };
 		5831C493F0619CB48CD8EA23 /* DiamondsInventoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiamondsInventoryView.swift; sourceTree = "<group>"; };
@@ -591,6 +593,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		71B7EFCA2F92F4F9FEE0D175 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				562693C9ED9E7551334A4BF1 /* LoginView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
 		764E2826C918CDE7A0544068 /* Components */ = {
 			isa = PBXGroup;
 			children = (
@@ -684,6 +694,7 @@
 			isa = PBXGroup;
 			children = (
 				310DE5650EA149547265D6B7 /* Accounting */,
+				71B7EFCA2F92F4F9FEE0D175 /* Auth */,
 				BE38E5168CFD4FEABBD25751 /* Customers */,
 				4826D114D71A1F97B85EFA35 /* Dashboard */,
 				50A504FD873DB636F1D74C78 /* Forms */,
@@ -989,6 +1000,7 @@
 				72DDA78BD6DCEBA65A238C75 /* LineItem.swift in Sources */,
 				C604BF9B9BE75A4DE210A592 /* LineItemKind.swift in Sources */,
 				D139FE43F09FB5A1B750B918 /* LineItemStatus.swift in Sources */,
+				B01FF9DEEA42A060CA1ABCC2 /* LoginView.swift in Sources */,
 				931FFC237CBE06B9BBE6EDCB /* LotInventoryView.swift in Sources */,
 				67B2AAA74D6698A0B1B91324 /* LotInventoryViewModel.swift in Sources */,
 				5D4252BCD24FFD3E613925DB /* LotSelectSheet.swift in Sources */,
