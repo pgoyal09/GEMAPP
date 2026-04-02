@@ -118,21 +118,21 @@ struct MemoListView: View {
     private var headerRow: some View {
         HStack(spacing: 4) {
             sortableHeader("Ref #", key: "reference", width: TableColumn.memo)
-            sortableHeader("Customer", key: "customer", width: TableColumn.customer)
+            sortableHeader("Customer", key: "customer", width: TableColumn.customer, flex: true)
             sortableHeader("Date", key: "date", width: TableColumn.date)
             TableHeader(title: "Items", width: TableColumn.quantity, alignment: .trailing)
             sortableHeader("Total", key: "total", width: TableColumn.price, alignment: .trailing)
-            sortableHeader("Status", key: "status", width: TableColumn.status)
-            Spacer()
+            sortableHeader("Status", key: "status", width: TableColumn.status, minWidth: 110)
         }
         .padding(.horizontal, AppSpacing.section)
         .padding(.vertical, AppSpacing.comfortable)
     }
 
-    private func sortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment = .leading) -> TableHeader {
+    private func sortableHeader(_ title: String, key: String, width: CGFloat, flex: Bool = false, alignment: Alignment = .leading, minWidth: CGFloat? = nil) -> TableHeader {
         TableHeader(
             title: title,
-            width: width,
+            width: minWidth ?? width,
+            flex: flex || minWidth != nil,
             alignment: alignment,
             isSorted: viewModel.sortKey == key,
             ascending: viewModel.sortAscending,
@@ -155,7 +155,7 @@ struct MemoListView: View {
                 .foregroundStyle(AppColors.inkMuted)
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .frame(width: TableColumn.customer, alignment: .leading)
+                .frame(minWidth: TableColumn.customer, maxWidth: .infinity, alignment: .leading)
             Text(memo.dateAssigned?.formatted(date: .abbreviated, time: .omitted) ?? "—")
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkSubtle)
@@ -172,8 +172,7 @@ struct MemoListView: View {
                 .lineLimit(1)
                 .frame(width: TableColumn.price, alignment: .trailing)
             statusBadge(memo.status)
-                .frame(width: TableColumn.status, alignment: .leading)
-            Spacer()
+                .frame(minWidth: 110, alignment: .leading)
         }
         .frame(height: 32)
         .simultaneousGesture(TapGesture(count: 2).onEnded {
