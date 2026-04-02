@@ -13,7 +13,7 @@ struct AutocompleteTextField: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        ZStack(alignment: .topLeading) {
             TextField(label, text: $text)
                 .textFieldStyle(.plain)
                 .font(AppTypography.body)
@@ -34,6 +34,10 @@ struct AutocompleteTextField: View {
                 .onChange(of: text) { _, _ in
                     showSuggestions = isFocused
                 }
+                .onKeyPress(.tab) {
+                    showSuggestions = false
+                    return .ignored
+                }
 
             if showSuggestions && !filteredOptions.isEmpty {
                 ScrollView {
@@ -51,6 +55,7 @@ struct AutocompleteTextField: View {
                                     .padding(.vertical, AppSpacing.compact)
                             }
                             .buttonStyle(.plain)
+                            .focusable(false)
                         }
                     }
                 }
@@ -63,8 +68,9 @@ struct AutocompleteTextField: View {
                     RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                         .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                 )
-                .zIndex(10)
                 .shadow(color: Color.black.opacity(0.3), radius: 8)
+                .offset(y: 32)
+                .zIndex(10)
             }
         }
     }
