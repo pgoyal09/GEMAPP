@@ -121,14 +121,14 @@ struct InvoiceListView: View {
 
     private var headerRow: some View {
         HStack(spacing: 4) {
-            sortableHeader("Ref #", key: "reference", width: TableColumn.invoice)
+            sortableHeader("Ref #", key: "reference", width: TableColumn.invoice, flex: true)
             sortableHeader("Customer", key: "customer", width: TableColumn.customer, flex: true)
-            sortableHeader("Date", key: "date", width: TableColumn.date)
-            TableHeader(title: "Items", width: TableColumn.quantity, alignment: .trailing)
-            sortableHeader("Total", key: "total", width: TableColumn.price, alignment: .trailing)
-            sortableHeader("Status", key: "status", width: TableColumn.status, minWidth: 110)
+            sortableHeader("Date", key: "date", width: TableColumn.date, flex: true)
+            TableHeader(title: "Items", width: TableColumn.quantity, flex: true, alignment: .trailing)
+            sortableHeader("Total", key: "total", width: TableColumn.price, flex: true, alignment: .trailing)
+            sortableHeader("Status", key: "status", width: 110, flex: true)
         }
-        .padding(.horizontal, AppSpacing.section)
+        .padding(.horizontal, AppSpacing.standard)
         .padding(.vertical, AppSpacing.comfortable)
     }
 
@@ -153,7 +153,7 @@ struct InvoiceListView: View {
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
-                .frame(width: TableColumn.invoice, alignment: .leading)
+                .frame(minWidth: TableColumn.invoice, maxWidth: .infinity, alignment: .leading)
             Text(invoice.customer?.displayName ?? "—")
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.inkMuted)
@@ -164,19 +164,19 @@ struct InvoiceListView: View {
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkSubtle)
                 .lineLimit(1)
-                .frame(width: TableColumn.date, alignment: .leading)
+                .frame(minWidth: TableColumn.date, maxWidth: .infinity, alignment: .leading)
             Text("\(invoice.lineItems.count)")
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
                 .lineLimit(1)
-                .frame(width: TableColumn.quantity, alignment: .trailing)
+                .frame(minWidth: TableColumn.quantity, maxWidth: .infinity, alignment: .trailing)
             Text(invoice.totalAmount.asCurrency)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
-                .frame(width: TableColumn.price, alignment: .trailing)
+                .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
             statusBadge(invoice.status)
-                .frame(minWidth: 110, alignment: .leading)
+                .frame(minWidth: 110, maxWidth: .infinity, alignment: .leading)
         }
         .frame(height: 32)
         .simultaneousGesture(TapGesture(count: 2).onEnded {
