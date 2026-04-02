@@ -4,7 +4,9 @@ import SwiftData
 struct EditableLineItemRow: View {
     @Bindable var item: LineItem
     @Environment(\.modelContext) private var modelContext
+    var rowNumber: Int = 0
     var onUpdate: () -> Void = {}
+    var onDelete: (() -> Void)? = nil
 
     @State private var descriptionText: String = ""
     @State private var caratsText: String = ""
@@ -13,11 +15,17 @@ struct EditableLineItemRow: View {
 
     var body: some View {
         HStack(spacing: AppSpacing.standard) {
+            // Row number
+            Text("\(rowNumber)")
+                .font(AppTypography.mono)
+                .foregroundStyle(AppColors.inkSubtle)
+                .frame(width: 28, alignment: .center)
+
             // SKU
             Text(item.displaySku)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.inkMuted)
-                .frame(width: TableColumn.sku, alignment: .leading)
+                .frame(minWidth: TableColumn.sku, maxWidth: .infinity, alignment: .leading)
 
             // Stone Type
             if item.kind == .brokered {
@@ -28,18 +36,18 @@ struct EditableLineItemRow: View {
                     }
                 }
                 .labelsHidden()
-                .frame(width: TableColumn.type)
+                .frame(minWidth: TableColumn.type, maxWidth: .infinity)
             } else {
                 Text(item.stoneTypeDisplay)
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.inkMuted)
-                    .frame(width: TableColumn.type, alignment: .leading)
+                    .frame(minWidth: TableColumn.type, maxWidth: .infinity, alignment: .leading)
             }
 
             // Description
             TextField("Description", text: $descriptionText)
                 .glassField()
-                .frame(width: TableColumn.description)
+                .frame(minWidth: TableColumn.description, maxWidth: .infinity)
                 .onChange(of: descriptionText) { _, val in
                     guard !isSyncing else { return }
                     item.itemDescription = val
@@ -51,11 +59,11 @@ struct EditableLineItemRow: View {
                 Text("—")
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.inkSubtle)
-                    .frame(width: TableColumn.carat, alignment: .trailing)
+                    .frame(minWidth: TableColumn.carat, maxWidth: .infinity, alignment: .trailing)
             } else {
                 TextField("0.00", text: $caratsText)
                     .glassField()
-                    .frame(width: TableColumn.carat)
+                    .frame(minWidth: TableColumn.carat, maxWidth: .infinity)
                     .onChange(of: caratsText) { _, val in
                         guard !isSyncing else { return }
                         item.carats = Double(val) ?? 0
@@ -67,7 +75,7 @@ struct EditableLineItemRow: View {
             // Rate
             TextField("0.00", text: $rateText)
                 .glassField()
-                .frame(width: TableColumn.price)
+                .frame(minWidth: TableColumn.price, maxWidth: .infinity)
                 .onChange(of: rateText) { _, val in
                     guard !isSyncing else { return }
                     item.rate = Decimal(string: val) ?? 0
@@ -83,7 +91,18 @@ struct EditableLineItemRow: View {
             Text(item.amount.asCurrency)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
-                .frame(width: TableColumn.price, alignment: .trailing)
+                .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
+
+            // Delete button
+            if let onDelete {
+                Button(action: onDelete) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 12))
+                        .foregroundStyle(AppColors.inkSubtle)
+                }
+                .buttonStyle(.plain)
+                .frame(width: 28)
+            }
         }
         .onAppear { syncFromModel() }
     }

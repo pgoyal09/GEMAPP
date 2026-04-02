@@ -420,34 +420,80 @@ struct InvoiceDocumentView: View {
 
             // Table header
             HStack(spacing: 0) {
+                Text("#")
+                    .font(AppTypography.mono)
+                    .foregroundStyle(AppColors.inkSubtle)
+                    .frame(width: 28, alignment: .center)
                 TableHeader(title: "SKU", width: TableColumn.sku)
                 TableHeader(title: "Type", width: TableColumn.type)
                 TableHeader(title: "Description", width: TableColumn.description)
                 TableHeader(title: "Carats", width: TableColumn.carat)
                 TableHeader(title: "Rate", width: TableColumn.price)
                 TableHeader(title: "Amount", width: TableColumn.price)
+                Spacer().frame(width: 28)
             }
             .padding(.horizontal, AppSpacing.comfortable)
             .padding(.vertical, AppSpacing.compact)
             .background(AppColors.cardElevated)
 
+            // Divider below header
+            Divider().background(AppColors.cardStroke)
+
             // Rows
-            ForEach(invoice.lineItems) { item in
-                EditableLineItemRow(item: item) { markDirty() }
-                    .frame(height: 28)
-                    .padding(.horizontal, AppSpacing.comfortable)
-                    .contextMenu {
-                        if isEditable {
-                            Button("Remove") {
-                                do {
-                                    try TransactionService.removeLineItem(item, modelContext: modelContext)
-                                    markDirty()
-                                } catch {
-                                    showToast("Failed to remove item: \(ErrorMapper.userMessage(from: error))", isError: true)
-                                }
+            ForEach(Array(invoice.lineItems.enumerated()), id: \.element.id) { index, item in
+                VStack(spacing: 0) {
+                    EditableLineItemRow(
+                        item: item,
+                        rowNumber: index + 1,
+                        onUpdate: { markDirty() },
+                        onDelete: isEditable ? {
+                            do {
+                                try TransactionService.removeLineItem(item, modelContext: modelContext)
+                                markDirty()
+                            } catch {
+                                showToast("Failed to remove item: \(ErrorMapper.userMessage(from: error))", isError: true)
                             }
-                        }
+                        } : nil
+                    )
+                    .frame(height: 44)
+                    .padding(.horizontal, AppSpacing.comfortable)
+
+                    if index < invoice.lineItems.count - 1 {
+                        Divider().background(AppColors.cardStroke).padding(.horizontal, AppSpacing.comfortable)
                     }
+                }
+            }
+
+            // Empty placeholder row
+            VStack(spacing: 0) {
+                Divider().background(AppColors.cardStroke).padding(.horizontal, AppSpacing.comfortable)
+                HStack(spacing: AppSpacing.standard) {
+                    Text("\(invoice.lineItems.count + 1)")
+                        .font(AppTypography.mono)
+                        .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
+                        .frame(width: 28, alignment: .center)
+                    Text("—")
+                        .font(AppTypography.mono)
+                        .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
+                        .frame(minWidth: TableColumn.sku, maxWidth: .infinity, alignment: .leading)
+                    Text("—")
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
+                        .frame(minWidth: TableColumn.type, maxWidth: .infinity, alignment: .leading)
+                    Text("")
+                        .frame(minWidth: TableColumn.description, maxWidth: .infinity)
+                    Text("")
+                        .frame(minWidth: TableColumn.carat, maxWidth: .infinity)
+                    Text("")
+                        .frame(minWidth: TableColumn.price, maxWidth: .infinity)
+                    Text("$0.00")
+                        .font(AppTypography.mono)
+                        .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
+                        .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
+                    Spacer().frame(width: 28)
+                }
+                .frame(height: 44)
+                .padding(.horizontal, AppSpacing.comfortable)
             }
 
             if invoice.lineItems.isEmpty {
