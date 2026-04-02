@@ -9,6 +9,7 @@ struct CustomerListView: View {
     @State private var doubleClickedCustomer: Customer?
 
     var body: some View {
+        GeometryReader { geometry in
         ZStack {
             VStack(spacing: 0) {
                 // Toolbar
@@ -41,7 +42,7 @@ struct CustomerListView: View {
                 HStack(spacing: 0) {
                     Spacer()
                     CustomerFullDetailView(customer: customer, onDismiss: { doubleClickedCustomer = nil })
-                        .frame(width: 380)
+                        .frame(width: geometry.size.width / 2)
                         .background(.ultraThinMaterial)
                         .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous))
                         .overlay(
@@ -54,6 +55,7 @@ struct CustomerListView: View {
                 .padding(.vertical, AppSpacing.standard)
                 .padding(.trailing, AppSpacing.standard)
             }
+        }
         }
         .accessibilityIdentifier("CustomerListView")
         .animation(reduceMotion ? nil : AppAnimation.sheetSpring, value: doubleClickedCustomer?.persistentModelID)
