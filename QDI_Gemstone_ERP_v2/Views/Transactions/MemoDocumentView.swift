@@ -27,6 +27,7 @@ struct MemoDocumentView: View {
     @State private var showUnsavedAlert = false
     @State private var duplicateWarning: String?
     @State private var showCustomerDropdown = false
+    @State private var lineItemTableWidth: CGFloat = 0
     @State private var dateText = ""
     @State private var dateError: String?
     @State private var showDatePicker = false
@@ -41,6 +42,16 @@ struct MemoDocumentView: View {
         ColumnDef("rate", weight: 1.5, minWidth: 65, alignment: .trailing),
         ColumnDef("amount", weight: 1.5, minWidth: 65, alignment: .trailing),
     ], spacing: 4)
+
+    /// Column widths derived from measured card width
+    private var lineItemWidths: [CGFloat] {
+        let padding = AppSpacing.section * 2 // card outer padding
+        let hPad = AppSpacing.comfortable * 2 // row horizontal padding
+        let fixedCols: CGFloat = 28 + 28 // row# + trash
+        let spacing: CGFloat = 4 * 7 // 8 items, 7 gaps at spacing 4
+        let available = max(0, lineItemTableWidth - padding - hPad - fixedCols - spacing)
+        return Self.lineItemLayout.widths(for: available)
+    }
 
     private var filteredCustomers: [Customer] {
         let q = customerSearchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
@@ -72,12 +83,13 @@ struct MemoDocumentView: View {
             } else {
                 VStack(spacing: 0) {
                     ScrollView {
-                        VStack(alignment: .leading, spacing: AppSpacing.hero) {
+                        VStack(spacing: AppSpacing.hero) {
                             headerSection
                             lineItemsSection
                             totalsSection
                             notesSection
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(AppSpacing.hero)
                     }
                     bottomToolbar
@@ -432,127 +444,124 @@ struct MemoDocumentView: View {
                 selectedItemActions
             }
 
-            GeometryReader { geo in
-                let fixedWidth: CGFloat = 28 + 4 + 28 + 4
-                let widths = Self.lineItemLayout.widths(for: geo.size.width - 2 * AppSpacing.comfortable - fixedWidth)
+            // Table header
+            HStack(spacing: 4) {
+                Text("#")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+                    .frame(width: 28, alignment: .center)
+                Text("SKU")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+                    .frame(width: lineItemWidths.indices.contains(0) ? lineItemWidths[0] : 60, alignment: .leading)
+                Text("Type")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+                    .frame(width: lineItemWidths.indices.contains(1) ? lineItemWidths[1] : 60, alignment: .leading)
+                Text("Description")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+                    .frame(width: lineItemWidths.indices.contains(2) ? lineItemWidths[2] : 60, alignment: .leading)
+                Text("Carats")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+                    .frame(width: lineItemWidths.indices.contains(3) ? lineItemWidths[3] : 60, alignment: .trailing)
+                Text("Rate")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+                    .frame(width: lineItemWidths.indices.contains(4) ? lineItemWidths[4] : 60, alignment: .trailing)
+                Text("Amount")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+                    .frame(width: lineItemWidths.indices.contains(5) ? lineItemWidths[5] : 60, alignment: .trailing)
+                Spacer().frame(width: 28)
+            }
+            .padding(.horizontal, AppSpacing.comfortable)
+            .padding(.vertical, AppSpacing.compact)
+            .background(AppColors.cardElevated)
+
+            // Divider below header
+            Divider().background(AppColors.cardStroke)
+
+            // Rows
+            ForEach(Array(memo.lineItems.enumerated()), id: \.element.id) { index, item in
                 VStack(spacing: 0) {
-                    // Table header
-                    HStack(spacing: 4) {
-                        Text("#")
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColors.inkSubtle)
-                            .frame(width: 28, alignment: .center)
-                        Text("SKU")
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColors.inkSubtle)
-                            .frame(width: widths[0], alignment: .leading)
-                        Text("Type")
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColors.inkSubtle)
-                            .frame(width: widths[1], alignment: .leading)
-                        Text("Description")
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColors.inkSubtle)
-                            .frame(width: widths[2], alignment: .leading)
-                        Text("Carats")
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColors.inkSubtle)
-                            .frame(width: widths[3], alignment: .trailing)
-                        Text("Rate")
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColors.inkSubtle)
-                            .frame(width: widths[4], alignment: .trailing)
-                        Text("Amount")
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColors.inkSubtle)
-                            .frame(width: widths[5], alignment: .trailing)
-                        Spacer().frame(width: 28)
-                    }
-                    .padding(.horizontal, AppSpacing.comfortable)
-                    .padding(.vertical, AppSpacing.compact)
-                    .background(AppColors.cardElevated)
-
-                    // Divider below header
-                    Divider().background(AppColors.cardStroke)
-
-                    // Rows
-                    ForEach(Array(memo.lineItems.enumerated()), id: \.element.id) { index, item in
-                        VStack(spacing: 0) {
-                            EditableLineItemRow(
-                                item: item,
-                                rowNumber: index + 1,
-                                widths: widths,
-                                onUpdate: { markDirty() },
-                                onDelete: {
-                                    do {
-                                        try TransactionService.removeLineItem(item, modelContext: modelContext)
-                                        markDirty()
-                                    } catch {
-                                        showToast("Failed to remove item: \(ErrorMapper.userMessage(from: error))", isError: true)
-                                    }
-                                }
-                            )
-                            .frame(height: 44)
-                            .padding(.horizontal, AppSpacing.comfortable)
-
-                            if index < memo.lineItems.count - 1 {
-                                Divider().background(AppColors.cardStroke).padding(.horizontal, AppSpacing.comfortable)
+                    EditableLineItemRow(
+                        item: item,
+                        rowNumber: index + 1,
+                        widths: lineItemWidths,
+                        onUpdate: { markDirty() },
+                        onDelete: {
+                            do {
+                                try TransactionService.removeLineItem(item, modelContext: modelContext)
+                                markDirty()
+                            } catch {
+                                showToast("Failed to remove item: \(ErrorMapper.userMessage(from: error))", isError: true)
                             }
                         }
-                    }
+                    )
+                    .frame(height: 44)
+                    .padding(.horizontal, AppSpacing.comfortable)
 
-                    // Empty placeholder row
-                    VStack(spacing: 0) {
+                    if index < memo.lineItems.count - 1 {
                         Divider().background(AppColors.cardStroke).padding(.horizontal, AppSpacing.comfortable)
-                        HStack(spacing: 4) {
-                            Text("\(memo.lineItems.count + 1)")
-                                .font(AppTypography.mono)
-                                .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
-                                .frame(width: 28, alignment: .center)
-                            Text("—")
-                                .font(AppTypography.mono)
-                                .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
-                                .frame(width: widths[0], alignment: .leading)
-                            Text("—")
-                                .font(AppTypography.body)
-                                .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
-                                .frame(width: widths[1], alignment: .leading)
-                            Text("")
-                                .frame(width: widths[2])
-                            Text("")
-                                .frame(width: widths[3])
-                            Text("")
-                                .frame(width: widths[4])
-                            Text("$0.00")
-                                .font(AppTypography.mono)
-                                .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
-                                .frame(width: widths[5], alignment: .trailing)
-                            Spacer().frame(width: 28)
-                        }
-                        .frame(height: 44)
-                        .padding(.horizontal, AppSpacing.comfortable)
-                    }
-
-                    if memo.lineItems.isEmpty {
-                        Text("No line items. Add stones or services above.")
-                            .font(AppTypography.body)
-                            .foregroundStyle(AppColors.inkSubtle)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, AppSpacing.hero)
                     }
                 }
             }
-            .frame(minHeight: CGFloat(memo.lineItems.count + 2) * 44 + 30)
+
+            // Empty placeholder row
+            VStack(spacing: 0) {
+                Divider().background(AppColors.cardStroke).padding(.horizontal, AppSpacing.comfortable)
+                HStack(spacing: 4) {
+                    Text("\(memo.lineItems.count + 1)")
+                        .font(AppTypography.mono)
+                        .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
+                        .frame(width: 28, alignment: .center)
+                    Text("—")
+                        .font(AppTypography.mono)
+                        .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
+                        .frame(width: lineItemWidths.indices.contains(0) ? lineItemWidths[0] : 60, alignment: .leading)
+                    Text("—")
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
+                        .frame(width: lineItemWidths.indices.contains(1) ? lineItemWidths[1] : 60, alignment: .leading)
+                    Text("")
+                        .frame(width: lineItemWidths.indices.contains(2) ? lineItemWidths[2] : 60)
+                    Text("")
+                        .frame(width: lineItemWidths.indices.contains(3) ? lineItemWidths[3] : 60)
+                    Text("")
+                        .frame(width: lineItemWidths.indices.contains(4) ? lineItemWidths[4] : 60)
+                    Text("$0.00")
+                        .font(AppTypography.mono)
+                        .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
+                        .frame(width: lineItemWidths.indices.contains(5) ? lineItemWidths[5] : 60, alignment: .trailing)
+                    Spacer().frame(width: 28)
+                }
+                .frame(height: 44)
+                .padding(.horizontal, AppSpacing.comfortable)
+            }
+
+            if memo.lineItems.isEmpty {
+                Text("No line items. Add stones or services above.")
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColors.inkSubtle)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, AppSpacing.hero)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(AppSpacing.section)
         .background(
-            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
-                .fill(AppColors.cardBackground)
-                .overlay(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
-                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
-                )
+            GeometryReader { geo in
+                RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                    .fill(AppColors.cardBackground)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                            .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                    )
+                    .onAppear { lineItemTableWidth = geo.size.width }
+                    .onChange(of: geo.size.width) { _, w in lineItemTableWidth = w }
+            }
         )
     }
 
