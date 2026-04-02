@@ -215,7 +215,7 @@ struct LotInventoryView: View {
             Spacer()
         }
         .padding(.horizontal, AppSpacing.standard)
-        .padding(.vertical, AppSpacing.comfortable)
+        .padding(.vertical, AppSpacing.compact)
     }
 
     private func sortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment) -> TableHeader {
