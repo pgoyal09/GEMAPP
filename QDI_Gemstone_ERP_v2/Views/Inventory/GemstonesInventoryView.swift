@@ -2,6 +2,25 @@ import SwiftUI
 import SwiftData
 
 struct GemstonesInventoryView: View {
+    // MARK: - Table Layout
+
+    private static let tableLayout = TableColumnLayout(columns: [
+        ColumnDef("sku", weight: 2.0, minWidth: 80),
+        ColumnDef("type", weight: 1.5, minWidth: 60),
+        ColumnDef("shape", weight: 1.5, minWidth: 60),
+        ColumnDef("carat", weight: 1.2, minWidth: 55, alignment: .trailing),
+        ColumnDef("color", weight: 1.5, minWidth: 60),
+        ColumnDef("clarity", weight: 1.2, minWidth: 55),
+        ColumnDef("origin", weight: 1.5, minWidth: 65),
+        ColumnDef("treatment", weight: 1.5, minWidth: 65),
+        ColumnDef("lab", weight: 0.8, minWidth: 40),
+        ColumnDef("cert", weight: 1.5, minWidth: 65),
+        ColumnDef("askPrice", weight: 1.5, minWidth: 70, alignment: .trailing),
+        ColumnDef("costPrice", weight: 1.5, minWidth: 70, alignment: .trailing),
+        ColumnDef("margin", weight: 1.2, minWidth: 60, alignment: .trailing),
+        ColumnDef("status", weight: 1.5, minWidth: 65, alignment: .center),
+    ], spacing: 4)
+
     @Binding var navigateTo: NavigationItem
 
     @Environment(\.modelContext) private var modelContext
@@ -447,9 +466,11 @@ struct GemstonesInventoryView: View {
     // MARK: - Table
 
     private var tableContent: some View {
-        ScrollView(.horizontal, showsIndicators: true) {
+        GeometryReader { geo in
+            let fixedWidth: CGFloat = 24 // checkbox
+            let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard - fixedWidth)
             VStack(spacing: 0) {
-                tableHeader
+                tableHeader(widths: widths)
                 Divider().background(AppColors.cardStroke)
                 if filteredStones.isEmpty {
                     EmptyStateView(icon: "aqi.medium", title: "No gemstones found", subtitle: "Try adjusting your search or filters")
@@ -458,7 +479,7 @@ struct GemstonesInventoryView: View {
                     ScrollView(.vertical) {
                         LazyVStack(spacing: 2) {
                             ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
-                                stoneRow(stone)
+                                stoneRow(stone, widths: widths)
                                     .simultaneousGesture(TapGesture(count: 2).onEnded {
                                         detailSheetStone = stone
                                     })
@@ -476,24 +497,23 @@ struct GemstonesInventoryView: View {
         .padding(.bottom, AppSpacing.comfortable)
     }
 
-    private var tableHeader: some View {
+    private func tableHeader(widths: [CGFloat]) -> some View {
         HStack(spacing: 4) {
             Color.clear.frame(width: 24)
-            sortableHeader("SKU", key: "sku", width: TableColumn.sku, alignment: .leading)
-            sortableHeader("Type", key: "type", width: TableColumn.type, alignment: .leading)
-            TableHeader(title: "Shape", width: TableColumn.shape, alignment: .leading)
-            sortableHeader("Carat", key: "carat", width: TableColumn.carat, alignment: .trailing)
-            sortableHeader("Color", key: "color", width: TableColumn.color, alignment: .leading)
-            TableHeader(title: "Clarity", width: TableColumn.clarity, alignment: .leading)
-            sortableHeader("Origin", key: "origin", width: TableColumn.origin, alignment: .leading)
-            TableHeader(title: "Treatment", width: TableColumn.origin, alignment: .leading)
-            TableHeader(title: "Lab", width: 50, alignment: .leading)
-            TableHeader(title: "Cert #", width: 90, alignment: .leading)
-            sortableHeader("Ask $/ct", key: "price", width: TableColumn.price, alignment: .trailing)
-            sortableHeader("Cost $/ct", key: "cost", width: TableColumn.price, alignment: .trailing)
-            TableHeader(title: "Margin %", width: TableColumn.margin, alignment: .trailing)
-            sortableHeader("Status", key: "status", width: TableColumn.status, alignment: .center)
-            Spacer()
+            sortableHeader("SKU", key: "sku", width: widths[0], alignment: .leading)
+            sortableHeader("Type", key: "type", width: widths[1], alignment: .leading)
+            TableHeader(title: "Shape", width: widths[2], alignment: .leading)
+            sortableHeader("Carat", key: "carat", width: widths[3], alignment: .trailing)
+            sortableHeader("Color", key: "color", width: widths[4], alignment: .leading)
+            TableHeader(title: "Clarity", width: widths[5], alignment: .leading)
+            sortableHeader("Origin", key: "origin", width: widths[6], alignment: .leading)
+            TableHeader(title: "Treatment", width: widths[7], alignment: .leading)
+            TableHeader(title: "Lab", width: widths[8], alignment: .leading)
+            TableHeader(title: "Cert #", width: widths[9], alignment: .leading)
+            sortableHeader("Ask $/ct", key: "price", width: widths[10], alignment: .trailing)
+            sortableHeader("Cost $/ct", key: "cost", width: widths[11], alignment: .trailing)
+            TableHeader(title: "Margin %", width: widths[12], alignment: .trailing)
+            sortableHeader("Status", key: "status", width: widths[13], alignment: .center)
         }
         .padding(.horizontal, AppSpacing.standard)
         .padding(.vertical, AppSpacing.compact)
@@ -505,7 +525,7 @@ struct GemstonesInventoryView: View {
 
     @State private var detailSheetStone: Gemstone?
 
-    private func stoneRow(_ stone: Gemstone) -> some View {
+    private func stoneRow(_ stone: Gemstone, widths: [CGFloat]) -> some View {
         HoverRow(isSelected: selectedStoneID == stone.persistentModelID, onTap: {
             selectedStoneID = selectedStoneID == stone.persistentModelID ? nil : stone.persistentModelID
         }) {
@@ -518,21 +538,20 @@ struct GemstonesInventoryView: View {
             )) { EmptyView() }
             .toggleStyle(.checkbox).frame(width: 24)
 
-            highlightedText(stone.sku, highlight: searchText).font(AppTypography.mono).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.sku, alignment: .leading)
-            StoneTypeBadge(type: stone.stoneType.rawValue).frame(width: TableColumn.type, alignment: .leading)
-            Text(stone.shape).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.shape, alignment: .leading)
-            Text(String(format: "%.2f", stone.caratWeight)).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: TableColumn.carat, alignment: .trailing)
-            Text(stone.primaryColorVendor ?? stone.color).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.color, alignment: .leading)
-            Text(stone.clarity).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.clarity, alignment: .leading)
-            Text(stone.origin).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.origin, alignment: .leading)
-            Text(stone.treatment).font(AppTypography.body).foregroundStyle(AppColors.inkMuted).lineLimit(1).frame(width: TableColumn.origin, alignment: .leading)
-            Text(stone.certLab).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: 50, alignment: .leading)
-            Text(stone.certNo).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).lineLimit(1).frame(width: 90, alignment: .leading)
-            Text(stone.sellPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: TableColumn.price, alignment: .trailing)
-            Text(stone.costPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.price, alignment: .trailing)
-            Text(marginText(cost: stone.costPrice, sell: stone.sellPrice)).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.margin, alignment: .trailing)
-            statusBadge(for: stone.status).frame(width: TableColumn.status, alignment: .center)
-            Spacer()
+            highlightedText(stone.sku, highlight: searchText).font(AppTypography.mono).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[0], alignment: .leading)
+            StoneTypeBadge(type: stone.stoneType.rawValue).frame(width: widths[1], alignment: .leading)
+            Text(stone.shape).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[2], alignment: .leading)
+            Text(String(format: "%.2f", stone.caratWeight)).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: widths[3], alignment: .trailing)
+            Text(stone.primaryColorVendor ?? stone.color).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[4], alignment: .leading)
+            Text(stone.clarity).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[5], alignment: .leading)
+            Text(stone.origin).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[6], alignment: .leading)
+            Text(stone.treatment).font(AppTypography.body).foregroundStyle(AppColors.inkMuted).lineLimit(1).frame(width: widths[7], alignment: .leading)
+            Text(stone.certLab).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[8], alignment: .leading)
+            Text(stone.certNo).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).lineLimit(1).frame(width: widths[9], alignment: .leading)
+            Text(stone.sellPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: widths[10], alignment: .trailing)
+            Text(stone.costPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: widths[11], alignment: .trailing)
+            Text(marginText(cost: stone.costPrice, sell: stone.sellPrice)).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: widths[12], alignment: .trailing)
+            statusBadge(for: stone.status).frame(width: widths[13], alignment: .center)
         }
     }
 

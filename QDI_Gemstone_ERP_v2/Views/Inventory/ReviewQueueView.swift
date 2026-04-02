@@ -2,6 +2,16 @@ import SwiftUI
 import SwiftData
 
 struct ReviewQueueView: View {
+    // MARK: - Table Layout
+
+    private static let tableLayout = TableColumnLayout(columns: [
+        ColumnDef("sku", weight: 2.0, minWidth: 80),
+        ColumnDef("type", weight: 1.5, minWidth: 60),
+        ColumnDef("shape", weight: 1.5, minWidth: 60),
+        ColumnDef("created", weight: 1.5, minWidth: 70),
+        ColumnDef("missing", weight: 3.0, minWidth: 120),
+    ], spacing: 4)
+
     @Environment(\.modelContext) private var modelContext
     @Query private var allGemstones: [Gemstone]
 
@@ -72,25 +82,28 @@ struct ReviewQueueView: View {
     // MARK: - Table
 
     private var tableContent: some View {
-        VStack(spacing: 0) {
-            tableHeader
-            Divider().background(AppColors.cardStroke)
+        GeometryReader { geo in
+            let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.section)
+            VStack(spacing: 0) {
+                tableHeader(widths: widths)
+                Divider().background(AppColors.cardStroke)
 
-            if reviewStones.isEmpty {
-                EmptyStateView(
-                    icon: "checkmark.seal",
-                    title: "All caught up!",
-                    subtitle: "No stones need review"
-                )
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 2) {
-                        ForEach(reviewStones, id: \.persistentModelID) { stone in
-                            reviewRow(stone)
+                if reviewStones.isEmpty {
+                    EmptyStateView(
+                        icon: "checkmark.seal",
+                        title: "All caught up!",
+                        subtitle: "No stones need review"
+                    )
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: 2) {
+                            ForEach(reviewStones, id: \.persistentModelID) { stone in
+                                reviewRow(stone, widths: widths)
+                            }
                         }
+                        .padding(.vertical, AppSpacing.standard)
+                        .frame(maxWidth: .infinity)
                     }
-                    .padding(.vertical, AppSpacing.standard)
-                    .frame(maxWidth: .infinity)
                 }
             }
         }
@@ -107,20 +120,19 @@ struct ReviewQueueView: View {
         .padding(.bottom, AppSpacing.hero)
     }
 
-    private var tableHeader: some View {
+    private func tableHeader(widths: [CGFloat]) -> some View {
         HStack(spacing: 4) {
-            TableHeader(title: "SKU", width: TableColumn.sku, alignment: .leading)
-            TableHeader(title: "Type", width: TableColumn.type, alignment: .leading)
-            TableHeader(title: "Shape", width: TableColumn.shape, alignment: .leading)
-            TableHeader(title: "Created", width: TableColumn.date, alignment: .leading)
-            TableHeader(title: "Missing Fields", alignment: .leading)
-            Spacer()
+            TableHeader(title: "SKU", width: widths[0], alignment: .leading)
+            TableHeader(title: "Type", width: widths[1], alignment: .leading)
+            TableHeader(title: "Shape", width: widths[2], alignment: .leading)
+            TableHeader(title: "Created", width: widths[3], alignment: .leading)
+            TableHeader(title: "Missing Fields", width: widths[4], alignment: .leading)
         }
         .padding(.horizontal, AppSpacing.section)
         .padding(.vertical, AppSpacing.comfortable)
     }
 
-    private func reviewRow(_ stone: Gemstone) -> some View {
+    private func reviewRow(_ stone: Gemstone, widths: [CGFloat]) -> some View {
         HoverRow(isSelected: selectedStoneID == stone.persistentModelID, onTap: {
             selectedStoneID = stone.persistentModelID
             editingStone = stone
@@ -129,24 +141,23 @@ struct ReviewQueueView: View {
             Text(stone.sku)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
-                .frame(width: TableColumn.sku, alignment: .leading)
+                .frame(width: widths[0], alignment: .leading)
 
             StoneTypeBadge(type: stone.stoneType.rawValue)
-                .frame(width: TableColumn.type, alignment: .leading)
+                .frame(width: widths[1], alignment: .leading)
 
             Text(stone.shape.isEmpty ? "--" : stone.shape)
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.ink)
-                .frame(width: TableColumn.shape, alignment: .leading)
+                .frame(width: widths[2], alignment: .leading)
 
             Text(formattedDate(stone.createdAt))
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
-                .frame(width: TableColumn.date, alignment: .leading)
+                .frame(width: widths[3], alignment: .leading)
 
             missingFieldChips(stone.missingFieldsSummary)
-
-            Spacer()
+                .frame(width: widths[4], alignment: .leading)
         }
     }
 

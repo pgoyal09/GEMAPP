@@ -29,6 +29,15 @@ struct InvoiceDocumentView: View {
     @State private var dateError: String?
     @State private var showDatePicker = false
 
+    private static let lineItemLayout = TableColumnLayout(columns: [
+        ColumnDef("sku", weight: 2.0, minWidth: 80),
+        ColumnDef("type", weight: 1.5, minWidth: 60),
+        ColumnDef("description", weight: 3.0, minWidth: 120),
+        ColumnDef("carats", weight: 1.2, minWidth: 55, alignment: .trailing),
+        ColumnDef("rate", weight: 1.5, minWidth: 65, alignment: .trailing),
+        ColumnDef("amount", weight: 1.5, minWidth: 65, alignment: .trailing),
+    ], spacing: 4)
+
     private var isEditable: Bool {
         invoice.status == .draft
     }
@@ -418,109 +427,117 @@ struct InvoiceDocumentView: View {
                 if isEditable { addItemsMenu }
             }
 
-            // Table header
-            HStack(spacing: AppSpacing.standard) {
-                Text("#")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .frame(width: 28, alignment: .center)
-                Text("SKU")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .frame(minWidth: TableColumn.sku, maxWidth: .infinity, alignment: .leading)
-                Text("Type")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .frame(minWidth: TableColumn.type, maxWidth: .infinity, alignment: .leading)
-                Text("Description")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .frame(minWidth: TableColumn.description, maxWidth: .infinity, alignment: .leading)
-                Text("Carats")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .frame(minWidth: TableColumn.carat, maxWidth: .infinity, alignment: .trailing)
-                Text("Rate")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
-                Text("Amount")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
-                Spacer().frame(width: 28)
-            }
-            .padding(.horizontal, AppSpacing.comfortable)
-            .padding(.vertical, AppSpacing.compact)
-            .background(AppColors.cardElevated)
-
-            // Divider below header
-            Divider().background(AppColors.cardStroke)
-
-            // Rows
-            ForEach(Array(invoice.lineItems.enumerated()), id: \.element.id) { index, item in
+            GeometryReader { geo in
+                let fixedWidth: CGFloat = 28 + 4 + 28 + 4
+                let widths = Self.lineItemLayout.widths(for: geo.size.width - 2 * AppSpacing.comfortable - fixedWidth)
                 VStack(spacing: 0) {
-                    EditableLineItemRow(
-                        item: item,
-                        rowNumber: index + 1,
-                        onUpdate: { markDirty() },
-                        onDelete: isEditable ? {
-                            do {
-                                try TransactionService.removeLineItem(item, modelContext: modelContext)
-                                markDirty()
-                            } catch {
-                                showToast("Failed to remove item: \(ErrorMapper.userMessage(from: error))", isError: true)
-                            }
-                        } : nil
-                    )
-                    .frame(height: 44)
+                    // Table header
+                    HStack(spacing: 4) {
+                        Text("#")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.inkSubtle)
+                            .frame(width: 28, alignment: .center)
+                        Text("SKU")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.inkSubtle)
+                            .frame(width: widths[0], alignment: .leading)
+                        Text("Type")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.inkSubtle)
+                            .frame(width: widths[1], alignment: .leading)
+                        Text("Description")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.inkSubtle)
+                            .frame(width: widths[2], alignment: .leading)
+                        Text("Carats")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.inkSubtle)
+                            .frame(width: widths[3], alignment: .trailing)
+                        Text("Rate")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.inkSubtle)
+                            .frame(width: widths[4], alignment: .trailing)
+                        Text("Amount")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.inkSubtle)
+                            .frame(width: widths[5], alignment: .trailing)
+                        Spacer().frame(width: 28)
+                    }
                     .padding(.horizontal, AppSpacing.comfortable)
+                    .padding(.vertical, AppSpacing.compact)
+                    .background(AppColors.cardElevated)
 
-                    if index < invoice.lineItems.count - 1 {
+                    // Divider below header
+                    Divider().background(AppColors.cardStroke)
+
+                    // Rows
+                    ForEach(Array(invoice.lineItems.enumerated()), id: \.element.id) { index, item in
+                        VStack(spacing: 0) {
+                            EditableLineItemRow(
+                                item: item,
+                                rowNumber: index + 1,
+                                widths: widths,
+                                onUpdate: { markDirty() },
+                                onDelete: isEditable ? {
+                                    do {
+                                        try TransactionService.removeLineItem(item, modelContext: modelContext)
+                                        markDirty()
+                                    } catch {
+                                        showToast("Failed to remove item: \(ErrorMapper.userMessage(from: error))", isError: true)
+                                    }
+                                } : nil
+                            )
+                            .frame(height: 44)
+                            .padding(.horizontal, AppSpacing.comfortable)
+
+                            if index < invoice.lineItems.count - 1 {
+                                Divider().background(AppColors.cardStroke).padding(.horizontal, AppSpacing.comfortable)
+                            }
+                        }
+                    }
+
+                    // Empty placeholder row
+                    VStack(spacing: 0) {
                         Divider().background(AppColors.cardStroke).padding(.horizontal, AppSpacing.comfortable)
+                        HStack(spacing: 4) {
+                            Text("\(invoice.lineItems.count + 1)")
+                                .font(AppTypography.mono)
+                                .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
+                                .frame(width: 28, alignment: .center)
+                            Text("—")
+                                .font(AppTypography.mono)
+                                .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
+                                .frame(width: widths[0], alignment: .leading)
+                            Text("—")
+                                .font(AppTypography.body)
+                                .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
+                                .frame(width: widths[1], alignment: .leading)
+                            Text("")
+                                .frame(width: widths[2])
+                            Text("")
+                                .frame(width: widths[3])
+                            Text("")
+                                .frame(width: widths[4])
+                            Text("$0.00")
+                                .font(AppTypography.mono)
+                                .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
+                                .frame(width: widths[5], alignment: .trailing)
+                            Spacer().frame(width: 28)
+                        }
+                        .frame(height: 44)
+                        .padding(.horizontal, AppSpacing.comfortable)
+                    }
+
+                    if invoice.lineItems.isEmpty {
+                        Text("No line items.")
+                            .font(AppTypography.body)
+                            .foregroundStyle(AppColors.inkSubtle)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, AppSpacing.hero)
                     }
                 }
             }
-
-            // Empty placeholder row
-            VStack(spacing: 0) {
-                Divider().background(AppColors.cardStroke).padding(.horizontal, AppSpacing.comfortable)
-                HStack(spacing: AppSpacing.standard) {
-                    Text("\(invoice.lineItems.count + 1)")
-                        .font(AppTypography.mono)
-                        .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
-                        .frame(width: 28, alignment: .center)
-                    Text("—")
-                        .font(AppTypography.mono)
-                        .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
-                        .frame(minWidth: TableColumn.sku, maxWidth: .infinity, alignment: .leading)
-                    Text("—")
-                        .font(AppTypography.body)
-                        .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
-                        .frame(minWidth: TableColumn.type, maxWidth: .infinity, alignment: .leading)
-                    Text("")
-                        .frame(minWidth: TableColumn.description, maxWidth: .infinity)
-                    Text("")
-                        .frame(minWidth: TableColumn.carat, maxWidth: .infinity)
-                    Text("")
-                        .frame(minWidth: TableColumn.price, maxWidth: .infinity)
-                    Text("$0.00")
-                        .font(AppTypography.mono)
-                        .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
-                        .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
-                    Spacer().frame(width: 28)
-                }
-                .frame(height: 44)
-                .padding(.horizontal, AppSpacing.comfortable)
-            }
-
-            if invoice.lineItems.isEmpty {
-                Text("No line items.")
-                    .font(AppTypography.body)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, AppSpacing.hero)
-            }
+            .frame(minHeight: CGFloat(invoice.lineItems.count + 2) * 44 + 30)
         }
         .padding(AppSpacing.section)
         .background(

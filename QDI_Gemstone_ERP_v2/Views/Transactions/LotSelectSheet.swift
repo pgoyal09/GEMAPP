@@ -5,6 +5,13 @@ struct LotSelectSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
+    private static let tableLayout = TableColumnLayout(columns: [
+        ColumnDef("sku", weight: 2.0, minWidth: 80),
+        ColumnDef("type", weight: 1.5, minWidth: 60),
+        ColumnDef("remaining", weight: 1.5, minWidth: 60),
+        ColumnDef("sellPerCt", weight: 1.5, minWidth: 70),
+    ], spacing: 4)
+
     @State private var fetchedLots: [Gemstone] = []
     @State private var selectedLotID: PersistentIdentifier?
     @State private var caratsText = ""
@@ -37,27 +44,28 @@ struct LotSelectSheet: View {
             .padding(AppSpacing.section)
 
             // Lot list
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    HStack(spacing: 0) {
-                        TableHeader(title: "SKU", width: TableColumn.sku)
-                        TableHeader(title: "Type", width: TableColumn.type)
-                        TableHeader(title: "Remaining", width: TableColumn.carat)
-                        TableHeader(title: "Sell/ct", width: TableColumn.price)
-                        Spacer()
-                    }
-                    .padding(.horizontal, AppSpacing.section)
+            GeometryReader { geo in
+                let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        HStack(spacing: 4) {
+                            TableHeader(title: "SKU", width: widths[0])
+                            TableHeader(title: "Type", width: widths[1])
+                            TableHeader(title: "Remaining", width: widths[2])
+                            TableHeader(title: "Sell/ct", width: widths[3])
+                        }
+                        .padding(.horizontal, AppSpacing.standard)
 
-                    ForEach(lots) { lot in
-                        let isSelected = selectedLotID == lot.persistentModelID
-                        HoverRow(isSelected: isSelected, onTap: { selectedLotID = lot.persistentModelID }) {
-                            Text(lot.sku).font(AppTypography.mono).frame(width: TableColumn.sku, alignment: .leading)
-                            StoneTypeBadge(type: lot.stoneType.rawValue).frame(width: TableColumn.type, alignment: .leading)
-                            Text(String(format: "%.2f ct", lot.effectiveRemainingCarats)).font(AppTypography.mono)
-                                .frame(width: TableColumn.carat, alignment: .trailing)
-                            Text(lot.sellPrice.asCurrency).font(AppTypography.mono)
-                                .frame(width: TableColumn.price, alignment: .trailing)
-                            Spacer()
+                        ForEach(lots) { lot in
+                            let isSelected = selectedLotID == lot.persistentModelID
+                            HoverRow(isSelected: isSelected, onTap: { selectedLotID = lot.persistentModelID }) {
+                                Text(lot.sku).font(AppTypography.mono).frame(width: widths[0], alignment: .leading)
+                                StoneTypeBadge(type: lot.stoneType.rawValue).frame(width: widths[1], alignment: .leading)
+                                Text(String(format: "%.2f ct", lot.effectiveRemainingCarats)).font(AppTypography.mono)
+                                    .frame(width: widths[2], alignment: .trailing)
+                                Text(lot.sellPrice.asCurrency).font(AppTypography.mono)
+                                    .frame(width: widths[3], alignment: .trailing)
+                            }
                         }
                     }
                 }

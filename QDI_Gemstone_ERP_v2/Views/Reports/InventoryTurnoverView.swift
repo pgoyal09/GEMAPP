@@ -10,6 +10,14 @@ struct InventoryTurnoverView: View {
 
     @State private var report: InventoryTurnoverReport?
 
+    private static let tableLayout = TableColumnLayout(columns: [
+        ColumnDef("sku", weight: 2.0, minWidth: 80),
+        ColumnDef("type", weight: 1.5, minWidth: 60),
+        ColumnDef("carats", weight: 1.2, minWidth: 55, alignment: .trailing),
+        ColumnDef("cost", weight: 1.5, minWidth: 65, alignment: .trailing),
+        ColumnDef("days", weight: 1.0, minWidth: 50, alignment: .trailing),
+    ], spacing: 4)
+
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.hero) {
             if let report {
@@ -126,41 +134,48 @@ struct InventoryTurnoverView: View {
                         .foregroundStyle(AppColors.inkSubtle)
                         .padding(.vertical, AppSpacing.section)
                 } else {
-                    HStack(spacing: 0) {
-                        TableHeader(title: "SKU", width: TableColumn.sku)
-                        TableHeader(title: "Type", width: TableColumn.type)
-                        TableHeader(title: "Carats", width: TableColumn.carat, alignment: .trailing)
-                        TableHeader(title: "Cost", width: TableColumn.price, alignment: .trailing)
-                        TableHeader(title: "Days", width: TableColumn.days, alignment: .trailing)
-                    }
-                    .padding(.horizontal, AppSpacing.comfortable)
+                    GeometryReader { geo in
+                        let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
 
-                    ForEach(Array(report.slowMovers.prefix(50).enumerated()), id: \.element.id) { index, stone in
-                        HStack(spacing: 0) {
-                            Text(stone.sku)
-                                .font(AppTypography.mono)
-                                .foregroundStyle(AppColors.ink)
-                                .frame(width: TableColumn.sku, alignment: .leading)
-                            StoneTypeBadge(type: stone.stoneType)
-                                .frame(width: TableColumn.type, alignment: .leading)
-                            Text(String(format: "%.2f", stone.caratWeight))
-                                .font(AppTypography.mono)
-                                .foregroundStyle(AppColors.ink)
-                                .frame(width: TableColumn.carat, alignment: .trailing)
-                            Text(stone.costPrice.asCurrency)
-                                .font(AppTypography.mono)
-                                .foregroundStyle(AppColors.inkMuted)
-                                .frame(width: TableColumn.price, alignment: .trailing)
-                            Text("\(stone.daysInInventory)")
-                                .font(AppTypography.mono)
-                                .foregroundStyle(stone.daysInInventory > 180 ? AppColors.danger : AppColors.warning)
-                                .frame(width: TableColumn.days, alignment: .trailing)
+                        VStack(alignment: .leading, spacing: 0) {
+                            HStack(spacing: 4) {
+                                TableHeader(title: "SKU", width: widths[0])
+                                TableHeader(title: "Type", width: widths[1])
+                                TableHeader(title: "Carats", width: widths[2], alignment: .trailing)
+                                TableHeader(title: "Cost", width: widths[3], alignment: .trailing)
+                                TableHeader(title: "Days", width: widths[4], alignment: .trailing)
+                            }
+                            .padding(.horizontal, AppSpacing.standard)
+                            .padding(.vertical, AppSpacing.compact)
+
+                            ForEach(Array(report.slowMovers.prefix(50).enumerated()), id: \.element.id) { index, stone in
+                                HStack(spacing: 4) {
+                                    Text(stone.sku)
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(AppColors.ink)
+                                        .frame(width: widths[0], alignment: .leading)
+                                    StoneTypeBadge(type: stone.stoneType)
+                                        .frame(width: widths[1], alignment: .leading)
+                                    Text(String(format: "%.2f", stone.caratWeight))
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(AppColors.ink)
+                                        .frame(width: widths[2], alignment: .trailing)
+                                    Text(stone.costPrice.asCurrency)
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(AppColors.inkMuted)
+                                        .frame(width: widths[3], alignment: .trailing)
+                                    Text("\(stone.daysInInventory)")
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(stone.daysInInventory > 180 ? AppColors.danger : AppColors.warning)
+                                        .frame(width: widths[4], alignment: .trailing)
+                                }
+                                .padding(.horizontal, AppSpacing.standard)
+                                .padding(.vertical, AppSpacing.standard)
+                                .staggeredRow(index: index, reduceMotion: reduceMotion)
+                                .accessibilityElement(children: .combine)
+                                .accessibilityLabel("\(stone.sku), \(stone.stoneType), \(stone.daysInInventory) days old")
+                            }
                         }
-                        .padding(.horizontal, AppSpacing.comfortable)
-                        .padding(.vertical, AppSpacing.standard)
-                        .staggeredRow(index: index, reduceMotion: reduceMotion)
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("\(stone.sku), \(stone.stoneType), \(stone.daysInInventory) days old")
                     }
                 }
             }

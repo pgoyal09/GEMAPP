@@ -8,6 +8,15 @@ struct CustomerListView: View {
     @State private var viewModel = CustomerListViewModel()
     @State private var doubleClickedCustomer: Customer?
 
+    private static let tableLayout = TableColumnLayout(columns: [
+        ColumnDef("name", weight: 2.5, minWidth: 100),
+        ColumnDef("company", weight: 2.5, minWidth: 100),
+        ColumnDef("email", weight: 2.5, minWidth: 100),
+        ColumnDef("phone", weight: 1.5, minWidth: 80),
+        ColumnDef("openMemos", weight: 1.5, minWidth: 70, alignment: .trailing),
+        ColumnDef("totalPurchases", weight: 1.5, minWidth: 70, alignment: .trailing),
+    ], spacing: 4)
+
     var body: some View {
         GeometryReader { geometry in
         ZStack {
@@ -68,81 +77,81 @@ struct CustomerListView: View {
 
     private var customerTable: some View {
         let filtered = viewModel.filtered(from: allCustomers)
-        return ScrollView(.vertical) {
-            VStack(spacing: 0) {
-                // Header row
-                HStack(spacing: 4) {
-                    customerSortableHeader("Name", key: "name", width: TableColumn.customer)
-                    customerSortableHeader("Company", key: "company", width: TableColumn.description)
-                    customerSortableHeader("Email", key: "contact", width: TableColumn.description)
-                    customerSortableHeader("Phone", key: "phone", width: TableColumn.memo)
-                    customerSortableHeader("Open Memos", key: "memos", width: TableColumn.price, alignment: .trailing)
-                    customerSortableHeader("Total Purchases", key: "purchases", width: TableColumn.price, alignment: .trailing)
-                    Spacer()
-                }
-                .padding(.horizontal, AppSpacing.section)
-                .padding(.vertical, AppSpacing.comfortable)
+        return GeometryReader { geo in
+            let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
+            ScrollView(.vertical) {
+                VStack(spacing: 0) {
+                    // Header row
+                    HStack(spacing: 4) {
+                        customerSortableHeader("Name", key: "name", width: widths[0])
+                        customerSortableHeader("Company", key: "company", width: widths[1])
+                        customerSortableHeader("Email", key: "contact", width: widths[2])
+                        customerSortableHeader("Phone", key: "phone", width: widths[3])
+                        customerSortableHeader("Open Memos", key: "memos", width: widths[4], alignment: .trailing)
+                        customerSortableHeader("Total Purchases", key: "purchases", width: widths[5], alignment: .trailing)
+                    }
+                    .padding(.horizontal, AppSpacing.standard)
+                    .padding(.vertical, AppSpacing.compact)
 
-                Divider().background(AppColors.cardStroke)
+                    Divider().background(AppColors.cardStroke)
 
-                if filtered.isEmpty {
-                    EmptyStateView(icon: "person.2", title: "No customers found")
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 200)
-                } else {
-                    VStack(spacing: 2) {
-                        ForEach(filtered) { customer in
-                            let isSelected = viewModel.selectedCustomerID == customer.persistentModelID
-                            HoverRow(isSelected: isSelected, onTap: {
-                                viewModel.selectedCustomerID = customer.persistentModelID
-                            }) {
-                                Text(customer.displayName)
-                                    .font(AppTypography.body.weight(.medium))
-                                    .foregroundStyle(AppColors.ink)
-                                    .lineLimit(1)
-                                    .truncationMode(.tail)
-                                    .frame(width: TableColumn.customer, alignment: .leading)
+                    if filtered.isEmpty {
+                        EmptyStateView(icon: "person.2", title: "No customers found")
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 200)
+                    } else {
+                        VStack(spacing: 2) {
+                            ForEach(filtered) { customer in
+                                let isSelected = viewModel.selectedCustomerID == customer.persistentModelID
+                                HoverRow(isSelected: isSelected, onTap: {
+                                    viewModel.selectedCustomerID = customer.persistentModelID
+                                }) {
+                                    Text(customer.displayName)
+                                        .font(AppTypography.body.weight(.medium))
+                                        .foregroundStyle(AppColors.ink)
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+                                        .frame(width: widths[0], alignment: .leading)
 
-                                Text(customer.company)
-                                    .font(AppTypography.caption)
-                                    .foregroundStyle(AppColors.inkSubtle)
-                                    .lineLimit(1)
-                                    .frame(width: TableColumn.description, alignment: .leading)
+                                    Text(customer.company)
+                                        .font(AppTypography.caption)
+                                        .foregroundStyle(AppColors.inkSubtle)
+                                        .lineLimit(1)
+                                        .frame(width: widths[1], alignment: .leading)
 
-                                Text(customer.email)
-                                    .font(AppTypography.caption)
-                                    .foregroundStyle(AppColors.inkSubtle)
-                                    .lineLimit(1)
-                                    .frame(width: TableColumn.description, alignment: .leading)
+                                    Text(customer.email)
+                                        .font(AppTypography.caption)
+                                        .foregroundStyle(AppColors.inkSubtle)
+                                        .lineLimit(1)
+                                        .frame(width: widths[2], alignment: .leading)
 
-                                Text(customer.phone)
-                                    .font(AppTypography.caption)
-                                    .foregroundStyle(AppColors.inkSubtle)
-                                    .lineLimit(1)
-                                    .frame(width: TableColumn.memo, alignment: .leading)
+                                    Text(customer.phone)
+                                        .font(AppTypography.caption)
+                                        .foregroundStyle(AppColors.inkSubtle)
+                                        .lineLimit(1)
+                                        .frame(width: widths[3], alignment: .leading)
 
-                                Text("\(customer.activeMemos.count)")
-                                    .font(AppTypography.mono)
-                                    .foregroundStyle(AppColors.inkMuted)
-                                    .frame(width: TableColumn.price, alignment: .trailing)
+                                    Text("\(customer.activeMemos.count)")
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(AppColors.inkMuted)
+                                        .frame(width: widths[4], alignment: .trailing)
 
-                                Text(customerTotalPurchases(customer).asCurrency)
-                                    .font(AppTypography.mono)
-                                    .foregroundStyle(AppColors.inkMuted)
-                                    .frame(width: TableColumn.price, alignment: .trailing)
-
-                                Spacer()
-                            }
-                            .frame(height: 32)
-                            .onTapGesture(count: 2) {
-                                doubleClickedCustomer = customer
+                                    Text(customerTotalPurchases(customer).asCurrency)
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(AppColors.inkMuted)
+                                        .frame(width: widths[5], alignment: .trailing)
+                                }
+                                .frame(height: 32)
+                                .onTapGesture(count: 2) {
+                                    doubleClickedCustomer = customer
+                                }
                             }
                         }
+                        .padding(.vertical, AppSpacing.standard)
                     }
-                    .padding(.vertical, AppSpacing.standard)
                 }
+                .frame(maxWidth: .infinity)
             }
-            .frame(maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(AppColors.cardBackground)

@@ -9,6 +9,15 @@ struct MemoListView: View {
     @State private var toastMessage: String?
     @State private var toastIsError = false
 
+    private static let tableLayout = TableColumnLayout(columns: [
+        ColumnDef("ref", weight: 1.5, minWidth: 70),
+        ColumnDef("customer", weight: 3.0, minWidth: 100),
+        ColumnDef("date", weight: 1.5, minWidth: 70),
+        ColumnDef("items", weight: 1.0, minWidth: 45, alignment: .trailing),
+        ColumnDef("total", weight: 1.5, minWidth: 70, alignment: .trailing),
+        ColumnDef("status", weight: 1.5, minWidth: 80),
+    ], spacing: 4)
+
     var body: some View {
         VStack(spacing: 0) {
             toolbar
@@ -80,27 +89,30 @@ struct MemoListView: View {
 
     private var memoTable: some View {
         let filtered = filteredMemos
-        return VStack(spacing: 0) {
-            headerRow
-            Divider().background(AppColors.cardStroke)
-            if filtered.isEmpty {
-                EmptyStateView(icon: "doc.text", title: "No memos found")
-                    .frame(height: 200)
-                    .frame(maxWidth: .infinity)
-            } else {
-                ScrollView(.vertical) {
-                    LazyVStack(spacing: 2) {
-                        ForEach(filtered, id: \.persistentModelID) { memo in
-                            memoRow(memo)
-                                .onAppear {
-                                    if memo.id == filtered.last?.id && viewModel.hasMore {
-                                        viewModel.loadMore(context: modelContext)
+        return GeometryReader { geo in
+            let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
+            VStack(spacing: 0) {
+                headerRow(widths: widths)
+                Divider().background(AppColors.cardStroke)
+                if filtered.isEmpty {
+                    EmptyStateView(icon: "doc.text", title: "No memos found")
+                        .frame(height: 200)
+                        .frame(maxWidth: .infinity)
+                } else {
+                    ScrollView(.vertical) {
+                        LazyVStack(spacing: 2) {
+                            ForEach(filtered, id: \.persistentModelID) { memo in
+                                memoRow(memo, widths: widths)
+                                    .onAppear {
+                                        if memo.id == filtered.last?.id && viewModel.hasMore {
+                                            viewModel.loadMore(context: modelContext)
+                                        }
                                     }
-                                }
+                            }
                         }
+                        .padding(.vertical, AppSpacing.standard)
+                        .frame(maxWidth: .infinity)
                     }
-                    .padding(.vertical, AppSpacing.standard)
-                    .frame(maxWidth: .infinity)
                 }
             }
         }
@@ -115,24 +127,23 @@ struct MemoListView: View {
         .padding(.bottom, AppSpacing.comfortable)
     }
 
-    private var headerRow: some View {
+    private func headerRow(widths: [CGFloat]) -> some View {
         HStack(spacing: 4) {
-            sortableHeader("Ref #", key: "reference", width: TableColumn.memo, flex: true)
-            sortableHeader("Customer", key: "customer", width: TableColumn.customer, flex: true)
-            sortableHeader("Date", key: "date", width: TableColumn.date, flex: true)
-            TableHeader(title: "Items", width: TableColumn.quantity, flex: true, alignment: .trailing)
-            sortableHeader("Total", key: "total", width: TableColumn.price, flex: true, alignment: .trailing)
-            sortableHeader("Status", key: "status", width: 110, flex: true)
+            sortableHeader("Ref #", key: "reference", width: widths[0])
+            sortableHeader("Customer", key: "customer", width: widths[1])
+            sortableHeader("Date", key: "date", width: widths[2])
+            TableHeader(title: "Items", width: widths[3], alignment: .trailing)
+            sortableHeader("Total", key: "total", width: widths[4], alignment: .trailing)
+            sortableHeader("Status", key: "status", width: widths[5])
         }
         .padding(.horizontal, AppSpacing.standard)
-        .padding(.vertical, AppSpacing.comfortable)
+        .padding(.vertical, AppSpacing.compact)
     }
 
-    private func sortableHeader(_ title: String, key: String, width: CGFloat, flex: Bool = false, alignment: Alignment = .leading, minWidth: CGFloat? = nil) -> TableHeader {
+    private func sortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment = .leading) -> TableHeader {
         TableHeader(
             title: title,
-            width: minWidth ?? width,
-            flex: flex || minWidth != nil,
+            width: width,
             alignment: alignment,
             isSorted: viewModel.sortKey == key,
             ascending: viewModel.sortAscending,
@@ -140,7 +151,7 @@ struct MemoListView: View {
         )
     }
 
-    private func memoRow(_ memo: Memo) -> some View {
+    private func memoRow(_ memo: Memo, widths: [CGFloat]) -> some View {
         let isSelected = viewModel.selectedMemoID == memo.persistentModelID
         return HoverRow(isSelected: isSelected, onTap: {
             viewModel.selectedMemoID = memo.persistentModelID
@@ -149,30 +160,30 @@ struct MemoListView: View {
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
-                .frame(minWidth: TableColumn.memo, maxWidth: .infinity, alignment: .leading)
+                .frame(width: widths[0], alignment: .leading)
             Text(memo.customer?.displayName ?? "—")
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.inkMuted)
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .frame(minWidth: TableColumn.customer, maxWidth: .infinity, alignment: .leading)
+                .frame(width: widths[1], alignment: .leading)
             Text(memo.dateAssigned?.formatted(date: .abbreviated, time: .omitted) ?? "—")
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkSubtle)
                 .lineLimit(1)
-                .frame(minWidth: TableColumn.date, maxWidth: .infinity, alignment: .leading)
+                .frame(width: widths[2], alignment: .leading)
             Text("\(memo.lineItems.count)")
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
                 .lineLimit(1)
-                .frame(minWidth: TableColumn.quantity, maxWidth: .infinity, alignment: .trailing)
+                .frame(width: widths[3], alignment: .trailing)
             Text(memo.totalAmount.asCurrency)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
-                .frame(minWidth: TableColumn.price, maxWidth: .infinity, alignment: .trailing)
+                .frame(width: widths[4], alignment: .trailing)
             statusBadge(memo.status)
-                .frame(minWidth: 110, maxWidth: .infinity, alignment: .leading)
+                .frame(width: widths[5], alignment: .leading)
         }
         .frame(height: 32)
         .simultaneousGesture(TapGesture(count: 2).onEnded {

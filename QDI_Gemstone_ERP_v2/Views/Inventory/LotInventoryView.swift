@@ -2,6 +2,18 @@ import SwiftUI
 import SwiftData
 
 struct LotInventoryView: View {
+    // MARK: - Table Layout
+
+    private static let tableLayout = TableColumnLayout(columns: [
+        ColumnDef("lot", weight: 2.0, minWidth: 80),
+        ColumnDef("stoneType", weight: 2.0, minWidth: 70),
+        ColumnDef("carats", weight: 1.5, minWidth: 60, alignment: .trailing),
+        ColumnDef("stones", weight: 1.0, minWidth: 50, alignment: .trailing),
+        ColumnDef("avgCost", weight: 1.5, minWidth: 70, alignment: .trailing),
+        ColumnDef("sellPrice", weight: 1.5, minWidth: 70, alignment: .trailing),
+        ColumnDef("status", weight: 1.5, minWidth: 65),
+    ], spacing: 4)
+
     @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query private var allStones: [Gemstone]
@@ -173,9 +185,10 @@ struct LotInventoryView: View {
     // MARK: - Table
 
     private var tableContent: some View {
-        ScrollView(.horizontal, showsIndicators: true) {
+        GeometryReader { geo in
+            let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
             VStack(spacing: 0) {
-                tableHeader
+                tableHeader(widths: widths)
                 Divider().background(AppColors.cardStroke)
 
                 if filteredLots.isEmpty {
@@ -188,7 +201,7 @@ struct LotInventoryView: View {
                     ScrollView(.vertical) {
                         LazyVStack(spacing: 2) {
                             ForEach(Array(filteredLots.enumerated()), id: \.element.persistentModelID) { index, lot in
-                                lotRow(lot)
+                                lotRow(lot, widths: widths)
                                     .staggeredRow(index: index, reduceMotion: reduceMotion)
                             }
                         }
@@ -203,16 +216,15 @@ struct LotInventoryView: View {
         .padding(.bottom, AppSpacing.comfortable)
     }
 
-    private var tableHeader: some View {
+    private func tableHeader(widths: [CGFloat]) -> some View {
         HStack(spacing: 4) {
-            sortableHeader("Lot#", key: "sku", width: TableColumn.sku, alignment: .leading)
-            sortableHeader("Stone Type", key: "type", width: TableColumn.type, alignment: .leading)
-            sortableHeader("Carats", key: "carats", width: TableColumn.carat, alignment: .trailing)
-            sortableHeader("Stones", key: "stones", width: TableColumn.quantity, alignment: .trailing)
-            sortableHeader("Avg Cost/ct", key: "avgCost", width: TableColumn.price, alignment: .trailing)
-            sortableHeader("Sell Price", key: "sell", width: TableColumn.price, alignment: .trailing)
-            sortableHeader("Status", key: "status", width: TableColumn.status, alignment: .leading)
-            Spacer()
+            sortableHeader("Lot#", key: "sku", width: widths[0], alignment: .leading)
+            sortableHeader("Stone Type", key: "type", width: widths[1], alignment: .leading)
+            sortableHeader("Carats", key: "carats", width: widths[2], alignment: .trailing)
+            sortableHeader("Stones", key: "stones", width: widths[3], alignment: .trailing)
+            sortableHeader("Avg Cost/ct", key: "avgCost", width: widths[4], alignment: .trailing)
+            sortableHeader("Sell Price", key: "sell", width: widths[5], alignment: .trailing)
+            sortableHeader("Status", key: "status", width: widths[6], alignment: .leading)
         }
         .padding(.horizontal, AppSpacing.standard)
         .padding(.vertical, AppSpacing.compact)
@@ -222,7 +234,7 @@ struct LotInventoryView: View {
         TableHeader(title: title, width: width, alignment: alignment, isSorted: sortKey == key, ascending: sortAscending, onTap: { toggleSort(key) })
     }
 
-    private func lotRow(_ lot: Gemstone) -> some View {
+    private func lotRow(_ lot: Gemstone, widths: [CGFloat]) -> some View {
         HoverRow(isSelected: viewModel.selectedLotID == lot.persistentModelID, onTap: {
             withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.15)) {
                 if viewModel.selectedLotID == lot.persistentModelID {
@@ -235,35 +247,33 @@ struct LotInventoryView: View {
             Text(lot.sku)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
-                .frame(width: TableColumn.sku, alignment: .leading)
+                .frame(width: widths[0], alignment: .leading)
 
             StoneTypeBadge(type: lot.stoneType.rawValue)
-                .frame(width: TableColumn.type, alignment: .leading)
+                .frame(width: widths[1], alignment: .leading)
 
             Text(String(format: "%.2f", lot.effectiveRemainingCarats))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
-                .frame(width: TableColumn.carat, alignment: .trailing)
+                .frame(width: widths[2], alignment: .trailing)
 
             Text(lot.numberOfStones.map { "\($0)" } ?? "—")
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.inkMuted)
-                .frame(width: TableColumn.quantity, alignment: .trailing)
+                .frame(width: widths[3], alignment: .trailing)
 
             Text(formattedPrice(averageCostPerCarat(lot)))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.inkMuted)
-                .frame(width: TableColumn.price, alignment: .trailing)
+                .frame(width: widths[4], alignment: .trailing)
 
             Text(formattedPrice(lot.sellPrice))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
-                .frame(width: TableColumn.price, alignment: .trailing)
+                .frame(width: widths[5], alignment: .trailing)
 
             statusBadge(for: lot.status)
-                .frame(width: TableColumn.status, alignment: .leading)
-
-            Spacer()
+                .frame(width: widths[6], alignment: .leading)
         }
         .frame(height: 32)
         .onTapGesture(count: 2) {

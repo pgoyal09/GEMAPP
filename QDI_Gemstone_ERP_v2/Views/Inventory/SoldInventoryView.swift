@@ -2,6 +2,19 @@ import SwiftUI
 import SwiftData
 
 struct SoldInventoryView: View {
+    // MARK: - Table Layout
+
+    private static let tableLayout = TableColumnLayout(columns: [
+        ColumnDef("sku", weight: 2.0, minWidth: 80),
+        ColumnDef("stoneType", weight: 1.5, minWidth: 60),
+        ColumnDef("carats", weight: 1.2, minWidth: 55, alignment: .trailing),
+        ColumnDef("cost", weight: 1.5, minWidth: 70, alignment: .trailing),
+        ColumnDef("soldPrice", weight: 1.5, minWidth: 70, alignment: .trailing),
+        ColumnDef("margin", weight: 1.2, minWidth: 60, alignment: .trailing),
+        ColumnDef("customer", weight: 2.5, minWidth: 100),
+        ColumnDef("date", weight: 1.5, minWidth: 70),
+    ], spacing: 4)
+
     @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -261,9 +274,10 @@ struct SoldInventoryView: View {
     // MARK: - Table
 
     private var tableContent: some View {
-        ScrollView(.horizontal, showsIndicators: true) {
+        GeometryReader { geo in
+            let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
             VStack(spacing: 0) {
-                tableHeader
+                tableHeader(widths: widths)
                 Divider().background(AppColors.cardStroke)
                 if filteredStones.isEmpty {
                     EmptyStateView(icon: "tag.slash", title: "No sold stones", subtitle: "Sold inventory will appear here")
@@ -272,7 +286,7 @@ struct SoldInventoryView: View {
                     ScrollView(.vertical) {
                         LazyVStack(spacing: 2) {
                             ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
-                                stoneRow(stone)
+                                stoneRow(stone, widths: widths)
                                     .staggeredRow(index: index, reduceMotion: reduceMotion)
                             }
                         }
@@ -287,17 +301,16 @@ struct SoldInventoryView: View {
         .padding(.bottom, AppSpacing.comfortable)
     }
 
-    private var tableHeader: some View {
+    private func tableHeader(widths: [CGFloat]) -> some View {
         HStack(spacing: 4) {
-            sortableHeader("SKU", key: "sku", width: TableColumn.sku, alignment: .leading)
-            sortableHeader("Stone Type", key: "type", width: TableColumn.type, alignment: .leading)
-            sortableHeader("Carats", key: "carat", width: TableColumn.carat, alignment: .trailing)
-            sortableHeader("Cost", key: "cost", width: TableColumn.price, alignment: .trailing)
-            sortableHeader("Sold Price", key: "sold", width: TableColumn.price, alignment: .trailing)
-            sortableHeader("Margin%", key: "margin", width: TableColumn.margin, alignment: .trailing)
-            sortableHeader("Customer", key: "customer", width: TableColumn.customer, alignment: .leading)
-            sortableHeader("Date", key: "date", width: TableColumn.date, alignment: .leading)
-            Spacer()
+            sortableHeader("SKU", key: "sku", width: widths[0], alignment: .leading)
+            sortableHeader("Stone Type", key: "type", width: widths[1], alignment: .leading)
+            sortableHeader("Carats", key: "carat", width: widths[2], alignment: .trailing)
+            sortableHeader("Cost", key: "cost", width: widths[3], alignment: .trailing)
+            sortableHeader("Sold Price", key: "sold", width: widths[4], alignment: .trailing)
+            sortableHeader("Margin%", key: "margin", width: widths[5], alignment: .trailing)
+            sortableHeader("Customer", key: "customer", width: widths[6], alignment: .leading)
+            sortableHeader("Date", key: "date", width: widths[7], alignment: .leading)
         }
         .padding(.horizontal, AppSpacing.standard)
         .padding(.vertical, AppSpacing.compact)
@@ -307,7 +320,7 @@ struct SoldInventoryView: View {
         TableHeader(title: title, width: width, alignment: alignment, isSorted: sortKey == key, ascending: sortAscending, onTap: { toggleSort(key) })
     }
 
-    private func stoneRow(_ stone: Gemstone) -> some View {
+    private func stoneRow(_ stone: Gemstone, widths: [CGFloat]) -> some View {
         HoverRow(isSelected: selectedStoneID == stone.persistentModelID, onTap: {
             selectedStoneID = selectedStoneID == stone.persistentModelID ? nil : stone.persistentModelID
         }) {
@@ -315,43 +328,41 @@ struct SoldInventoryView: View {
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
-                .frame(width: TableColumn.sku, alignment: .leading)
+                .frame(width: widths[0], alignment: .leading)
 
             StoneTypeBadge(type: stone.stoneType.rawValue)
-                .frame(width: TableColumn.type, alignment: .leading)
+                .frame(width: widths[1], alignment: .leading)
 
             Text(String(format: "%.2f", stone.caratWeight))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
-                .frame(width: TableColumn.carat, alignment: .trailing)
+                .frame(width: widths[2], alignment: .trailing)
 
             Text(stone.costPrice.asCurrency)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.inkMuted)
-                .frame(width: TableColumn.price, alignment: .trailing)
+                .frame(width: widths[3], alignment: .trailing)
 
             Text(stone.sellPrice.asCurrency)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
-                .frame(width: TableColumn.price, alignment: .trailing)
+                .frame(width: widths[4], alignment: .trailing)
 
             Text(marginText(stone))
                 .font(AppTypography.mono)
                 .foregroundStyle(marginColor(stone))
-                .frame(width: TableColumn.margin, alignment: .trailing)
+                .frame(width: widths[5], alignment: .trailing)
 
             Text(customerName(for: stone))
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
-                .frame(width: TableColumn.customer, alignment: .leading)
+                .frame(width: widths[6], alignment: .leading)
 
             Text(stone.createdAt.formatted(.dateTime.month(.abbreviated).day().year()))
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
-                .frame(width: TableColumn.date, alignment: .leading)
-
-            Spacer()
+                .frame(width: widths[7], alignment: .leading)
         }
         .frame(height: 32)
         .onTapGesture(count: 2) {

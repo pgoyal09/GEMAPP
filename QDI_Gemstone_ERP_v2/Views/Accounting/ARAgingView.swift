@@ -5,6 +5,17 @@ struct ARAgingView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    private static let tableLayout = TableColumnLayout(columns: [
+        ColumnDef("invoice", weight: 1.5, minWidth: 70),
+        ColumnDef("customer", weight: 2.5, minWidth: 100),
+        ColumnDef("amount", weight: 1.5, minWidth: 65, alignment: .trailing),
+        ColumnDef("paid", weight: 1.5, minWidth: 65, alignment: .trailing),
+        ColumnDef("balance", weight: 1.5, minWidth: 65, alignment: .trailing),
+        ColumnDef("dueDate", weight: 1.5, minWidth: 70),
+        ColumnDef("days", weight: 1.0, minWidth: 50, alignment: .trailing),
+        ColumnDef("status", weight: 1.5, minWidth: 65),
+    ], spacing: 4)
+
     @State private var invoices: [Invoice] = []
     @State private var filterBucket: String = "All"
 
@@ -44,71 +55,76 @@ struct ARAgingView: View {
                 if filteredInvoices.isEmpty {
                     EmptyStateView(icon: "doc.text", title: "No unpaid invoices", subtitle: "All invoices are paid or no invoices match this filter")
                 } else {
-                    // Header
-                    HStack(spacing: 4) {
-                        TableHeader(title: "Invoice #", width: TableColumn.invoice)
-                        TableHeader(title: "Customer", width: TableColumn.customer)
-                        TableHeader(title: "Amount", width: TableColumn.price, alignment: .trailing)
-                        TableHeader(title: "Paid", width: TableColumn.price, alignment: .trailing)
-                        TableHeader(title: "Balance", width: TableColumn.price, alignment: .trailing)
-                        TableHeader(title: "Due Date", width: TableColumn.date)
-                        TableHeader(title: "Days", width: TableColumn.days, alignment: .trailing)
-                        TableHeader(title: "Status", width: TableColumn.status)
-                    }
-                    .padding(.horizontal, AppSpacing.comfortable)
+                    GeometryReader { geo in
+                        let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
+                        VStack(spacing: 0) {
+                            // Header
+                            HStack(spacing: 4) {
+                                TableHeader(title: "Invoice #", width: widths[0])
+                                TableHeader(title: "Customer", width: widths[1])
+                                TableHeader(title: "Amount", width: widths[2], alignment: .trailing)
+                                TableHeader(title: "Paid", width: widths[3], alignment: .trailing)
+                                TableHeader(title: "Balance", width: widths[4], alignment: .trailing)
+                                TableHeader(title: "Due Date", width: widths[5])
+                                TableHeader(title: "Days", width: widths[6], alignment: .trailing)
+                                TableHeader(title: "Status", width: widths[7])
+                            }
+                            .padding(.horizontal, AppSpacing.standard)
 
-                    ScrollView {
-                        LazyVStack(spacing: 0) {
-                            ForEach(Array(filteredInvoices.enumerated()), id: \.element.id) { index, inv in
-                                let daysOverdue = daysOver(inv)
-                                let color = agingColor(daysOverdue)
+                            ScrollView {
+                                LazyVStack(spacing: 0) {
+                                    ForEach(Array(filteredInvoices.enumerated()), id: \.element.id) { index, inv in
+                                        let daysOverdue = daysOver(inv)
+                                        let color = agingColor(daysOverdue)
 
-                                HStack(spacing: 4) {
-                                    Text(inv.referenceNumber)
-                                        .font(AppTypography.mono)
-                                        .foregroundStyle(AppColors.ink)
-                                        .frame(width: TableColumn.invoice, alignment: .leading)
+                                        HStack(spacing: 4) {
+                                            Text(inv.referenceNumber)
+                                                .font(AppTypography.mono)
+                                                .foregroundStyle(AppColors.ink)
+                                                .frame(width: widths[0], alignment: .leading)
 
-                                    Text(inv.customer?.displayName ?? "—")
-                                        .font(AppTypography.body)
-                                        .foregroundStyle(AppColors.ink)
-                                        .lineLimit(1)
-                                        .frame(width: TableColumn.customer, alignment: .leading)
+                                            Text(inv.customer?.displayName ?? "—")
+                                                .font(AppTypography.body)
+                                                .foregroundStyle(AppColors.ink)
+                                                .lineLimit(1)
+                                                .frame(width: widths[1], alignment: .leading)
 
-                                    Text(inv.grandTotal.asCurrency)
-                                        .font(AppTypography.mono)
-                                        .foregroundStyle(AppColors.ink)
-                                        .frame(width: TableColumn.price, alignment: .trailing)
+                                            Text(inv.grandTotal.asCurrency)
+                                                .font(AppTypography.mono)
+                                                .foregroundStyle(AppColors.ink)
+                                                .frame(width: widths[2], alignment: .trailing)
 
-                                    Text(inv.totalPaid.asCurrency)
-                                        .font(AppTypography.mono)
-                                        .foregroundStyle(AppColors.inkMuted)
-                                        .frame(width: TableColumn.price, alignment: .trailing)
+                                            Text(inv.totalPaid.asCurrency)
+                                                .font(AppTypography.mono)
+                                                .foregroundStyle(AppColors.inkMuted)
+                                                .frame(width: widths[3], alignment: .trailing)
 
-                                    Text(inv.balanceDue.asCurrency)
-                                        .font(AppTypography.mono)
-                                        .foregroundStyle(color)
-                                        .frame(width: TableColumn.price, alignment: .trailing)
+                                            Text(inv.balanceDue.asCurrency)
+                                                .font(AppTypography.mono)
+                                                .foregroundStyle(color)
+                                                .frame(width: widths[4], alignment: .trailing)
 
-                                    Text(inv.dueDate?.formatted(date: .abbreviated, time: .omitted) ?? "—")
-                                        .font(AppTypography.mono)
-                                        .foregroundStyle(AppColors.inkMuted)
-                                        .frame(width: TableColumn.date, alignment: .leading)
+                                            Text(inv.dueDate?.formatted(date: .abbreviated, time: .omitted) ?? "—")
+                                                .font(AppTypography.mono)
+                                                .foregroundStyle(AppColors.inkMuted)
+                                                .frame(width: widths[5], alignment: .leading)
 
-                                    Text(daysOverdue > 0 ? "\(daysOverdue)" : "—")
-                                        .font(AppTypography.mono)
-                                        .foregroundStyle(color)
-                                        .frame(width: TableColumn.days, alignment: .trailing)
+                                            Text(daysOverdue > 0 ? "\(daysOverdue)" : "—")
+                                                .font(AppTypography.mono)
+                                                .foregroundStyle(color)
+                                                .frame(width: widths[6], alignment: .trailing)
 
-                                    // Payment progress bar
-                                    paymentProgress(inv)
-                                        .frame(width: TableColumn.status)
+                                            // Payment progress bar
+                                            paymentProgress(inv)
+                                                .frame(width: widths[7])
+                                        }
+                                        .padding(.horizontal, AppSpacing.standard)
+                                        .padding(.vertical, AppSpacing.standard)
+                                        .staggeredRow(index: index, reduceMotion: reduceMotion)
+                                        .accessibilityElement(children: .combine)
+                                        .accessibilityLabel("Invoice \(inv.referenceNumber), balance \(inv.balanceDue.asCurrency), \(daysOverdue) days overdue")
+                                    }
                                 }
-                                .padding(.horizontal, AppSpacing.comfortable)
-                                .padding(.vertical, AppSpacing.standard)
-                                .staggeredRow(index: index, reduceMotion: reduceMotion)
-                                .accessibilityElement(children: .combine)
-                                .accessibilityLabel("Invoice \(inv.referenceNumber), balance \(inv.balanceDue.asCurrency), \(daysOverdue) days overdue")
                             }
                         }
                     }

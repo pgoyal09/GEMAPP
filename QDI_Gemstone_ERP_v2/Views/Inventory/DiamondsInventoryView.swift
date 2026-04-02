@@ -2,6 +2,29 @@ import SwiftUI
 import SwiftData
 
 struct DiamondsInventoryView: View {
+    // MARK: - Table Layout
+
+    private static let tableLayout = TableColumnLayout(columns: [
+        ColumnDef("sku", weight: 2.0, minWidth: 80),
+        ColumnDef("shape", weight: 1.5, minWidth: 60),
+        ColumnDef("carat", weight: 1.2, minWidth: 55, alignment: .trailing),
+        ColumnDef("color", weight: 1.5, minWidth: 60),
+        ColumnDef("clarity", weight: 1.2, minWidth: 55),
+        ColumnDef("cut", weight: 1.0, minWidth: 45),
+        ColumnDef("polish", weight: 1.0, minWidth: 45),
+        ColumnDef("sym", weight: 0.8, minWidth: 40),
+        ColumnDef("fluor", weight: 1.0, minWidth: 45),
+        ColumnDef("lab", weight: 0.8, minWidth: 40),
+        ColumnDef("cert", weight: 1.5, minWidth: 65),
+        ColumnDef("depth", weight: 1.0, minWidth: 50, alignment: .trailing),
+        ColumnDef("table", weight: 1.0, minWidth: 50, alignment: .trailing),
+        ColumnDef("askPrice", weight: 1.5, minWidth: 70, alignment: .trailing),
+        ColumnDef("costPrice", weight: 1.5, minWidth: 70, alignment: .trailing),
+        ColumnDef("margin", weight: 1.2, minWidth: 60, alignment: .trailing),
+        ColumnDef("rap", weight: 1.0, minWidth: 50, alignment: .trailing),
+        ColumnDef("status", weight: 1.5, minWidth: 65, alignment: .center),
+    ], spacing: 4)
+
     @Binding var navigateTo: NavigationItem
 
     @Environment(\.modelContext) private var modelContext
@@ -407,9 +430,11 @@ struct DiamondsInventoryView: View {
     // MARK: - Table
 
     private var tableContent: some View {
-        ScrollView(.horizontal, showsIndicators: true) {
+        GeometryReader { geo in
+            let fixedWidth: CGFloat = 24 // checkbox
+            let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard - fixedWidth)
             VStack(spacing: 0) {
-                tableHeader
+                tableHeader(widths: widths)
                 Divider().background(AppColors.cardStroke)
                 if filteredStones.isEmpty {
                     EmptyStateView(icon: "sparkle", title: "No diamonds found", subtitle: "Try adjusting your search or filters")
@@ -418,7 +443,7 @@ struct DiamondsInventoryView: View {
                     ScrollView(.vertical) {
                         LazyVStack(spacing: 2) {
                             ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
-                                stoneRow(stone)
+                                stoneRow(stone, widths: widths)
                                     .simultaneousGesture(TapGesture(count: 2).onEnded {
                                         detailSheetStone = stone
                                     })
@@ -436,28 +461,27 @@ struct DiamondsInventoryView: View {
         .padding(.bottom, AppSpacing.comfortable)
     }
 
-    private var tableHeader: some View {
+    private func tableHeader(widths: [CGFloat]) -> some View {
         HStack(spacing: 4) {
             Color.clear.frame(width: 24)
-            sortableHeader("SKU", key: "sku", width: TableColumn.sku, alignment: .leading)
-            sortableHeader("Shape", key: "shape", width: TableColumn.shape, alignment: .leading)
-            sortableHeader("Carat", key: "carat", width: TableColumn.carat, alignment: .trailing)
-            sortableHeader("Color", key: "color", width: TableColumn.color, alignment: .leading)
-            sortableHeader("Clarity", key: "clarity", width: TableColumn.clarity, alignment: .leading)
-            TableHeader(title: "Cut", width: 60, alignment: .leading)
-            TableHeader(title: "Polish", width: 60, alignment: .leading)
-            TableHeader(title: "Sym", width: 50, alignment: .leading)
-            TableHeader(title: "Fluor", width: 60, alignment: .leading)
-            TableHeader(title: "Lab", width: 50, alignment: .leading)
-            TableHeader(title: "Cert #", width: 90, alignment: .leading)
-            TableHeader(title: "Depth%", width: TableColumn.percent, alignment: .trailing)
-            TableHeader(title: "Table%", width: TableColumn.percent, alignment: .trailing)
-            sortableHeader("Ask $/ct", key: "price", width: TableColumn.price, alignment: .trailing)
-            sortableHeader("Cost $/ct", key: "cost", width: TableColumn.price, alignment: .trailing)
-            TableHeader(title: "Margin %", width: TableColumn.margin, alignment: .trailing)
-            TableHeader(title: "% Rap", width: TableColumn.percent, alignment: .trailing)
-            sortableHeader("Status", key: "status", width: TableColumn.status, alignment: .center)
-            Spacer()
+            sortableHeader("SKU", key: "sku", width: widths[0], alignment: .leading)
+            sortableHeader("Shape", key: "shape", width: widths[1], alignment: .leading)
+            sortableHeader("Carat", key: "carat", width: widths[2], alignment: .trailing)
+            sortableHeader("Color", key: "color", width: widths[3], alignment: .leading)
+            sortableHeader("Clarity", key: "clarity", width: widths[4], alignment: .leading)
+            TableHeader(title: "Cut", width: widths[5], alignment: .leading)
+            TableHeader(title: "Polish", width: widths[6], alignment: .leading)
+            TableHeader(title: "Sym", width: widths[7], alignment: .leading)
+            TableHeader(title: "Fluor", width: widths[8], alignment: .leading)
+            TableHeader(title: "Lab", width: widths[9], alignment: .leading)
+            TableHeader(title: "Cert #", width: widths[10], alignment: .leading)
+            TableHeader(title: "Depth%", width: widths[11], alignment: .trailing)
+            TableHeader(title: "Table%", width: widths[12], alignment: .trailing)
+            sortableHeader("Ask $/ct", key: "price", width: widths[13], alignment: .trailing)
+            sortableHeader("Cost $/ct", key: "cost", width: widths[14], alignment: .trailing)
+            TableHeader(title: "Margin %", width: widths[15], alignment: .trailing)
+            TableHeader(title: "% Rap", width: widths[16], alignment: .trailing)
+            sortableHeader("Status", key: "status", width: widths[17], alignment: .center)
         }
         .padding(.horizontal, AppSpacing.standard)
         .padding(.vertical, AppSpacing.compact)
@@ -469,7 +493,7 @@ struct DiamondsInventoryView: View {
 
     @State private var detailSheetStone: Gemstone?
 
-    private func stoneRow(_ stone: Gemstone) -> some View {
+    private func stoneRow(_ stone: Gemstone, widths: [CGFloat]) -> some View {
         HoverRow(isSelected: selectedStoneID == stone.persistentModelID, onTap: {
             selectedStoneID = selectedStoneID == stone.persistentModelID ? nil : stone.persistentModelID
         }) {
@@ -482,25 +506,24 @@ struct DiamondsInventoryView: View {
             )) { EmptyView() }
             .toggleStyle(.checkbox).frame(width: 24)
 
-            highlightedText(stone.sku, highlight: searchText).font(AppTypography.mono).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.sku, alignment: .leading)
-            Text(stone.shape).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.shape, alignment: .leading)
-            Text(String(format: "%.2f", stone.caratWeight)).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: TableColumn.carat, alignment: .trailing)
-            Text(stone.color).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.color, alignment: .leading)
-            Text(stone.clarity).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: TableColumn.clarity, alignment: .leading)
-            Text(stone.cut).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: 60, alignment: .leading)
-            Text(stone.polish).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: 60, alignment: .leading)
-            Text(stone.symmetry).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: 50, alignment: .leading)
-            Text(stone.fluorescenceIntensity ?? stone.fluorescence).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: 60, alignment: .leading)
-            Text(stone.certLab).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: 50, alignment: .leading)
-            Text(stone.certNo).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).lineLimit(1).frame(width: 90, alignment: .leading)
-            Text(stone.depthPct.map { String(format: "%.1f", $0) } ?? "—").font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.percent, alignment: .trailing)
-            Text(stone.tablePct.map { String(format: "%.0f", $0) } ?? "—").font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.percent, alignment: .trailing)
-            Text(stone.sellPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: TableColumn.price, alignment: .trailing)
-            Text(stone.costPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.price, alignment: .trailing)
-            Text(marginText(cost: stone.costPrice, sell: stone.sellPrice)).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: TableColumn.margin, alignment: .trailing)
-            Text(rapDiscountText(rapNet: stone.rapNetPrice, sell: stone.sellPrice)).font(AppTypography.mono).foregroundStyle(rapDiscountColor(rapNet: stone.rapNetPrice, sell: stone.sellPrice)).frame(width: TableColumn.percent, alignment: .trailing)
-            statusBadge(for: stone.status).frame(width: TableColumn.status, alignment: .center)
-            Spacer()
+            highlightedText(stone.sku, highlight: searchText).font(AppTypography.mono).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[0], alignment: .leading)
+            Text(stone.shape).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[1], alignment: .leading)
+            Text(String(format: "%.2f", stone.caratWeight)).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: widths[2], alignment: .trailing)
+            Text(stone.color).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[3], alignment: .leading)
+            Text(stone.clarity).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[4], alignment: .leading)
+            Text(stone.cut).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[5], alignment: .leading)
+            Text(stone.polish).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[6], alignment: .leading)
+            Text(stone.symmetry).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[7], alignment: .leading)
+            Text(stone.fluorescenceIntensity ?? stone.fluorescence).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[8], alignment: .leading)
+            Text(stone.certLab).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[9], alignment: .leading)
+            Text(stone.certNo).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).lineLimit(1).frame(width: widths[10], alignment: .leading)
+            Text(stone.depthPct.map { String(format: "%.1f", $0) } ?? "—").font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: widths[11], alignment: .trailing)
+            Text(stone.tablePct.map { String(format: "%.0f", $0) } ?? "—").font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: widths[12], alignment: .trailing)
+            Text(stone.sellPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: widths[13], alignment: .trailing)
+            Text(stone.costPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: widths[14], alignment: .trailing)
+            Text(marginText(cost: stone.costPrice, sell: stone.sellPrice)).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: widths[15], alignment: .trailing)
+            Text(rapDiscountText(rapNet: stone.rapNetPrice, sell: stone.sellPrice)).font(AppTypography.mono).foregroundStyle(rapDiscountColor(rapNet: stone.rapNetPrice, sell: stone.sellPrice)).frame(width: widths[16], alignment: .trailing)
+            statusBadge(for: stone.status).frame(width: widths[17], alignment: .center)
         }
     }
 

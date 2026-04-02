@@ -12,6 +12,16 @@ struct CustomerProfitabilityView: View {
     @State private var selectedCustomerId: PersistentIdentifier?
     @State private var searchText = ""
 
+    private static let tableLayout = TableColumnLayout(columns: [
+        ColumnDef("customer", weight: 2.5, minWidth: 100),
+        ColumnDef("revenue", weight: 1.5, minWidth: 65, alignment: .trailing),
+        ColumnDef("cogs", weight: 1.5, minWidth: 65, alignment: .trailing),
+        ColumnDef("profit", weight: 1.5, minWidth: 65, alignment: .trailing),
+        ColumnDef("margin", weight: 1.0, minWidth: 50, alignment: .trailing),
+        ColumnDef("count", weight: 0.8, minWidth: 40, alignment: .trailing),
+        ColumnDef("avgOrder", weight: 1.5, minWidth: 65, alignment: .trailing),
+    ], spacing: 4)
+
     private var filteredRows: [CustomerProfitRow] {
         guard let report else { return [] }
         if searchText.isEmpty { return report.rows }
@@ -49,76 +59,83 @@ struct CustomerProfitabilityView: View {
                     if filteredRows.isEmpty {
                         EmptyStateView(icon: "person.2", title: "No customer data", subtitle: "No paid invoices found for this period")
                     } else {
-                        // Header row
-                        HStack(spacing: 0) {
-                            TableHeader(title: "Customer", width: TableColumn.customer)
-                            TableHeader(title: "Revenue", width: TableColumn.price, alignment: .trailing)
-                            TableHeader(title: "COGS", width: TableColumn.price, alignment: .trailing)
-                            TableHeader(title: "Profit", width: TableColumn.price, alignment: .trailing)
-                            TableHeader(title: "Margin", width: TableColumn.percent, alignment: .trailing)
-                            TableHeader(title: "#", width: TableColumn.quantity, alignment: .trailing)
-                            TableHeader(title: "Avg Order", width: TableColumn.price, alignment: .trailing)
-                        }
-                        .padding(.horizontal, AppSpacing.comfortable)
+                        GeometryReader { geo in
+                            let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
 
-                        ScrollView {
-                            LazyVStack(spacing: 0) {
-                                ForEach(Array(filteredRows.enumerated()), id: \.element.id) { index, row in
-                                    let isTop10 = index < 10
-                                    let isBottom10 = filteredRows.count > 20 && index >= filteredRows.count - 10
+                            VStack(alignment: .leading, spacing: 0) {
+                                // Header row
+                                HStack(spacing: 4) {
+                                    TableHeader(title: "Customer", width: widths[0])
+                                    TableHeader(title: "Revenue", width: widths[1], alignment: .trailing)
+                                    TableHeader(title: "COGS", width: widths[2], alignment: .trailing)
+                                    TableHeader(title: "Profit", width: widths[3], alignment: .trailing)
+                                    TableHeader(title: "Margin", width: widths[4], alignment: .trailing)
+                                    TableHeader(title: "#", width: widths[5], alignment: .trailing)
+                                    TableHeader(title: "Avg Order", width: widths[6], alignment: .trailing)
+                                }
+                                .padding(.horizontal, AppSpacing.standard)
+                                .padding(.vertical, AppSpacing.compact)
 
-                                    HoverRow(isSelected: selectedCustomerId == row.customerId) {
-                                        selectedCustomerId = row.customerId
-                                    } content: {
-                                        HStack(spacing: 0) {
-                                            HStack(spacing: AppSpacing.standard) {
-                                                if isTop10 {
-                                                    Image(systemName: "star.fill")
-                                                        .font(.caption2)
-                                                        .foregroundStyle(AppColors.warning)
+                                ScrollView {
+                                    LazyVStack(spacing: 0) {
+                                        ForEach(Array(filteredRows.enumerated()), id: \.element.id) { index, row in
+                                            let isTop10 = index < 10
+                                            let isBottom10 = filteredRows.count > 20 && index >= filteredRows.count - 10
+
+                                            HoverRow(isSelected: selectedCustomerId == row.customerId) {
+                                                selectedCustomerId = row.customerId
+                                            } content: {
+                                                HStack(spacing: 4) {
+                                                    HStack(spacing: AppSpacing.standard) {
+                                                        if isTop10 {
+                                                            Image(systemName: "star.fill")
+                                                                .font(.caption2)
+                                                                .foregroundStyle(AppColors.warning)
+                                                        }
+                                                        Text(row.customerName)
+                                                            .font(AppTypography.body)
+                                                            .foregroundStyle(AppColors.ink)
+                                                            .lineLimit(1)
+                                                    }
+                                                    .frame(width: widths[0], alignment: .leading)
+
+                                                    Text(row.totalRevenue.asCurrency)
+                                                        .font(AppTypography.mono)
+                                                        .foregroundStyle(AppColors.ink)
+                                                        .frame(width: widths[1], alignment: .trailing)
+
+                                                    Text(row.totalCOGS.asCurrency)
+                                                        .font(AppTypography.mono)
+                                                        .foregroundStyle(AppColors.inkMuted)
+                                                        .frame(width: widths[2], alignment: .trailing)
+
+                                                    Text(row.profit.asCurrency)
+                                                        .font(AppTypography.mono)
+                                                        .foregroundStyle(row.profit >= 0 ? AppColors.success : AppColors.danger)
+                                                        .frame(width: widths[3], alignment: .trailing)
+
+                                                    Text(String(format: "%.1f%%", row.marginPercent))
+                                                        .font(AppTypography.mono)
+                                                        .foregroundStyle(AppColors.ink)
+                                                        .frame(width: widths[4], alignment: .trailing)
+
+                                                    Text("\(row.transactionCount)")
+                                                        .font(AppTypography.mono)
+                                                        .foregroundStyle(AppColors.ink)
+                                                        .frame(width: widths[5], alignment: .trailing)
+
+                                                    Text(row.avgOrderValue.asCurrency)
+                                                        .font(AppTypography.mono)
+                                                        .foregroundStyle(AppColors.inkSubtle)
+                                                        .frame(width: widths[6], alignment: .trailing)
                                                 }
-                                                Text(row.customerName)
-                                                    .font(AppTypography.body)
-                                                    .foregroundStyle(AppColors.ink)
-                                                    .lineLimit(1)
                                             }
-                                            .frame(width: TableColumn.customer, alignment: .leading)
-
-                                            Text(row.totalRevenue.asCurrency)
-                                                .font(AppTypography.mono)
-                                                .foregroundStyle(AppColors.ink)
-                                                .frame(width: TableColumn.price, alignment: .trailing)
-
-                                            Text(row.totalCOGS.asCurrency)
-                                                .font(AppTypography.mono)
-                                                .foregroundStyle(AppColors.inkMuted)
-                                                .frame(width: TableColumn.price, alignment: .trailing)
-
-                                            Text(row.profit.asCurrency)
-                                                .font(AppTypography.mono)
-                                                .foregroundStyle(row.profit >= 0 ? AppColors.success : AppColors.danger)
-                                                .frame(width: TableColumn.price, alignment: .trailing)
-
-                                            Text(String(format: "%.1f%%", row.marginPercent))
-                                                .font(AppTypography.mono)
-                                                .foregroundStyle(AppColors.ink)
-                                                .frame(width: TableColumn.percent, alignment: .trailing)
-
-                                            Text("\(row.transactionCount)")
-                                                .font(AppTypography.mono)
-                                                .foregroundStyle(AppColors.ink)
-                                                .frame(width: TableColumn.quantity, alignment: .trailing)
-
-                                            Text(row.avgOrderValue.asCurrency)
-                                                .font(AppTypography.mono)
-                                                .foregroundStyle(AppColors.inkSubtle)
-                                                .frame(width: TableColumn.price, alignment: .trailing)
+                                            .staggeredRow(index: index, reduceMotion: reduceMotion)
+                                            .accessibilityElement(children: .combine)
+                                            .accessibilityLabel("\(row.customerName): profit \(row.profit.asCurrency), margin \(String(format: "%.1f%%", row.marginPercent))")
+                                            .accessibilityHint(isTop10 ? "Top 10 customer" : isBottom10 ? "Bottom 10 customer" : "")
                                         }
                                     }
-                                    .staggeredRow(index: index, reduceMotion: reduceMotion)
-                                    .accessibilityElement(children: .combine)
-                                    .accessibilityLabel("\(row.customerName): profit \(row.profit.asCurrency), margin \(String(format: "%.1f%%", row.marginPercent))")
-                                    .accessibilityHint(isTop10 ? "Top 10 customer" : isBottom10 ? "Bottom 10 customer" : "")
                                 }
                             }
                         }

@@ -1,11 +1,9 @@
 import SwiftUI
 
 /// Reusable table column header with optional sort indicator.
-/// Set `flex: true` on exactly ONE column per table to make it stretch and fill available width.
 struct TableHeader: View {
     let title: String
     var width: CGFloat? = nil
-    var flex: Bool = false
     var alignment: Alignment = .leading
     var isSorted: Bool = false
     var ascending: Bool = true
@@ -20,7 +18,7 @@ struct TableHeader: View {
                 label
             }
         }
-        .modifier(ColumnFrameModifier(width: width, flex: flex, alignment: alignment))
+        .frame(width: width, alignment: alignment)
         .accessibilityLabel(isSorted ? "\(title), sorted \(ascending ? "ascending" : "descending")" : title)
         .accessibilityAddTraits(onTap != nil ? .isButton : [])
     }
@@ -35,22 +33,6 @@ struct TableHeader: View {
                     .font(AppTypography.sectionLabel.weight(.bold))
                     .foregroundStyle(AppColors.primary)
             }
-        }
-    }
-}
-
-/// Applies either a fixed-width or flex-width frame to a table column.
-/// Reusable for both headers and row cells.
-struct ColumnFrameModifier: ViewModifier {
-    let width: CGFloat?
-    let flex: Bool
-    let alignment: Alignment
-
-    func body(content: Content) -> some View {
-        if flex, let w = width {
-            content.frame(minWidth: w, maxWidth: .infinity, alignment: alignment)
-        } else {
-            content.frame(width: width, alignment: alignment)
         }
     }
 }

@@ -10,6 +10,31 @@ enum InventoryListMode {
 // MARK: - View
 
 struct InventoryListView: View {
+    // MARK: - Table Layouts
+
+    private static let standardLayout = TableColumnLayout(columns: [
+        ColumnDef("sku", weight: 2.0, minWidth: 80),
+        ColumnDef("type", weight: 1.5, minWidth: 60),
+        ColumnDef("shape", weight: 1.5, minWidth: 60),
+        ColumnDef("carats", weight: 1.2, minWidth: 55, alignment: .trailing),
+        ColumnDef("color", weight: 1.5, minWidth: 60),
+        ColumnDef("clarity", weight: 1.2, minWidth: 55),
+        ColumnDef("price", weight: 1.5, minWidth: 70, alignment: .trailing),
+        ColumnDef("status", weight: 1.5, minWidth: 65, alignment: .center),
+    ], spacing: 4)
+
+    private static let soldLayout = TableColumnLayout(columns: [
+        ColumnDef("sku", weight: 2.0, minWidth: 80),
+        ColumnDef("type", weight: 1.5, minWidth: 60),
+        ColumnDef("shape", weight: 1.5, minWidth: 60),
+        ColumnDef("carats", weight: 1.2, minWidth: 55, alignment: .trailing),
+        ColumnDef("color", weight: 1.5, minWidth: 60),
+        ColumnDef("clarity", weight: 1.2, minWidth: 55),
+        ColumnDef("price", weight: 1.5, minWidth: 70, alignment: .trailing),
+        ColumnDef("soldTo", weight: 2.0, minWidth: 90),
+        ColumnDef("status", weight: 1.5, minWidth: 65, alignment: .center),
+    ], spacing: 4)
+
     @Binding var navigateTo: NavigationItem
     let mode: InventoryListMode
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -235,42 +260,45 @@ struct InventoryListView: View {
 
     // MARK: - Table
 
-    private var tableMinWidth: CGFloat {
-        let base = TableColumn.sku + TableColumn.type + TableColumn.shape + TableColumn.carat
-            + TableColumn.color + TableColumn.clarity + TableColumn.price + TableColumn.status + 90
-        return base + (mode == .sold ? TableColumn.customer : 0) + 60
+    private var activeLayout: TableColumnLayout {
+        mode == .sold ? Self.soldLayout : Self.standardLayout
     }
 
     private var tableContent: some View {
-        ScrollView([.horizontal, .vertical]) {
-            LazyVStack(spacing: 0) {
-                tableHeader
-                Divider().background(AppColors.cardStroke)
+        GeometryReader { geo in
+            let checkboxWidth: CGFloat = mode == .current ? 24 : 0
+            let dateWidth: CGFloat = 90
+            let fixedWidth = checkboxWidth + dateWidth
+            let widths = activeLayout.widths(for: geo.size.width - 2 * AppSpacing.section - fixedWidth)
+            ScrollView(.vertical) {
+                LazyVStack(spacing: 0) {
+                    tableHeader(widths: widths, dateWidth: dateWidth)
+                    Divider().background(AppColors.cardStroke)
 
-                if filteredStones.isEmpty {
-                    EmptyStateView(
-                        icon: mode == .sold ? "tag.slash" : "tray",
-                        title: mode == .sold ? "No sold stones" : "No stones found",
-                        subtitle: viewModel.hasActiveFilters ? "Try adjusting your filters" : nil
-                    )
-                    .frame(minWidth: tableMinWidth)
-                } else {
-                    LazyVStack(spacing: 2) {
-                        ForEach(filteredStones, id: \.persistentModelID) { stone in
-                            stoneRow(stone)
-                                .onAppear {
-                                    if stone.persistentModelID == filteredStones.last?.persistentModelID && viewModel.hasMore {
-                                        viewModel.loadMore(context: modelContext)
+                    if filteredStones.isEmpty {
+                        EmptyStateView(
+                            icon: mode == .sold ? "tag.slash" : "tray",
+                            title: mode == .sold ? "No sold stones" : "No stones found",
+                            subtitle: viewModel.hasActiveFilters ? "Try adjusting your filters" : nil
+                        )
+                        .frame(maxWidth: .infinity)
+                    } else {
+                        LazyVStack(spacing: 2) {
+                            ForEach(filteredStones, id: \.persistentModelID) { stone in
+                                stoneRow(stone, widths: widths, dateWidth: dateWidth)
+                                    .onAppear {
+                                        if stone.persistentModelID == filteredStones.last?.persistentModelID && viewModel.hasMore {
+                                            viewModel.loadMore(context: modelContext)
+                                        }
                                     }
-                                }
+                            }
                         }
-                    }
-                    .padding(.vertical, AppSpacing.standard)
+                        .padding(.vertical, AppSpacing.standard)
 
-                    summaryFooter
+                        summaryFooter
+                    }
                 }
             }
-            .frame(minWidth: tableMinWidth, maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
@@ -278,21 +306,25 @@ struct InventoryListView: View {
         .padding(.bottom, AppSpacing.hero)
     }
 
-    private var tableHeader: some View {
+    private func tableHeader(widths: [CGFloat], dateWidth: CGFloat) -> some View {
         HStack(spacing: 4) {
-            sortableHeader("SKU", key: "sku", width: TableColumn.sku, alignment: .leading)
-            sortableHeader("Type", key: "type", width: TableColumn.type, alignment: .leading)
-            sortableHeader("Shape", key: "shape", width: TableColumn.shape, alignment: .leading)
-            sortableHeader("Carats", key: "carats", width: TableColumn.carat, alignment: .trailing)
-            TableHeader(title: "Color", width: TableColumn.color, alignment: .leading)
-            TableHeader(title: "Clarity", width: TableColumn.clarity, alignment: .leading)
-            sortableHeader("Price", key: "price", width: TableColumn.price, alignment: .trailing)
-            if mode == .sold {
-                TableHeader(title: "Sold To", width: TableColumn.customer, alignment: .leading)
+            if mode == .current {
+                Color.clear.frame(width: 24)
             }
-            sortableHeader("Status", key: "status", width: TableColumn.status, alignment: .center)
-            sortableHeader("Date Added", key: "dateAdded", width: 90, alignment: .leading)
-            Spacer()
+            sortableHeader("SKU", key: "sku", width: widths[0], alignment: .leading)
+            sortableHeader("Type", key: "type", width: widths[1], alignment: .leading)
+            sortableHeader("Shape", key: "shape", width: widths[2], alignment: .leading)
+            sortableHeader("Carats", key: "carats", width: widths[3], alignment: .trailing)
+            TableHeader(title: "Color", width: widths[4], alignment: .leading)
+            TableHeader(title: "Clarity", width: widths[5], alignment: .leading)
+            sortableHeader("Price", key: "price", width: widths[6], alignment: .trailing)
+            if mode == .sold {
+                TableHeader(title: "Sold To", width: widths[7], alignment: .leading)
+                sortableHeader("Status", key: "status", width: widths[8], alignment: .center)
+            } else {
+                sortableHeader("Status", key: "status", width: widths[7], alignment: .center)
+            }
+            sortableHeader("Date Added", key: "dateAdded", width: dateWidth, alignment: .leading)
         }
         .padding(.horizontal, AppSpacing.section)
         .padding(.vertical, AppSpacing.comfortable)
@@ -309,7 +341,7 @@ struct InventoryListView: View {
         )
     }
 
-    private func stoneRow(_ stone: Gemstone) -> some View {
+    private func stoneRow(_ stone: Gemstone, widths: [CGFloat], dateWidth: CGFloat) -> some View {
         HoverRow(isSelected: viewModel.selectedStoneID == stone.persistentModelID, onTap: {
             if viewModel.selectedStoneID == stone.persistentModelID {
                 viewModel.selectedStoneID = nil
@@ -335,43 +367,43 @@ struct InventoryListView: View {
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .frame(width: TableColumn.sku, alignment: .leading)
+                .frame(width: widths[0], alignment: .leading)
 
             StoneTypeBadge(type: stone.stoneType.rawValue)
-                .frame(width: TableColumn.type, alignment: .leading)
+                .frame(width: widths[1], alignment: .leading)
 
             Text(stone.shape)
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .frame(width: TableColumn.shape, alignment: .leading)
+                .frame(width: widths[2], alignment: .leading)
 
             Text(String(format: "%.2f", stone.caratWeight))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
-                .frame(width: TableColumn.carat, alignment: .trailing)
+                .frame(width: widths[3], alignment: .trailing)
 
             Text(stone.color)
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .frame(width: TableColumn.color, alignment: .leading)
+                .frame(width: widths[4], alignment: .leading)
 
             Text(stone.clarity)
                 .font(AppTypography.body)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
                 .truncationMode(.tail)
-                .frame(width: TableColumn.clarity, alignment: .leading)
+                .frame(width: widths[5], alignment: .leading)
 
             Text(formattedPrice(stone.sellPrice))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
-                .frame(width: TableColumn.price, alignment: .trailing)
+                .frame(width: widths[6], alignment: .trailing)
 
             if mode == .sold {
                 Text(stone.currentLocation)
@@ -379,19 +411,20 @@ struct InventoryListView: View {
                     .foregroundStyle(AppColors.inkMuted)
                     .lineLimit(1)
                     .truncationMode(.tail)
-                    .frame(width: TableColumn.customer, alignment: .leading)
-            }
+                    .frame(width: widths[7], alignment: .leading)
 
-            statusBadge(for: stone.status)
-                .frame(width: TableColumn.status, alignment: .center)
+                statusBadge(for: stone.status)
+                    .frame(width: widths[8], alignment: .center)
+            } else {
+                statusBadge(for: stone.status)
+                    .frame(width: widths[7], alignment: .center)
+            }
 
             Text(stone.createdAt.formatted(.dateTime.month(.abbreviated).day()))
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
                 .lineLimit(1)
-                .frame(width: 90, alignment: .leading)
-
-            Spacer()
+                .frame(width: dateWidth, alignment: .leading)
         }
     }
 

@@ -5,6 +5,13 @@ struct CustomerBalanceView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    private static let tableLayout = TableColumnLayout(columns: [
+        ColumnDef("customer", weight: 3.0, minWidth: 100),
+        ColumnDef("outstanding", weight: 1.5, minWidth: 70, alignment: .trailing),
+        ColumnDef("invoices", weight: 1.0, minWidth: 50, alignment: .trailing),
+        ColumnDef("overdue", weight: 1.0, minWidth: 50, alignment: .trailing),
+    ], spacing: 4)
+
     @State private var balances: [CustomerBalance] = []
     @State private var selectedCustomer: CustomerBalance?
     @State private var showPaymentSheet = false
@@ -62,46 +69,49 @@ struct CustomerBalanceView: View {
                 if balances.isEmpty {
                     EmptyStateView(icon: "person.2", title: "No outstanding balances")
                 } else {
-                    HStack(spacing: 4) {
-                        TableHeader(title: "Customer", width: TableColumn.customer)
-                        TableHeader(title: "Outstanding", width: TableColumn.price, alignment: .trailing)
-                        TableHeader(title: "Invoices", width: TableColumn.quantity, alignment: .trailing)
-                        TableHeader(title: "Overdue", width: TableColumn.quantity, alignment: .trailing)
-                    }
-                    .padding(.horizontal, AppSpacing.comfortable)
+                    GeometryReader { geo in
+                        let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
+                        VStack(spacing: 0) {
+                            HStack(spacing: 4) {
+                                TableHeader(title: "Customer", width: widths[0])
+                                TableHeader(title: "Outstanding", width: widths[1], alignment: .trailing)
+                                TableHeader(title: "Invoices", width: widths[2], alignment: .trailing)
+                                TableHeader(title: "Overdue", width: widths[3], alignment: .trailing)
+                            }
+                            .padding(.horizontal, AppSpacing.standard)
 
-                    ScrollView {
-                        LazyVStack(spacing: 0) {
-                            ForEach(Array(balances.enumerated()), id: \.element.id) { index, balance in
-                                HoverRow(isSelected: selectedCustomer?.id == balance.id) {
-                                    selectedCustomer = balance
-                                } content: {
-                                    HStack(spacing: 4) {
-                                        Text(balance.customerName)
-                                            .font(AppTypography.body)
-                                            .foregroundStyle(AppColors.ink)
-                                            .lineLimit(1)
-                                            .frame(width: TableColumn.customer, alignment: .leading)
+                            ScrollView {
+                                LazyVStack(spacing: 0) {
+                                    ForEach(Array(balances.enumerated()), id: \.element.id) { index, balance in
+                                        HoverRow(isSelected: selectedCustomer?.id == balance.id) {
+                                            selectedCustomer = balance
+                                        } content: {
+                                            Text(balance.customerName)
+                                                .font(AppTypography.body)
+                                                .foregroundStyle(AppColors.ink)
+                                                .lineLimit(1)
+                                                .frame(width: widths[0], alignment: .leading)
 
-                                        Text(balance.totalOutstanding.asCurrency)
-                                            .font(AppTypography.mono)
-                                            .foregroundStyle(AppColors.warning)
-                                            .frame(width: TableColumn.price, alignment: .trailing)
+                                            Text(balance.totalOutstanding.asCurrency)
+                                                .font(AppTypography.mono)
+                                                .foregroundStyle(AppColors.warning)
+                                                .frame(width: widths[1], alignment: .trailing)
 
-                                        Text("\(balance.invoices.count)")
-                                            .font(AppTypography.mono)
-                                            .foregroundStyle(AppColors.ink)
-                                            .frame(width: TableColumn.quantity, alignment: .trailing)
+                                            Text("\(balance.invoices.count)")
+                                                .font(AppTypography.mono)
+                                                .foregroundStyle(AppColors.ink)
+                                                .frame(width: widths[2], alignment: .trailing)
 
-                                        Text("\(balance.overdueCount)")
-                                            .font(AppTypography.mono)
-                                            .foregroundStyle(balance.overdueCount > 0 ? AppColors.danger : AppColors.inkSubtle)
-                                            .frame(width: TableColumn.quantity, alignment: .trailing)
+                                            Text("\(balance.overdueCount)")
+                                                .font(AppTypography.mono)
+                                                .foregroundStyle(balance.overdueCount > 0 ? AppColors.danger : AppColors.inkSubtle)
+                                                .frame(width: widths[3], alignment: .trailing)
+                                        }
+                                        .staggeredRow(index: index, reduceMotion: reduceMotion)
+                                        .accessibilityElement(children: .combine)
+                                        .accessibilityLabel("\(balance.customerName): \(balance.totalOutstanding.asCurrency) outstanding, \(balance.overdueCount) overdue")
                                     }
                                 }
-                                .staggeredRow(index: index, reduceMotion: reduceMotion)
-                                .accessibilityElement(children: .combine)
-                                .accessibilityLabel("\(balance.customerName): \(balance.totalOutstanding.asCurrency) outstanding, \(balance.overdueCount) overdue")
                             }
                         }
                     }

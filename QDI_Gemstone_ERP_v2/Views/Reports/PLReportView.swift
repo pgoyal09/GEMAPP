@@ -10,6 +10,15 @@ struct PLReportView: View {
 
     @State private var report: PLReport?
 
+    private static let tableLayout = TableColumnLayout(columns: [
+        ColumnDef("stoneType", weight: 2.0, minWidth: 70),
+        ColumnDef("units", weight: 1.0, minWidth: 50, alignment: .trailing),
+        ColumnDef("revenue", weight: 1.5, minWidth: 65, alignment: .trailing),
+        ColumnDef("cogs", weight: 1.5, minWidth: 65, alignment: .trailing),
+        ColumnDef("grossProfit", weight: 1.5, minWidth: 65, alignment: .trailing),
+        ColumnDef("margin", weight: 1.0, minWidth: 50, alignment: .trailing),
+    ], spacing: 4)
+
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.hero) {
             if let report {
@@ -66,47 +75,54 @@ struct PLReportView: View {
                 if report.breakdownByType.isEmpty {
                     EmptyStateView(icon: "chart.bar", title: "No sales data", subtitle: "No paid invoices found for this period")
                 } else {
-                    // Header
-                    HStack(spacing: 0) {
-                        TableHeader(title: "Stone Type", width: TableColumn.type)
-                        TableHeader(title: "Units", width: TableColumn.quantity, alignment: .trailing)
-                        TableHeader(title: "Revenue", width: TableColumn.price, alignment: .trailing)
-                        TableHeader(title: "COGS", width: TableColumn.price, alignment: .trailing)
-                        TableHeader(title: "Gross Profit", width: TableColumn.price, alignment: .trailing)
-                        TableHeader(title: "Margin", width: TableColumn.percent, alignment: .trailing)
-                    }
-                    .padding(.horizontal, AppSpacing.comfortable)
+                    GeometryReader { geo in
+                        let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
 
-                    ForEach(Array(report.breakdownByType.enumerated()), id: \.element.id) { index, row in
-                        HStack(spacing: 0) {
-                            StoneTypeBadge(type: row.stoneType)
-                                .frame(width: TableColumn.type, alignment: .leading)
-                            Text("\(row.unitsSold)")
-                                .font(AppTypography.mono)
-                                .foregroundStyle(AppColors.ink)
-                                .frame(width: TableColumn.quantity, alignment: .trailing)
-                            Text(row.revenue.asCurrency)
-                                .font(AppTypography.mono)
-                                .foregroundStyle(AppColors.ink)
-                                .frame(width: TableColumn.price, alignment: .trailing)
-                            Text(row.cogs.asCurrency)
-                                .font(AppTypography.mono)
-                                .foregroundStyle(AppColors.inkMuted)
-                                .frame(width: TableColumn.price, alignment: .trailing)
-                            Text(row.grossProfit.asCurrency)
-                                .font(AppTypography.mono)
-                                .foregroundStyle(row.grossProfit >= 0 ? AppColors.success : AppColors.danger)
-                                .frame(width: TableColumn.price, alignment: .trailing)
-                            Text(String(format: "%.1f%%", row.marginPercent))
-                                .font(AppTypography.mono)
-                                .foregroundStyle(AppColors.ink)
-                                .frame(width: TableColumn.percent, alignment: .trailing)
+                        VStack(alignment: .leading, spacing: 0) {
+                            // Header
+                            HStack(spacing: 4) {
+                                TableHeader(title: "Stone Type", width: widths[0])
+                                TableHeader(title: "Units", width: widths[1], alignment: .trailing)
+                                TableHeader(title: "Revenue", width: widths[2], alignment: .trailing)
+                                TableHeader(title: "COGS", width: widths[3], alignment: .trailing)
+                                TableHeader(title: "Gross Profit", width: widths[4], alignment: .trailing)
+                                TableHeader(title: "Margin", width: widths[5], alignment: .trailing)
+                            }
+                            .padding(.horizontal, AppSpacing.standard)
+                            .padding(.vertical, AppSpacing.compact)
+
+                            ForEach(Array(report.breakdownByType.enumerated()), id: \.element.id) { index, row in
+                                HStack(spacing: 4) {
+                                    StoneTypeBadge(type: row.stoneType)
+                                        .frame(width: widths[0], alignment: .leading)
+                                    Text("\(row.unitsSold)")
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(AppColors.ink)
+                                        .frame(width: widths[1], alignment: .trailing)
+                                    Text(row.revenue.asCurrency)
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(AppColors.ink)
+                                        .frame(width: widths[2], alignment: .trailing)
+                                    Text(row.cogs.asCurrency)
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(AppColors.inkMuted)
+                                        .frame(width: widths[3], alignment: .trailing)
+                                    Text(row.grossProfit.asCurrency)
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(row.grossProfit >= 0 ? AppColors.success : AppColors.danger)
+                                        .frame(width: widths[4], alignment: .trailing)
+                                    Text(String(format: "%.1f%%", row.marginPercent))
+                                        .font(AppTypography.mono)
+                                        .foregroundStyle(AppColors.ink)
+                                        .frame(width: widths[5], alignment: .trailing)
+                                }
+                                .padding(.horizontal, AppSpacing.standard)
+                                .padding(.vertical, AppSpacing.standard)
+                                .staggeredRow(index: index, reduceMotion: reduceMotion)
+                                .accessibilityElement(children: .combine)
+                                .accessibilityLabel("\(row.stoneType): \(row.unitsSold) units, revenue \(row.revenue.asCurrency), margin \(String(format: "%.1f%%", row.marginPercent))")
+                            }
                         }
-                        .padding(.horizontal, AppSpacing.comfortable)
-                        .padding(.vertical, AppSpacing.standard)
-                        .staggeredRow(index: index, reduceMotion: reduceMotion)
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel("\(row.stoneType): \(row.unitsSold) units, revenue \(row.revenue.asCurrency), margin \(String(format: "%.1f%%", row.marginPercent))")
                     }
                 }
             }
