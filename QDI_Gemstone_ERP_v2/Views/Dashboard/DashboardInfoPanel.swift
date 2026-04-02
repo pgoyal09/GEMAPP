@@ -52,7 +52,16 @@ struct DashboardInfoPanel: View {
                 Text("No open memos")
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.inkSubtle)
+                    .frame(maxWidth: .infinity)
                     .padding(.vertical, AppSpacing.standard)
+                    .background(
+                        RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                            .fill(AppColors.cardBackground)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                                    .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                            )
+                    )
             } else {
                 VStack(spacing: 0) {
                     ForEach(viewModel.oldestOpenMemos) { item in
@@ -85,6 +94,14 @@ struct DashboardInfoPanel: View {
                         .buttonStyle(.plain)
                     }
                 }
+                .background(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                        .fill(AppColors.cardBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                        )
+                )
             }
         }
     }
@@ -94,7 +111,7 @@ struct DashboardInfoPanel: View {
     private var openMemosSummarySection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.standard) {
             SectionHeader(title: "Open Memos")
-            HStack(spacing: 10) {
+            HStack(spacing: AppSpacing.standard) {
                 snapshotChip("Count", viewModel.oldestOpenMemos.count, color: AppColors.primary)
                 VStack(spacing: 2) {
                     Text(viewModel.totalValueOnMemo.asCurrency)
