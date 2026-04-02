@@ -82,6 +82,8 @@ struct AppShellView: View {
             if showSidebar {
                 SidebarView(selectedItem: routeBinding)
                     .frame(width: 220)
+                    .fixedSize(horizontal: true, vertical: false)
+                    .layoutPriority(1)
                     .transition(sidebarTransition)
             }
 
@@ -89,7 +91,8 @@ struct AppShellView: View {
                 headerBar
                 contentArea
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity)
+            .clipped()
         }
         .alert("Leave without saving?", isPresented: $showLeaveAlert) {
             Button("Keep Editing", role: .cancel) { pendingRoute = nil }

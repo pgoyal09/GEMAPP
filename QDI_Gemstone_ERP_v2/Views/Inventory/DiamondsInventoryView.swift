@@ -231,8 +231,8 @@ struct DiamondsInventoryView: View {
     private var topBar: some View {
         HStack(spacing: AppSpacing.comfortable) {
             GlassSearchField(text: $searchText, placeholder: "Search by SKU, color, clarity...", requestFocus: $searchFieldFocusRequest)
-                .frame(maxWidth: 320)
-            Spacer()
+                .frame(minWidth: 180, maxWidth: 320)
+            Spacer(minLength: AppSpacing.comfortable)
             filterPresetMenu
             Button("Save Filter", systemImage: "square.and.arrow.down") {
                 newPresetName = ""
