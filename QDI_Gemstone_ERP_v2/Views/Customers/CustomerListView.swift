@@ -41,14 +41,18 @@ struct CustomerListView: View {
                 HStack(spacing: 0) {
                     Spacer()
                     CustomerFullDetailView(customer: customer, onDismiss: { doubleClickedCustomer = nil })
-                        .frame(width: 400)
-                        .background(AppColors.panelBackground)
-                        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous))
-                        .shadow(color: Color.black.opacity(0.3), radius: 12, x: -4)
+                        .frame(width: 380)
+                        .background(.ultraThinMaterial)
+                        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                                .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)
+                        )
+                        .shadow(color: .black.opacity(0.4), radius: 20, x: -6)
                 }
                 .transition(reduceMotion ? .opacity : .move(edge: .trailing).combined(with: .opacity))
-                .padding(.vertical, AppSpacing.hero)
-                .padding(.trailing, AppSpacing.hero)
+                .padding(.vertical, AppSpacing.standard)
+                .padding(.trailing, AppSpacing.standard)
             }
         }
         .accessibilityIdentifier("CustomerListView")

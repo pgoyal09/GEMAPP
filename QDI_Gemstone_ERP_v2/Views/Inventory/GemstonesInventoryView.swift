@@ -160,12 +160,16 @@ struct GemstonesInventoryView: View {
                     editingStone = stone
                     showEditSheet = true
                 })
-                .frame(width: 400)
-                .background(AppColors.panelBackground)
+                .frame(width: 380)
+                .background(.ultraThinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous))
-                .shadow(color: .black.opacity(0.3), radius: 16, x: -4)
-                .padding(.vertical, AppSpacing.section)
-                .padding(.trailing, AppSpacing.section)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                        .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.4), radius: 20, x: -6)
+                .padding(.vertical, AppSpacing.standard)
+                .padding(.trailing, AppSpacing.standard)
                 .transition(reduceMotion ? .opacity : .move(edge: .trailing).combined(with: .opacity))
             }
         }
