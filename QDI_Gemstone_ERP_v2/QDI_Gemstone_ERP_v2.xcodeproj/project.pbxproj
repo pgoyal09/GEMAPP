@@ -77,6 +77,7 @@
 		4AA03722527B59077F9F5F76 /* CustomerActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C8229F5E0621428EC77070 /* CustomerActivityView.swift */; };
 		4B2BE11085FE92583CC52B7D /* CustomerListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8694EA6DA5A3AF102B5B6 /* CustomerListView.swift */; };
 		4CDFD38B6F9916CC5D3C7FBB /* APIServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D682A424EF5064E67BF38856 /* APIServer.swift */; };
+		50163D06C31DD6654BA696B7 /* AutocompleteTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 323D9A4DFE52B83BD86A8981 /* AutocompleteTextField.swift */; };
 		5041255737768DE30B3309AD /* HoverRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA238D2CE296E7F838340CCD /* HoverRow.swift */; };
 		51EC36E15A04440AAE4286B7 /* ReportExportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5808D2AEC55AAB4870FC160 /* ReportExportService.swift */; };
 		5230523037E4A195FA18008D /* StoneFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DCDE31D32F68887B83C97E2 /* StoneFormView.swift */; };
@@ -226,6 +227,7 @@
 		2E2B071BCC76EE4FED2E41FA /* MemoRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoRoutes.swift; sourceTree = "<group>"; };
 		2ECF159A5FC31BBD9D068E1C /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		2FD4A41C39E9543AB55428FA /* LabelTemplateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelTemplateService.swift; sourceTree = "<group>"; };
+		323D9A4DFE52B83BD86A8981 /* AutocompleteTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutocompleteTextField.swift; sourceTree = "<group>"; };
 		325C18F3512961657BDAD856 /* GradientButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientButtonStyle.swift; sourceTree = "<group>"; };
 		32D04B1F807ECBF7399A1576 /* SKUGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SKUGenerator.swift; sourceTree = "<group>"; };
 		32D6DC60F80D7FC541834613 /* HistoryLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryLogger.swift; sourceTree = "<group>"; };
@@ -606,6 +608,7 @@
 		764E2826C918CDE7A0544068 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				323D9A4DFE52B83BD86A8981 /* AutocompleteTextField.swift */,
 				41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */,
 				7220B21A25317D921736B773 /* EmptyStateView.swift */,
 				9E7B6A77056D754FF2151496 /* FilterPill.swift */,
@@ -925,6 +928,7 @@
 				0E22C31C27AC813031FCE9B9 /* AppShellView.swift in Sources */,
 				B665C2DFE7620630DAC22AA2 /* AppSpacing.swift in Sources */,
 				22F23D9F8E802FBD936767BE /* AppTypography.swift in Sources */,
+				50163D06C31DD6654BA696B7 /* AutocompleteTextField.swift in Sources */,
 				C9CAB587DB2D45421902135D /* BackupManifest.swift in Sources */,
 				BBB0B529C5AF4BAC7BC63BCA /* BackupScheduler.swift in Sources */,
 				E0ADB3F0BDDB5B5F9A549701 /* BackupService.swift in Sources */,

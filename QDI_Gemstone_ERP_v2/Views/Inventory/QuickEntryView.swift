@@ -181,7 +181,8 @@ struct QuickEntryView: View {
                 .frame(width: Col.type)
 
                 // Shape
-                cellField(text: binding(for: index, keyPath: \.shape), width: Col.shape, focus: .shape(row.id))
+                AutocompleteTextField(text: binding(for: index, keyPath: \.shape), options: StoneShape.allNames, label: "Shape")
+                    .frame(width: Col.shape)
 
                 // Carat
                 cellField(value: binding(for: index, keyPath: \.caratWeight), width: Col.carat, focus: .carat(row.id), trailing: true)

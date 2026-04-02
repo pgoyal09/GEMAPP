@@ -112,14 +112,17 @@ struct StoneFormView: View {
                         .font(AppTypography.mono)
                         .disabled(!viewModel.mode.isEditing && viewModel.mode.existingStone == nil)
                         .accessibilitySortPriority(10)
-                    FormPicker(label: "Type", selection: $viewModel.stoneTypeText) {
-                        ForEach(StoneType.allCases, id: \.self) { Text($0.rawValue).tag($0.rawValue) }
+                    AutocompleteTextField(text: $viewModel.stoneTypeText, options: StoneType.allCases.map(\.rawValue), label: "Type")
+                        .onChange(of: viewModel.stoneTypeText) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
+                        .accessibilitySortPriority(9)
+                    VStack(alignment: .leading, spacing: AppSpacing.compact) {
+                        AutocompleteTextField(text: $viewModel.shapeText, options: StoneShape.allNames, label: "Shape")
+                        if let error = viewModel.shapeError {
+                            Text(error).font(AppTypography.caption).foregroundStyle(AppColors.danger)
+                        }
                     }
-                    .onChange(of: viewModel.stoneTypeText) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
-                    .accessibilitySortPriority(9)
-                    FormField(label: "Shape", text: $viewModel.shapeText, error: viewModel.shapeError)
-                        .onChange(of: viewModel.shapeText) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
-                        .accessibilitySortPriority(8)
+                    .onChange(of: viewModel.shapeText) { _, _ in viewModel.refreshSKU(modelContext: modelContext) }
+                    .accessibilitySortPriority(8)
                     FormPicker(label: "Grouping", selection: $viewModel.grouping) {
                         ForEach(StoneGrouping.allCases, id: \.self) { Text($0.displayName).tag($0) }
                     }

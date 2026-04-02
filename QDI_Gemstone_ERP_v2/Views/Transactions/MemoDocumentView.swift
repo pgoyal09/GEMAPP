@@ -288,7 +288,7 @@ struct MemoDocumentView: View {
                         }
                     }
                     .frame(minWidth: 200, maxWidth: 200, maxHeight: 150)
-                    .background(AppColors.panelBackground)
+                    .background(AppColors.panelBackground.opacity(0.2))
                     .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.small))
                     .overlay(
                         RoundedRectangle(cornerRadius: AppCornerRadius.small)
