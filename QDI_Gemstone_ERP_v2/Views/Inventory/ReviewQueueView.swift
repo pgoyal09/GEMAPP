@@ -94,7 +94,15 @@ struct ReviewQueueView: View {
                 }
             }
         }
-        .glassTable()
+        .background(
+            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                .fill(AppColors.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
         .padding(.horizontal, AppSpacing.hero)
         .padding(.bottom, AppSpacing.hero)
     }

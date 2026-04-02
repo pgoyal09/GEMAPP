@@ -91,22 +91,29 @@ struct HelpCenterView: View {
     private var sectionGrid: some View {
         ScrollView {
             // Quick Start banner
-            GlassCard(padding: AppSpacing.hero) {
-                HStack(spacing: AppSpacing.section) {
-                    VStack(alignment: .leading, spacing: AppSpacing.compact) {
-                        Text("Welcome to QDI Gemstone ERP")
-                            .font(AppTypography.subheading)
-                            .foregroundStyle(AppColors.ink)
-                        Text("Your complete gemstone and diamond inventory management system. Browse the sections below or search for a specific topic.")
-                            .font(AppTypography.body)
-                            .foregroundStyle(AppColors.inkMuted)
-                    }
-                    Spacer()
-                    Image(systemName: "sparkles")
-                        .font(.system(size: 36))
-                        .foregroundStyle(AppColors.primary.opacity(AppOpacity.medium))
+            HStack(spacing: AppSpacing.section) {
+                VStack(alignment: .leading, spacing: AppSpacing.compact) {
+                    Text("Welcome to QDI Gemstone ERP")
+                        .font(AppTypography.subheading)
+                        .foregroundStyle(AppColors.ink)
+                    Text("Your complete gemstone and diamond inventory management system. Browse the sections below or search for a specific topic.")
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.inkMuted)
                 }
+                Spacer()
+                Image(systemName: "sparkles")
+                    .font(.system(size: 36))
+                    .foregroundStyle(AppColors.primary.opacity(AppOpacity.medium))
             }
+            .padding(AppSpacing.hero)
+            .background(
+                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                    .fill(AppColors.cardBackground)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                    )
+            )
             .padding(.horizontal, AppSpacing.hero)
             .padding(.bottom, AppSpacing.section)
 
@@ -120,35 +127,42 @@ struct HelpCenterView: View {
                             selectedSection = section
                         }
                     } label: {
-                        GlassCard(padding: AppSpacing.section) {
-                            HStack(spacing: AppSpacing.comfortable) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
-                                        .fill(AppColors.primary.opacity(AppOpacity.subtle))
-                                        .frame(width: 44, height: 44)
-                                    Image(systemName: section.icon)
-                                        .font(.system(size: 20))
-                                        .foregroundStyle(AppColors.primary)
-                                }
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(section.title)
-                                        .font(AppTypography.subheading)
-                                        .foregroundStyle(AppColors.ink)
-                                    Text(section.subtitle)
-                                        .font(AppTypography.caption)
-                                        .foregroundStyle(AppColors.inkSubtle)
-                                        .lineLimit(2)
-                                    Text("\(section.articles.count) articles")
-                                        .font(AppTypography.caption)
-                                        .foregroundStyle(AppColors.inkMuted)
-                                        .padding(.top, 2)
-                                }
-                                Spacer()
-                                Image(systemName: "chevron.right")
+                        HStack(spacing: AppSpacing.comfortable) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                                    .fill(AppColors.primary.opacity(AppOpacity.subtle))
+                                    .frame(width: 44, height: 44)
+                                Image(systemName: section.icon)
+                                    .font(.system(size: 20))
+                                    .foregroundStyle(AppColors.primary)
+                            }
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(section.title)
+                                    .font(AppTypography.subheading)
+                                    .foregroundStyle(AppColors.ink)
+                                Text(section.subtitle)
                                     .font(AppTypography.caption)
                                     .foregroundStyle(AppColors.inkSubtle)
+                                    .lineLimit(2)
+                                Text("\(section.articles.count) articles")
+                                    .font(AppTypography.caption)
+                                    .foregroundStyle(AppColors.inkMuted)
+                                    .padding(.top, 2)
                             }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.inkSubtle)
                         }
+                        .padding(AppSpacing.section)
+                        .background(
+                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                .fill(AppColors.cardBackground)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                                )
+                        )
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("\(section.title), \(section.articles.count) articles")
@@ -226,8 +240,7 @@ struct HelpCenterView: View {
                                 selectedArticle = article
                             }
                         } label: {
-                            GlassCard(padding: AppSpacing.section) {
-                                HStack {
+                            HStack {
                                     Image(systemName: "doc.text")
                                         .foregroundStyle(AppColors.primary)
                                     Text(article.title)
@@ -238,7 +251,15 @@ struct HelpCenterView: View {
                                         .font(AppTypography.caption)
                                         .foregroundStyle(AppColors.inkSubtle)
                                 }
-                            }
+                                .padding(AppSpacing.section)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                        .fill(AppColors.cardBackground)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                                .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                                        )
+                                )
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(article.title)

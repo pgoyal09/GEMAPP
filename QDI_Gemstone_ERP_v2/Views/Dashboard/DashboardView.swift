@@ -70,11 +70,11 @@ struct DashboardView: View {
             .padding(.horizontal, AppSpacing.section)
             .padding(.vertical, AppSpacing.standard)
             .background(
-                RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                    .fill(AppColors.softHighlight)
+                RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                    .fill(AppColors.cardBackground)
                     .overlay(
-                        RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                            .strokeBorder(AppColors.cardElevated, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                            .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                     )
             )
         }

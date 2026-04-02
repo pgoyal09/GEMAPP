@@ -11,38 +11,45 @@ struct KPICard: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        GlassCard(padding: AppSpacing.hero) {
-            VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
-                HStack(spacing: AppSpacing.compact) {
-                    if let icon {
-                        Image(systemName: icon)
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColors.inkSubtle)
-                    }
-                    Text(title.uppercased())
+        VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
+            HStack(spacing: AppSpacing.compact) {
+                if let icon {
+                    Image(systemName: icon)
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.inkSubtle)
-                        .tracking(1.2)
                 }
-                HStack(alignment: .firstTextBaseline, spacing: AppSpacing.compact) {
-                    Text(value)
-                        .font(AppTypography.largeValue)
-                        .foregroundStyle(AppColors.ink)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                        .contentTransition(.numericText())
-                        .scaleEffect(pulseScale)
-                    if let unit {
-                        Text(unit)
-                            .font(AppTypography.body)
-                            .foregroundStyle(AppColors.inkSubtle)
-                    }
+                Text(title.uppercased())
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+                    .tracking(1.2)
+            }
+            HStack(alignment: .firstTextBaseline, spacing: AppSpacing.compact) {
+                Text(value)
+                    .font(AppTypography.largeValue)
+                    .foregroundStyle(AppColors.ink)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .contentTransition(.numericText())
+                    .scaleEffect(pulseScale)
+                if let unit {
+                    Text(unit)
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColors.inkSubtle)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel("\(title): \(value)\(unit.map { " \($0)" } ?? "")")
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(AppSpacing.hero)
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                .fill(AppColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                )
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title): \(value)\(unit.map { " \($0)" } ?? "")")
         .onChange(of: value) { _, _ in
             guard !reduceMotion else { return }
             withAnimation(AppAnimation.pulse) {

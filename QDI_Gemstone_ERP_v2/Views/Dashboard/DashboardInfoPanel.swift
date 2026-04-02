@@ -108,10 +108,10 @@ struct DashboardInfoPanel: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, AppSpacing.standard)
                 .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                        .fill(AppColors.panelBackground)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                        .fill(AppColors.cardBackground)
                         .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                                 .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                         )
                 )
@@ -157,10 +157,10 @@ struct DashboardInfoPanel: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, AppSpacing.standard)
         .background(
-            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
-                .fill(AppColors.panelBackground)
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                .fill(AppColors.cardBackground)
                 .overlay(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                         .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                 )
         )
