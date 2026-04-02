@@ -46,7 +46,7 @@ struct EditableLineItemRow: View {
 
             // Description
             TextField("Description", text: $descriptionText)
-                .glassField()
+                .textFieldStyle(.plain)
                 .frame(minWidth: TableColumn.description, maxWidth: .infinity)
                 .onChange(of: descriptionText) { _, val in
                     guard !isSyncing else { return }
@@ -62,7 +62,7 @@ struct EditableLineItemRow: View {
                     .frame(minWidth: TableColumn.carat, maxWidth: .infinity, alignment: .trailing)
             } else {
                 TextField("0.00", text: $caratsText)
-                    .glassField()
+                    .textFieldStyle(.plain)
                     .frame(minWidth: TableColumn.carat, maxWidth: .infinity)
                     .onChange(of: caratsText) { _, val in
                         guard !isSyncing else { return }
@@ -74,7 +74,7 @@ struct EditableLineItemRow: View {
 
             // Rate
             TextField("0.00", text: $rateText)
-                .glassField()
+                .textFieldStyle(.plain)
                 .frame(minWidth: TableColumn.price, maxWidth: .infinity)
                 .onChange(of: rateText) { _, val in
                     guard !isSyncing else { return }
