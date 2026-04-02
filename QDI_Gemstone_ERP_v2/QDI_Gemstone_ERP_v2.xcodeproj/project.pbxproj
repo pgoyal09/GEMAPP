@@ -167,6 +167,7 @@
 		C9CAB587DB2D45421902135D /* BackupManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA6B91E3BC94FDDE815F715 /* BackupManifest.swift */; };
 		CCB573CA20CF92C83B93FB5C /* CSVImportPreviewSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56EC23CBF87289FD1987521D /* CSVImportPreviewSheet.swift */; };
 		CD2E5901B7ECEE2B8037CCDE /* HelpCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25D68E76CCBB93921824588C /* HelpCenterView.swift */; };
+		CF1D1529FF3FB92A6F38550E /* SoldFilterBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68CF89CCEA455DEBCEFB3CB7 /* SoldFilterBar.swift */; };
 		CF5C7C0597EB7E99DA8D3991 /* DetailRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */; };
 		D139FE43F09FB5A1B750B918 /* LineItemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CD014DC9A48F5870B67D2B /* LineItemStatus.swift */; };
 		D18359C9265BF91CD5F4D384 /* RapNetFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3598D6F4D1B55E26035865 /* RapNetFieldsView.swift */; };
@@ -271,6 +272,7 @@
 		6538A7C8468B6A5E43E91FE9 /* RFIDCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDCoordinator.swift; sourceTree = "<group>"; };
 		667B98EBC03A1403A73B6FA0 /* RecentActivityList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentActivityList.swift; sourceTree = "<group>"; };
 		68C8D448759F3A55942EAE97 /* ErrorMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorMapper.swift; sourceTree = "<group>"; };
+		68CF89CCEA455DEBCEFB3CB7 /* SoldFilterBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoldFilterBar.swift; sourceTree = "<group>"; };
 		6983F38D7795AC6D3DF1449A /* Payment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Payment.swift; sourceTree = "<group>"; };
 		69BA467836A257651957AC30 /* DocumentDirtyTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentDirtyTracker.swift; sourceTree = "<group>"; };
 		6D45A3823E9EF2FE28178AC3 /* InputValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputValidator.swift; sourceTree = "<group>"; };
@@ -751,6 +753,7 @@
 				4D8C27FE3D81DB349A0639CD /* QuickEntryView.swift */,
 				98536087CF99CCD213E1EA5F /* ReconcileView.swift */,
 				F515C70472941C4AA201004D /* ReviewQueueView.swift */,
+				68CF89CCEA455DEBCEFB3CB7 /* SoldFilterBar.swift */,
 				D6A64976B35617FA1A3757B4 /* SoldInventoryView.swift */,
 			);
 			path = Inventory;
@@ -1062,6 +1065,7 @@
 				5314BCD3CD1F70801DB53110 /* ShareService.swift in Sources */,
 				3343E4D7FA6F7E7D98EDB8B3 /* ShimmerView.swift in Sources */,
 				1CD0AE33C4EAFD6907195D3F /* SidebarView.swift in Sources */,
+				CF1D1529FF3FB92A6F38550E /* SoldFilterBar.swift in Sources */,
 				046BD734F3EFBCFEDF38AF56 /* SoldInventoryView.swift in Sources */,
 				76146595A695A198CD2574FC /* SortableViewModel.swift in Sources */,
 				6D6FA2C068306A4AA0754718 /* StatusBadge.swift in Sources */,

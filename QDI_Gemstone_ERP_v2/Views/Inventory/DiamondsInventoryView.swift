@@ -23,6 +23,10 @@ struct DiamondsInventoryView: View {
     @State private var csvImportRows: [CSVImportService.ImportRow] = []
     @State private var csvImportError: String?
 
+    // MARK: - Filter Toggle
+
+    @State private var showAdvancedFilters = false
+
     // MARK: - Search Focus
 
     @State private var searchFieldFocusRequest = false
@@ -232,6 +236,26 @@ struct DiamondsInventoryView: View {
         HStack(spacing: AppSpacing.comfortable) {
             GlassSearchField(text: $searchText, placeholder: "Search by SKU, color, clarity...", requestFocus: $searchFieldFocusRequest)
                 .frame(minWidth: 180, maxWidth: 320)
+
+            Button {
+                withAnimation { showAdvancedFilters.toggle() }
+            } label: {
+                ZStack(alignment: .topTrailing) {
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                        .font(.title3)
+                        .foregroundStyle(showAdvancedFilters || hasActiveFilters ? AppColors.primary : AppColors.inkMuted)
+                    if activeFilterCount > 0 {
+                        Text("\(activeFilterCount)")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundStyle(.white)
+                            .frame(width: 14, height: 14)
+                            .background(Circle().fill(AppColors.primary))
+                            .offset(x: 4, y: -4)
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+
             Spacer(minLength: AppSpacing.comfortable)
             filterPresetMenu
             Button("Save Filter", systemImage: "square.and.arrow.down") {
@@ -268,6 +292,15 @@ struct DiamondsInventoryView: View {
 
     private var hasActiveFilters: Bool {
         shapeFilter != nil || colorFilter != nil || clarityFilter != nil || caratMin != nil || caratMax != nil
+    }
+
+    private var activeFilterCount: Int {
+        var count = 0
+        if shapeFilter != nil { count += 1 }
+        if colorFilter != nil { count += 1 }
+        if clarityFilter != nil { count += 1 }
+        if caratMin != nil || caratMax != nil { count += 1 }
+        return count
     }
 
     @ViewBuilder
@@ -327,7 +360,7 @@ struct DiamondsInventoryView: View {
     @ViewBuilder
     private var filterChips: some View {
         let hasFilters = shapeFilter != nil || colorFilter != nil || clarityFilter != nil || caratMin != nil || caratMax != nil
-        if hasFilters {
+        if hasFilters || showAdvancedFilters {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: AppSpacing.standard) {
                     if let s = shapeFilter {

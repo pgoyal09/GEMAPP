@@ -25,6 +25,15 @@ struct SoldInventoryView: View {
     // MARK: - Filter State
 
     @State private var typeToggle: SoldTypeToggle = .all
+    @State private var showAdvancedFilters = false
+    @State private var customerFilter = ""
+    @State private var dateFrom: Date? = nil
+    @State private var dateTo: Date? = nil
+    @State private var caratMin: Double? = nil
+    @State private var caratMax: Double? = nil
+    @State private var priceMin: Decimal? = nil
+    @State private var priceMax: Decimal? = nil
+    @State private var stoneTypeFilter: StoneType? = nil
 
     enum SoldTypeToggle: String, CaseIterable {
         case all = "All"
@@ -34,6 +43,23 @@ struct SoldInventoryView: View {
     }
 
     // MARK: - Computed
+
+    private var activeFilterCount: Int {
+        var count = 0
+        if !customerFilter.isEmpty { count += 1 }
+        if dateFrom != nil { count += 1 }
+        if dateTo != nil { count += 1 }
+        if caratMin != nil || caratMax != nil { count += 1 }
+        if priceMin != nil || priceMax != nil { count += 1 }
+        if stoneTypeFilter != nil { count += 1 }
+        return count
+    }
+
+    private var uniqueCustomers: [String] {
+        let names = allStones.filter { $0.status == .sold }
+            .compactMap { $0.memo?.customer?.displayName }
+        return Array(Set(names)).sorted()
+    }
 
     private var filteredStones: [Gemstone] {
         var result = allStones.filter { $0.status == .sold }
@@ -55,6 +81,23 @@ struct SoldInventoryView: View {
                 customerName(for: $0).lowercased().contains(q)
             }
         }
+
+        // Advanced filters
+        if !customerFilter.isEmpty {
+            result = result.filter { customerName(for: $0) == customerFilter }
+        }
+        if let from = dateFrom {
+            result = result.filter { $0.createdAt >= from }
+        }
+        if let to = dateTo {
+            result = result.filter { $0.createdAt <= Calendar.current.date(byAdding: .day, value: 1, to: to) ?? to }
+        }
+        if let min = caratMin { result = result.filter { $0.caratWeight >= min } }
+        if let max = caratMax { result = result.filter { $0.caratWeight <= max } }
+        if let min = priceMin { result = result.filter { $0.sellPrice >= min } }
+        if let max = priceMax { result = result.filter { $0.sellPrice <= max } }
+        if let type = stoneTypeFilter { result = result.filter { $0.stoneType == type } }
+
         return sortedStones(result)
     }
 
@@ -129,22 +172,87 @@ struct SoldInventoryView: View {
     // MARK: - Top Bar
 
     private var topBar: some View {
-        HStack(spacing: AppSpacing.comfortable) {
-            GlassSearchField(text: $searchText, placeholder: "Search sold stones...")
-                .frame(maxWidth: 320)
+        VStack(spacing: AppSpacing.comfortable) {
+            HStack(spacing: AppSpacing.comfortable) {
+                GlassSearchField(text: $searchText, placeholder: "Search sold stones...")
+                    .frame(maxWidth: 320)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppSpacing.standard) {
-                    ForEach(SoldTypeToggle.allCases, id: \.rawValue) { toggle in
-                        FilterPill(title: toggle.rawValue, isActive: typeToggle == toggle) {
-                            typeToggle = toggle
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: AppSpacing.standard) {
+                        ForEach(SoldTypeToggle.allCases, id: \.rawValue) { toggle in
+                            FilterPill(title: toggle.rawValue, isActive: typeToggle == toggle) {
+                                typeToggle = toggle
+                            }
+                            .fixedSize()
                         }
-                        .fixedSize()
                     }
                 }
+
+                Spacer()
+
+                Button {
+                    withAnimation { showAdvancedFilters.toggle() }
+                } label: {
+                    ZStack(alignment: .topTrailing) {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                            .font(.title3)
+                            .foregroundStyle(showAdvancedFilters ? AppColors.primary : AppColors.inkMuted)
+                        if activeFilterCount > 0 {
+                            Text("\(activeFilterCount)")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundStyle(.white)
+                                .frame(width: 14, height: 14)
+                                .background(Circle().fill(AppColors.primary))
+                                .offset(x: 4, y: -4)
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
             }
 
-            Spacer()
+            if showAdvancedFilters {
+                SoldFilterBar(
+                    customerFilter: $customerFilter,
+                    dateFrom: $dateFrom,
+                    dateTo: $dateTo,
+                    caratMin: $caratMin,
+                    caratMax: $caratMax,
+                    priceMin: $priceMin,
+                    priceMax: $priceMax,
+                    stoneTypeFilter: $stoneTypeFilter,
+                    customers: uniqueCustomers
+                )
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
+
+            if activeFilterCount > 0 {
+                HStack(spacing: AppSpacing.standard) {
+                    if !customerFilter.isEmpty {
+                        filterChip("Customer: \(customerFilter)") { customerFilter = "" }
+                    }
+                    if stoneTypeFilter != nil {
+                        filterChip("Type: \(stoneTypeFilter!.rawValue)") { stoneTypeFilter = nil }
+                    }
+                    if dateFrom != nil || dateTo != nil {
+                        filterChip("Date range") { dateFrom = nil; dateTo = nil }
+                    }
+                    if caratMin != nil || caratMax != nil {
+                        filterChip("Carats") { caratMin = nil; caratMax = nil }
+                    }
+                    if priceMin != nil || priceMax != nil {
+                        filterChip("Price") { priceMin = nil; priceMax = nil }
+                    }
+                    Spacer()
+                    Button("Clear all") {
+                        customerFilter = ""; stoneTypeFilter = nil
+                        dateFrom = nil; dateTo = nil
+                        caratMin = nil; caratMax = nil
+                        priceMin = nil; priceMax = nil
+                    }
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.primary)
+                }
+            }
         }
         .padding(.horizontal, AppSpacing.hero)
         .padding(.vertical, AppSpacing.section)
@@ -438,5 +546,22 @@ struct SoldInventoryView: View {
     private func marginColor(_ stone: Gemstone) -> Color {
         guard stone.costPrice > 0 else { return AppColors.inkMuted }
         return stone.sellPrice >= stone.costPrice ? AppColors.success : AppColors.danger
+    }
+
+    private func filterChip(_ label: String, onRemove: @escaping () -> Void) -> some View {
+        HStack(spacing: 4) {
+            Text(label)
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColors.ink)
+            Button(action: onRemove) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 12))
+                    .foregroundStyle(AppColors.inkSubtle)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(Capsule().fill(AppColors.cardElevated))
     }
 }

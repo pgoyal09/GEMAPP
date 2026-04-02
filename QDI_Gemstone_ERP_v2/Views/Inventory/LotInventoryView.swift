@@ -7,6 +7,8 @@ struct LotInventoryView: View {
     @Query private var allStones: [Gemstone]
 
     @State var viewModel = LotInventoryViewModel()
+    @State private var showAdvancedFilters = false
+    @State private var stoneTypeFilter: StoneType?
 
     // MARK: - Init
 
@@ -27,7 +29,15 @@ struct LotInventoryView: View {
     }
 
     private var filteredLots: [Gemstone] {
-        sortedLots(viewModel.filtered(from: lots))
+        var result = viewModel.filtered(from: lots)
+        if let type = stoneTypeFilter {
+            result = result.filter { $0.stoneType == type }
+        }
+        return sortedLots(result)
+    }
+
+    private var activeFilterCount: Int {
+        stoneTypeFilter != nil ? 1 : 0
     }
 
     private func sortedLots(_ lots: [Gemstone]) -> [Gemstone] {
@@ -103,14 +113,61 @@ struct LotInventoryView: View {
     // MARK: - Top Bar
 
     private var topBar: some View {
-        HStack(spacing: AppSpacing.comfortable) {
-            GlassSearchField(text: $viewModel.searchText, placeholder: "Search lots...")
-                .frame(maxWidth: 320)
+        VStack(spacing: 0) {
+            HStack(spacing: AppSpacing.comfortable) {
+                GlassSearchField(text: $viewModel.searchText, placeholder: "Search lots...")
+                    .frame(maxWidth: 320)
 
-            Spacer()
+                Button {
+                    withAnimation { showAdvancedFilters.toggle() }
+                } label: {
+                    ZStack(alignment: .topTrailing) {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                            .font(.title3)
+                            .foregroundStyle(showAdvancedFilters || activeFilterCount > 0 ? AppColors.primary : AppColors.inkMuted)
+                        if activeFilterCount > 0 {
+                            Text("\(activeFilterCount)")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundStyle(.white)
+                                .frame(width: 14, height: 14)
+                                .background(Circle().fill(AppColors.primary))
+                                .offset(x: 4, y: -4)
+                        }
+                    }
+                }
+                .buttonStyle(.plain)
+
+                Spacer()
+            }
+            .padding(.horizontal, AppSpacing.hero)
+            .padding(.vertical, AppSpacing.section)
+
+            if showAdvancedFilters {
+                HStack(spacing: AppSpacing.comfortable) {
+                    Picker("Stone Type", selection: $stoneTypeFilter) {
+                        Text("All Types").tag(StoneType?.none)
+                        ForEach(StoneType.allCases, id: \.self) { type in
+                            Text(type.rawValue.capitalized).tag(StoneType?.some(type))
+                        }
+                    }
+                    .frame(width: 160)
+
+                    if stoneTypeFilter != nil {
+                        Button {
+                            stoneTypeFilter = nil
+                        } label: {
+                            Text("Clear").font(AppTypography.caption).foregroundStyle(AppColors.danger)
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    Spacer()
+                }
+                .padding(.horizontal, AppSpacing.hero)
+                .padding(.bottom, AppSpacing.comfortable)
+                .transition(.move(edge: .top).combined(with: .opacity))
+            }
         }
-        .padding(.horizontal, AppSpacing.hero)
-        .padding(.vertical, AppSpacing.section)
     }
 
     // MARK: - Table

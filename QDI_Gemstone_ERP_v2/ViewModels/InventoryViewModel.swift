@@ -190,6 +190,20 @@ final class InventoryViewModel: SortableViewModel {
         colorFilter != nil || clarityFilter != nil
     }
 
+    var activeFilterCount: Int {
+        var count = 0
+        if stoneTypeFilter != nil { count += 1 }
+        if shapeFilter != nil { count += 1 }
+        if certifiedFilter != .any { count += 1 }
+        if treatmentFilter != nil { count += 1 }
+        if groupingFilter != nil { count += 1 }
+        if caratMin != nil || caratMax != nil { count += 1 }
+        if sellMin != nil || sellMax != nil { count += 1 }
+        if colorFilter != nil { count += 1 }
+        if clarityFilter != nil { count += 1 }
+        return count
+    }
+
     var showDiamondFilters: Bool { stoneTypeFilter == .diamond }
 
     var activeFilterPills: [ActiveFilterPill] {
