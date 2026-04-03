@@ -57,12 +57,12 @@ struct EditableLineItemRow: View {
                 Text("—")
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.inkSubtle)
-                    .gridColumnAlignment(.trailing)
+                    .frame(width: 70, alignment: .trailing)
             } else {
                 TextField("0.00", text: $caratsText)
                     .textFieldStyle(.plain)
                     .multilineTextAlignment(.trailing)
-                    .gridColumnAlignment(.trailing)
+                    .frame(width: 70, alignment: .trailing)
                     .onChange(of: caratsText) { _, val in
                         guard !isSyncing else { return }
                         item.carats = Double(val) ?? 0
@@ -75,7 +75,7 @@ struct EditableLineItemRow: View {
             TextField("0.00", text: $rateText)
                 .textFieldStyle(.plain)
                 .multilineTextAlignment(.trailing)
-                .gridColumnAlignment(.trailing)
+                .frame(width: 80, alignment: .trailing)
                 .onChange(of: rateText) { _, val in
                     guard !isSyncing else { return }
                     item.rate = Decimal(string: val) ?? 0
@@ -91,7 +91,7 @@ struct EditableLineItemRow: View {
             Text(item.amount.asCurrency)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
-                .gridColumnAlignment(.trailing)
+                .frame(width: 110, alignment: .trailing)
 
             // Delete button
             if let onDelete {

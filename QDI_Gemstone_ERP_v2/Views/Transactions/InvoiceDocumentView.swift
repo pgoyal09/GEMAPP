@@ -430,11 +430,11 @@ struct InvoiceDocumentView: View {
                     Text("Description").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                         .frame(minWidth: 200, idealWidth: 400, maxWidth: .infinity, alignment: .leading)
                     Text("Carats").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        .gridColumnAlignment(.trailing)
+                        .frame(width: 70, alignment: .trailing)
                     Text("Rate").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        .gridColumnAlignment(.trailing)
+                        .frame(width: 80, alignment: .trailing)
                     Text("Amount").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
-                        .gridColumnAlignment(.trailing)
+                        .frame(width: 110, alignment: .trailing)
                     Color.clear.frame(width: 28)
                 }
                 .padding(.horizontal, AppSpacing.comfortable)
@@ -464,24 +464,44 @@ struct InvoiceDocumentView: View {
                     Divider().padding(.horizontal, AppSpacing.comfortable)
                 }
 
-                // Empty placeholder row
-                GridRow {
-                    Text("\(invoice.lineItems.count + 1)")
-                        .font(AppTypography.mono)
-                        .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
-                        .frame(width: 28, alignment: .center)
-                    Text("—").font(AppTypography.mono).foregroundStyle(AppColors.inkSubtle.opacity(0.5))
-                    Text("—").font(AppTypography.body).foregroundStyle(AppColors.inkSubtle.opacity(0.5))
-                    Text("").foregroundStyle(.clear)
-                        .frame(minWidth: 200, idealWidth: 400, maxWidth: .infinity, alignment: .leading)
-                    Text("").foregroundStyle(.clear)
-                    Text("").foregroundStyle(.clear)
-                    Text("$0.00").font(AppTypography.mono).foregroundStyle(AppColors.inkSubtle.opacity(0.5))
-                        .gridColumnAlignment(.trailing)
-                    Color.clear.frame(width: 28)
+                // Add item row
+                Divider().padding(.horizontal, AppSpacing.comfortable)
+                if isEditable {
+                    HStack {
+                        Menu {
+                            Button("Single/Pair") { showInventorySheet = true }
+                            Button("Lot") { showLotSheet = true }
+                            Button("Brokered") {
+                                do {
+                                    try TransactionService.addBrokeredLine(to: invoice, modelContext: modelContext)
+                                    markDirty()
+                                } catch {
+                                    showToast("Failed to add brokered line: \(ErrorMapper.userMessage(from: error))", isError: true)
+                                }
+                            }
+                            Button("Service") {
+                                do {
+                                    try TransactionService.addServiceLine(to: invoice, modelContext: modelContext)
+                                    markDirty()
+                                } catch {
+                                    showToast("Failed to add service line: \(ErrorMapper.userMessage(from: error))", isError: true)
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.system(size: 16))
+                                Text("Add Item")
+                                    .font(AppTypography.body)
+                            }
+                            .foregroundStyle(AppColors.accent)
+                        }
+                        .menuStyle(.borderlessButton)
+                        Spacer()
+                    }
+                    .frame(height: 44)
+                    .padding(.horizontal, AppSpacing.comfortable)
                 }
-                .frame(height: 44)
-                .padding(.horizontal, AppSpacing.comfortable)
             }
 
             if invoice.lineItems.isEmpty {
