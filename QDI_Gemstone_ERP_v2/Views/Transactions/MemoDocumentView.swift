@@ -434,6 +434,7 @@ struct MemoDocumentView: View {
                     Text("SKU").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                     Text("Type").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                     Text("Description").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                        .frame(minWidth: 200, idealWidth: 400, maxWidth: .infinity, alignment: .leading)
                     Text("Carats").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                         .gridColumnAlignment(.trailing)
                     Text("Rate").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
@@ -463,7 +464,7 @@ struct MemoDocumentView: View {
                             }
                         }
                     )
-                    .frame(height: 44)
+                    .frame(minHeight: 44)
                     .padding(.horizontal, AppSpacing.comfortable)
 
                     Divider().padding(.horizontal, AppSpacing.comfortable)
@@ -478,6 +479,7 @@ struct MemoDocumentView: View {
                     Text("—").font(AppTypography.mono).foregroundStyle(AppColors.inkSubtle.opacity(0.5))
                     Text("—").font(AppTypography.body).foregroundStyle(AppColors.inkSubtle.opacity(0.5))
                     Text("").foregroundStyle(.clear)
+                        .frame(minWidth: 200, idealWidth: 400, maxWidth: .infinity, alignment: .leading)
                     Text("").foregroundStyle(.clear)
                     Text("").foregroundStyle(.clear)
                     Text("$0.00").font(AppTypography.mono).foregroundStyle(AppColors.inkSubtle.opacity(0.5))

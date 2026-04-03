@@ -41,9 +41,11 @@ struct EditableLineItemRow: View {
                     .foregroundStyle(AppColors.inkMuted)
             }
 
-            // Description
-            TextField("Description", text: $descriptionText)
+            // Description — widest column, wraps text
+            TextField("Description", text: $descriptionText, axis: .vertical)
                 .textFieldStyle(.plain)
+                .lineLimit(1...4)
+                .frame(minWidth: 200, idealWidth: 400, maxWidth: .infinity, alignment: .leading)
                 .onChange(of: descriptionText) { _, val in
                     guard !isSyncing else { return }
                     item.itemDescription = val
