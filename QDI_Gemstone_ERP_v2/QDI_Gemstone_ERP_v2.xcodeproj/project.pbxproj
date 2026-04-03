@@ -470,13 +470,6 @@
 			path = Accounting;
 			sourceTree = "<group>";
 		};
-		314ED36BF422A12070AC86AF /* StoneForm */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = StoneForm;
-			sourceTree = "<group>";
-		};
 		325AD9ED2DD2A0EB7939DBDC /* Routes */ = {
 			isa = PBXGroup;
 			children = (
@@ -691,13 +684,6 @@
 			path = TableKit;
 			sourceTree = "<group>";
 		};
-		A7C3F3C08797BDB45BE47DAF /* Sheets */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Sheets;
-			sourceTree = "<group>";
-		};
 		B45D66EC21AAD967DBCDBE29 /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -710,9 +696,7 @@
 				F85BF0D091DC03959CE42063 /* Reports */,
 				89431280C980EF6DDB78A594 /* Scanner */,
 				359CF07916221247402486B8 /* Settings */,
-				A7C3F3C08797BDB45BE47DAF /* Sheets */,
 				2B20E188203C69471AD8FF01 /* Shell */,
-				314ED36BF422A12070AC86AF /* StoneForm */,
 				DC5F27A026154EAD6CD1A035 /* Transactions */,
 			);
 			path = Views;

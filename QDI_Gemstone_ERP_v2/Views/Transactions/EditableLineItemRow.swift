@@ -5,7 +5,6 @@ struct EditableLineItemRow: View {
     @Bindable var item: LineItem
     @Environment(\.modelContext) private var modelContext
     var rowNumber: Int = 0
-    var widths: [CGFloat] = []
     var onUpdate: () -> Void = {}
     var onDelete: (() -> Void)? = nil
 
@@ -14,12 +13,8 @@ struct EditableLineItemRow: View {
     @State private var rateText: String = ""
     @State private var isSyncing = false
 
-    private func w(_ index: Int) -> CGFloat {
-        widths.indices.contains(index) ? widths[index] : 60
-    }
-
     var body: some View {
-        HStack(spacing: 4) {
+        GridRow {
             // Row number
             Text("\(rowNumber)")
                 .font(AppTypography.mono)
@@ -30,7 +25,6 @@ struct EditableLineItemRow: View {
             Text(item.displaySku)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.inkMuted)
-                .frame(width: w(0), alignment: .leading)
 
             // Stone Type
             if item.kind == .brokered {
@@ -41,18 +35,15 @@ struct EditableLineItemRow: View {
                     }
                 }
                 .labelsHidden()
-                .frame(width: w(1))
             } else {
                 Text(item.stoneTypeDisplay)
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.inkMuted)
-                    .frame(width: w(1), alignment: .leading)
             }
 
             // Description
             TextField("Description", text: $descriptionText)
                 .textFieldStyle(.plain)
-                .frame(width: w(2), alignment: .leading)
                 .onChange(of: descriptionText) { _, val in
                     guard !isSyncing else { return }
                     item.itemDescription = val
@@ -64,12 +55,12 @@ struct EditableLineItemRow: View {
                 Text("—")
                     .font(AppTypography.body)
                     .foregroundStyle(AppColors.inkSubtle)
-                    .frame(width: w(3), alignment: .trailing)
+                    .gridColumnAlignment(.trailing)
             } else {
                 TextField("0.00", text: $caratsText)
                     .textFieldStyle(.plain)
-                    .frame(width: w(3), alignment: .trailing)
                     .multilineTextAlignment(.trailing)
+                    .gridColumnAlignment(.trailing)
                     .onChange(of: caratsText) { _, val in
                         guard !isSyncing else { return }
                         item.carats = Double(val) ?? 0
@@ -81,8 +72,8 @@ struct EditableLineItemRow: View {
             // Rate
             TextField("0.00", text: $rateText)
                 .textFieldStyle(.plain)
-                .frame(width: w(4), alignment: .trailing)
                 .multilineTextAlignment(.trailing)
+                .gridColumnAlignment(.trailing)
                 .onChange(of: rateText) { _, val in
                     guard !isSyncing else { return }
                     item.rate = Decimal(string: val) ?? 0
@@ -98,7 +89,7 @@ struct EditableLineItemRow: View {
             Text(item.amount.asCurrency)
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
-                .frame(width: w(5), alignment: .trailing)
+                .gridColumnAlignment(.trailing)
 
             // Delete button
             if let onDelete {

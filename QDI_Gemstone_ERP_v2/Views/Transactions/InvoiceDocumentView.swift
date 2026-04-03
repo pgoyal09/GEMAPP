@@ -28,26 +28,6 @@ struct InvoiceDocumentView: View {
     @State private var dateText = ""
     @State private var dateError: String?
     @State private var showDatePicker = false
-    @State private var lineItemTableWidth: CGFloat = 0
-
-    private static let lineItemLayout = TableColumnLayout(columns: [
-        ColumnDef("sku", weight: 2.0, minWidth: 80),
-        ColumnDef("type", weight: 1.5, minWidth: 60),
-        ColumnDef("description", weight: 3.0, minWidth: 120),
-        ColumnDef("carats", weight: 1.2, minWidth: 55, alignment: .trailing),
-        ColumnDef("rate", weight: 1.5, minWidth: 65, alignment: .trailing),
-        ColumnDef("amount", weight: 1.5, minWidth: 65, alignment: .trailing),
-    ], spacing: 4)
-
-    private var lineItemWidths: [CGFloat] {
-        let sectionPad = AppSpacing.section * 2      // 16 × 2 = 32
-        let rowHPad = AppSpacing.comfortable * 2      // 12 × 2 = 24
-        let fixedCols: CGFloat = 28 + 28               // row# + trash
-        let fixedGaps: CGFloat = 4 * 2                 // gaps adjacent to fixed cols
-        let available = max(0, lineItemTableWidth - sectionPad - rowHPad - fixedCols - fixedGaps)
-        return Self.lineItemLayout.widths(for: available)
-    }
-
     private var isEditable: Bool {
         invoice.status == .draft
     }
@@ -438,52 +418,35 @@ struct InvoiceDocumentView: View {
                 if isEditable { addItemsMenu }
             }
 
-            // Table header
-            HStack(spacing: 4) {
-                Text("#")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .frame(width: 28, alignment: .center)
-                Text("SKU")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .frame(width: lineItemWidths.indices.contains(0) ? lineItemWidths[0] : 60, alignment: .leading)
-                Text("Type")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .frame(width: lineItemWidths.indices.contains(1) ? lineItemWidths[1] : 60, alignment: .leading)
-                Text("Description")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .frame(width: lineItemWidths.indices.contains(2) ? lineItemWidths[2] : 60, alignment: .leading)
-                Text("Carats")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .frame(width: lineItemWidths.indices.contains(3) ? lineItemWidths[3] : 60, alignment: .trailing)
-                Text("Rate")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .frame(width: lineItemWidths.indices.contains(4) ? lineItemWidths[4] : 60, alignment: .trailing)
-                Text("Amount")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkSubtle)
-                    .frame(width: lineItemWidths.indices.contains(5) ? lineItemWidths[5] : 60, alignment: .trailing)
-                Spacer().frame(width: 28)
-            }
-            .padding(.horizontal, AppSpacing.comfortable)
-            .padding(.vertical, AppSpacing.compact)
-            .background(AppColors.cardElevated)
+            Grid(alignment: .leading, horizontalSpacing: 8, verticalSpacing: 0) {
+                // Header row
+                GridRow {
+                    Text("#")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkSubtle)
+                        .frame(width: 28, alignment: .center)
+                    Text("SKU").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                    Text("Type").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                    Text("Description").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                    Text("Carats").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                        .gridColumnAlignment(.trailing)
+                    Text("Rate").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                        .gridColumnAlignment(.trailing)
+                    Text("Amount").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                        .gridColumnAlignment(.trailing)
+                    Color.clear.frame(width: 28)
+                }
+                .padding(.horizontal, AppSpacing.comfortable)
+                .padding(.vertical, AppSpacing.compact)
+                .background(AppColors.cardElevated)
 
-            // Divider below header
-            Divider().background(AppColors.cardStroke)
+                Divider()
 
-            // Rows
-            ForEach(Array(invoice.lineItems.enumerated()), id: \.element.id) { index, item in
-                VStack(spacing: 0) {
+                // Data rows
+                ForEach(Array(invoice.lineItems.enumerated()), id: \.element.id) { index, item in
                     EditableLineItemRow(
                         item: item,
                         rowNumber: index + 1,
-                        widths: lineItemWidths,
                         onUpdate: { markDirty() },
                         onDelete: isEditable ? {
                             do {
@@ -497,39 +460,23 @@ struct InvoiceDocumentView: View {
                     .frame(height: 44)
                     .padding(.horizontal, AppSpacing.comfortable)
 
-                    if index < invoice.lineItems.count - 1 {
-                        Divider().background(AppColors.cardStroke).padding(.horizontal, AppSpacing.comfortable)
-                    }
+                    Divider().padding(.horizontal, AppSpacing.comfortable)
                 }
-            }
 
-            // Empty placeholder row
-            VStack(spacing: 0) {
-                Divider().background(AppColors.cardStroke).padding(.horizontal, AppSpacing.comfortable)
-                HStack(spacing: 4) {
+                // Empty placeholder row
+                GridRow {
                     Text("\(invoice.lineItems.count + 1)")
                         .font(AppTypography.mono)
                         .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
                         .frame(width: 28, alignment: .center)
-                    Text("—")
-                        .font(AppTypography.mono)
-                        .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
-                        .frame(width: lineItemWidths.indices.contains(0) ? lineItemWidths[0] : 60, alignment: .leading)
-                    Text("—")
-                        .font(AppTypography.body)
-                        .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
-                        .frame(width: lineItemWidths.indices.contains(1) ? lineItemWidths[1] : 60, alignment: .leading)
-                    Text("")
-                        .frame(width: lineItemWidths.indices.contains(2) ? lineItemWidths[2] : 60)
-                    Text("")
-                        .frame(width: lineItemWidths.indices.contains(3) ? lineItemWidths[3] : 60)
-                    Text("")
-                        .frame(width: lineItemWidths.indices.contains(4) ? lineItemWidths[4] : 60)
-                    Text("$0.00")
-                        .font(AppTypography.mono)
-                        .foregroundStyle(AppColors.inkSubtle.opacity(0.5))
-                        .frame(width: lineItemWidths.indices.contains(5) ? lineItemWidths[5] : 60, alignment: .trailing)
-                    Spacer().frame(width: 28)
+                    Text("—").font(AppTypography.mono).foregroundStyle(AppColors.inkSubtle.opacity(0.5))
+                    Text("—").font(AppTypography.body).foregroundStyle(AppColors.inkSubtle.opacity(0.5))
+                    Text("").foregroundStyle(.clear)
+                    Text("").foregroundStyle(.clear)
+                    Text("").foregroundStyle(.clear)
+                    Text("$0.00").font(AppTypography.mono).foregroundStyle(AppColors.inkSubtle.opacity(0.5))
+                        .gridColumnAlignment(.trailing)
+                    Color.clear.frame(width: 28)
                 }
                 .frame(height: 44)
                 .padding(.horizontal, AppSpacing.comfortable)
@@ -546,16 +493,12 @@ struct InvoiceDocumentView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(AppSpacing.section)
         .background(
-            GeometryReader { geo in
-                RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
-                    .fill(AppColors.cardBackground)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
-                            .strokeBorder(AppColors.cardStroke, lineWidth: 1)
-                    )
-                    .onAppear { lineItemTableWidth = geo.size.width }
-                    .onChange(of: geo.size.width) { _, w in lineItemTableWidth = w }
-            }
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                .fill(AppColors.cardBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                )
         )
     }
 
