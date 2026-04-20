@@ -143,16 +143,20 @@ enum InvoiceRoutes {
 
         // POST /api/invoices/:id/void — void invoice
         router.post("/api/invoices/:id/void") { req, container in
-            guard let id = req.pathParams["id"] else { return .notFound() }
-            let context = ModelContext(container)
-            guard let invoice = findInvoice(id: id, context: context) else {
-                return .notFound("Invoice '\(id)' not found")
+            await MainActor.run {
+                guard let id = req.pathParams["id"] else { return .notFound() }
+                let context = ModelContext(container)
+                guard let invoice = findInvoice(id: id, context: context) else {
+                    return .notFound("Invoice '\(id)' not found")
+                }
+                do {
+                    try InvoiceService.voidInvoice(invoice, modelContext: context)
+                    try context.save()
+                } catch {
+                    return .error(code: "VOID_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
+                }
+                return .ok(invoiceJSON(invoice))
             }
-            invoice.status = .void
-            do { try context.save() } catch {
-                return .error(code: "SAVE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
-            }
-            return .ok(invoiceJSON(invoice))
         }
 
         // GET /api/invoices/:id/pdf — generate PDF

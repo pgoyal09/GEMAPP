@@ -96,6 +96,8 @@ struct PaymentListView: View {
                     .buttonStyle(.outline)
                 Spacer()
                 Button("Save Payment") {
+                    guard newAmount > 0 else { return }
+                    guard invoice.status == .sent || invoice.status == .paid else { return }
                     let payment = Payment(
                         date: Date(),
                         amount: newAmount,

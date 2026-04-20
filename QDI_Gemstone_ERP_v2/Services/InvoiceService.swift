@@ -13,6 +13,7 @@ enum InvoiceService {
         let custName = invoice.customer?.displayName ?? "Unknown"
         for item in invoice.lineItems {
             guard let original = item.originLineItem else { continue }
+            guard original.status != .sold else { continue } // Idempotency: skip already-sold
             original.status = .sold
             original.soldDate = Date()
 
@@ -52,6 +53,7 @@ enum InvoiceService {
         for item in invoice.lineItems where item.isLotLineItem {
             guard item.originLineItem == nil else { continue }
             guard let lot = item.gemstone else { continue }
+            guard item.status != .sold else { continue } // Idempotency: skip already-sold
             item.status = .sold
             item.soldDate = Date()
             let lockedCost = item.lockedCostPerCarat ?? lot.effectiveAverageCost
@@ -75,8 +77,14 @@ enum InvoiceService {
     /// Void an invoice: restores linked gemstones to available.
     @MainActor
     static func voidInvoice(_ invoice: Invoice, modelContext: ModelContext) throws {
+        guard invoice.status == .sent || invoice.status == .paid else { return }
         invoice.status = .void
         for item in invoice.lineItems {
+            // Reset origin memo line item if this was a conversion
+            if let origin = item.originLineItem {
+                origin.status = .open
+                origin.soldDate = nil
+            }
             if let stone = item.gemstone {
                 if item.isLotLineItem {
                     stone.effectiveRemainingCarats += item.carats
