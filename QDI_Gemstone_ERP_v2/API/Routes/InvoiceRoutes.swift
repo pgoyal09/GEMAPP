@@ -163,10 +163,15 @@ enum InvoiceRoutes {
                 return .notFound("Invoice '\(id)' not found")
             }
 
-            nonisolated(unsafe) let inv = invoice
+            let invoiceID = invoice.persistentModelID
             let pdfData: Data? = await withCheckedContinuation { (continuation: CheckedContinuation<Data?, Never>) in
                 Task { @MainActor in
-                    PDFService.shared.generatePDF(invoice: inv) { result in
+                    let mainContext = ModelContext(container)
+                    guard let mainInvoice = mainContext.model(for: invoiceID) as? Invoice else {
+                        continuation.resume(returning: nil)
+                        return
+                    }
+                    PDFService.shared.generatePDF(invoice: mainInvoice) { result in
                         switch result {
                         case .success(let url):
                             let data = try? Data(contentsOf: url)
