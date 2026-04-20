@@ -674,6 +674,7 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
         frameBufferLock.lock()
         frameBuffer.append(contentsOf: buf[..<n])
         let snapshot = Array(frameBuffer)
+        frameBuffer = Data()  // clear — will prepend remainder after parsing
         frameBufferLock.unlock()
 
         #if DEBUG
@@ -812,13 +813,11 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
             idx += totalLen
         }
 
-        frameBufferLock.lock()
-        if idx >= count {
-            frameBuffer = Data()
-        } else {
-            frameBuffer = remainder
+        if idx < count {
+            frameBufferLock.lock()
+            frameBuffer.insert(contentsOf: bytes[idx...], at: 0)
+            frameBufferLock.unlock()
         }
-        frameBufferLock.unlock()
     }
 
     // MARK: - Control Frame Dispatch
