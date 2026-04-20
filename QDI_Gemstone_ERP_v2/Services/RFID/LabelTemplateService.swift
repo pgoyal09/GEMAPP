@@ -1,4 +1,5 @@
 import Foundation
+import Network
 
 /// Label template types for Zebra ZD611R thermal printer.
 enum LabelTemplate: String, CaseIterable {
@@ -132,29 +133,77 @@ enum LabelTemplateService {
     // MARK: - Send to Printer
 
     static func printLabel(zpl: String, host: String, port: UInt16) async throws {
-        // Connect to printer via raw TCP socket
         let host = host.isEmpty ? "localhost" : host
-        let url = URL(string: "socket://\(host):\(port)")!
-        _ = url // suppress unused warning; actual implementation below
+        guard let data = zpl.data(using: .utf8) else {
+            throw LabelPrintError.invalidData
+        }
 
-        // Use NWConnection for raw TCP
-        // For now, write to a temp file that can be sent via lpr or netcat
-        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("label_\(UUID().uuidString).zpl")
-        try zpl.write(to: tempURL, atomically: true, encoding: .utf8)
+        let connection = NWConnection(
+            host: NWEndpoint.Host(host),
+            port: NWEndpoint.Port(rawValue: port)!,
+            using: .tcp
+        )
 
-        // Attempt TCP send
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/nc")
-        process.arguments = ["-w", "3", host, String(port)]
-        let pipe = Pipe()
-        pipe.fileHandleForWriting.write(zpl.data(using: .utf8)!)
-        pipe.fileHandleForWriting.closeFile()
-        process.standardInput = pipe
-        try process.run()
-        process.waitUntilExit()
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                nonisolated(unsafe) var didResume = false
+                let queue = DispatchQueue(label: "com.qdi.labelprint")
 
-        // Cleanup
-        try? FileManager.default.removeItem(at: tempURL)
+                connection.stateUpdateHandler = { state in
+                    switch state {
+                    case .ready:
+                        connection.send(content: data, completion: .contentProcessed { error in
+                            connection.cancel()
+                            queue.async {
+                                guard !didResume else { return }
+                                didResume = true
+                                if let error {
+                                    continuation.resume(throwing: error)
+                                } else {
+                                    continuation.resume()
+                                }
+                            }
+                        })
+                    case .failed(let error):
+                        connection.cancel()
+                        queue.async {
+                            guard !didResume else { return }
+                            didResume = true
+                            continuation.resume(throwing: error)
+                        }
+                    case .cancelled:
+                        queue.async {
+                            guard !didResume else { return }
+                            didResume = true
+                            continuation.resume(throwing: LabelPrintError.timeout)
+                        }
+                    default:
+                        break
+                    }
+                }
+                connection.start(queue: queue)
+
+                // Timeout
+                queue.asyncAfter(deadline: .now() + 5) {
+                    guard !didResume else { return }
+                    connection.cancel()
+                }
+            }
+        } onCancel: {
+            connection.cancel()
+        }
+    }
+
+    enum LabelPrintError: LocalizedError {
+        case invalidData
+        case timeout
+
+        var errorDescription: String? {
+            switch self {
+            case .invalidData: return "Invalid label data"
+            case .timeout: return "Printer connection timed out"
+            }
+        }
     }
 }
 
