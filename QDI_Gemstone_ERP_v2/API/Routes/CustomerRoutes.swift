@@ -48,6 +48,13 @@ enum CustomerRoutes {
             guard let body = req.jsonBody() else {
                 return .error(code: "BAD_REQUEST", message: "Invalid JSON body")
             }
+            // Input validation: require at least one identifying field
+            let firstName = (body["firstName"] as? String ?? "").trimmingCharacters(in: .whitespaces)
+            let lastName = (body["lastName"] as? String ?? "").trimmingCharacters(in: .whitespaces)
+            let company = (body["company"] as? String ?? "").trimmingCharacters(in: .whitespaces)
+            guard !firstName.isEmpty || !lastName.isEmpty || !company.isEmpty else {
+                return .error(code: "VALIDATION_FAILED", message: "At least one of firstName, lastName, or company is required.", status: 422)
+            }
             let context = ModelContext(container)
 
             let customer = Customer(
@@ -83,6 +90,12 @@ enum CustomerRoutes {
             if let v = body["firstName"] as? String { customer.firstName = v }
             if let v = body["lastName"] as? String { customer.lastName = v }
             if let v = body["company"] as? String { customer.company = v }
+            // Validate: after patching, must still have at least one identifying field
+            if customer.firstName.trimmingCharacters(in: .whitespaces).isEmpty &&
+               customer.lastName.trimmingCharacters(in: .whitespaces).isEmpty &&
+               customer.company.trimmingCharacters(in: .whitespaces).isEmpty {
+                return .error(code: "VALIDATION_FAILED", message: "Customer must have at least one of firstName, lastName, or company.", status: 422)
+            }
             if let v = body["email"] as? String { customer.email = v }
             if let v = body["phone"] as? String { customer.phone = v }
             if let v = body["address"] as? String { customer.address = v }
@@ -125,7 +138,6 @@ enum CustomerRoutes {
         guard let customers = try? context.fetch(descriptor) else { return nil }
         // Match by persistentModelID string first (stable), then fall back to email (unique)
         return customers.first {
-            $0.persistentModelID.hashValue.description == id ||
             String(describing: $0.persistentModelID) == id
         } ?? customers.first {
             $0.email == id && !$0.email.isEmpty
