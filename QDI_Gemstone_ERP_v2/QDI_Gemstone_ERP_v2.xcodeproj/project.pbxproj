@@ -101,6 +101,7 @@
 		66CC686FC19E3E110E75C5A5 /* CustomerFullDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44570E8A87472A93C5DE42F6 /* CustomerFullDetailView.swift */; };
 		66FF1931D85581CE3FA6E272 /* UnknownTagAssignSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1615490722ED65602953FB1 /* UnknownTagAssignSheet.swift */; };
 		67B2AAA74D6698A0B1B91324 /* LotInventoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 626E3D17936BF2108324AF28 /* LotInventoryViewModel.swift */; };
+		69AF856F9C0FF694A01B35E9 /* P0FixTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 959F5B52D4C4440F8DB0A294 /* P0FixTests.swift */; };
 		6AA436000DB086EE953682C6 /* LotTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3E2B54397410243BBF48929 /* LotTransaction.swift */; };
 		6D6FA2C068306A4AA0754718 /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5CDFA11A960E91FB0A818F3 /* StatusBadge.swift */; };
 		6E9460794A680AD3E74BE51D /* Gemstone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 865F7818A0D127059D5F79E6 /* Gemstone.swift */; };
@@ -194,6 +195,16 @@
 		FA8502A655774E79FC240E64 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B0F11EF531CE6C3EF6C5CC /* AppColors.swift */; };
 		FF2A553EE82E73075D6FB33A /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B86ED4CBE9430761895C822 /* CurrencyFormatter.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D198337833F143A3D4C01B96 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BB226BD8C12F12E88BE6FF0E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7446A7172512913F157DAD65;
+			remoteInfo = QDI_Gemstone_ERP_v2;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		007E008692CAF273468B3771 /* ShareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareService.swift; sourceTree = "<group>"; };
@@ -305,6 +316,7 @@
 		90E295BFAC2A9465729BDF0A /* DemoDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoDataService.swift; sourceTree = "<group>"; };
 		93565BA01F92A9C0A0AF4954 /* BulkEditSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BulkEditSheet.swift; sourceTree = "<group>"; };
 		9453E5A1BB6929896AE1BE0A /* LotTransactionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotTransactionType.swift; sourceTree = "<group>"; };
+		959F5B52D4C4440F8DB0A294 /* P0FixTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = P0FixTests.swift; sourceTree = "<group>"; };
 		96D844385E3F6295552E81B9 /* RFIDManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDManager.swift; sourceTree = "<group>"; };
 		96E4658275B0BB02DEE8C7EA /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		977283232FDCB4E0C4840013 /* InvoiceDocumentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceDocumentView.swift; sourceTree = "<group>"; };
@@ -352,6 +364,7 @@
 		DED693A192ADD983C01E381E /* AppAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppAnimation.swift; sourceTree = "<group>"; };
 		DF52535A188C64A84EADF9EE /* EditableLineItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableLineItemRow.swift; sourceTree = "<group>"; };
 		E32BF5EC574469A8D3977C5F /* MemoWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoWindowView.swift; sourceTree = "<group>"; };
+		E4B93A305750694D17BD25DC /* QDI_Gemstone_ERP_v2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QDI_Gemstone_ERP_v2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5FBD15DCE21EE1BD176D04F /* AccountingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountingView.swift; sourceTree = "<group>"; };
 		E6A9B8686EE1663B720013FC /* InventoryFilterBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryFilterBar.swift; sourceTree = "<group>"; };
 		E77251A0991E8AD031C0ED28 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
@@ -588,6 +601,7 @@
 			isa = PBXGroup;
 			children = (
 				5ED44A9E836CD59534C5F518 /* QDI_Gemstone_ERP_v2.app */,
+				E4B93A305750694D17BD25DC /* QDI_Gemstone_ERP_v2Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -710,6 +724,7 @@
 				0D2B9FAB6BB678E87759EC30 /* DesignSystem */,
 				2FD4518DE6B46E3F000B6DED /* Models */,
 				603BBD2C6BF00E3CE0F0E7CA /* Services */,
+				F9CE37946DB9FDF502509A1C /* Tests */,
 				403CA78BD4517D2EE1ED9D8D /* Utilities */,
 				8E63DBE99E3CD2CA7E60A15E /* ViewModels */,
 				B45D66EC21AAD967DBCDBE29 /* Views */,
@@ -835,6 +850,22 @@
 			path = Reports;
 			sourceTree = "<group>";
 		};
+		F9CE37946DB9FDF502509A1C /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				FB17425B547A389173768C9B /* QDI_Gemstone_ERP_v2Tests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		FB17425B547A389173768C9B /* QDI_Gemstone_ERP_v2Tests */ = {
+			isa = PBXGroup;
+			children = (
+				959F5B52D4C4440F8DB0A294 /* P0FixTests.swift */,
+			);
+			path = QDI_Gemstone_ERP_v2Tests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -857,6 +888,24 @@
 			productName = QDI_Gemstone_ERP_v2;
 			productReference = 5ED44A9E836CD59534C5F518 /* QDI_Gemstone_ERP_v2.app */;
 			productType = "com.apple.product-type.application";
+		};
+		C0CD549CDAD043817BC71B03 /* QDI_Gemstone_ERP_v2Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 498B3208DA05CB0D048A86DC /* Build configuration list for PBXNativeTarget "QDI_Gemstone_ERP_v2Tests" */;
+			buildPhases = (
+				782AEDAB7B5A4DA030D69581 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				09001E4C24D761A1CDB472E7 /* PBXTargetDependency */,
+			);
+			name = QDI_Gemstone_ERP_v2Tests;
+			packageProductDependencies = (
+			);
+			productName = QDI_Gemstone_ERP_v2Tests;
+			productReference = E4B93A305750694D17BD25DC /* QDI_Gemstone_ERP_v2Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -888,11 +937,20 @@
 			projectRoot = "";
 			targets = (
 				7446A7172512913F157DAD65 /* QDI_Gemstone_ERP_v2 */,
+				C0CD549CDAD043817BC71B03 /* QDI_Gemstone_ERP_v2Tests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		782AEDAB7B5A4DA030D69581 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				69AF856F9C0FF694A01B35E9 /* P0FixTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		99AB031CC00CD96ED3F051D1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1086,6 +1144,14 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		09001E4C24D761A1CDB472E7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7446A7172512913F157DAD65 /* QDI_Gemstone_ERP_v2 */;
+			targetProxy = D198337833F143A3D4C01B96 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
 		5D0F26EED65C10C156F42229 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -1184,6 +1250,23 @@
 			};
 			name = Release;
 		};
+		76714A73134803508E9258A1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.qdi.gemapp.QDI-Gemstone-ERP-v2Tests";
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/QDI_Gemstone_ERP_v2.app/Contents/MacOS/QDI_Gemstone_ERP_v2";
+			};
+			name = Release;
+		};
 		C686F259CFA20AA4A37DD2C2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1248,6 +1331,23 @@
 			};
 			name = Debug;
 		};
+		CF2AF3B20E61CCCBC26B653E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.qdi.gemapp.QDI-Gemstone-ERP-v2Tests";
+				SDKROOT = macosx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/QDI_Gemstone_ERP_v2.app/Contents/MacOS/QDI_Gemstone_ERP_v2";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1256,6 +1356,15 @@
 			buildConfigurations = (
 				C686F259CFA20AA4A37DD2C2 /* Debug */,
 				5D0F26EED65C10C156F42229 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		498B3208DA05CB0D048A86DC /* Build configuration list for PBXNativeTarget "QDI_Gemstone_ERP_v2Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CF2AF3B20E61CCCBC26B653E /* Debug */,
+				76714A73134803508E9258A1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

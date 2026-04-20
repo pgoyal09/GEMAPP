@@ -52,3 +52,13 @@ targets:
         product: Supabase
     entitlements:
       path: Resources/QDI_Gemstone_ERP_v2.entitlements
+  QDI_Gemstone_ERP_v2Tests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests/QDI_Gemstone_ERP_v2Tests
+    dependencies:
+      - target: QDI_Gemstone_ERP_v2
+    settings:
+      base:
+        SWIFT_STRICT_CONCURRENCY: complete
