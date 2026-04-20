@@ -228,10 +228,15 @@ enum RFIDScanService {
         stone.rfidLastSeenAt = now
 
         // Route writes through dedicated RFIDTag model.
-        let allTagsDescriptor = FetchDescriptor<RFIDTag>()
+        let sku = stone.sku
+        let tagDescriptor = FetchDescriptor<RFIDTag>(
+            predicate: #Predicate<RFIDTag> { tag in
+                tag.assignedStone?.sku == sku
+            }
+        )
         let stoneTag: RFIDTag?
         do {
-            stoneTag = try modelContext.fetch(allTagsDescriptor).first(where: { $0.assignedStone?.id == stone.id })
+            stoneTag = try modelContext.fetch(tagDescriptor).first
         } catch {
             rfidLog.error("Existing tag lookup by stone failed: \(error.localizedDescription, privacy: .public)")
             return .conflict(ErrorMapper.userMessage(from: error))
