@@ -5,6 +5,7 @@ import SwiftData
 struct CustomerActivityView: View {
     let customer: Customer
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openDocumentTracker) private var openDocTracker
 
     private var activities: [ActivityItem] {
         var items: [ActivityItem] = []
@@ -104,7 +105,13 @@ struct CustomerActivityView: View {
             } else {
                 ForEach(Array(activities.prefix(10).enumerated()), id: \.offset) { _, activity in
                     Button {
-                        openWindow(id: activity.windowID, value: activity.documentID)
+                        let docID = activity.documentID
+                        if activity.windowID == "memo" {
+                            guard !openDocTracker.isOpen(memoID: docID) else { return }
+                        } else if activity.windowID == "invoice" {
+                            guard !openDocTracker.isOpen(invoiceID: docID) else { return }
+                        }
+                        openWindow(id: activity.windowID, value: docID)
                     } label: {
                         HStack(spacing: AppSpacing.comfortable) {
                             Image(systemName: activity.icon)

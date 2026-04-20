@@ -62,3 +62,15 @@ targets:
     settings:
       base:
         SWIFT_STRICT_CONCURRENCY: complete
+        BUNDLE_LOADER: "$(BUILT_PRODUCTS_DIR)/QDI Gemstone ERP v2.app/Contents/MacOS/QDI Gemstone ERP v2"
+        TEST_HOST: "$(BUNDLE_LOADER)"
+
+schemes:
+  QDI_Gemstone_ERP_v2:
+    build:
+      targets:
+        QDI_Gemstone_ERP_v2: all
+        QDI_Gemstone_ERP_v2Tests: [test]
+    test:
+      targets:
+        - QDI_Gemstone_ERP_v2Tests

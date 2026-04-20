@@ -1257,7 +1257,7 @@
 		76714A73134803508E9258A1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/QDI Gemstone ERP v2.app/Contents/MacOS/QDI Gemstone ERP v2";
 				COMBINE_HIDPI_IMAGES = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1267,7 +1267,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.qdi.gemapp.QDI-Gemstone-ERP-v2Tests";
 				SDKROOT = macosx;
 				SWIFT_STRICT_CONCURRENCY = complete;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/QDI_Gemstone_ERP_v2.app/Contents/MacOS/QDI_Gemstone_ERP_v2";
+				TEST_HOST = "$(BUNDLE_LOADER)";
 			};
 			name = Release;
 		};
@@ -1338,7 +1338,7 @@
 		CF2AF3B20E61CCCBC26B653E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/QDI Gemstone ERP v2.app/Contents/MacOS/QDI Gemstone ERP v2";
 				COMBINE_HIDPI_IMAGES = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1348,7 +1348,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.qdi.gemapp.QDI-Gemstone-ERP-v2Tests";
 				SDKROOT = macosx;
 				SWIFT_STRICT_CONCURRENCY = complete;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/QDI_Gemstone_ERP_v2.app/Contents/MacOS/QDI_Gemstone_ERP_v2";
+				TEST_HOST = "$(BUNDLE_LOADER)";
 			};
 			name = Debug;
 		};
