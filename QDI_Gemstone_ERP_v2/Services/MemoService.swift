@@ -10,8 +10,10 @@ enum MemoService {
     /// Return selected items from a memo to stock.
     @MainActor
     static func returnItems(_ items: [LineItem], modelContext: ModelContext) throws {
+        let activeItems = items.filter { $0.status != .returned && $0.status != .sold }
+        guard !activeItems.isEmpty else { return }
         var affectedMemos: Set<ObjectIdentifier> = []
-        for item in items {
+        for item in activeItems {
             item.status = .returned
             item.returnedDate = Date()
 
@@ -46,7 +48,7 @@ enum MemoService {
         try modelContext.save()
 
         // Auto-close affected memos if all items are resolved
-        for item in items {
+        for item in activeItems {
             if let memo = item.memo {
                 checkAndAutoClose(memo: memo, modelContext: modelContext)
             }
