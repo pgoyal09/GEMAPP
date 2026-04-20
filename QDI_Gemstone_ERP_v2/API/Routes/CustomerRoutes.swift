@@ -104,6 +104,12 @@ enum CustomerRoutes {
             guard let customer = findCustomer(id: id, context: context) else {
                 return .notFound("Customer '\(id)' not found")
             }
+            // Pre-check dependencies before delete
+            let memoCount = customer.memos.count
+            let invoiceCount = customer.invoices.count
+            if memoCount > 0 || invoiceCount > 0 {
+                return .error(code: "HAS_DEPENDENCIES", message: "Cannot delete customer with \(memoCount) memo(s) and \(invoiceCount) invoice(s). Remove or reassign them first.", status: 409)
+            }
             context.delete(customer)
             do { try context.save() } catch {
                 return .error(code: "DELETE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
@@ -117,9 +123,12 @@ enum CustomerRoutes {
     private static func findCustomer(id: String, context: ModelContext) -> Customer? {
         let descriptor = FetchDescriptor<Customer>()
         guard let customers = try? context.fetch(descriptor) else { return nil }
-        // Match by displayName or email
+        // Match by persistentModelID string first (stable), then fall back to email (unique)
         return customers.first {
-            $0.displayName == id || $0.email == id
+            $0.persistentModelID.hashValue.description == id ||
+            String(describing: $0.persistentModelID) == id
+        } ?? customers.first {
+            $0.email == id && !$0.email.isEmpty
         }
     }
 
@@ -145,21 +154,13 @@ enum CustomerRoutes {
         json["openExposure"] = NSDecimalNumber(decimal: c.openExposure).doubleValue
         json["isActive"] = c.isActive
 
-        // Recent memos
-        let memoDesc = FetchDescriptor<Memo>()
-        if let memos = try? context.fetch(memoDesc) {
-            let customerMemos = memos.filter { $0.customer?.displayName == c.displayName }
-                .prefix(10)
-            json["recentMemos"] = customerMemos.map { MemoRoutes.memoJSON($0) }
-        }
+        // Recent memos — use relationship instead of fetch-all + filter
+        let customerMemos = Array(c.memos.sorted { $0.createdAt > $1.createdAt }.prefix(10))
+        json["recentMemos"] = customerMemos.map { MemoRoutes.memoJSON($0) }
 
-        // Recent invoices
-        let invDesc = FetchDescriptor<Invoice>()
-        if let invoices = try? context.fetch(invDesc) {
-            let customerInvoices = invoices.filter { $0.customer?.displayName == c.displayName }
-                .prefix(10)
-            json["recentInvoices"] = customerInvoices.map { InvoiceRoutes.invoiceJSON($0) }
-        }
+        // Recent invoices — use relationship
+        let customerInvoices = Array(c.invoices.sorted { $0.createdAt > $1.createdAt }.prefix(10))
+        json["recentInvoices"] = customerInvoices.map { InvoiceRoutes.invoiceJSON($0) }
 
         return json
     }
