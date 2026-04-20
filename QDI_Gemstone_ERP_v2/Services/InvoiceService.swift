@@ -4,6 +4,18 @@ import os
 
 private let logger = Logger(subsystem: "com.qdi.gemapp", category: "invoice")
 
+enum InvoiceError: LocalizedError {
+    case cannotDeleteNonDraft(status: String)
+    case cannotVoidInvoice(status: String)
+
+    var errorDescription: String? {
+        switch self {
+        case .cannotDeleteNonDraft(let status): return "Cannot delete invoice with status '\(status)'. Only draft invoices can be deleted."
+        case .cannotVoidInvoice(let status): return "Cannot void invoice with status '\(status)'. Only sent or paid invoices can be voided."
+        }
+    }
+}
+
 /// Invoice-specific business operations.
 enum InvoiceService {
 
@@ -77,7 +89,9 @@ enum InvoiceService {
     /// Void an invoice: restores linked gemstones to available.
     @MainActor
     static func voidInvoice(_ invoice: Invoice, modelContext: ModelContext) throws {
-        guard invoice.status == .sent || invoice.status == .paid else { return }
+        guard invoice.status == .sent || invoice.status == .paid else {
+            throw InvoiceError.cannotVoidInvoice(status: invoice.status.rawValue)
+        }
         invoice.status = .void
         for item in invoice.lineItems {
             // Reset origin memo line item if this was a conversion
@@ -113,6 +127,10 @@ enum InvoiceService {
     /// Delete an invoice: restores stones, deletes line items and invoice.
     @MainActor
     static func deleteInvoice(_ invoice: Invoice, modelContext: ModelContext) throws {
+        // Only draft invoices can be deleted — sent/paid/void must be voided instead
+        guard invoice.status == .draft else {
+            throw InvoiceError.cannotDeleteNonDraft(status: invoice.status.rawValue)
+        }
         for item in invoice.lineItems {
             // Reset origin memo line item if this was a conversion
             if let origin = item.originLineItem {

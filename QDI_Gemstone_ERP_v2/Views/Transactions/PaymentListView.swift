@@ -98,6 +98,7 @@ struct PaymentListView: View {
                 Button("Save Payment") {
                     guard newAmount > 0 else { return }
                     guard invoice.status == .sent || invoice.status == .paid else { return }
+                    guard newAmount <= invoice.balanceDue else { return } // Prevent overpayment
                     let payment = Payment(
                         date: Date(),
                         amount: newAmount,
