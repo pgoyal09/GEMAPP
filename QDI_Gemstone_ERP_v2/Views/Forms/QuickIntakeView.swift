@@ -32,6 +32,8 @@ struct QuickIntakeView: View {
     @State private var isSaving = false
     @State private var toastMessage: String?
     @State private var toastIsError = false
+    @State private var isDirty = false
+    @State private var showDiscardAlert = false
 
     @FocusState private var focusedField: Field?
 
@@ -68,6 +70,16 @@ struct QuickIntakeView: View {
             }
         }
         .onAppear { focusedField = .carat }
+        .onChange(of: caratText) { _, _ in isDirty = true }
+        .onChange(of: shapeText) { _, _ in isDirty = true }
+        .onChange(of: colorText) { _, _ in isDirty = true }
+        .onChange(of: clarityText) { _, _ in isDirty = true }
+        .onChange(of: costPriceText) { _, _ in isDirty = true }
+        .onChange(of: sellPriceText) { _, _ in isDirty = true }
+        .alert("Unsaved Changes", isPresented: $showDiscardAlert) {
+            Button("Discard", role: .destructive) { dismiss() }
+            Button("Cancel", role: .cancel) { }
+        }
     }
 
     // MARK: - Essential Fields
@@ -167,7 +179,9 @@ struct QuickIntakeView: View {
     private var bottomToolbar: some View {
         HStack {
             Spacer()
-            Button("Cancel") { dismiss() }
+            Button("Cancel") {
+                    if isDirty { showDiscardAlert = true } else { dismiss() }
+                }
                 .buttonStyle(.outline)
                 .disabled(isSaving)
                 .keyboardShortcut(.escape, modifiers: [])
@@ -310,6 +324,7 @@ struct QuickIntakeView: View {
         toastIsError = false
         toastMessage = "Saved \(sku)"
 
+        isDirty = false
         if continueAdding {
             resetFields()
             focusedField = .carat

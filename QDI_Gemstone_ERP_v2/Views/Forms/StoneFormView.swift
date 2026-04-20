@@ -9,6 +9,8 @@ struct StoneFormView: View {
     @FocusState private var isCaratFieldFocused: Bool
     @State private var isSaving = false
     @State private var showAdvanced = false
+    @State private var isDirty = false
+    @State private var showDiscardAlert = false
     var navigateTo: Binding<NavigationItem>?
 
     init(mode: StoneFormMode, navigateTo: Binding<NavigationItem>? = nil) {
@@ -86,12 +88,18 @@ struct StoneFormView: View {
         } message: {
             Text("Stone has $0 price. Save anyway?")
         }
-        .onChange(of: viewModel.caratText) { _, _ in viewModel.validateInline() }
-        .onChange(of: viewModel.shapeText) { _, _ in viewModel.validateInline() }
-        .onChange(of: viewModel.costPriceText) { _, _ in viewModel.validateInline() }
-        .onChange(of: viewModel.sellPriceText) { _, _ in viewModel.validateInline() }
-        .onChange(of: viewModel.rapNetDiscountPctText) { _, _ in viewModel.validateInline() }
-        .onChange(of: viewModel.cashDiscountPctText) { _, _ in viewModel.validateInline() }
+        .onChange(of: viewModel.caratText) { _, _ in viewModel.validateInline(); isDirty = true }
+        .onChange(of: viewModel.shapeText) { _, _ in viewModel.validateInline(); isDirty = true }
+        .onChange(of: viewModel.costPriceText) { _, _ in viewModel.validateInline(); isDirty = true }
+        .onChange(of: viewModel.sellPriceText) { _, _ in viewModel.validateInline(); isDirty = true }
+        .onChange(of: viewModel.rapNetDiscountPctText) { _, _ in viewModel.validateInline(); isDirty = true }
+        .onChange(of: viewModel.cashDiscountPctText) { _, _ in viewModel.validateInline(); isDirty = true }
+        .onChange(of: viewModel.color) { _, _ in isDirty = true }
+        .onChange(of: viewModel.clarity) { _, _ in isDirty = true }
+        .alert("Unsaved Changes", isPresented: $showDiscardAlert) {
+            Button("Discard", role: .destructive) { dismiss() }
+            Button("Cancel", role: .cancel) { }
+        }
         .interactiveDismissDisabled(isSaving)
         .overlay {
             if let msg = viewModel.toastMessage {
@@ -354,7 +362,9 @@ struct StoneFormView: View {
     private var bottomToolbar: some View {
         HStack {
             Spacer()
-            Button("Cancel") { dismiss() }
+            Button("Cancel") {
+                    if isDirty { showDiscardAlert = true } else { dismiss() }
+                }
                 .buttonStyle(.outline)
                 .disabled(isSaving)
                 .keyboardShortcut(.escape, modifiers: [])

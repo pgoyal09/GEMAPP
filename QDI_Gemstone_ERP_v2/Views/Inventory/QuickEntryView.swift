@@ -9,7 +9,9 @@ struct QuickEntryView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.navigationGuard) private var navigationGuard
     @State private var selectedCategory: StoneType = .diamond
+    @State private var isDirty = false
     @State private var rows: [QuickEntryRow] = [QuickEntryRow()]
     @State private var toastMessage: String?
     @State private var toastIsError = false
@@ -49,6 +51,10 @@ struct QuickEntryView: View {
         .onAppear {
             selectedCategory = defaultStoneType
             rows = [QuickEntryRow(stoneType: defaultStoneType)]
+        }
+        .onChange(of: rows.map(\.caratWeight)) { _, _ in
+            isDirty = rows.contains { !$0.isEmpty }
+            navigationGuard.hasUnsavedChanges = isDirty
         }
     }
 
@@ -386,6 +392,8 @@ struct QuickEntryView: View {
 
         NotificationCenter.default.post(name: .dataStoreDidChange, object: nil)
 
+        isDirty = false
+        navigationGuard.hasUnsavedChanges = false
         toastIsError = false
         toastMessage = "Saved \(count) stone\(count == 1 ? "" : "s")"
         rows = [QuickEntryRow(stoneType: selectedCategory)]

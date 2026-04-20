@@ -29,6 +29,8 @@ struct CustomerFormSheet: View {
     @State private var toastMessage: String?
     @State private var toastIsError = false
     @State private var isSaving = false
+    @State private var isDirty = false
+    @State private var showDiscardAlert = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -49,7 +51,9 @@ struct CustomerFormSheet: View {
 
             HStack {
                 Spacer()
-                Button("Cancel") { dismiss() }
+                Button("Cancel") {
+                        if isDirty { showDiscardAlert = true } else { dismiss() }
+                    }
                     .buttonStyle(.outline)
                     .disabled(isSaving)
                     .keyboardShortcut(.escape, modifiers: [])
@@ -76,6 +80,15 @@ struct CustomerFormSheet: View {
         .onAppear {
             loadExisting()
             focusedField = .firstName
+        }
+        .onChange(of: firstName) { _, _ in isDirty = true }
+        .onChange(of: lastName) { _, _ in isDirty = true }
+        .onChange(of: company) { _, _ in isDirty = true }
+        .onChange(of: email) { _, _ in isDirty = true }
+        .onChange(of: phone) { _, _ in isDirty = true }
+        .alert("Unsaved Changes", isPresented: $showDiscardAlert) {
+            Button("Discard", role: .destructive) { dismiss() }
+            Button("Cancel", role: .cancel) { }
         }
     }
 
