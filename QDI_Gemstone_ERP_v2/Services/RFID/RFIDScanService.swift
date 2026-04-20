@@ -54,6 +54,30 @@ enum AssignmentConflict {
 /// - Legacy migration path removed (no `rfidTag` to migrate from).
 enum RFIDScanService {
 
+    // MARK: - Save Batching
+
+    private static let saveBatchSize = 50
+    private static let saveInterval: TimeInterval = 2.0
+    nonisolated(unsafe) private static var pendingSaveCount = 0
+    nonisolated(unsafe) private static var lastSaveTime = Date()
+
+    private static func saveIfNeeded(_ modelContext: ModelContext) {
+        pendingSaveCount += 1
+        if pendingSaveCount >= saveBatchSize || Date().timeIntervalSince(lastSaveTime) >= saveInterval {
+            try? modelContext.save()
+            pendingSaveCount = 0
+            lastSaveTime = Date()
+        }
+    }
+
+    /// Flush any pending unsaved changes (call when scanning stops).
+    static func flushPendingSaves(_ modelContext: ModelContext) {
+        guard pendingSaveCount > 0 else { return }
+        try? modelContext.save()
+        pendingSaveCount = 0
+        lastSaveTime = Date()
+    }
+
     // MARK: - Conflict Evaluation
 
     static func evaluateAssignmentConflict(_ input: AssignmentConflictInput) -> AssignmentConflict? {
@@ -93,11 +117,7 @@ enum RFIDScanService {
                 let now = Date()
                 tag.lastSeenAt = now
                 stone.rfidLastSeenAt = now
-                do {
-                    try modelContext.save()
-                } catch {
-                    rfidLog.error("Failed to persist tag lastSeen update: \(error.localizedDescription, privacy: .public)")
-                }
+                saveIfNeeded(modelContext)
                 return .matched(stone)
             }
         } catch {
@@ -113,11 +133,7 @@ enum RFIDScanService {
         do {
             if let stone = try modelContext.fetch(epcDescriptor).first {
                 stone.rfidLastSeenAt = Date()
-                do {
-                    try modelContext.save()
-                } catch {
-                    rfidLog.error("Failed to persist stone lastSeen update: \(error.localizedDescription, privacy: .public)")
-                }
+                saveIfNeeded(modelContext)
                 return .matched(stone)
             }
         } catch {
