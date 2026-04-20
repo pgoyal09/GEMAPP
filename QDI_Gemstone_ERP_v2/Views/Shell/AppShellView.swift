@@ -11,14 +11,12 @@ struct AppShellView: View {
     @State private var showLeaveAlert = false
     @State private var navigationGuard = NavigationGuard()
     @State private var showSidebar: Bool = true
-    @State private var showAddStoneFromMenu = false
     @AppStorage("appAppearance") private var appAppearance: String = "dark"
     @AppStorage("onboardingComplete") private var onboardingComplete: Bool = false
     @AppStorage("companyName") private var companyName: String = ""
     @State private var showGlossary = false
     @State private var showHelpCenter = false
     @State private var showNotifications = false
-    @State private var showSearchOverlay = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var resolvedColorScheme: ColorScheme? {

@@ -13,7 +13,6 @@ struct OnboardingView: View {
     @State private var inputAddress: String = ""
     @State private var inputPhone: String = ""
     @State private var inputEmail: String = ""
-    @State private var logoData: Data?
     @State private var seedDemoData: Bool = true
 
     var body: some View {
