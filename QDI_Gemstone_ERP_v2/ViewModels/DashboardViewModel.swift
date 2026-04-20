@@ -47,11 +47,15 @@ final class DashboardViewModel {
         defer { isLoading = false }
         
         loadInventoryMetrics(modelContext: modelContext)
-        loadMemoMetrics(modelContext: modelContext)
+        
+        // Fetch memos ONCE and reuse across all memo metrics
+        let allMemos = safeFetch(FetchDescriptor<Memo>(sortBy: [SortDescriptor(\.createdAt, order: .forward)]), modelContext: modelContext)
+        loadMemoMetrics(from: allMemos)
+        recentActivity = buildRecentActivity(from: allMemos)
+        oldestOpenMemos = buildOldestOpenMemos(from: allMemos)
+        overdueMemoCount = allMemos.filter { $0.status == .onMemo && $0.ageInDays > 60 }.count
+        
         loadSalesMetrics(modelContext: modelContext)
-        recentActivity = fetchRecentActivity(modelContext: modelContext)
-        oldestOpenMemos = fetchOldestOpenMemos(modelContext: modelContext)
-        loadOverdueMemoCount(modelContext: modelContext)
     }
 
     // MARK: - Private
@@ -81,8 +85,7 @@ final class DashboardViewModel {
         totalInventoryValue = value
     }
 
-    private func loadMemoMetrics(modelContext: ModelContext) {
-        let allMemos = safeFetch(FetchDescriptor<Memo>(), modelContext: modelContext)
+    private func loadMemoMetrics(from allMemos: [Memo]) {
         let openMemos = allMemos.filter { $0.status == .onMemo }
         totalValueOnMemo = openMemos.reduce(Decimal.zero) { $0 + $1.openMemoAmount }
     }
@@ -97,12 +100,8 @@ final class DashboardViewModel {
         monthlySales = periodInvoices.reduce(Decimal.zero) { $0 + $1.totalAmount }
     }
 
-    private func fetchRecentActivity(modelContext: ModelContext) -> [RecentActivityItem] {
-        var descriptor = FetchDescriptor<Memo>(
-            sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
-        )
-        descriptor.fetchLimit = 8
-        let memos = safeFetch(descriptor, modelContext: modelContext)
+    private func buildRecentActivity(from allMemos: [Memo]) -> [RecentActivityItem] {
+        let memos = Array(allMemos.sorted { $0.createdAt > $1.createdAt }.prefix(8))
 
         return memos.map { memo in
             let customer = memo.customer?.displayName ?? "Unknown"
@@ -122,8 +121,7 @@ final class DashboardViewModel {
         }
     }
 
-    private func fetchOldestOpenMemos(modelContext: ModelContext) -> [OldestMemoItem] {
-        let allMemos = safeFetch(FetchDescriptor<Memo>(sortBy: [SortDescriptor(\.createdAt, order: .forward)]), modelContext: modelContext)
+    private func buildOldestOpenMemos(from allMemos: [Memo]) -> [OldestMemoItem] {
         let memos = Array(allMemos.filter { $0.status == .onMemo }.prefix(5))
 
         return memos.map { memo in
@@ -135,11 +133,6 @@ final class DashboardViewModel {
                 openAmount: memo.openMemoAmount
             )
         }
-    }
-
-    private func loadOverdueMemoCount(modelContext: ModelContext) {
-        let allMemos = safeFetch(FetchDescriptor<Memo>(), modelContext: modelContext)
-        overdueMemoCount = allMemos.filter { $0.status == .onMemo && $0.ageInDays > 60 }.count
     }
 
     // MARK: - Helpers

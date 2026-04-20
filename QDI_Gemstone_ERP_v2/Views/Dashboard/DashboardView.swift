@@ -11,6 +11,7 @@ struct DashboardView: View {
     @State private var showResetConfirm = false
     @State private var isResetting = false
     @State private var toastMessage: String?
+    @State private var refreshTask: Task<Void, Never>?
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
@@ -35,16 +36,16 @@ struct DashboardView: View {
             NavigationStack { StoneFormView(mode: .intake) }
                 .presentationDetents([.medium, .large])
         }
-        .onAppear { viewModel.load(modelContext: modelContext) }
-        .onChange(of: showAddStoneSheet) { _, _ in viewModel.load(modelContext: modelContext) }
+        .onAppear { debouncedRefresh() }
+        .onChange(of: showAddStoneSheet) { _, _ in debouncedRefresh() }
         .onReceive(NotificationCenter.default.publisher(for: .dataStoreDidChange)) { _ in
-            viewModel.load(modelContext: modelContext)
+            debouncedRefresh()
         }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
-            viewModel.load(modelContext: modelContext)
+            debouncedRefresh()
         }
         .onReceive(NotificationCenter.default.publisher(for: .memoOrInvoiceDidSave)) { _ in
-            viewModel.load(modelContext: modelContext)
+            debouncedRefresh()
         }
         .alert("Reset Demo Data", isPresented: $showResetConfirm) {
             Button("Cancel", role: .cancel) {}
@@ -81,6 +82,16 @@ struct DashboardView: View {
         .buttonStyle(.plain)
         .accessibilityLabel("Generate New Mock Data")
         .disabled(isResetting)
+    }
+
+    /// Debounced refresh — coalesces rapid notification bursts into a single reload
+    private func debouncedRefresh() {
+        refreshTask?.cancel()
+        refreshTask = Task {
+            try? await Task.sleep(for: .milliseconds(300))
+            guard !Task.isCancelled else { return }
+            viewModel.load(modelContext: modelContext)
+        }
     }
 
     private func performReset() {
