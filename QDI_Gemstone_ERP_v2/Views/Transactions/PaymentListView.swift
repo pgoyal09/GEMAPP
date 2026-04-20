@@ -106,6 +106,10 @@ struct PaymentListView: View {
                         invoice: invoice
                     )
                     modelContext.insert(payment)
+                    // Auto-transition to Paid when fully paid
+                    if invoice.balanceDue - newAmount <= 0 && invoice.status == .sent {
+                        invoice.status = .paid
+                    }
                     newAmount = 0
                     newMethod = .wire
                     newReference = ""

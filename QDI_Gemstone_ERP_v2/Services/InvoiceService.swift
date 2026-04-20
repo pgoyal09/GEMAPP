@@ -114,6 +114,11 @@ enum InvoiceService {
     @MainActor
     static func deleteInvoice(_ invoice: Invoice, modelContext: ModelContext) throws {
         for item in invoice.lineItems {
+            // Reset origin memo line item if this was a conversion
+            if let origin = item.originLineItem {
+                origin.status = .open
+                origin.soldDate = nil
+            }
             if let stone = item.gemstone {
                 if item.isLotLineItem {
                     stone.effectiveRemainingCarats += item.carats
