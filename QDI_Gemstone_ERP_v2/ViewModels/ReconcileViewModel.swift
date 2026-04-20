@@ -55,6 +55,9 @@ final class ReconcileViewModel {
     func stopScanning() {
         rfidService.stopScanning()
         isScanning = false
+        if let modelContext {
+            RFIDScanService.flushPendingSaves(modelContext)
+        }
         lastReconciliationDate = Date()
         saveReconciliationRecord()
     }

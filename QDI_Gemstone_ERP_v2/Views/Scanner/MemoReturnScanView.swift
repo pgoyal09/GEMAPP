@@ -230,6 +230,7 @@ struct MemoReturnScanView: View {
         rfidService?.stopScanning()
         rfidService?.onTagDiscovered = nil
         isScanning = false
+        RFIDScanService.flushPendingSaves(modelContext)
     }
 
     private func handleScannedTag(_ rawHex: String) {

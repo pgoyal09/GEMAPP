@@ -53,6 +53,9 @@ final class ScannerViewModel {
     func stopScanning() {
         rfidService.stopScanning()
         isScanning = false
+        if let modelContext {
+            RFIDScanService.flushPendingSaves(modelContext)
+        }
     }
 
     func clearDiscoveredTags() {
