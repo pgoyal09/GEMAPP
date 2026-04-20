@@ -175,17 +175,21 @@ final class CloudBackupService {
         let iso = ISO8601DateFormatter()
 
         // Delete ALL existing data before reimport (children first to respect relationships)
-        try modelContext.delete(model: HistoryEvent.self)
-        try modelContext.delete(model: RFIDTag.self)
-        try modelContext.delete(model: LotTransaction.self)
-        try modelContext.delete(model: Payment.self)
-        try modelContext.delete(model: LineItem.self)
-        try modelContext.delete(model: PaymentReminder.self)
-        try modelContext.delete(model: ReconciliationRecord.self)
-        try modelContext.delete(model: Invoice.self)
-        try modelContext.delete(model: Memo.self)
-        try modelContext.delete(model: Gemstone.self)
-        try modelContext.delete(model: Customer.self)
+        func deleteAll<T: PersistentModel>(_ type: T.Type) throws {
+            let items = try modelContext.fetch(FetchDescriptor<T>())
+            for item in items { modelContext.delete(item) }
+        }
+        try deleteAll(HistoryEvent.self)
+        try deleteAll(RFIDTag.self)
+        try deleteAll(LotTransaction.self)
+        try deleteAll(Payment.self)
+        try deleteAll(LineItem.self)
+        try deleteAll(PaymentReminder.self)
+        try deleteAll(ReconciliationRecord.self)
+        try deleteAll(Invoice.self)
+        try deleteAll(Memo.self)
+        try deleteAll(Gemstone.self)
+        try deleteAll(Customer.self)
 
         // 1. Restore customers — keyed by displayName for relationship linking
         var customerMap: [String: Customer] = [:]
