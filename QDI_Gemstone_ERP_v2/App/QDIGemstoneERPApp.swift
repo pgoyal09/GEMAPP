@@ -287,7 +287,8 @@ struct QDIGemstoneERPApp: App {
 
     private func startAPIServer() {
         guard apiServer == nil else { return }
-        let server = APIServer(modelContainer: sharedModelContainer, bearerToken: "qdi-dev-token")
+        let token = UserDefaults.standard.string(forKey: "apiAuthToken") ?? "qdi-dev-token"
+        let server = APIServer(modelContainer: sharedModelContainer, bearerToken: token)
         do {
             try server.start()
             apiServer = server

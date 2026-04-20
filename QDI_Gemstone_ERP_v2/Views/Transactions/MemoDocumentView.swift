@@ -716,6 +716,10 @@ struct MemoDocumentView: View {
     }
 
     private func saveMemo() {
+        if requireSalesperson && (memo.salesperson ?? "").trimmingCharacters(in: .whitespaces).isEmpty {
+            showToast("Salesperson is required", isError: true)
+            return
+        }
         do {
             try modelContext.save()
             hasUnsavedEdits = false

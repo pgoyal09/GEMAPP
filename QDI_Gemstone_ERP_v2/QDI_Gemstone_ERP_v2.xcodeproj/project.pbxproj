@@ -9,9 +9,11 @@
 /* Begin PBXBuildFile section */
 		02820FE626391AF6ED793539 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96E4658275B0BB02DEE8C7EA /* DashboardView.swift */; };
 		02C2B00B64D2CD3DD6185B9A /* DocumentDirtyTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BA467836A257651957AC30 /* DocumentDirtyTracker.swift */; };
+		0360BF61F91C78EE04BC223B /* RFIDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466323E3B94C7493CE3C223B /* RFIDTests.swift */; };
 		046BD734F3EFBCFEDF38AF56 /* SoldInventoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6A64976B35617FA1A3757B4 /* SoldInventoryView.swift */; };
 		07B845F1AA0F5EE6AF6CF6D0 /* String+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FA9BB5D29646A37FED67D4 /* String+Helpers.swift */; };
 		0A9A8B7657619F2BB1632938 /* BulkEditSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93565BA01F92A9C0A0AF4954 /* BulkEditSheet.swift */; };
+		0D038DD70180CBF05E381126 /* MemoServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE22F25EEAAF9F9C37EB33C /* MemoServiceTests.swift */; };
 		0D03B2B204E8B94FD9BE5B47 /* AccountingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B08E7202314CCAB62D6B4B /* AccountingViewModel.swift */; };
 		0E22C31C27AC813031FCE9B9 /* AppShellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C520DBB8403C8EC32DDD058 /* AppShellView.swift */; };
 		0E499D6C15EA875729D18B9A /* GradientButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 325C18F3512961657BDAD856 /* GradientButtonStyle.swift */; };
@@ -231,6 +233,7 @@
 		1C64C9459C79A0894AC0F0F0 /* StoneDescriptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneDescriptionBuilder.swift; sourceTree = "<group>"; };
 		1DCDE31D32F68887B83C97E2 /* StoneFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneFormView.swift; sourceTree = "<group>"; };
 		1F3818E4471F1235B71AE81E /* RapNetSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RapNetSettingsView.swift; sourceTree = "<group>"; };
+		1FE22F25EEAAF9F9C37EB33C /* MemoServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoServiceTests.swift; sourceTree = "<group>"; };
 		22407FE0A483A38E0B420584 /* GlassTableModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassTableModifier.swift; sourceTree = "<group>"; };
 		230BF8E5988671BEFE23C0E0 /* Invoice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Invoice.swift; sourceTree = "<group>"; };
 		25CDDAACE2FF674CA40DBD20 /* LotInventoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotInventoryView.swift; sourceTree = "<group>"; };
@@ -257,6 +260,7 @@
 		3AC2C8DCD1516CDC38886FFC /* RFIDTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDTag.swift; sourceTree = "<group>"; };
 		41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailRow.swift; sourceTree = "<group>"; };
 		44570E8A87472A93C5DE42F6 /* CustomerFullDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerFullDetailView.swift; sourceTree = "<group>"; };
+		466323E3B94C7493CE3C223B /* RFIDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDTests.swift; sourceTree = "<group>"; };
 		4A40AC13F11AC3673A4A1587 /* NavigationItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationItem.swift; sourceTree = "<group>"; };
 		4C520DBB8403C8EC32DDD058 /* AppShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShellView.swift; sourceTree = "<group>"; };
 		4D6E8EFB8EC4B3037F101043 /* MemoReturnScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoReturnScanView.swift; sourceTree = "<group>"; };
@@ -864,7 +868,9 @@
 		FB17425B547A389173768C9B /* QDI_Gemstone_ERP_v2Tests */ = {
 			isa = PBXGroup;
 			children = (
+				1FE22F25EEAAF9F9C37EB33C /* MemoServiceTests.swift */,
 				959F5B52D4C4440F8DB0A294 /* P0FixTests.swift */,
+				466323E3B94C7493CE3C223B /* RFIDTests.swift */,
 			);
 			path = QDI_Gemstone_ERP_v2Tests;
 			sourceTree = "<group>";
@@ -950,7 +956,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0D038DD70180CBF05E381126 /* MemoServiceTests.swift in Sources */,
 				69AF856F9C0FF694A01B35E9 /* P0FixTests.swift in Sources */,
+				0360BF61F91C78EE04BC223B /* RFIDTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

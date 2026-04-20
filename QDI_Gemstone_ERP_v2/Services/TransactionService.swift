@@ -77,22 +77,10 @@ enum TransactionService {
         if memo.lineItems.contains(where: { $0.gemstone?.persistentModelID == stone.persistentModelID }) {
             throw TransactionError.duplicateStone(sku: stone.sku)
         }
-        // Guard: stone must not be on ANY other memo with an active line item
-        let stoneID = stone.persistentModelID
-        // SwiftData #Predicate does not support custom enum types as captured constants.
-        // Fetch all line items and filter in memory instead.
-        let allLineItems = FetchDescriptor<LineItem>()
-        do {
-            let existingItems = try modelContext.fetch(allLineItems)
-                .filter { $0.gemstone?.persistentModelID == stoneID && $0.memo != nil && $0.status == .open }
-            if let existingItem = existingItems.first(where: { $0.memo?.persistentModelID != memo.persistentModelID }) {
-                let ref = existingItem.memo?.referenceNumber ?? "unknown"
-                throw TransactionError.stoneAlreadyOnMemo(sku: stone.sku, ref: ref)
-            }
-        } catch let error as TransactionError {
-            throw error
-        } catch {
-            logger.error("Failed to check existing memo items: \(error.localizedDescription, privacy: .public)")
+        // Guard: stone must not be on ANY other memo
+        // Use the inverse relationship instead of full LineItem table scan
+        if let existingMemo = stone.memo, existingMemo.persistentModelID != memo.persistentModelID {
+            throw TransactionError.stoneAlreadyOnMemo(sku: stone.sku, ref: existingMemo.referenceNumber)
         }
         // Guard: carat weight must be positive
         guard stone.caratWeight > 0 else {
