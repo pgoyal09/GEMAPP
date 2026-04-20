@@ -9,6 +9,7 @@ import SwiftData
 final class BackupScheduler {
     private var timer: Timer?
     private var modelContainer: ModelContainer?
+    private var isPerformingBackup = false
 
     var isEnabled: Bool {
         get { UserDefaults.standard.bool(forKey: "autoBackupEnabled") }
@@ -59,6 +60,9 @@ final class BackupScheduler {
 
     func performBackupNow() {
         guard let container = modelContainer, let dir = backupDirectory else { return }
+        guard !isPerformingBackup else { return }
+        isPerformingBackup = true
+        defer { isPerformingBackup = false }
         Task { @MainActor in
             do {
                 let ctx = container.mainContext

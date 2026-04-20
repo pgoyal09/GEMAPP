@@ -17,8 +17,11 @@ final class SupabaseManager: Sendable {
         let key = Bundle.main.object(forInfoDictionaryKey: "SUPABASE_ANON_KEY") as? String
             ?? UserDefaults.standard.string(forKey: "supabaseAnonKey")
             ?? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNrdHlqdHdnaHNjZWNoYnJlamltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNjcwODUsImV4cCI6MjA5MDY0MzA4NX0.XqhZr5IgmYxvabZ2pU3VScelvAOLlrM5UrjyGxNo-LI"
+        guard let supabaseURL = URL(string: url) else {
+            fatalError("Invalid Supabase URL: \(url). Check Info.plist or UserDefaults 'supabaseURL'.")
+        }
         client = SupabaseClient(
-            supabaseURL: URL(string: url)!,
+            supabaseURL: supabaseURL,
             supabaseKey: key
         )
     }

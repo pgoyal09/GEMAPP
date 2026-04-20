@@ -68,6 +68,7 @@ final class CloudBackupService {
             return
         }
         isBackingUp = true
+        defer { isBackingUp = false }
         lastError = nil
         progress = 0
 
@@ -113,8 +114,6 @@ final class CloudBackupService {
             lastError = error.localizedDescription
             Self.logger.error("Backup failed: \(error.localizedDescription)")
         }
-
-        isBackingUp = false
     }
 
     // MARK: - List Backups
@@ -134,6 +133,7 @@ final class CloudBackupService {
             return false
         }
         isRestoring = true
+        defer { isRestoring = false }
         lastError = nil
         progress = 0
 

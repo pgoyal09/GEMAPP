@@ -1,6 +1,14 @@
 import Foundation
 import SwiftData
 
+// MARK: - Current User ID
+
+/// Returns the current Supabase auth user ID, or nil if not logged in.
+private func currentUserId() -> UUID? {
+    guard let session = try? SupabaseManager.shared.client.auth.currentSession else { return nil }
+    return session.user.id
+}
+
 // MARK: - Stable Sync ID
 
 /// Generates a deterministic UUID from entity type + persistentModelID.
@@ -62,7 +70,7 @@ struct CustomerDTO: Codable, Sendable {
         self.notes = model.notes
         self.createdAt = model.createdAt
         self.updatedAt = Date()
-        self.userId = nil
+        self.userId = currentUserId()
     }
 }
 
@@ -188,7 +196,7 @@ struct GemstoneDTO: Codable, Sendable {
         self.vendor = ""
         self.createdAt = model.createdAt
         self.updatedAt = Date()
-        self.userId = nil
+        self.userId = currentUserId()
     }
 }
 
@@ -226,7 +234,7 @@ struct MemoDTO: Codable, Sendable {
         self.notes = model.notes
         self.createdAt = model.createdAt
         self.updatedAt = Date()
-        self.userId = nil
+        self.userId = currentUserId()
     }
 }
 
@@ -265,7 +273,7 @@ struct InvoiceDTO: Codable, Sendable {
         self.notes = model.notes
         self.createdAt = model.createdAt
         self.updatedAt = Date()
-        self.userId = nil
+        self.userId = currentUserId()
     }
 }
 
@@ -314,7 +322,7 @@ struct LineItemDTO: Codable, Sendable {
         self.gemstoneId = nil
         self.createdAt = Date()
         self.updatedAt = Date()
-        self.userId = nil
+        self.userId = currentUserId()
     }
 }
 
@@ -354,7 +362,7 @@ struct LotTransactionDTO: Codable, Sendable {
         self.gemstoneId = nil
         self.createdAt = Date()
         self.updatedAt = Date()
-        self.userId = nil
+        self.userId = currentUserId()
     }
 }
 
@@ -389,7 +397,7 @@ struct PaymentDTO: Codable, Sendable {
         self.invoiceId = nil
         self.createdAt = Date()
         self.updatedAt = Date()
-        self.userId = nil
+        self.userId = currentUserId()
     }
 }
 
@@ -423,7 +431,7 @@ struct HistoryEventDTO: Codable, Sendable {
         self.gemstoneId = nil
         self.createdAt = Date()
         self.updatedAt = Date()
-        self.userId = nil
+        self.userId = currentUserId()
     }
 }
 
@@ -468,6 +476,6 @@ struct RFIDTagDTO: Codable, Sendable {
         self.gemstoneId = nil
         self.createdAt = Date()
         self.updatedAt = Date()
-        self.userId = nil
+        self.userId = currentUserId()
     }
 }
