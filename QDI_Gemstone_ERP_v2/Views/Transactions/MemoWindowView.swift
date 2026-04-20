@@ -75,6 +75,7 @@ struct MemoWindowView: View {
 
     private func cleanupEmptyMemo() {
         guard let memo = fetchMemo() else { return }
+        guard !memo.isDeleted else { return }
         if memo.lineItems.isEmpty {
             modelContext.delete(memo)
             do {
