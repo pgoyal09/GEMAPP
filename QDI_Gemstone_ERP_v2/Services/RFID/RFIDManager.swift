@@ -155,6 +155,7 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
     private var startupState: StartupState?
     private var startupTimeoutWorkItem: DispatchWorkItem?
     private var startupAborted: Bool = false
+    private var isStartingUp: Bool = false
 
     /// Stored UID when GetUID succeeds (informational).
     private var storedReaderUID: String?
@@ -195,6 +196,11 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
     }
 
     func startScanning() {
+        guard !isStartingUp else {
+            debugLog("[RFID] Start already in progress, ignoring")
+            return
+        }
+        isStartingUp = true
         cancelReconnect()
         performFullStop()
         setInternalState(.connecting)
@@ -349,6 +355,7 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
 
     private func handleDisconnect(reason: String) {
         debugLog("[RFID] Disconnect detected: \(reason)")
+        isStartingUp = false
         performFullStop()
         let message = reason
         DispatchQueue.main.async { [weak self] in
@@ -528,6 +535,7 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
 
     private func handleStartupFailure(_ message: String) {
         debugLog("[RFID] Startup FAILED: \(message)")
+        isStartingUp = false
         setError(message)
         setStatus(.error)
         startupState = nil
@@ -540,6 +548,7 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
 
     private func completeStartup() {
         debugLog("[RFID] Startup complete, entering scanning state")
+        isStartingUp = false
         cancelStartupTimeout()
         startupState = nil
         setInternalState(.scanning)
