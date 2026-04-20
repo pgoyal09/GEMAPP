@@ -122,8 +122,10 @@ enum MemoService {
     /// Delete a memo and return all open items to stock.
     @MainActor
     static func deleteMemo(_ memo: Memo, modelContext: ModelContext) throws {
-        try returnItems(memo.openLineItems, modelContext: modelContext)
-        for item in memo.lineItems {
+        let items = Array(memo.lineItems)
+        let openItems = items.filter { $0.status != .sold && $0.status != .returned }
+        try returnItems(openItems, modelContext: modelContext)
+        for item in items {
             modelContext.delete(item)
         }
         modelContext.delete(memo)
