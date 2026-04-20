@@ -18,9 +18,10 @@ enum RFIDReconciliationService {
         let normalizedScans = Set(scannedTags.compactMap { EPCanonical.canonicalHex(fromRawHex: $0) ?? $0.uppercased() })
 
         // Fetch all stones with RFID tags assigned
-        let descriptor = FetchDescriptor<Gemstone>()
-        let allStones = (try? modelContext.fetch(descriptor)) ?? []
-        let stonesWithRFID = allStones.filter { $0.rfidEpc != nil }
+        let descriptor = FetchDescriptor<Gemstone>(
+            predicate: #Predicate<Gemstone> { $0.rfidEpc != nil }
+        )
+        let stonesWithRFID = (try? modelContext.fetch(descriptor)) ?? []
 
         var matched: [Gemstone] = []
         var missing: [Gemstone] = []
