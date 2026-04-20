@@ -71,9 +71,12 @@ enum CSVImportService {
     }
 
     /// Import parsed rows into SwiftData, generating SKUs.
+    static let maxImportRows = 500
+
     static func importRows(_ rows: [ImportRow], modelContext: ModelContext) -> Int {
         var count = 0
-        for row in rows {
+        let limitedRows = Array(rows.prefix(maxImportRows))
+        for row in limitedRows {
             let sku = SKUGenerator.generate(
                 type: row.stoneType,
                 shape: row.shape,

@@ -19,8 +19,12 @@ enum LotService {
         let existingCarats = lot.effectiveRemainingCarats
         let existingCost = lot.effectiveAverageCost
         let totalCarats = ((existingCarats + carats) * 10000).rounded() / 10000
+        // Use NSDecimalNumber for precise Double→Decimal conversion (avoids IEEE 754 representation errors)
+        let existingCaratsDec = Decimal(string: String(format: "%.4f", existingCarats)) ?? Decimal(existingCarats)
+        let caratsDec = Decimal(string: String(format: "%.4f", carats)) ?? Decimal(carats)
+        let totalCaratsDec = Decimal(string: String(format: "%.4f", totalCarats)) ?? Decimal(totalCarats)
         let newAvgCost = totalCarats > 0
-            ? (existingCost * Decimal(existingCarats) + costPerCarat * Decimal(carats)) / Decimal(totalCarats)
+            ? (existingCost * existingCaratsDec + costPerCarat * caratsDec) / totalCaratsDec
             : costPerCarat
 
         lot.remainingCarats = totalCarats

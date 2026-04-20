@@ -119,6 +119,6 @@ Custom environment values (all declared in their respective files):
 - **Don't use `.frame(width:minHeight:)`** — `width` and `minHeight` are from different overloads. Use `minWidth` with `minHeight`.
 - **FilterPill** parameter names are `title:isActive:action:` (not `label:isSelected:`).
 - **`RFIDTag` init** uses `epcCurrent` and `tidLastVerified` (not `epcOriginal` or `tid`).
-- **`StoneType` has no `.other` case.** Valid types: diamond, emerald, ruby, sapphire, tanzanite.
+- **`StoneType` has 20 cases** including `.other`. Core types: diamond, emerald, ruby, sapphire, tanzanite. Extended: alexandrite, amethyst, aquamarine, citrine, garnet, morganite, opal, paraiba, peridot, spinel, topaz, tourmaline, tsavorite, zircon, other.
 - **PDF generation** is `@MainActor` — don't wrap calls in `DispatchQueue.main.async`.
 - **SwiftData store** uses `QDIGemstoneERP_v2.store` (not `default.store`) to avoid colliding with the v1 app. On migration failure the store is automatically deleted and recreated — all data is re-seeded via `DemoDataService`.

@@ -195,7 +195,7 @@ struct QuickEntryView: View {
                 // Row Type picker
                 Picker("", selection: binding(for: index, keyPath: \.rowType)) {
                     Text("Single").tag(RowType.single)
-                    Text("Pair").tag(RowType.pair)
+
                     Text("Lot").tag(RowType.lot)
                 }
                 .labelsHidden()
@@ -378,7 +378,7 @@ struct QuickEntryView: View {
             let grouping: StoneGrouping
             switch row.rowType {
             case .single: grouping = .single
-            case .pair: grouping = .pair
+
             case .lot: grouping = .lot
             }
 
@@ -448,7 +448,6 @@ struct QuickEntryView: View {
 
 private enum RowType: String, CaseIterable, Identifiable {
     case single = "Single"
-    case pair = "Pair"
     case lot = "Lot"
     var id: String { rawValue }
 }

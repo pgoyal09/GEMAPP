@@ -104,9 +104,9 @@ struct BulkEditSheet: View {
         VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
             Text("New Status").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
             Picker("Status", selection: $selectedStatus) {
-                ForEach(GemstoneStatus.allCases, id: \.self) { status in
-                    Text(status.rawValue).tag(status)
-                }
+                // Only allow setting to Available via bulk edit
+                // On Memo and Sold require documents (memo/invoice)
+                Text(GemstoneStatus.available.rawValue).tag(GemstoneStatus.available)
             }
             .labelsHidden()
         }
