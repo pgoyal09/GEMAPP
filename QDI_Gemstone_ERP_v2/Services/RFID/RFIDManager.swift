@@ -141,6 +141,7 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
     private var readSource: DispatchSourceRead?
     private let queue = DispatchQueue(label: "com.qdi.rfid-manager", qos: .userInitiated)
     private var iolock = os_unfair_lock()
+    private var stateLock = os_unfair_lock()
 
     private var frameBuffer = Data()
     private let frameBufferLock = NSLock()
@@ -360,7 +361,15 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
     // MARK: - State Helpers
 
     private func setInternalState(_ state: InternalRFIDState) {
+        os_unfair_lock_lock(&stateLock)
         internalState = state
+        os_unfair_lock_unlock(&stateLock)
+    }
+
+    private func getInternalState() -> InternalRFIDState {
+        os_unfair_lock_lock(&stateLock)
+        defer { os_unfair_lock_unlock(&stateLock) }
+        return internalState
     }
 
     private func setStatus(_ status: RFIDConnectionStatus) {
@@ -773,7 +782,7 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
                 }
             } else if isTagEvent {
                 debugLog("[RFID] Tag frame detected len=\(len)")
-                if internalState == .scanning && !isScanningPaused {
+                if getInternalState() == .scanning && !isScanningPaused {
                     let rawHex = payload.map { String(format: "%02X", $0) }.joined().uppercased()
                     let canonicalTagID = deriveCanonicalTagID(from: payload)
                     debugLog("[RFID] Raw payload: \(rawHex.prefix(48))\(rawHex.count > 48 ? "..." : "")")
