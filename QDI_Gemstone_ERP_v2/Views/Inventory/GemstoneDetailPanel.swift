@@ -7,8 +7,6 @@ struct GemstoneDetailPanel: View {
     var onEdit: (() -> Void)? = nil
     @Environment(\.openWindow) private var openWindow
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var isDirty = false
-    @State private var showDiscardAlert = false
 
     private var isDiamond: Bool { gemstone.stoneType == .diamond }
 

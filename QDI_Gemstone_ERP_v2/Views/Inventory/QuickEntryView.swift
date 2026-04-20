@@ -56,6 +56,30 @@ struct QuickEntryView: View {
             isDirty = rows.contains { !$0.isEmpty }
             navigationGuard.hasUnsavedChanges = isDirty
         }
+        .onChange(of: rows.map(\.shape)) { _, _ in
+            isDirty = rows.contains { !$0.isEmpty }
+            navigationGuard.hasUnsavedChanges = isDirty
+        }
+        .onChange(of: rows.map(\.color)) { _, _ in
+            isDirty = rows.contains { !$0.isEmpty }
+            navigationGuard.hasUnsavedChanges = isDirty
+        }
+        .onChange(of: rows.map(\.clarity)) { _, _ in
+            isDirty = rows.contains { !$0.isEmpty }
+            navigationGuard.hasUnsavedChanges = isDirty
+        }
+        .onChange(of: rows.map(\.origin)) { _, _ in
+            isDirty = rows.contains { !$0.isEmpty }
+            navigationGuard.hasUnsavedChanges = isDirty
+        }
+        .onChange(of: rows.map(\.certLab)) { _, _ in
+            isDirty = rows.contains { !$0.isEmpty }
+            navigationGuard.hasUnsavedChanges = isDirty
+        }
+        .onChange(of: rows.map(\.certNo)) { _, _ in
+            isDirty = rows.contains { !$0.isEmpty }
+            navigationGuard.hasUnsavedChanges = isDirty
+        }
     }
 
     // MARK: - Toolbar

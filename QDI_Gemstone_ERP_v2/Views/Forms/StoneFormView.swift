@@ -88,14 +88,10 @@ struct StoneFormView: View {
         } message: {
             Text("Stone has $0 price. Save anyway?")
         }
-        .onChange(of: viewModel.caratText) { _, _ in viewModel.validateInline(); isDirty = true }
-        .onChange(of: viewModel.shapeText) { _, _ in viewModel.validateInline(); isDirty = true }
-        .onChange(of: viewModel.costPriceText) { _, _ in viewModel.validateInline(); isDirty = true }
-        .onChange(of: viewModel.sellPriceText) { _, _ in viewModel.validateInline(); isDirty = true }
-        .onChange(of: viewModel.rapNetDiscountPctText) { _, _ in viewModel.validateInline(); isDirty = true }
-        .onChange(of: viewModel.cashDiscountPctText) { _, _ in viewModel.validateInline(); isDirty = true }
-        .onChange(of: viewModel.color) { _, _ in isDirty = true }
-        .onChange(of: viewModel.clarity) { _, _ in isDirty = true }
+        .onChange(of: viewModel.dirtyFingerprint) { _, _ in
+            viewModel.validateInline()
+            isDirty = true
+        }
         .alert("Unsaved Changes", isPresented: $showDiscardAlert) {
             Button("Discard", role: .destructive) { dismiss() }
             Button("Cancel", role: .cancel) { }

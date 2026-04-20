@@ -12,7 +12,6 @@ final class DocumentDirtyTracker {
     var isDirty: Bool { hasAnyDirty }
 
     func markDirty() { hasUnsavedMemo = true }
-    func clearDirty() { hasUnsavedMemo = false; hasUnsavedInvoice = false }
     func clearMemoDirty() { hasUnsavedMemo = false }
     func clearInvoiceDirty() { hasUnsavedInvoice = false }
 }

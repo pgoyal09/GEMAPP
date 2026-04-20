@@ -86,6 +86,11 @@ struct CustomerFormSheet: View {
         .onChange(of: company) { _, _ in isDirty = true }
         .onChange(of: email) { _, _ in isDirty = true }
         .onChange(of: phone) { _, _ in isDirty = true }
+        .onChange(of: address) { _, _ in isDirty = true }
+        .onChange(of: city) { _, _ in isDirty = true }
+        .onChange(of: country) { _, _ in isDirty = true }
+        .onChange(of: zip) { _, _ in isDirty = true }
+        .onChange(of: notes) { _, _ in isDirty = true }
         .alert("Unsaved Changes", isPresented: $showDiscardAlert) {
             Button("Discard", role: .destructive) { dismiss() }
             Button("Cancel", role: .cancel) { }

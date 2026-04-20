@@ -113,6 +113,27 @@ final class StoneFormViewModel {
     var certificateImagePath: String? = nil
     var mediaPaths: [String] = []
 
+    // MARK: - Dirty Tracking
+
+    /// A single string combining all editable fields so the view can use one `onChange`.
+    var dirtyFingerprint: String {
+        [
+            caratText, shapeText, costPriceText, sellPriceText,
+            rapNetDiscountPctText, cashDiscountPctText, color, clarity,
+            treatment, fluorescence, fluorescenceIntensity, fluorescenceColor,
+            depthPctText, tablePctText, lengthText, widthText, heightText,
+            stoneTypeText, grouping.rawValue, origin, cut, polish, symmetry,
+            eyeClean, fancyColor, fancyColorIntensity, fancyColorOvertone,
+            treatmentType2, treatmentType3, treatmentNotes, numberOfStonesText,
+            primaryColorVendor, colorIntensityVendor, colorModifiersVendor,
+            colorDescription, rapNetPriceText, cashPriceText,
+            length2Text, width2Text, height2Text, size, quality,
+            availability, videoUrl, stoneCountry, stoneState, stoneCity,
+            currencyType.rawValue, exchangeRateText,
+            hasCert ? "T" : "F", certLab, certNo
+        ].joined(separator: "\u{0}")
+    }
+
     // MARK: - Inline Validation Errors
 
     var caratError: String? = nil
