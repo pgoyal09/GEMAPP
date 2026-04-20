@@ -11,6 +11,7 @@ struct MemoReturnScanView: View {
     @State private var toastMessage: String?
     @State private var toastIsError = false
     @State private var batchMode = true
+    @State private var showReturnConfirmation = false
     @State private var recentScans: [ScanLogEntry] = []
 
     struct ScannedMemoStone: Identifiable {
@@ -100,10 +101,16 @@ struct MemoReturnScanView: View {
 
             if !scannedStones.isEmpty && batchMode {
                 Button("Return All (\(scannedStones.count))") {
-                    returnAll()
+                    showReturnConfirmation = true
                 }
                 .buttonStyle(.gradient(AppColors.emeraldGradient))
                 .accessibilityLabel("Return all \(scannedStones.count) scanned stones from memo")
+                .alert("Return \(scannedStones.count) items?", isPresented: $showReturnConfirmation) {
+                    Button("Cancel", role: .cancel) { }
+                    Button("Return All", role: .destructive) { returnAll() }
+                } message: {
+                    Text("This will return \(scannedStones.count) scanned items to inventory. This cannot be undone.")
+                }
             }
 
             Button("Clear") {
