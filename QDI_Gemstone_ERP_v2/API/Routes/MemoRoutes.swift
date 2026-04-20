@@ -146,8 +146,12 @@ enum MemoRoutes {
                 guard let memo = findMemo(id: id, context: context) else {
                     return .notFound("Memo '\(id)' not found")
                 }
+                let openItems = memo.lineItems.filter { $0.status != .returned && $0.status != .sold }
+                guard !openItems.isEmpty else {
+                    return .error(code: "CONVERT_FAILED", message: "No open items to convert")
+                }
                 do {
-                    let result = try MemoService.convertToInvoice(memo: memo, selectedItems: memo.lineItems, modelContext: context)
+                    let result = try MemoService.convertToInvoice(memo: memo, selectedItems: openItems, modelContext: context)
                     try context.save()
                     if let invoice = result {
                         return .created(InvoiceRoutes.invoiceJSON(invoice))
