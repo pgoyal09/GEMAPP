@@ -75,6 +75,7 @@ struct InvoiceWindowView: View {
 
     private func cleanupEmptyInvoice() {
         guard let invoice = fetchInvoice() else { return }
+        guard !invoice.isDeleted else { return }
         if invoice.lineItems.isEmpty && invoice.status == .draft {
             modelContext.delete(invoice)
             do {
