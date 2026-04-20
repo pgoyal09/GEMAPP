@@ -13,6 +13,8 @@ final class DocumentDirtyTracker {
 
     func markDirty() { hasUnsavedMemo = true }
     func clearDirty() { hasUnsavedMemo = false; hasUnsavedInvoice = false }
+    func clearMemoDirty() { hasUnsavedMemo = false }
+    func clearInvoiceDirty() { hasUnsavedInvoice = false }
 }
 
 // MARK: - Environment Key

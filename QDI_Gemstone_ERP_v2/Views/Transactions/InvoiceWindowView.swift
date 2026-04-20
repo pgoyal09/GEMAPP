@@ -30,7 +30,7 @@ struct InvoiceWindowView: View {
                 saveAndClose()
             }
             Button("Discard", role: .destructive) {
-                dirtyTracker.clearDirty()
+                dirtyTracker.clearInvoiceDirty()
                 closeWindow()
             }
         } message: {
@@ -52,7 +52,7 @@ struct InvoiceWindowView: View {
     private func saveAndClose() {
         do {
             try modelContext.save()
-            dirtyTracker.clearDirty()
+            dirtyTracker.clearInvoiceDirty()
         } catch {
             AppLogger.data.error("Failed to save invoice: \(error.localizedDescription)")
         }

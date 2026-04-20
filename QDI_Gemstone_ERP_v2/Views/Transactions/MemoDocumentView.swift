@@ -695,7 +695,7 @@ struct MemoDocumentView: View {
             }
             Button("Discard", role: .destructive) {
                 hasUnsavedEdits = false
-                dirtyTracker.clearDirty()
+                dirtyTracker.clearMemoDirty()
                 dismiss()
             }
         } message: {
@@ -717,7 +717,7 @@ struct MemoDocumentView: View {
         do {
             try modelContext.save()
             hasUnsavedEdits = false
-            dirtyTracker.clearDirty()
+            dirtyTracker.clearMemoDirty()
             NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
             NotificationCenter.default.post(name: .dataStoreDidChange, object: nil)
         } catch {

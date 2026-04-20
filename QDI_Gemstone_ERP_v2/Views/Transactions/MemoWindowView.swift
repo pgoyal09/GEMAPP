@@ -30,7 +30,7 @@ struct MemoWindowView: View {
                 saveAndClose()
             }
             Button("Discard", role: .destructive) {
-                dirtyTracker.clearDirty()
+                dirtyTracker.clearMemoDirty()
                 closeWindow()
             }
         } message: {
@@ -52,7 +52,7 @@ struct MemoWindowView: View {
     private func saveAndClose() {
         do {
             try modelContext.save()
-            dirtyTracker.clearDirty()
+            dirtyTracker.clearMemoDirty()
         } catch {
             AppLogger.data.error("Failed to save memo: \(error.localizedDescription)")
         }

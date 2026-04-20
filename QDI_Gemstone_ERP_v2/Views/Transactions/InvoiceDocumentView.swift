@@ -747,7 +747,7 @@ struct InvoiceDocumentView: View {
             }
             Button("Discard", role: .destructive) {
                 hasUnsavedEdits = false
-                dirtyTracker.clearDirty()
+                dirtyTracker.clearInvoiceDirty()
                 dismiss()
             }
         } message: {
@@ -772,7 +772,7 @@ struct InvoiceDocumentView: View {
         do {
             try modelContext.save()
             hasUnsavedEdits = false
-            dirtyTracker.clearDirty()
+            dirtyTracker.clearInvoiceDirty()
             NotificationCenter.default.post(name: .memoOrInvoiceDidSave, object: nil)
             NotificationCenter.default.post(name: .dataStoreDidChange, object: nil)
         } catch {
