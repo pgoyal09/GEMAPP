@@ -105,6 +105,7 @@ enum MemoService {
                 lockedCostPerCarat: original.lockedCostPerCarat,
                 gemstone: original.gemstone
             )
+            copy.discount = original.discount
             copy.invoice = invoice
             copy.originLineItem = original
             modelContext.insert(copy)
