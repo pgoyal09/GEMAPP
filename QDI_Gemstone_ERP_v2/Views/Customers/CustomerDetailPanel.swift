@@ -4,6 +4,7 @@ import SwiftData
 struct CustomerDetailPanel: View {
     let customer: Customer
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openDocumentTracker) private var openDocTracker
     @State private var showEditSheet = false
 
     var body: some View {
@@ -85,6 +86,7 @@ struct CustomerDetailPanel: View {
             } else {
                 ForEach(customer.activeMemos) { memo in
                     Button {
+                        guard !openDocTracker.isOpen(memoID: memo.persistentModelID) else { return }
                         openWindow(id: "memo", value: memo.persistentModelID)
                     } label: {
                         HStack {
@@ -115,6 +117,7 @@ struct CustomerDetailPanel: View {
             } else {
                 ForEach(paidInvoices) { invoice in
                     Button {
+                        guard !openDocTracker.isOpen(invoiceID: invoice.persistentModelID) else { return }
                         openWindow(id: "invoice", value: invoice.persistentModelID)
                     } label: {
                         HStack {

@@ -3,6 +3,7 @@ import SwiftUI
 struct RecentActivityList: View {
     let items: [RecentActivityItem]
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openDocumentTracker) private var openDocTracker
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.section) {
@@ -16,6 +17,7 @@ struct RecentActivityList: View {
                 VStack(spacing: 0) {
                     ForEach(items) { item in
                         Button {
+                            guard !openDocTracker.isOpen(memoID: item.id) else { return }
                             openWindow(id: "memo", value: item.id)
                         } label: {
                             HStack(spacing: AppSpacing.standard) {

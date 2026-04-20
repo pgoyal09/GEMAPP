@@ -7,6 +7,7 @@ struct MemoDocumentView: View {
     @Bindable var memo: Memo
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openDocumentTracker) private var openDocTracker
     @Environment(\.dismiss) private var dismiss
     @Environment(\.documentDirtyTracker) private var dirtyTracker
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -591,6 +592,7 @@ struct MemoDocumentView: View {
                 let items = memo.lineItems.filter { selectedItemIDs.contains($0.persistentModelID) && $0.status == .open }
                 do {
                     if let invoice = try MemoService.convertToInvoice(memo: memo, selectedItems: items, modelContext: modelContext) {
+                        guard !openDocTracker.isOpen(invoiceID: invoice.persistentModelID) else { return }
                         openWindow(id: "invoice", value: invoice.persistentModelID)
                     }
                 } catch {

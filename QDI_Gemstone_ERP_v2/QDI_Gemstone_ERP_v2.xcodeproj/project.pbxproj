@@ -186,6 +186,7 @@
 		E9EA1A74670EFB1C0D87AF61 /* RFIDScanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FFA42D7ADC3BDCCB4B372B4 /* RFIDScanService.swift */; };
 		EB9A2DCD8E6BCCAC13026227 /* NavigationGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 037857AF7FF32943A3CBC483 /* NavigationGuard.swift */; };
 		EE499D3205E9CC1CC527E85F /* SupabaseAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 393E603507B63806900CD0D5 /* SupabaseAuthService.swift */; };
+		EF46D831F266FE28456B1321 /* OpenDocumentTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79217F3C1B4108F8DF7DF5DC /* OpenDocumentTracker.swift */; };
 		EFAEB611DA429B8C9688AEB4 /* PaymentListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEECFCA896C5C2177322AE1A /* PaymentListView.swift */; };
 		F0AC6557A35E1C3E15C169E2 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C611B9AA323E95C9B384F701 /* DashboardViewModel.swift */; };
 		F76E8FCAA742119E0D9A183D /* HistoryLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D6DC60F80D7FC541834613 /* HistoryLogger.swift */; };
@@ -295,6 +296,7 @@
 		7220B21A25317D921736B773 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		75E8694EA6DA5A3AF102B5B6 /* CustomerListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerListView.swift; sourceTree = "<group>"; };
 		78DFE5A014C55EA551D7D16D /* EPCanonical.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EPCanonical.swift; sourceTree = "<group>"; };
+		79217F3C1B4108F8DF7DF5DC /* OpenDocumentTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenDocumentTracker.swift; sourceTree = "<group>"; };
 		7A3598D6F4D1B55E26035865 /* RapNetFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RapNetFieldsView.swift; sourceTree = "<group>"; };
 		7CF324231D372B593459E1DE /* InventoryTurnoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryTurnoverView.swift; sourceTree = "<group>"; };
 		7DAC44C95038D141D0930061 /* InvoiceWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceWindowView.swift; sourceTree = "<group>"; };
@@ -540,6 +542,7 @@
 				6D45A3823E9EF2FE28178AC3 /* InputValidator.swift */,
 				C6B1D948539B890AD5C00871 /* KeychainHelper.swift */,
 				037857AF7FF32943A3CBC483 /* NavigationGuard.swift */,
+				79217F3C1B4108F8DF7DF5DC /* OpenDocumentTracker.swift */,
 				FB788FFE84CBD6FB2D45A564 /* SortableViewModel.swift */,
 				E43EE7BD716FF121687C23A2 /* Extensions */,
 			);
@@ -1072,6 +1075,7 @@
 				EB9A2DCD8E6BCCAC13026227 /* NavigationGuard.swift in Sources */,
 				63CD328302DF899DDE94627F /* NavigationItem.swift in Sources */,
 				F936F24EF660226730503D41 /* OnboardingView.swift in Sources */,
+				EF46D831F266FE28456B1321 /* OpenDocumentTracker.swift in Sources */,
 				8445D20A1BA1A80DA0B7384E /* OutlineButtonStyle.swift in Sources */,
 				1D3823E437D7D660EE2A4797 /* PDFService.swift in Sources */,
 				64B8C9AFC1F6C00E988DF60D /* PLReportView.swift in Sources */,

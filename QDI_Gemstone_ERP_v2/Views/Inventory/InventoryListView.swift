@@ -50,6 +50,7 @@ struct InventoryListView: View {
     @State private var toastIsError = false
 
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openDocumentTracker) private var openDocTracker
 
     // MARK: - Computed
 
@@ -521,6 +522,7 @@ struct InventoryListView: View {
                 try TransactionService.addStone(stone, to: memo, modelContext: modelContext)
             }
             selectedStones.removeAll()
+            guard !openDocTracker.isOpen(memoID: memo.persistentModelID) else { return }
             openWindow(id: "memo", value: memo.persistentModelID)
         } catch {
             toastIsError = true
@@ -537,6 +539,7 @@ struct InventoryListView: View {
                 try TransactionService.addStone(stone, to: invoice, modelContext: modelContext)
             }
             selectedStones.removeAll()
+            guard !openDocTracker.isOpen(invoiceID: invoice.persistentModelID) else { return }
             openWindow(id: "invoice", value: invoice.persistentModelID)
         } catch {
             toastIsError = true

@@ -7,6 +7,7 @@ struct AgingBucketDetailSheet: View {
     let invoices: [Invoice]
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openDocumentTracker) private var openDocTracker
 
     private var bucketLabel: String {
         switch bucketID {
@@ -36,6 +37,7 @@ struct AgingBucketDetailSheet: View {
                     LazyVStack(spacing: AppSpacing.standard) {
                         ForEach(invoices) { invoice in
                             Button {
+                                guard !openDocTracker.isOpen(invoiceID: invoice.persistentModelID) else { return }
                                 openWindow(id: "invoice", value: invoice.persistentModelID)
                             } label: {
                                 HStack {

@@ -45,6 +45,7 @@ struct QuickActionsGrid: View {
     @Binding var navigateTo: NavigationItem
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openDocumentTracker) private var openDocTracker
     var onAddStone: () -> Void
 
     var body: some View {
@@ -61,6 +62,7 @@ struct QuickActionsGrid: View {
                 QuickActionCard(title: "New Memo", icon: "doc.text.fill", gradient: AppColors.amberGradient) {
                     do {
                         let memo = try TransactionService.createMemo(modelContext: modelContext)
+                        guard !openDocTracker.isOpen(memoID: memo.persistentModelID) else { return }
                         openWindow(id: "memo", value: memo.persistentModelID)
                     } catch {
                         AppLogger.ui.error("Failed to create memo: \(error.localizedDescription)")
@@ -69,6 +71,7 @@ struct QuickActionsGrid: View {
                 QuickActionCard(title: "New Invoice", icon: "doc.richtext.fill", gradient: AppColors.roseGradient) {
                     do {
                         let inv = try TransactionService.createInvoice(modelContext: modelContext)
+                        guard !openDocTracker.isOpen(invoiceID: inv.persistentModelID) else { return }
                         openWindow(id: "invoice", value: inv.persistentModelID)
                     } catch {
                         AppLogger.ui.error("Failed to create invoice: \(error.localizedDescription)")

@@ -5,6 +5,7 @@ struct MemoWindowView: View {
     let memoID: PersistentIdentifier
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openDocumentTracker) private var openDocTracker
     @State private var dirtyTracker = DocumentDirtyTracker()
     @State private var showCloseConfirm = false
 
@@ -36,7 +37,11 @@ struct MemoWindowView: View {
         } message: {
             Text("You have unsaved changes.")
         }
+        .onAppear {
+            openDocTracker.trackOpen(memoID: memoID)
+        }
         .onDisappear {
+            openDocTracker.trackClose(memoID: memoID)
             cleanupEmptyMemo()
         }
     }

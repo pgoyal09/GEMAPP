@@ -36,6 +36,7 @@ struct QDIGemstoneERPApp: App {
     @State private var migrationError: String = ""
     @State private var apiServer: APIServer?
     @State private var backupScheduler = BackupScheduler()
+    @State private var openDocTracker = OpenDocumentTracker()
 
     private static let storeURL = URL.applicationSupportDirectory.appending(path: "QDIGemstoneERP_v2.store")
     private static let schema = Schema([
@@ -98,6 +99,7 @@ struct QDIGemstoneERPApp: App {
             AppShellView()
                 .frame(minWidth: 1100, minHeight: 700)
                 .environment(\.rfidCoordinator, rfidCoordinator)
+                .environment(\.openDocumentTracker, openDocTracker)
                 .onAppear {
                     setupRFID()
                     startAPIServer()
@@ -266,6 +268,7 @@ struct QDIGemstoneERPApp: App {
         WindowGroup("Memo", id: "memo", for: PersistentIdentifier.self) { $memoID in
             if let id = memoID {
                 MemoWindowView(memoID: id)
+                    .environment(\.openDocumentTracker, openDocTracker)
             }
         }
         .modelContainer(sharedModelContainer)
@@ -274,6 +277,7 @@ struct QDIGemstoneERPApp: App {
         WindowGroup("Invoice", id: "invoice", for: PersistentIdentifier.self) { $invoiceID in
             if let id = invoiceID {
                 InvoiceWindowView(invoiceID: id)
+                    .environment(\.openDocumentTracker, openDocTracker)
             }
         }
         .modelContainer(sharedModelContainer)

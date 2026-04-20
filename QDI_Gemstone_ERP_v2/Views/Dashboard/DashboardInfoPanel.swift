@@ -3,6 +3,7 @@ import SwiftUI
 struct DashboardInfoPanel: View {
     let viewModel: DashboardViewModel
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openDocumentTracker) private var openDocTracker
     @AppStorage("memoAgingGreen") private var memoAgingGreen: Int = 7
     @AppStorage("memoAgingYellow") private var memoAgingYellow: Int = 14
     @AppStorage("memoAgingOrange") private var memoAgingOrange: Int = 30
@@ -66,6 +67,7 @@ struct DashboardInfoPanel: View {
                 VStack(spacing: 0) {
                     ForEach(viewModel.oldestOpenMemos) { item in
                         Button {
+                            guard !openDocTracker.isOpen(memoID: item.id) else { return }
                             openWindow(id: "memo", value: item.id)
                         } label: {
                             HStack {

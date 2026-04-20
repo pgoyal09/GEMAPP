@@ -5,6 +5,7 @@ import AppKit
 struct InvoiceListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openDocumentTracker) private var openDocTracker
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var viewModel = InvoiceListViewModel()
     @State private var isExportingBatch = false
@@ -191,7 +192,9 @@ struct InvoiceListView: View {
         }
         .frame(height: 32)
         .simultaneousGesture(TapGesture(count: 2).onEnded {
-            openWindow(id: "invoice", value: invoice.persistentModelID)
+            if !openDocTracker.isOpen(invoiceID: invoice.persistentModelID) {
+                openWindow(id: "invoice", value: invoice.persistentModelID)
+            }
         })
     }
 
@@ -300,6 +303,7 @@ struct InvoiceListView: View {
     private func createNewInvoice() {
         do {
             let inv = try TransactionService.createInvoice(modelContext: modelContext)
+            guard !openDocTracker.isOpen(invoiceID: inv.persistentModelID) else { return }
             openWindow(id: "invoice", value: inv.persistentModelID)
         } catch {
             batchToastIsError = true

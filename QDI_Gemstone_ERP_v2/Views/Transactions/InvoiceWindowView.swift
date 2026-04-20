@@ -5,6 +5,7 @@ struct InvoiceWindowView: View {
     let invoiceID: PersistentIdentifier
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openDocumentTracker) private var openDocTracker
     @State private var dirtyTracker = DocumentDirtyTracker()
     @State private var showCloseConfirm = false
 
@@ -36,7 +37,11 @@ struct InvoiceWindowView: View {
         } message: {
             Text("You have unsaved changes.")
         }
+        .onAppear {
+            openDocTracker.trackOpen(invoiceID: invoiceID)
+        }
         .onDisappear {
+            openDocTracker.trackClose(invoiceID: invoiceID)
             cleanupEmptyInvoice()
         }
     }

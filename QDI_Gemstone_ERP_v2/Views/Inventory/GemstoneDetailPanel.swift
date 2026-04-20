@@ -6,6 +6,7 @@ struct GemstoneDetailPanel: View {
     let gemstone: Gemstone
     var onEdit: (() -> Void)? = nil
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openDocumentTracker) private var openDocTracker
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var isDiamond: Bool { gemstone.stoneType == .diamond }
@@ -77,6 +78,7 @@ struct GemstoneDetailPanel: View {
 
             if let memo = gemstone.memo {
                 Button {
+                    guard !openDocTracker.isOpen(memoID: memo.persistentModelID) else { return }
                     openWindow(id: "memo", value: memo.persistentModelID)
                 } label: {
                     Label("View Memo", systemImage: "arrow.right.circle")

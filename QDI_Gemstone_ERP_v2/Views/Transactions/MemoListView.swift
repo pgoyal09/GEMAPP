@@ -4,6 +4,7 @@ import SwiftData
 struct MemoListView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openDocumentTracker) private var openDocTracker
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var viewModel = MemoListViewModel()
     @State private var toastMessage: String?
@@ -187,7 +188,9 @@ struct MemoListView: View {
         }
         .frame(height: 32)
         .simultaneousGesture(TapGesture(count: 2).onEnded {
-            openWindow(id: "memo", value: memo.persistentModelID)
+            if !openDocTracker.isOpen(memoID: memo.persistentModelID) {
+                openWindow(id: "memo", value: memo.persistentModelID)
+            }
         })
     }
 
@@ -233,6 +236,7 @@ struct MemoListView: View {
     private func createNewMemo() {
         do {
             let memo = try TransactionService.createMemo(modelContext: modelContext)
+            guard !openDocTracker.isOpen(memoID: memo.persistentModelID) else { return }
             openWindow(id: "memo", value: memo.persistentModelID)
         } catch {
             toastIsError = true

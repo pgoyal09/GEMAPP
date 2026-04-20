@@ -29,6 +29,7 @@ struct DiamondsInventoryView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openWindow) private var openWindow
+    @Environment(\.openDocumentTracker) private var openDocTracker
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @Query private var allStones: [Gemstone]
@@ -589,6 +590,7 @@ struct DiamondsInventoryView: View {
             let memo = try TransactionService.createMemo(modelContext: modelContext)
             for s in stones { try TransactionService.addStone(s, to: memo, modelContext: modelContext) }
             selectedStones.removeAll()
+            guard !openDocTracker.isOpen(memoID: memo.persistentModelID) else { return }
             openWindow(id: "memo", value: memo.persistentModelID)
         } catch {
             toastIsError = true; withAnimation(reduceMotion ? nil : .default) { toastMessage = "Failed: \(ErrorMapper.userMessage(from: error))" }
@@ -602,6 +604,7 @@ struct DiamondsInventoryView: View {
             let invoice = try TransactionService.createInvoice(modelContext: modelContext)
             for s in stones { try TransactionService.addStone(s, to: invoice, modelContext: modelContext) }
             selectedStones.removeAll()
+            guard !openDocTracker.isOpen(invoiceID: invoice.persistentModelID) else { return }
             openWindow(id: "invoice", value: invoice.persistentModelID)
         } catch {
             toastIsError = true; withAnimation(reduceMotion ? nil : .default) { toastMessage = "Failed: \(ErrorMapper.userMessage(from: error))" }
