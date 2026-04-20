@@ -123,16 +123,19 @@ enum MemoRoutes {
 
         // DELETE /api/memos/:id — delete draft memo
         router.delete("/api/memos/:id") { req, container in
-            guard let id = req.pathParams["id"] else { return .notFound() }
-            let context = ModelContext(container)
-            guard let memo = findMemo(id: id, context: context) else {
-                return .notFound("Memo '\(id)' not found")
+            await MainActor.run {
+                guard let id = req.pathParams["id"] else { return .notFound() }
+                let context = ModelContext(container)
+                guard let memo = findMemo(id: id, context: context) else {
+                    return .notFound("Memo '\(id)' not found")
+                }
+                do {
+                    try MemoService.deleteMemo(memo, modelContext: context)
+                } catch {
+                    return .error(code: "DELETE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
+                }
+                return .noContent()
             }
-            context.delete(memo)
-            do { try context.save() } catch {
-                return .error(code: "DELETE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
-            }
-            return .noContent()
         }
 
         // POST /api/memos/:id/convert — convert to invoice
