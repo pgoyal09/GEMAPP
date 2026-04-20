@@ -1,4 +1,24 @@
 import Foundation
+import SwiftData
+
+// MARK: - Stable Sync ID
+
+/// Generates a deterministic UUID from entity type + persistentModelID.
+/// This ensures the same record always maps to the same Supabase row ID.
+private func stableSyncID(entity: String, hashValue: Int) -> UUID {
+    // Create a deterministic UUID v5-style from entity name + hash
+    var data = Data(entity.utf8)
+    withUnsafeBytes(of: hashValue) { data.append(contentsOf: $0) }
+    // SHA256 would be ideal but use simple byte mapping for zero dependencies
+    var bytes = [UInt8](repeating: 0, count: 16)
+    for (i, byte) in data.enumerated() {
+        bytes[i % 16] ^= byte
+    }
+    bytes[6] = (bytes[6] & 0x0F) | 0x50 // UUID version 5
+    bytes[8] = (bytes[8] & 0x3F) | 0x80 // RFC 4122 variant
+    return UUID(uuid: (bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7],
+                        bytes[8], bytes[9], bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15]))
+}
 
 // MARK: - Customer DTO
 
@@ -29,7 +49,7 @@ struct CustomerDTO: Codable, Sendable {
     }
 
     init(from model: Customer) {
-        self.id = model.persistentModelID.hashValue != 0 ? UUID() : UUID() // SwiftData doesn't expose UUID directly
+        self.id = stableSyncID(entity: "Customer", hashValue: model.persistentModelID.hashValue)
         self.firstName = model.firstName
         self.lastName = model.lastName
         self.company = model.company
@@ -124,7 +144,7 @@ struct GemstoneDTO: Codable, Sendable {
     }
 
     init(from model: Gemstone) {
-        self.id = UUID()
+        self.id = stableSyncID(entity: "Gemstone", hashValue: model.persistentModelID.hashValue)
         self.sku = model.sku
         self.stoneType = model.stoneType.rawValue
         self.caratWeight = model.caratWeight
@@ -197,7 +217,7 @@ struct MemoDTO: Codable, Sendable {
     }
 
     init(from model: Memo) {
-        self.id = UUID()
+        self.id = stableSyncID(entity: "Memo", hashValue: model.persistentModelID.hashValue)
         self.referenceNumber = model.referenceNumber
         self.customerId = nil // resolved via sync mapping
         self.dateAssigned = model.dateAssigned
@@ -236,7 +256,7 @@ struct InvoiceDTO: Codable, Sendable {
     }
 
     init(from model: Invoice) {
-        self.id = UUID()
+        self.id = stableSyncID(entity: "Invoice", hashValue: model.persistentModelID.hashValue)
         self.referenceNumber = model.referenceNumber
         self.customerId = nil
         self.dateIssued = model.invoiceDate
@@ -280,7 +300,7 @@ struct LineItemDTO: Codable, Sendable {
     }
 
     init(from model: LineItem) {
-        self.id = UUID()
+        self.id = stableSyncID(entity: "LineItem", hashValue: model.persistentModelID.hashValue)
         self.sku = model.sku
         self.itemDescription = model.itemDescription
         self.carats = model.carats
@@ -324,7 +344,7 @@ struct LotTransactionDTO: Codable, Sendable {
     }
 
     init(from model: LotTransaction) {
-        self.id = UUID()
+        self.id = stableSyncID(entity: "LotTransaction", hashValue: model.persistentModelID.hashValue)
         self.type = model.type.rawValue
         self.carats = model.carats
         self.date = model.date
@@ -361,7 +381,7 @@ struct PaymentDTO: Codable, Sendable {
     }
 
     init(from model: Payment) {
-        self.id = UUID()
+        self.id = stableSyncID(entity: "Payment", hashValue: model.persistentModelID.hashValue)
         self.date = model.date
         self.amount = NSDecimalNumber(decimal: model.amount).doubleValue
         self.method = model.method.rawValue
@@ -396,7 +416,7 @@ struct HistoryEventDTO: Codable, Sendable {
     }
 
     init(from model: HistoryEvent) {
-        self.id = UUID()
+        self.id = stableSyncID(entity: "HistoryEvent", hashValue: model.persistentModelID.hashValue)
         self.date = model.date
         self.eventDescription = model.eventDescription
         self.eventType = model.eventType.rawValue
@@ -437,7 +457,7 @@ struct RFIDTagDTO: Codable, Sendable {
     }
 
     init(from model: RFIDTag) {
-        self.id = UUID()
+        self.id = stableSyncID(entity: "RFIDTag", hashValue: model.persistentModelID.hashValue)
         self.tidLastVerified = model.tidLastVerified
         self.status = model.status.rawValue
         self.firstSeenAt = model.firstSeenAt

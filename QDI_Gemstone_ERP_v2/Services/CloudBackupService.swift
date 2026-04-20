@@ -63,6 +63,10 @@ final class CloudBackupService {
     // MARK: - Create Backup
 
     func createBackup(modelContext: ModelContext) async {
+        guard !isBackingUp && !isRestoring else {
+            lastError = "Another backup or restore operation is in progress."
+            return
+        }
         isBackingUp = true
         lastError = nil
         progress = 0
@@ -125,6 +129,10 @@ final class CloudBackupService {
     // MARK: - Restore Backup
 
     func restoreBackup(manifest: BackupManifest, modelContext: ModelContext) async -> Bool {
+        guard !isBackingUp && !isRestoring else {
+            lastError = "Another backup or restore operation is in progress."
+            return false
+        }
         isRestoring = true
         lastError = nil
         progress = 0
