@@ -122,6 +122,12 @@ struct SidebarView: View {
                     .frame(width: 16)
                 Text(item.rawValue)
                     .font(AppTypography.smallValue)
+                if let hint = item.shortcutHint {
+                    Spacer()
+                    Text(hint)
+                        .font(AppTypography.sectionLabel)
+                        .foregroundStyle(AppColors.inkMuted)
+                }
             }
             .foregroundStyle(isActive ? AppColors.ink : AppColors.inkMuted)
             .padding(.horizontal, AppSpacing.comfortable)

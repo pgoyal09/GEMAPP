@@ -186,6 +186,29 @@ struct InvoiceDocumentView: View {
                 // Date field
                 dateField
 
+                // Terms
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Terms").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                    TextField("Net 30", text: $invoice.terms)
+                        .glassField()
+                        .frame(width: 100)
+                        .disabled(!isEditable)
+                        .onChange(of: invoice.terms) { _, _ in markDirty() }
+                }
+
+                // Due Date
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Due Date").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                    DatePicker("", selection: Binding(
+                        get: { invoice.dueDate ?? Calendar.current.date(byAdding: .day, value: 30, to: invoice.invoiceDate) ?? Date() },
+                        set: { invoice.dueDate = $0; markDirty() }
+                    ), displayedComponents: .date)
+                    .labelsHidden()
+                    .glassField()
+                    .frame(width: 130)
+                    .disabled(!isEditable)
+                }
+
                 // Salesperson
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Salesperson").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)

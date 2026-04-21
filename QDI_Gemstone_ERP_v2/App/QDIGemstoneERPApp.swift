@@ -405,7 +405,8 @@ struct QDIGemstoneERPApp: App {
     private func runPhase2Migrations() {
         let ctx = sharedModelContainer.mainContext
 
-        // Step 1: convert pair → single grouping
+        // Step 1: pair migration (legacy — no longer converts, pairs are a valid grouping now)
+        // This step is kept for backward compat; the flag prevents re-execution.
         if !UserDefaults.standard.bool(forKey: "phase2_pairToSingle_complete") {
             do {
                 let allStones = try ctx.fetch(FetchDescriptor<Gemstone>())

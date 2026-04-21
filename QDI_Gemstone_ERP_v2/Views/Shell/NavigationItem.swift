@@ -43,6 +43,23 @@ enum NavigationItem: String, CaseIterable {
         }
     }
 
+    /// Keyboard shortcut hint shown in sidebar (nil = no shortcut)
+    var shortcutHint: String? {
+        switch self {
+        case .dashboard:   return "⌘1"
+        case .memos:       return "⌘2"
+        case .invoices:    return "⌘3"
+        case .customers:   return "⌘4"
+        case .diamonds:    return "⌘5"
+        case .gemstones:   return "⌘6"
+        case .lots:        return "⌘7"
+        case .sold:        return "⌘8"
+        case .quickIntake: return "⌘9"
+        case .scanner:     return "⌘0"
+        default:           return nil
+        }
+    }
+
     // Canonical sidebar groups — SidebarView.sidebarGroups is the single source of truth.
     // This property is kept for programmatic access (e.g. keyboard shortcut documentation).
     static let groups: [(label: String, items: [NavigationItem])] = [

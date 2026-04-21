@@ -47,9 +47,30 @@ struct PaymentListView: View {
                                     .lineLimit(1)
                             }
                             Spacer()
-                            Text(payment.amount.asCurrency)
-                                .font(AppTypography.mono)
-                                .foregroundStyle(AppColors.success)
+                            if payment.isVoided {
+                                Text(payment.amount.asCurrency)
+                                    .font(AppTypography.mono)
+                                    .foregroundStyle(AppColors.inkMuted)
+                                    .strikethrough()
+                                Text("VOIDED")
+                                    .font(AppTypography.sectionLabel)
+                                    .foregroundStyle(AppColors.danger)
+                            } else {
+                                Text(payment.amount.asCurrency)
+                                    .font(AppTypography.mono)
+                                    .foregroundStyle(AppColors.success)
+                                Button {
+                                    payment.isVoided = true
+                                    onDirty()
+                                } label: {
+                                    Image(systemName: "xmark.circle")
+                                        .font(AppTypography.caption)
+                                        .foregroundStyle(AppColors.danger)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel("Void this payment")
+                                .help("Void this payment")
+                            }
                         }
                         .padding(.vertical, 2)
                     }

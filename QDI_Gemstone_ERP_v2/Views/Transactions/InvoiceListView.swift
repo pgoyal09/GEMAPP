@@ -20,6 +20,7 @@ struct InvoiceListView: View {
         ColumnDef("date", weight: 1.5, minWidth: 70),
         ColumnDef("items", weight: 1.0, minWidth: 45, alignment: .trailing),
         ColumnDef("total", weight: 1.5, minWidth: 70, alignment: .trailing),
+        ColumnDef("balance", weight: 1.5, minWidth: 70, alignment: .trailing),
         ColumnDef("status", weight: 1.5, minWidth: 80),
     ], spacing: 4)
 
@@ -147,7 +148,11 @@ struct InvoiceListView: View {
             sortableHeader("Date", key: "date", width: widths[2])
             TableHeader(title: "Items", width: widths[3], alignment: .trailing)
             sortableHeader("Total", key: "total", width: widths[4], alignment: .trailing)
-            sortableHeader("Status", key: "status", width: widths[5])
+            Text("Balance")
+                .font(AppTypography.caption.weight(.medium))
+                .foregroundStyle(AppColors.inkSubtle)
+                .frame(width: widths[5], alignment: .trailing)
+            sortableHeader("Status", key: "status", width: widths[6])
         }
         .padding(.horizontal, AppSpacing.standard)
         .padding(.vertical, AppSpacing.compact)
@@ -203,8 +208,13 @@ struct InvoiceListView: View {
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
                 .frame(width: widths[4], alignment: .trailing)
+            Text(invoice.balanceDue > 0 ? invoice.balanceDue.asCurrency : "—")
+                .font(AppTypography.mono)
+                .foregroundStyle(invoice.balanceDue > 0 ? AppColors.danger : AppColors.inkSubtle)
+                .lineLimit(1)
+                .frame(width: widths[5], alignment: .trailing)
             statusBadge(invoice.status)
-                .frame(width: widths[5], alignment: .leading)
+                .frame(width: widths[6], alignment: .leading)
         }
         .frame(height: 32)
         .simultaneousGesture(TapGesture(count: 2).onEnded {
