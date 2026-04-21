@@ -186,7 +186,7 @@ struct QDIGemstoneERPApp: App {
                         NSApplication.shared.terminate(nil)
                     }
                 } message: {
-                    Text("The database could not be migrated to the new schema.\n\n• Try Again: re-launches the app to retry\n• Export & Reset: saves a copy of your data file to the Desktop, then resets\n• Reset Data: deletes all data and starts fresh\n\nError: \(migrationError)")
+                    Text("The database could not be migrated to the new schema.\n\n• Try Again: re-launches the app to retry\n• Export & Reset: saves a copy of your data file, then resets\n• Reset Data: deletes all data and starts fresh\n\nError: \(migrationError)")
                 }
         }
         .defaultSize(width: 1400, height: 900)
@@ -369,7 +369,11 @@ struct QDIGemstoneERPApp: App {
                 token = newToken
             }
         }
-        let server = APIServer(modelContainer: sharedModelContainer, bearerToken: token!)
+        guard let resolvedToken = token else {
+            AppLogger.data.error("API token could not be loaded or generated")
+            return
+        }
+        let server = APIServer(modelContainer: sharedModelContainer, bearerToken: resolvedToken)
         do {
             try server.start()
             apiServer = server

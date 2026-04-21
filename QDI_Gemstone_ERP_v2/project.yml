@@ -35,6 +35,9 @@ targets:
       - path: DesignSystem
       - path: ViewModels
       - path: Views
+      - path: Resources/PrivacyInfo.xcprivacy
+        buildPhase: resources
+        type: file
     resources:
       - path: Resources/Assets.xcassets
     settings:

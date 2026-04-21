@@ -192,6 +192,7 @@
 		EF46D831F266FE28456B1321 /* OpenDocumentTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79217F3C1B4108F8DF7DF5DC /* OpenDocumentTracker.swift */; };
 		EFAEB611DA429B8C9688AEB4 /* PaymentListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEECFCA896C5C2177322AE1A /* PaymentListView.swift */; };
 		F0AC6557A35E1C3E15C169E2 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C611B9AA323E95C9B384F701 /* DashboardViewModel.swift */; };
+		F75E7269B5EAEEAD988DEDC5 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 81A5BD021F310F27F12B74E4 /* PrivacyInfo.xcprivacy */; };
 		F76E8FCAA742119E0D9A183D /* HistoryLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D6DC60F80D7FC541834613 /* HistoryLogger.swift */; };
 		F8F64EE77BC8C5874AD52E6C /* LabelTemplateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FD4A41C39E9543AB55428FA /* LabelTemplateService.swift */; };
 		F91A9927D6C94C662EACDE6F /* HistoryEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 149AAED5205BD92D1632662A /* HistoryEvent.swift */; };
@@ -308,6 +309,7 @@
 		7FFA42D7ADC3BDCCB4B372B4 /* RFIDScanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDScanService.swift; sourceTree = "<group>"; };
 		814CBBF32C678A903E1B3D9C /* GemstoneDetailPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GemstoneDetailPanel.swift; sourceTree = "<group>"; };
 		816074071ED96F056B1712EA /* LineItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineItem.swift; sourceTree = "<group>"; };
+		81A5BD021F310F27F12B74E4 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		82D39A3810995F0A808EB202 /* SectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeader.swift; sourceTree = "<group>"; };
 		839D3C084D42E8BF25F18F4B /* TransactionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionService.swift; sourceTree = "<group>"; };
 		8489F9C807B253C5094D7363 /* Date+Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Formatting.swift"; sourceTree = "<group>"; };
@@ -437,6 +439,14 @@
 				F4F166D943784F271A3D4611 /* Theme */,
 			);
 			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		1411F5717CDC093BBED2DE1E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				81A5BD021F310F27F12B74E4 /* PrivacyInfo.xcprivacy */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		1496DBCE5BA5E008AD0A05FF /* Modifiers */ = {
@@ -733,6 +743,7 @@
 				05733B88A9504E249C1D7F00 /* App */,
 				0D2B9FAB6BB678E87759EC30 /* DesignSystem */,
 				2FD4518DE6B46E3F000B6DED /* Models */,
+				1411F5717CDC093BBED2DE1E /* Resources */,
 				603BBD2C6BF00E3CE0F0E7CA /* Services */,
 				F9CE37946DB9FDF502509A1C /* Tests */,
 				403CA78BD4517D2EE1ED9D8D /* Utilities */,
@@ -886,6 +897,7 @@
 			buildConfigurationList = 4DDB354DF5868F6D68A75166 /* Build configuration list for PBXNativeTarget "QDI_Gemstone_ERP_v2" */;
 			buildPhases = (
 				99AB031CC00CD96ED3F051D1 /* Sources */,
+				C16233A4C7B3B774B0261406 /* Resources */,
 				538FE44D16AE4ED381C3C85A /* Frameworks */,
 			);
 			buildRules = (
@@ -953,6 +965,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C16233A4C7B3B774B0261406 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F75E7269B5EAEEAD988DEDC5 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		782AEDAB7B5A4DA030D69581 /* Sources */ = {
