@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import AppKit
+import UniformTypeIdentifiers
 
 // MARK: - App Delegate (handles ⌘Q with unsaved document check)
 
@@ -164,12 +165,15 @@ struct QDIGemstoneERPApp: App {
                         NSApplication.shared.terminate(nil)
                     }
                     Button("Export Store & Reset", role: .destructive) {
-                        // Copy the corrupt store file to Desktop before deleting
-                        let desktop = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Desktop")
-                        let backupName = "GemApp-store-backup-\(ISO8601DateFormatter().string(from: Date())).sqlite"
-                        let backupURL = desktop.appendingPathComponent(backupName)
-                        try? FileManager.default.copyItem(at: Self.storeURL, to: backupURL)
-                        AppLogger.data.info("Store backed up to Desktop: \(backupName)")
+                        // Use NSSavePanel for sandbox-compatible export
+                        let panel = NSSavePanel()
+                        panel.nameFieldStringValue = "GemApp-store-backup-\(ISO8601DateFormatter().string(from: Date())).sqlite"
+                        panel.allowedContentTypes = [.data]
+                        panel.canCreateDirectories = true
+                        if panel.runModal() == .OK, let saveURL = panel.url {
+                            try? FileManager.default.copyItem(at: Self.storeURL, to: saveURL)
+                            AppLogger.data.info("Store backed up to: \(saveURL.lastPathComponent)")
+                        }
                         try? FileManager.default.removeItem(at: Self.storeURL)
                         NSApplication.shared.terminate(nil)
                     }

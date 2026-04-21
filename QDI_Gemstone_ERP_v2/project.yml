@@ -20,6 +20,7 @@ settings:
     SWIFT_VERSION: "6.0"
     MACOSX_DEPLOYMENT_TARGET: "14.0"
     GENERATE_INFOPLIST_FILE: YES
+    ENABLE_HARDENED_RUNTIME: YES
 
 targets:
   QDI_Gemstone_ERP_v2:
@@ -40,10 +41,14 @@ targets:
       base:
         INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.business"
         INFOPLIST_KEY_CFBundleDisplayName: "QDI Gemstone ERP"
+        INFOPLIST_KEY_NSHumanReadableCopyright: "Copyright © 2026 Quality Diajewels Inc. All rights reserved."
         CODE_SIGN_ENTITLEMENTS: Resources/QDI_Gemstone_ERP_v2.entitlements
         CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION: YES
         PRODUCT_BUNDLE_IDENTIFIER: com.qdi.gemapp.v2
         PRODUCT_NAME: "QDI Gemstone ERP v2"
+        MARKETING_VERSION: "2.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
         SWIFT_STRICT_CONCURRENCY: complete
     dependencies:
       - package: ORSSerialPort
@@ -52,6 +57,12 @@ targets:
         product: Supabase
     entitlements:
       path: Resources/QDI_Gemstone_ERP_v2.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.security.network.server: true
+        com.apple.security.device.serial: true
+        com.apple.security.files.user-selected.read-write: true
   QDI_Gemstone_ERP_v2Tests:
     type: bundle.unit-test
     platform: macOS

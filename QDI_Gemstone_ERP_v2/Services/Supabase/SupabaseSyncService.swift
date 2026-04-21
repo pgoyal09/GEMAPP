@@ -16,7 +16,10 @@ final class SupabaseSyncService {
     var syncProgress: String?
 
     private let logger = Logger(subsystem: "com.qdi.erp", category: "Sync")
-    private var client: SupabaseClient { SupabaseManager.shared.client }
+    /// Non-optional accessor — callers guard availability at entry points.
+    /// Force-unwrap is safe because syncAll/sync check `isAvailable` first.
+    private var client: SupabaseClient { SupabaseManager.shared.client! }
+    private var isAvailable: Bool { SupabaseManager.shared.client != nil }
     private var tracker: SyncTracker { SyncTracker.shared }
 
     private init() {}
@@ -27,6 +30,10 @@ final class SupabaseSyncService {
     func syncAll(modelContext: ModelContext) async {
         guard !isSyncing else {
             logger.info("Sync already in progress, skipping")
+            return
+        }
+        guard isAvailable else {
+            syncError = "Cloud sync is not configured."
             return
         }
         guard SupabaseAuthService.shared.isAuthenticated else {
@@ -65,6 +72,10 @@ final class SupabaseSyncService {
     func sync(modelContext: ModelContext) async {
         guard !isSyncing else {
             logger.info("Sync already in progress, skipping")
+            return
+        }
+        guard isAvailable else {
+            syncError = "Cloud sync is not configured."
             return
         }
         guard SupabaseAuthService.shared.isAuthenticated else {

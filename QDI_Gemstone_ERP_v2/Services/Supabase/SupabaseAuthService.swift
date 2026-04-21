@@ -15,7 +15,7 @@ final class SupabaseAuthService {
 
     private nonisolated(unsafe) var authListener: Task<Void, Never>?
 
-    private var client: SupabaseClient { SupabaseManager.shared.client }
+    private var client: SupabaseClient? { SupabaseManager.shared.client }
 
     private init() {
         startAuthListener()
@@ -28,8 +28,9 @@ final class SupabaseAuthService {
     // MARK: - Auth State Listener
 
     private func startAuthListener() {
+        guard let supabaseClient = SupabaseManager.shared.client else { return }
         authListener = Task { [weak self] in
-            for await (event, session) in SupabaseManager.shared.client.auth.authStateChanges {
+            for await (event, session) in supabaseClient.auth.authStateChanges {
                 guard let self else { return }
                 switch event {
                 case .signedIn, .tokenRefreshed:
@@ -49,6 +50,7 @@ final class SupabaseAuthService {
     // MARK: - Check Existing Session
 
     func checkSession() async {
+        guard let client else { return }
         do {
             let session = try await client.auth.session
             isAuthenticated = true
@@ -62,6 +64,10 @@ final class SupabaseAuthService {
     // MARK: - Sign Up
 
     func signUp(email: String, password: String) async {
+        guard let client else {
+            authError = "Cloud sync is not configured."
+            return
+        }
         isLoading = true
         authError = nil
         do {
@@ -77,6 +83,10 @@ final class SupabaseAuthService {
     // MARK: - Sign In
 
     func signIn(email: String, password: String) async {
+        guard let client else {
+            authError = "Cloud sync is not configured."
+            return
+        }
         isLoading = true
         authError = nil
         do {
@@ -92,6 +102,7 @@ final class SupabaseAuthService {
     // MARK: - Sign Out
 
     func signOut() async {
+        guard let client else { return }
         isLoading = true
         do {
             try await client.auth.signOut()

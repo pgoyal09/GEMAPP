@@ -5,7 +5,8 @@ import SwiftData
 
 /// Returns the current Supabase auth user ID, or nil if not logged in.
 private func currentUserId() -> UUID? {
-    guard let session = try? SupabaseManager.shared.client.auth.currentSession else { return nil }
+    guard let client = SupabaseManager.shared.client,
+          let session = try? client.auth.currentSession else { return nil }
     return session.user.id
 }
 

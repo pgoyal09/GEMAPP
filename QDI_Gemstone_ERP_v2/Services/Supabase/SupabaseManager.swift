@@ -1,28 +1,44 @@
 import Foundation
 import Supabase
+import os
 
 /// Singleton Supabase client for QDI Gemstone ERP.
 /// Offline-first: SwiftData is source of truth, Supabase syncs in background.
+/// URL and anon key are read from Info.plist (build-injected) or UserDefaults;
+/// hardcoded defaults are removed to avoid leaking credentials in source.
 final class SupabaseManager: Sendable {
     static let shared = SupabaseManager()
 
-    // nonisolated(unsafe) not needed — SupabaseClient is Sendable
+    private static let logger = Logger(subsystem: "com.qualitydiajewels.QDI-Gemstone-ERP", category: "supabase")
 
-    let client: SupabaseClient
+    /// Non-nil when Supabase is properly configured. Callers must check before use.
+    let client: SupabaseClient?
+
+    /// True when Supabase configuration is missing or invalid.
+    let isUnavailable: Bool
 
     private init() {
         let url = Bundle.main.object(forInfoDictionaryKey: "SUPABASE_URL") as? String
             ?? UserDefaults.standard.string(forKey: "supabaseURL")
-            ?? "https://sktyjtwghscechbrejim.supabase.co"
         let key = Bundle.main.object(forInfoDictionaryKey: "SUPABASE_ANON_KEY") as? String
             ?? UserDefaults.standard.string(forKey: "supabaseAnonKey")
-            ?? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNrdHlqdHdnaHNjZWNoYnJlamltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNjcwODUsImV4cCI6MjA5MDY0MzA4NX0.XqhZr5IgmYxvabZ2pU3VScelvAOLlrM5UrjyGxNo-LI"
-        guard let supabaseURL = URL(string: url) else {
-            fatalError("Invalid Supabase URL: \(url). Check Info.plist or UserDefaults 'supabaseURL'.")
+
+        guard let urlString = url, let supabaseURL = URL(string: urlString) else {
+            Self.logger.warning("Supabase URL not configured or invalid. Cloud sync disabled.")
+            self.client = nil
+            self.isUnavailable = true
+            return
         }
-        client = SupabaseClient(
+        guard let anonKey = key, !anonKey.isEmpty else {
+            Self.logger.warning("Supabase anon key not configured. Cloud sync disabled.")
+            self.client = nil
+            self.isUnavailable = true
+            return
+        }
+        self.client = SupabaseClient(
             supabaseURL: supabaseURL,
-            supabaseKey: key
+            supabaseKey: anonKey
         )
+        self.isUnavailable = false
     }
 }
