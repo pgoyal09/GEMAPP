@@ -85,6 +85,11 @@ struct OnboardingView: View {
                 TextField("e.g. info@company.com", text: $inputEmail)
                     .textFieldStyle(.roundedBorder)
             }
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Address").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                TextField("e.g. 47th Street, New York, NY 10036", text: $inputAddress)
+                    .textFieldStyle(.roundedBorder)
+            }
         }
     }
 

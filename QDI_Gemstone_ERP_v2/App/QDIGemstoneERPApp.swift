@@ -220,7 +220,7 @@ struct QDIGemstoneERPApp: App {
                 Button("New Memo") {
                     NotificationCenter.default.post(name: .menuNewMemo, object: nil)
                 }
-                .keyboardShortcut("m", modifiers: .command)
+                .keyboardShortcut("m", modifiers: [.command, .shift])
 
                 Button("New Invoice") {
                     NotificationCenter.default.post(name: .menuNewInvoice, object: nil)
@@ -308,6 +308,8 @@ struct QDIGemstoneERPApp: App {
     // MARK: - Phase 2 Migrations
 
     private func runPhase2Migrations() {
+        // Skip if already completed
+        guard !UserDefaults.standard.bool(forKey: "phase2MigrationsComplete") else { return }
         let ctx = sharedModelContainer.mainContext
         do {
             let allDescriptor = FetchDescriptor<Gemstone>()
@@ -333,6 +335,7 @@ struct QDIGemstoneERPApp: App {
                 try ctx.save()
                 AppLogger.data.info("Phase 2 migration completed")
             }
+            UserDefaults.standard.set(true, forKey: "phase2MigrationsComplete")
         } catch {
             AppLogger.data.error("Phase 2 migration failed: \(error.localizedDescription)")
         }
