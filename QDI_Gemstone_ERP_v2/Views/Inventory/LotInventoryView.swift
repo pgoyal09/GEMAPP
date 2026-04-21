@@ -19,6 +19,7 @@ struct LotInventoryView: View {
     @Query private var allStones: [Gemstone]
 
     @State var viewModel = LotInventoryViewModel()
+    @State private var showAddLotSheet = false
     @State private var stoneTypeFilter: StoneType?
     @State private var statusFilter: GemstoneStatus?
     @State private var shapeFilter: String?
@@ -189,7 +190,22 @@ struct LotInventoryView: View {
 
     private var topBar: some View {
         VStack(spacing: 0) {
+            HStack(spacing: AppSpacing.standard) {
+                Button("Add Lot", systemImage: "plus.circle.fill") {
+                    showAddLotSheet = true
+                }
+                .buttonStyle(.gradient)
+                .controlSize(.small)
+                Spacer()
+            }
+            .padding(.horizontal, AppSpacing.section)
+            .padding(.vertical, AppSpacing.compact)
             lotFilterBar
+        }
+        .sheet(isPresented: $showAddLotSheet) {
+            NavigationStack {
+                StoneFormView(mode: .intake, defaultGrouping: .lot)
+            }
         }
     }
 

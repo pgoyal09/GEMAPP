@@ -13,8 +13,10 @@ struct StoneFormView: View {
     @State private var showDiscardAlert = false
     var navigateTo: Binding<NavigationItem>?
 
-    init(mode: StoneFormMode, navigateTo: Binding<NavigationItem>? = nil) {
-        _viewModel = State(initialValue: StoneFormViewModel(mode: mode))
+    init(mode: StoneFormMode, navigateTo: Binding<NavigationItem>? = nil, defaultGrouping: StoneGrouping? = nil) {
+        let vm = StoneFormViewModel(mode: mode)
+        if let g = defaultGrouping { vm.grouping = g }
+        _viewModel = State(initialValue: vm)
         self.navigateTo = navigateTo
     }
 
