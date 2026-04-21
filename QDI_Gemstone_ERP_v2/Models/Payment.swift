@@ -7,6 +7,7 @@ final class Payment {
     var amount: Decimal
     var method: PaymentMethod
     var referenceNumber: String
+    var isVoided: Bool
     var invoice: Invoice?
 
     init(
@@ -20,6 +21,7 @@ final class Payment {
         self.amount = amount
         self.method = method
         self.referenceNumber = referenceNumber
+        self.isVoided = false
         self.invoice = invoice
     }
 }

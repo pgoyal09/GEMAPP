@@ -22,6 +22,7 @@ enum AppTypography {
     }
 
     static var title: Font       { .system(size: 28 + sizeOffset, weight: .semibold) }
+    static var subtitle: Font    { .system(size: 20 + sizeOffset, weight: .semibold) }
     static var heading: Font     { .system(size: 15 + sizeOffset, weight: .semibold) }
     static var subheading: Font  { .system(size: 13 + sizeOffset, weight: .medium) }
     static var body: Font        { .system(size: 13 + sizeOffset, weight: .regular) }

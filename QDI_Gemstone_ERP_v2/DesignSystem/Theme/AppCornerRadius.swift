@@ -14,7 +14,9 @@ enum AppCornerRadius {
     /// 999pt — capsule / pill shape
     static let pill: CGFloat = 999
 
-    // MARK: - Legacy aliases (map to new values)
-    static let medium: CGFloat = field   // was 12, now 3
-    static let large: CGFloat = card     // was 16, now 4
+    // MARK: - Legacy aliases (deprecated — use semantic names above)
+    @available(*, deprecated, renamed: "field", message: "Use AppCornerRadius.field (3pt) instead")
+    static let medium: CGFloat = field
+    @available(*, deprecated, renamed: "card", message: "Use AppCornerRadius.card (4pt) instead")
+    static let large: CGFloat = card
 }

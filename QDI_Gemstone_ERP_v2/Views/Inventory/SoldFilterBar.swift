@@ -17,7 +17,7 @@ struct SoldFilterBar: View {
     ]
 
     var body: some View {
-        GlassCard(padding: AppSpacing.section, cornerRadius: AppCornerRadius.large) {
+        GlassCard(padding: AppSpacing.section, cornerRadius: AppCornerRadius.card) {
             VStack(alignment: .leading, spacing: AppSpacing.section) {
                 SectionHeader(title: "Filters")
 

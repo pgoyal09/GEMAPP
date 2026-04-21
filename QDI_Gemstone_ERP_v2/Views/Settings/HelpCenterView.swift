@@ -129,7 +129,7 @@ struct HelpCenterView: View {
                     } label: {
                         HStack(spacing: AppSpacing.comfortable) {
                             ZStack {
-                                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                                     .fill(AppColors.primary.opacity(AppOpacity.subtle))
                                     .frame(width: 44, height: 44)
                                 Image(systemName: section.icon)
@@ -341,10 +341,10 @@ struct HelpCenterView: View {
             }
             .padding(AppSpacing.section)
             .background(
-                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                     .fill(Color.yellow.opacity(AppOpacity.subtle))
                     .overlay(
-                        RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                        RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                             .strokeBorder(Color.yellow.opacity(AppOpacity.muted), lineWidth: 1)
                     )
             )
@@ -361,10 +361,10 @@ struct HelpCenterView: View {
             }
             .padding(AppSpacing.section)
             .background(
-                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                     .fill(Color.orange.opacity(AppOpacity.subtle))
                     .overlay(
-                        RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                        RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                             .strokeBorder(Color.orange.opacity(AppOpacity.muted), lineWidth: 1)
                     )
             )
@@ -390,7 +390,7 @@ struct HelpCenterView: View {
             }
             .padding(AppSpacing.section)
             .background(
-                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                     .fill(AppColors.cardElevated.opacity(AppOpacity.strong))
             )
 
@@ -441,7 +441,7 @@ struct HelpCenterView: View {
             }
             .padding(AppSpacing.section)
             .background(
-                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                     .fill(AppColors.cardElevated.opacity(AppOpacity.strong))
             )
         }

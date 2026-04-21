@@ -25,10 +25,10 @@ struct GlassSearchField: View {
         .padding(.horizontal, AppSpacing.section)
         .padding(.vertical, AppSpacing.comfortable)
         .background(
-            RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+            RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                 .fill(Color.white.opacity(AppOpacity.whisper))
                 .overlay(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                         .strokeBorder(
                             isFocused ? AppColors.primary : Color.white.opacity(AppOpacity.subtle),
                             lineWidth: isFocused ? 1.5 : 1

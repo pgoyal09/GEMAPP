@@ -22,6 +22,7 @@ struct MemoDocumentView: View {
     @State private var hasUnsavedEdits = false
     @State private var isSaving = false
     @State private var isGeneratingPDF = false
+    @State private var isConverting = false
     @State private var toastMessage: String?
     @State private var toastIsError = false
     @State private var totalRefreshID = UUID()
@@ -593,6 +594,8 @@ struct MemoDocumentView: View {
             }
             .buttonStyle(.outline(.init(AppColors.warning)))
             Button("Convert to Invoice") {
+                guard !isConverting else { return }
+                isConverting = true
                 let items = memo.lineItems.filter { selectedItemIDs.contains($0.persistentModelID) && $0.status == .open }
                 do {
                     if let invoice = try MemoService.convertToInvoice(memo: memo, selectedItems: items, modelContext: modelContext) {
@@ -603,8 +606,10 @@ struct MemoDocumentView: View {
                     showToast("Failed to convert to invoice: \(ErrorMapper.userMessage(from: error))", isError: true)
                 }
                 selectedItemIDs.removeAll()
+                isConverting = false
             }
             .buttonStyle(.gradient)
+            .disabled(isConverting)
         }
         .padding(.vertical, AppSpacing.standard)
     }

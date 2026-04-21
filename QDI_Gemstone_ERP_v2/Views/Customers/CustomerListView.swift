@@ -53,9 +53,9 @@ struct CustomerListView: View {
                     CustomerFullDetailView(customer: customer, onDismiss: { doubleClickedCustomer = nil })
                         .frame(width: geometry.size.width / 2)
                         .background(.ultraThinMaterial)
-                        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous))
+                        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous))
                         .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                                 .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)
                         )
                         .shadow(color: .black.opacity(0.4), radius: 20, x: -6)

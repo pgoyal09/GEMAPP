@@ -93,6 +93,10 @@ enum InvoiceService {
             throw InvoiceError.cannotVoidInvoice(status: invoice.status.rawValue)
         }
         invoice.status = .void
+        // Void all associated payments so totalPaid/balanceDue are correct
+        for payment in invoice.payments {
+            payment.isVoided = true
+        }
         for item in invoice.lineItems {
             // Reset origin memo line item if this was a conversion
             let isConverted = item.originLineItem != nil

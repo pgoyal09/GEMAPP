@@ -12,11 +12,11 @@ struct OutlineButtonStyle: ButtonStyle {
             .padding(.horizontal, AppSpacing.hero)
             .padding(.vertical, AppSpacing.comfortable)
             .background(
-                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                     .fill(tint.opacity(configuration.isPressed ? 0.12 : AppOpacity.subtle))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                     .strokeBorder(tint.opacity(AppOpacity.medium), lineWidth: 1)
             )
             .opacity(configuration.isPressed ? 0.8 : 1)

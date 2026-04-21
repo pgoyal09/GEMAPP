@@ -21,9 +21,9 @@ struct HoverRow<Content: View>: View {
             .padding(.horizontal, AppSpacing.standard)
             .padding(.vertical, AppSpacing.compact)
             .background(rowBackground)
-            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                     .strokeBorder(isFocused ? AppColors.primary : Color.clear, lineWidth: 1)
             )
         }

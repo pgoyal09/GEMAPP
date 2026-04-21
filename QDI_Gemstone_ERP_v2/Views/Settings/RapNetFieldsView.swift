@@ -106,10 +106,10 @@ struct RapNetFieldsView: View {
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                 .fill(AppColors.panelBackground)
                 .overlay(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                         .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                 )
         )

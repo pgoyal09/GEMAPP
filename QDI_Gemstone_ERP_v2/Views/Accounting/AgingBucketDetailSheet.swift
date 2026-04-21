@@ -61,7 +61,7 @@ struct AgingBucketDetailSheet: View {
                                 }
                                 .padding(AppSpacing.section)
                                 .background(
-                                    RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                                    RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                                         .fill(AppColors.softHighlight)
                                 )
                                 .contentShape(Rectangle())

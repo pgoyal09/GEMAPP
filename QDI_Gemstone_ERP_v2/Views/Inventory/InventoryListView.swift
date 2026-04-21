@@ -501,10 +501,10 @@ struct InventoryListView: View {
         .padding(.horizontal, AppSpacing.hero)
         .padding(.vertical, AppSpacing.section)
         .background(
-            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                 .fill(AppColors.cardBackground)
                 .overlay(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                         .strokeBorder(AppColors.primary.opacity(AppOpacity.medium), lineWidth: 1)
                 )
                 .shadow(color: .black.opacity(AppOpacity.medium), radius: 12, y: -4)

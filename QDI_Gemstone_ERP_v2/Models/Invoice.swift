@@ -85,9 +85,9 @@ final class Invoice {
     /// Legacy accessor — returns grandTotal for backward compatibility.
     var totalAmount: Decimal { grandTotal }
 
-    /// Sum of all recorded payments.
+    /// Sum of all non-voided payments.
     var totalPaid: Decimal {
-        payments.reduce(Decimal.zero) { $0 + $1.amount }
+        payments.filter { !$0.isVoided }.reduce(Decimal.zero) { $0 + $1.amount }
     }
 
     /// Remaining balance: grandTotal minus payments received.

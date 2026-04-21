@@ -182,9 +182,9 @@ struct DiamondsInventoryView: View {
                 })
                 .frame(width: 380)
                 .background(.ultraThinMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                         .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)
                 )
                 .shadow(color: .black.opacity(0.4), radius: 20, x: -6)
@@ -573,9 +573,9 @@ struct DiamondsInventoryView: View {
         }
         .padding(.horizontal, AppSpacing.hero).padding(.vertical, AppSpacing.section)
         .background(
-            RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous)
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                 .fill(AppColors.cardBackground)
-                .overlay(RoundedRectangle(cornerRadius: AppCornerRadius.large, style: .continuous).strokeBorder(AppColors.primary.opacity(AppOpacity.medium), lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous).strokeBorder(AppColors.primary.opacity(AppOpacity.medium), lineWidth: 1))
                 .shadow(color: .black.opacity(AppOpacity.medium), radius: 12, y: -4)
         )
         .padding(.horizontal, AppSpacing.hero).padding(.bottom, AppSpacing.section)

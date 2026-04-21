@@ -146,7 +146,7 @@ struct LabelSettingsView: View {
                         .foregroundStyle(AppColors.ink)
                         .padding(AppSpacing.comfortable)
                         .background(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
+                            RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                                 .fill(AppColors.cardBackground)
                         )
                         .accessibilityLabel("Label preview for \(stone.sku)")
