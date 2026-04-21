@@ -141,7 +141,6 @@ final class CloudBackupService {
             let fileURL = effectiveBackupDir.appendingPathComponent(manifest.iCloudPath)
             guard FileManager.default.fileExists(atPath: fileURL.path) else {
                 lastError = "Backup file not found"
-                isRestoring = false
                 return false
             }
 
@@ -163,12 +162,10 @@ final class CloudBackupService {
             progress = 1.0
             Self.logger.info("Cloud backup restored and reimported into SwiftData")
 
-            isRestoring = false
             return true
         } catch {
             lastError = error.localizedDescription
             Self.logger.error("Restore failed: \(error.localizedDescription)")
-            isRestoring = false
             return false
         }
     }
@@ -181,6 +178,15 @@ final class CloudBackupService {
         }
 
         let iso = ISO8601DateFormatter()
+
+        // Safety: create a pre-restore backup of current data before destructive delete
+        let preRestoreData = try? exportJSON(modelContext: modelContext)
+        if let preRestoreData {
+            let safetyFilename = "pre_restore_safety_\(ISO8601DateFormatter().string(from: Date())).json"
+            let safetyURL = effectiveBackupDir.appendingPathComponent(safetyFilename)
+            try? preRestoreData.write(to: safetyURL)
+            Self.logger.info("Pre-restore safety backup saved: \(safetyFilename)")
+        }
 
         // Delete ALL existing data before reimport (children first to respect relationships)
         func deleteAll<T: PersistentModel>(_ type: T.Type) throws {

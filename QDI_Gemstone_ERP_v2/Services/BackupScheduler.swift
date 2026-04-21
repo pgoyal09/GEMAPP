@@ -62,18 +62,18 @@ final class BackupScheduler {
         guard let container = modelContainer, let dir = backupDirectory else { return }
         guard !isPerformingBackup else { return }
         isPerformingBackup = true
-        defer { isPerformingBackup = false }
-        Task { @MainActor in
+        Task { @MainActor [weak self] in
+            defer { self?.isPerformingBackup = false }
             do {
                 let ctx = container.mainContext
                 try ctx.save()
                 let exportDir = try BackupService.exportDatabaseCopy(modelContext: ctx)
                 let fm = FileManager.default
-                let destDir = dir.appendingPathComponent("QDI_AutoBackup_\(timestamp())")
+                let destDir = dir.appendingPathComponent("QDI_AutoBackup_\(self?.timestamp() ?? "")")
                 if fm.fileExists(atPath: destDir.path) { try fm.removeItem(at: destDir) }
                 try fm.copyItem(at: exportDir, to: destDir)
                 try fm.removeItem(at: exportDir)
-                lastBackupDate = Date()
+                self?.lastBackupDate = Date()
             } catch {
                 AppLogger.data.error("Auto-backup failed: \(error.localizedDescription)")
             }
