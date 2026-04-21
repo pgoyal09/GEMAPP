@@ -1,3 +1,4 @@
+nonisolated(unsafe) private let sharedISOFormatter = ISO8601DateFormatter()
 import Foundation
 import SwiftData
 
@@ -7,7 +8,7 @@ enum InvoiceRoutes {
         router.get("/api/invoices") { req, container in
             let context = ModelContext(container)
             let page = req.queryInt("page", default: 1)
-            let pageSize = req.queryInt("pageSize", default: 50)
+            let pageSize = min(req.queryInt("pageSize", default: 50), 200)
             let search = req.queryString("search")
             let statusFilter = req.queryString("status")
             let customerFilter = req.queryString("customer")
@@ -210,13 +211,13 @@ enum InvoiceRoutes {
             "referenceNumber": inv.referenceNumber,
             "status": inv.status.rawValue,
             "totalAmount": NSDecimalNumber(decimal: inv.totalAmount).doubleValue,
-            "invoiceDate": ISO8601DateFormatter().string(from: inv.invoiceDate),
-            "createdAt": ISO8601DateFormatter().string(from: inv.createdAt),
+            "invoiceDate": sharedISOFormatter.string(from: inv.invoiceDate),
+            "createdAt": sharedISOFormatter.string(from: inv.createdAt),
             "lineItemCount": inv.lineItems.count,
             "terms": inv.terms
         ]
         if let customer = inv.customer { json["customer"] = customer.displayName }
-        if let dueDate = inv.dueDate { json["dueDate"] = ISO8601DateFormatter().string(from: dueDate) }
+        if let dueDate = inv.dueDate { json["dueDate"] = sharedISOFormatter.string(from: dueDate) }
         return json
     }
 

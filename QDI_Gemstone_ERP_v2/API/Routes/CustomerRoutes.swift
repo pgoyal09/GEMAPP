@@ -1,3 +1,4 @@
+nonisolated(unsafe) private let sharedISOFormatter = ISO8601DateFormatter()
 import Foundation
 import SwiftData
 
@@ -7,7 +8,7 @@ enum CustomerRoutes {
         router.get("/api/customers") { req, container in
             let context = ModelContext(container)
             let page = req.queryInt("page", default: 1)
-            let pageSize = req.queryInt("pageSize", default: 50)
+            let pageSize = min(req.queryInt("pageSize", default: 50), 200)
             let search = req.queryString("search")
 
             let descriptor = FetchDescriptor<Customer>(sortBy: [SortDescriptor(\.lastName)])
@@ -154,7 +155,7 @@ enum CustomerRoutes {
             "phone": c.phone,
             "city": c.city,
             "country": c.country,
-            "createdAt": ISO8601DateFormatter().string(from: c.createdAt)
+            "createdAt": sharedISOFormatter.string(from: c.createdAt)
         ]
     }
 

@@ -1,3 +1,4 @@
+nonisolated(unsafe) private let sharedISOFormatter = ISO8601DateFormatter()
 import Foundation
 import SwiftData
 
@@ -19,7 +20,7 @@ enum RFIDRoutes {
         router.get("/api/rfid/tags") { req, container in
             let context = ModelContext(container)
             let page = req.queryInt("page", default: 1)
-            let pageSize = req.queryInt("pageSize", default: 50)
+            let pageSize = min(req.queryInt("pageSize", default: 50), 200)
 
             let descriptor = FetchDescriptor<RFIDTag>()
             let allTags = (try? context.fetch(descriptor)) ?? []
@@ -49,7 +50,7 @@ enum RFIDRoutes {
                     "status": stone.status.rawValue
                 ]
                 if let lastSeen = stone.rfidLastSeenAt {
-                    json["lastSeen"] = ISO8601DateFormatter().string(from: lastSeen)
+                    json["lastSeen"] = sharedISOFormatter.string(from: lastSeen)
                 }
                 return json
             }
@@ -64,8 +65,8 @@ enum RFIDRoutes {
             "status": tag.status.rawValue
         ]
         if let tid = tag.tidLastVerified { json["tid"] = tid }
-        if let firstSeen = tag.firstSeenAt { json["firstSeen"] = ISO8601DateFormatter().string(from: firstSeen) }
-        if let lastSeen = tag.lastSeenAt { json["lastSeen"] = ISO8601DateFormatter().string(from: lastSeen) }
+        if let firstSeen = tag.firstSeenAt { json["firstSeen"] = sharedISOFormatter.string(from: firstSeen) }
+        if let lastSeen = tag.lastSeenAt { json["lastSeen"] = sharedISOFormatter.string(from: lastSeen) }
         return json
     }
 }

@@ -91,7 +91,7 @@ final class APIServer: @unchecked Sendable {
 
             // OPTIONS for CORS preflight
             if request.method == "OPTIONS" {
-                self.sendResponse(self.corsResponse(), on: connection)
+                self.sendCORSPreflight(on: connection)
                 return
             }
 
@@ -181,7 +181,16 @@ final class APIServer: @unchecked Sendable {
         return APIRequest(method: method, path: path, pathParams: [:], queryParams: queryParams, headers: headers, body: body)
     }
 
-    private func corsResponse() -> APIResponse {
-        APIResponse(statusCode: 204, body: Data())
+    private func sendCORSPreflight(on connection: NWConnection) {
+        let headers = "HTTP/1.1 204 No Content\r\n" +
+            "Access-Control-Allow-Origin: *\r\n" +
+            "Access-Control-Allow-Methods: GET, POST, PATCH, DELETE, OPTIONS\r\n" +
+            "Access-Control-Allow-Headers: Content-Type, Authorization\r\n" +
+            "Access-Control-Max-Age: 86400\r\n" +
+            "Content-Length: 0\r\n" +
+            "Connection: close\r\n\r\n"
+        connection.send(content: Data(headers.utf8), completion: .contentProcessed { _ in
+            connection.cancel()
+        })
     }
 }

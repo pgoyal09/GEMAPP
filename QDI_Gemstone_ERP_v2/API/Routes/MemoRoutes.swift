@@ -1,3 +1,4 @@
+nonisolated(unsafe) private let sharedISOFormatter = ISO8601DateFormatter()
 import Foundation
 import SwiftData
 
@@ -7,7 +8,7 @@ enum MemoRoutes {
         router.get("/api/memos") { req, container in
             let context = ModelContext(container)
             let page = req.queryInt("page", default: 1)
-            let pageSize = req.queryInt("pageSize", default: 50)
+            let pageSize = min(req.queryInt("pageSize", default: 50), 200)
             let search = req.queryString("search")
             let statusFilter = req.queryString("status")
             let customerFilter = req.queryString("customer")
@@ -183,12 +184,12 @@ enum MemoRoutes {
             "referenceNumber": m.referenceNumber,
             "status": m.status.rawValue,
             "totalAmount": NSDecimalNumber(decimal: m.totalAmount).doubleValue,
-            "createdAt": ISO8601DateFormatter().string(from: m.createdAt),
+            "createdAt": sharedISOFormatter.string(from: m.createdAt),
             "lineItemCount": m.lineItems.count,
             "ageInDays": m.ageInDays
         ]
         if let customer = m.customer { json["customer"] = customer.displayName }
-        if let date = m.dateAssigned { json["dateAssigned"] = ISO8601DateFormatter().string(from: date) }
+        if let date = m.dateAssigned { json["dateAssigned"] = sharedISOFormatter.string(from: date) }
         return json
     }
 
