@@ -23,21 +23,23 @@ extension View {
 struct StaggeredRowModifier: ViewModifier {
     let index: Int
     let reduceMotion: Bool
+    /// Cap: rows beyond this index appear instantly (no @State animation overhead)
+    private static let maxStaggerIndex = 15
     @State private var appeared = false
 
     func body(content: Content) -> some View {
-        content
-            .opacity(appeared ? 1 : 0)
-            .offset(y: appeared ? 0 : 8)
-            .onAppear {
-                if reduceMotion {
-                    appeared = true
-                } else {
+        if reduceMotion || index >= Self.maxStaggerIndex {
+            content
+        } else {
+            content
+                .opacity(appeared ? 1 : 0)
+                .offset(y: appeared ? 0 : 8)
+                .onAppear {
                     withAnimation(AppAnimation.standard.delay(AppAnimation.staggerDelay(index: index))) {
                         appeared = true
                     }
                 }
-            }
+        }
     }
 }
 

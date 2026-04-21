@@ -12,11 +12,15 @@ struct DashboardView: View {
     @State private var isResetting = false
     @State private var toastMessage: String?
     @State private var refreshTask: Task<Void, Never>?
+    @AppStorage("hasSeenWelcome") private var hasSeenWelcome: Bool = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             ScrollView {
                 VStack(alignment: .leading, spacing: AppSpacing.hero) {
+                    if !hasSeenWelcome {
+                        welcomeBanner
+                    }
                     KPICardRow(viewModel: viewModel)
                     QuickActionsGrid(navigateTo: $navigateTo, onAddStone: { showAddStoneSheet = true })
                     RecentActivityList(items: viewModel.recentActivity)
@@ -59,6 +63,40 @@ struct DashboardView: View {
                     .animation(reduceMotion ? nil : AppAnimation.standard, value: toastMessage)
             }
         }
+    }
+
+    private var welcomeBanner: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.standard) {
+            HStack {
+                Image(systemName: "sparkles")
+                    .font(AppTypography.heading)
+                    .foregroundStyle(AppColors.primary)
+                Text("Welcome to QDI Gemstone ERP")
+                    .font(AppTypography.heading)
+                    .foregroundStyle(AppColors.ink)
+                Spacer()
+                Button {
+                    withAnimation { hasSeenWelcome = true }
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkSubtle)
+                }
+                .buttonStyle(.plain)
+            }
+            Text("Get started: add your first gemstone via Quick Intake (⌘9), or import inventory from a CSV file in the Inventory section.")
+                .font(AppTypography.body)
+                .foregroundStyle(AppColors.inkSubtle)
+        }
+        .padding(AppSpacing.section)
+        .background(
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                .fill(AppColors.primary.opacity(AppOpacity.subtle))
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                        .strokeBorder(AppColors.primary.opacity(AppOpacity.muted), lineWidth: 1)
+                )
+        )
     }
 
     private var resetDataButton: some View {

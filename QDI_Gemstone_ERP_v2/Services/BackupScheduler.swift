@@ -10,6 +10,8 @@ final class BackupScheduler {
     private var timer: Timer?
     private var modelContainer: ModelContainer?
     private var isPerformingBackup = false
+    /// Last auto-backup error, displayed in dashboard info panel
+    var lastBackupError: String?
 
     var isEnabled: Bool {
         get { UserDefaults.standard.bool(forKey: "autoBackupEnabled") }
@@ -74,7 +76,9 @@ final class BackupScheduler {
                 try fm.copyItem(at: exportDir, to: destDir)
                 try fm.removeItem(at: exportDir)
                 self?.lastBackupDate = Date()
+                self?.lastBackupError = nil
             } catch {
+                self?.lastBackupError = "Auto-backup failed: \(error.localizedDescription)"
                 AppLogger.data.error("Auto-backup failed: \(error.localizedDescription)")
             }
         }

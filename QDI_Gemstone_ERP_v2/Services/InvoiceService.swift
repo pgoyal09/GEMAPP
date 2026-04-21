@@ -195,10 +195,15 @@ enum InvoiceService {
         try modelContext.save()
     }
 
-    /// Mark invoice as paid.
+    /// Mark invoice as paid. Also ensures all line items are marked .sold.
     @MainActor
     static func markAsPaid(_ invoice: Invoice, modelContext: ModelContext) throws {
         invoice.status = .paid
+        // Ensure all inventory line items are marked sold (belt-and-suspenders)
+        for item in invoice.lineItems where item.kind == .inventory && item.status != .sold {
+            item.status = .sold
+            item.soldDate = item.soldDate ?? Date()
+        }
         try modelContext.save()
     }
 }

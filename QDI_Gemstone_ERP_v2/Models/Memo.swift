@@ -45,7 +45,7 @@ final class Memo {
     // MARK: - Computed
 
     var totalAmount: Decimal {
-        lineItems.reduce(Decimal.zero) { $0 + $1.amount }
+        lineItems.reduce(Decimal.zero) { $0 + $1.netAmount }
     }
 
     var openLineItems: [LineItem] {
@@ -53,7 +53,7 @@ final class Memo {
     }
 
     var openMemoAmount: Decimal {
-        openLineItems.reduce(Decimal.zero) { $0 + $1.amount }
+        openLineItems.reduce(Decimal.zero) { $0 + $1.netAmount }
     }
 
     var isClosed: Bool {

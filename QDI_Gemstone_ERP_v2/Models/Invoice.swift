@@ -61,9 +61,9 @@ final class Invoice {
 
     // MARK: - Computed
 
-    /// Sum of all line item amounts before any discount or tax.
+    /// Sum of all line item amounts (after per-line discounts) before invoice-level discount or tax.
     var totalBeforeDiscount: Decimal {
-        lineItems.reduce(Decimal.zero) { $0 + $1.amount }
+        lineItems.reduce(Decimal.zero) { $0 + $1.netAmount }
     }
 
     /// Subtotal after discount.

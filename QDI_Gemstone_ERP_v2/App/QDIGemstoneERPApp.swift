@@ -158,7 +158,16 @@ struct QDIGemstoneERPApp: App {
                 }
                 .alert("Data Migration Failed", isPresented: $showMigrationFailureAlert) {
                     Button("Try Again") {
-                        // Relaunch the app to retry migration
+                        NSApplication.shared.terminate(nil)
+                    }
+                    Button("Export Store & Reset", role: .destructive) {
+                        // Copy the corrupt store file to Desktop before deleting
+                        let desktop = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Desktop")
+                        let backupName = "GemApp-store-backup-\(ISO8601DateFormatter().string(from: Date())).sqlite"
+                        let backupURL = desktop.appendingPathComponent(backupName)
+                        try? FileManager.default.copyItem(at: Self.storeURL, to: backupURL)
+                        AppLogger.data.info("Store backed up to Desktop: \(backupName)")
+                        try? FileManager.default.removeItem(at: Self.storeURL)
                         NSApplication.shared.terminate(nil)
                     }
                     Button("Reset Data", role: .destructive) {
@@ -167,11 +176,10 @@ struct QDIGemstoneERPApp: App {
                         } catch {
                             AppLogger.data.error("Failed to delete store file: \(error.localizedDescription)")
                         }
-                        // Relaunch after reset
                         NSApplication.shared.terminate(nil)
                     }
                 } message: {
-                    Text("The database could not be migrated to the new schema. You can try again or reset all data.\n\nError: \(migrationError)")
+                    Text("The database could not be migrated to the new schema.\n\n• Try Again: re-launches the app to retry\n• Export & Reset: saves a copy of your data file to the Desktop, then resets\n• Reset Data: deletes all data and starts fresh\n\nError: \(migrationError)")
                 }
         }
         .defaultSize(width: 1400, height: 900)
@@ -396,6 +404,11 @@ struct QDIGemstoneERPApp: App {
             UserDefaults.standard.set(true, forKey: "phase2MigrationsComplete")
         } catch {
             AppLogger.data.error("Phase 2 migration failed: \(error.localizedDescription)")
+            // Surface the error so user is aware — post notification for toast display
+            NotificationCenter.default.post(
+                name: NSNotification.Name("phase2MigrationFailed"),
+                object: "Data migration partially failed. Some legacy fields may not display correctly. Error: \(error.localizedDescription)"
+            )
         }
     }
 

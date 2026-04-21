@@ -146,16 +146,30 @@ struct DashboardInfoPanel: View {
     private var autoBackupSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.standard) {
             SectionHeader(title: "Auto Backup")
-            HStack(spacing: 6) {
-                Image(systemName: "externaldrive.fill.badge.checkmark")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.success)
-                Text("Last: \(backupScheduler.lastBackupAgo)")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColors.inkMuted)
+            if let error = backupScheduler.lastBackupError {
+                HStack(spacing: 6) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.danger)
+                    Text(error)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.danger)
+                        .lineLimit(2)
+                }
+                .padding(.horizontal, AppSpacing.comfortable)
+                .padding(.vertical, AppSpacing.standard)
+            } else {
+                HStack(spacing: 6) {
+                    Image(systemName: "externaldrive.fill.badge.checkmark")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.success)
+                    Text("Last: \(backupScheduler.lastBackupAgo)")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkMuted)
+                }
+                .padding(.horizontal, AppSpacing.comfortable)
+                .padding(.vertical, AppSpacing.standard)
             }
-            .padding(.horizontal, AppSpacing.comfortable)
-            .padding(.vertical, AppSpacing.standard)
         }
     }
 
