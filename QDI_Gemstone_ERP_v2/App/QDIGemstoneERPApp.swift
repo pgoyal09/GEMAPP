@@ -121,10 +121,13 @@ struct QDIGemstoneERPApp: App {
             AppLogger.data.error("ModelContainer failed: \(error.localizedDescription)")
             migrationDidFail = true
             migrationErrorMessage = error.localizedDescription
-            // Return an in-memory container so the app can at least render UI
+            // Return an in-memory container so the app can launch and show the migration alert.
+            // This container is ephemeral — UI interaction is blocked by migrationDidFail.
             do {
                 let inMemoryConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
-                return try ModelContainer(for: schema, configurations: [inMemoryConfig])
+                let container = try ModelContainer(for: schema, configurations: [inMemoryConfig])
+                container.mainContext.autosaveEnabled = false
+                return container
             } catch {
                 fatalError("Could not create even an in-memory ModelContainer: \(error)")
             }

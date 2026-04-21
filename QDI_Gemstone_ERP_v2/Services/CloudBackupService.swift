@@ -189,12 +189,20 @@ final class CloudBackupService {
 
         let iso = ISO8601DateFormatter()
 
-        // Safety: create a pre-restore backup of current data before destructive delete
+        // Safety: create an encrypted pre-restore backup of current data before destructive delete
         let preRestoreData = try? exportJSON(modelContext: modelContext)
         if let preRestoreData {
-            let safetyFilename = "pre_restore_safety_\(ISO8601DateFormatter().string(from: Date())).json"
+            let safetyFilename = "pre_restore_safety_\(ISO8601DateFormatter().string(from: Date())).enc"
             let safetyURL = effectiveBackupDir.appendingPathComponent(safetyFilename)
-            try? preRestoreData.write(to: safetyURL)
+            // Encrypt the safety backup using the same key as regular backups
+            if let key = try? getEncryptionKey(),
+               let compressed = try? compress(preRestoreData),
+               let encrypted = try? encrypt(compressed, key: key) {
+                try? encrypted.write(to: safetyURL)
+            } else {
+                // Fallback: write unencrypted if encryption fails (don't block restore)
+                try? preRestoreData.write(to: safetyURL)
+            }
             Self.logger.info("Pre-restore safety backup saved: \(safetyFilename)")
         }
 
@@ -770,6 +778,39 @@ final class CloudBackupService {
             throw CloudBackupError.keychainError("Failed to store key: \(status)")
         }
         return key
+    }
+
+    /// Export the encryption key as base64 for backup recovery purposes.
+    /// The user can store this in a safe location to decrypt backups on a new device.
+    func exportEncryptionKeyBase64() -> String? {
+        guard let key = try? getEncryptionKey() else { return nil }
+        return key.withUnsafeBytes { Data($0).base64EncodedString() }
+    }
+
+    /// Import an encryption key from base64 string (for restore on new device).
+    func importEncryptionKey(base64: String) throws {
+        guard let keyData = Data(base64Encoded: base64), keyData.count == 32 else {
+            throw CloudBackupError.keychainError("Invalid key format")
+        }
+        // Delete existing key if any
+        let deleteQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: Self.keychainTag,
+            kSecAttrAccount as String: "backup-encryption-key",
+        ]
+        SecItemDelete(deleteQuery as CFDictionary)
+        // Store new key
+        let addQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: Self.keychainTag,
+            kSecAttrAccount as String: "backup-encryption-key",
+            kSecValueData as String: keyData,
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+        ]
+        let status = SecItemAdd(addQuery as CFDictionary, nil)
+        guard status == errSecSuccess else {
+            throw CloudBackupError.keychainError("Failed to import key: \(status)")
+        }
     }
 
     private func getEncryptionKey() throws -> SymmetricKey {
