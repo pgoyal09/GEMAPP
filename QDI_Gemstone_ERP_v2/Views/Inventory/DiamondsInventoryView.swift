@@ -337,15 +337,23 @@ struct DiamondsInventoryView: View {
     }
 
     private var hasActiveFilters: Bool {
-        shapeFilter != nil || colorFilter != nil || clarityFilter != nil || caratMin != nil || caratMax != nil
+        statusFilter != nil || shapeFilter != nil || groupingFilter != nil ||
+        colorFilter != nil || clarityFilter != nil || cutFilter != nil || labFilter != nil ||
+        caratMin != nil || caratMax != nil || priceMin != nil || priceMax != nil ||
+        !searchText.isEmpty
     }
 
     private var activeFilterCount: Int {
         var count = 0
+        if statusFilter != nil { count += 1 }
         if shapeFilter != nil { count += 1 }
+        if groupingFilter != nil { count += 1 }
         if colorFilter != nil { count += 1 }
         if clarityFilter != nil { count += 1 }
+        if cutFilter != nil { count += 1 }
+        if labFilter != nil { count += 1 }
         if caratMin != nil || caratMax != nil { count += 1 }
+        if priceMin != nil || priceMax != nil { count += 1 }
         return count
     }
 
@@ -379,10 +387,15 @@ struct DiamondsInventoryView: View {
             shapeFilter: shapeFilter,
             colorFilter: colorFilter,
             clarityFilter: clarityFilter,
+            cutFilter: cutFilter,
+            labFilter: labFilter,
+            statusFilter: statusFilter?.rawValue,
+            groupingFilter: groupingFilter?.rawValue,
             caratMin: caratMin,
-            caratMax: caratMax
+            caratMax: caratMax,
+            priceMin: priceMin,
+            priceMax: priceMax
         )
-        // Note: cutFilter, labFilter, priceMin/Max saved separately if FilterPreset is extended
         filterPresets.append(preset)
         FilterPresetStore.saveDiamondPresets(filterPresets)
         toastIsError = false
@@ -393,10 +406,18 @@ struct DiamondsInventoryView: View {
         shapeFilter = preset.shapeFilter
         colorFilter = preset.colorFilter
         clarityFilter = preset.clarityFilter
+        cutFilter = preset.cutFilter
+        labFilter = preset.labFilter
+        statusFilter = preset.statusFilter.flatMap { GemstoneStatus(rawValue: $0) }
+        groupingFilter = preset.groupingFilter.flatMap { StoneGrouping(rawValue: $0) }
         caratMin = preset.caratMin
         caratMax = preset.caratMax
+        priceMin = preset.priceMin
+        priceMax = preset.priceMax
         caratMinText = preset.caratMin.map { String(format: "%.2f", $0) } ?? ""
         caratMaxText = preset.caratMax.map { String(format: "%.2f", $0) } ?? ""
+        priceMinText = preset.priceMin.map { "\($0)" } ?? ""
+        priceMaxText = preset.priceMax.map { "\($0)" } ?? ""
     }
 
     private func deleteDiamondPreset(_ preset: FilterPreset) {

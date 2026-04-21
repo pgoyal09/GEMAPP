@@ -301,7 +301,8 @@ final class InventoryViewModel: SortableViewModel {
             }
         }
 
-        // Status — handled by predicate
+        // Status (additional client-side filter for gemstone status pills)
+        if let s = statusFilterGemstone { result = result.filter { $0.status == s } }
         // Stone type — handled by predicate
 
         // Shape
