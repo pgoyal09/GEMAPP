@@ -11,6 +11,7 @@ struct PaymentListView: View {
     @State private var newAmount: Decimal = 0
     @State private var newMethod: PaymentMethod = .wire
     @State private var newReference: String = ""
+    @State private var newDate: Date = Date()
     @State private var toastMessage: String?
 
     var body: some View {
@@ -22,10 +23,12 @@ struct PaymentListView: View {
                     Text("Balance: \(invoice.balanceDue.asCurrency)")
                         .font(AppTypography.mono)
                         .foregroundStyle(invoice.balanceDue > 0 ? AppColors.danger : AppColors.success)
-                    Button("Add Payment") { showAddPayment = true }
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColors.primary)
-                        .buttonStyle(.plain)
+                    if invoice.status == .sent || invoice.status == .paid {
+                        Button("Add Payment") { showAddPayment = true }
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.primary)
+                            .buttonStyle(.plain)
+                    }
                 }
 
                 if invoice.payments.isEmpty {
@@ -108,6 +111,11 @@ struct PaymentListView: View {
                 }
                 .labelsHidden()
 
+                Text("Date").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
+                DatePicker("", selection: $newDate, displayedComponents: .date)
+                    .labelsHidden()
+                    .glassField()
+
                 Text("Reference #").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                 TextField("Check #, Wire ref, etc.", text: $newReference)
                     .glassField()
@@ -125,7 +133,7 @@ struct PaymentListView: View {
                         return
                     }
                     let payment = Payment(
-                        date: Date(),
+                        date: newDate,
                         amount: newAmount,
                         method: newMethod,
                         referenceNumber: newReference,
