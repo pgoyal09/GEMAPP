@@ -512,7 +512,7 @@ struct MemoDocumentView: View {
                     } label: {
                         HStack(spacing: 4) {
                             Image(systemName: "plus.circle.fill")
-                                .font(.system(size: 16))
+                                .font(AppTypography.heading)
                             Text("Add Item")
                                 .font(AppTypography.body)
                         }

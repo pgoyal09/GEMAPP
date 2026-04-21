@@ -44,7 +44,7 @@ struct ToastOverlay: View {
                             .strokeBorder(tint.opacity(AppOpacity.medium), lineWidth: 1)
                     )
             )
-            .shadow(color: Color.black.opacity(AppOpacity.medium), radius: 12, y: 6)
+            .shadow(color: Color.black.opacity(AppOpacity.muted), radius: 12, y: 6)
             .padding(.bottom, AppSpacing.hero)
         }
         .transition(reduceMotion ? .opacity : .move(edge: .bottom).combined(with: .opacity))

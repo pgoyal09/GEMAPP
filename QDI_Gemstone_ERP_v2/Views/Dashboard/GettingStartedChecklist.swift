@@ -73,10 +73,10 @@ struct GettingStartedChecklist: View {
     private var progressBar: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                     .fill(AppColors.cardStroke)
                     .frame(height: 6)
-                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                     .fill(AppColors.primary)
                     .frame(width: geo.size.width * progressFraction, height: 6)
                     .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: completedItems.count)
@@ -103,7 +103,7 @@ struct GettingStartedChecklist: View {
                 } label: {
                     HStack(spacing: AppSpacing.comfortable) {
                         Image(systemName: done ? "checkmark.circle.fill" : item.iconName)
-                            .font(.system(size: 20))
+                            .font(AppTypography.displaySmallIcon)
                             .foregroundStyle(done ? AppColors.success : AppColors.primary)
                             .frame(width: 28)
 

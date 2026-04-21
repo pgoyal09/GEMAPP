@@ -165,7 +165,7 @@ struct LabelSettingsView: View {
 
                 if let stone = previewStone {
                     Text(LabelTemplateService.previewText(for: stone, template: template))
-                        .font(.system(size: 12, design: .monospaced))
+                        .font(AppTypography.monoSmall)
                         .foregroundStyle(AppColors.ink)
                         .padding(AppSpacing.comfortable)
                         .background(

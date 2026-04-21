@@ -36,6 +36,7 @@ struct StatusBadge: View {
                 .font(AppTypography.caption)
             Text(title)
                 .font(AppTypography.caption)
+                .lineLimit(1)
         }
         .foregroundStyle(tone.foreground)
         .padding(.horizontal, AppSpacing.comfortable)

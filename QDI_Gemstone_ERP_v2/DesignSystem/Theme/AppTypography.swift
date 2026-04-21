@@ -31,4 +31,14 @@ enum AppTypography {
     static var sectionLabel: Font { .system(size: 10 + sizeOffset, weight: .medium) }
     static var largeValue: Font  { .system(size: 22 + sizeOffset, weight: .semibold) }
     static var smallValue: Font  { .system(size: 12 + sizeOffset, weight: .medium) }
+
+    // MARK: - Display Sizes (onboarding, splash, hero stats)
+    static var displayTitle: Font { .system(size: 36 + sizeOffset, weight: .semibold, design: .rounded) }
+    static var displayHero: Font  { .system(size: 48 + sizeOffset, weight: .semibold) }
+    static var displayIcon: Font  { .system(size: 24 + sizeOffset, weight: .regular) }
+    static var displaySmallIcon: Font { .system(size: 20 + sizeOffset, weight: .regular) }
+    static var tinyLabel: Font   { .system(size: 9 + sizeOffset, weight: .bold) }
+    static var footnote: Font    { .system(size: 10 + sizeOffset, weight: .regular) }
+    static var monoSmall: Font   { .system(size: 12 + sizeOffset, design: .monospaced).weight(.medium) }
+    static var bodyMono: Font    { .system(size: 13 + sizeOffset, design: .monospaced).weight(.medium) }
 }

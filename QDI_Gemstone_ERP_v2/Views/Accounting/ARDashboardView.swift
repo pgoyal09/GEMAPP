@@ -68,7 +68,7 @@ struct ARDashboardView: View {
                     .foregroundStyle(AppColors.inkSubtle)
                     .tracking(1.2)
                 Text(totalAR.asCurrency)
-                    .font(.system(size: 36, weight: .semibold, design: .rounded))
+                    .font(AppTypography.displayTitle)
                     .foregroundStyle(totalAR > 0 ? AppColors.warning : AppColors.success)
                     .contentTransition(.numericText())
             }

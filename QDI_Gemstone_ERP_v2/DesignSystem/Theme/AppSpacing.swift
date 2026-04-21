@@ -1,8 +1,12 @@
 import SwiftUI
 
 enum AppSpacing {
+    /// 2pt — tight row/column gaps in dense tables
+    static let tight: CGFloat = 2
     /// 4pt — compact padding, icon gaps
     static let compact: CGFloat = 4
+    /// 6pt — small gaps between related elements (filter pills, badges)
+    static let small: CGFloat = 6
     /// 8pt — standard small spacing
     static let standard: CGFloat = 8
     /// 12pt — comfortable medium spacing
@@ -13,6 +17,9 @@ enum AppSpacing {
     static let hero: CGFloat = 24
     /// 32pt — page-level spacing
     static let page: CGFloat = 32
+
+    /// 4pt — gap between table columns (same as compact, semantic alias)
+    static let tableColumnGap: CGFloat = 4
 }
 
 enum AppShadows {

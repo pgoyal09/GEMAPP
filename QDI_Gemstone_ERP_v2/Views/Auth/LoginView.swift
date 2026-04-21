@@ -10,14 +10,14 @@ struct LoginView: View {
 
     var body: some View {
         ZStack {
-            Color(red: 0.039, green: 0.039, blue: 0.059) // #0A0A0F
+            AppColors.panelBackground // #0A0A0F
                 .ignoresSafeArea()
 
             VStack(spacing: AppSpacing.hero) {
                 // Logo / Title
                 VStack(spacing: AppSpacing.standard) {
                     Image(systemName: "sparkle")
-                        .font(.system(size: 40))
+                        .font(AppTypography.displayTitle)
                         .foregroundStyle(AppColors.primary)
 
                     Text("QDI Gemstone ERP")
@@ -42,11 +42,11 @@ struct LoginView: View {
                             .padding(.horizontal, AppSpacing.standard)
                             .frame(height: 32)
                             .background(
-                                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                                     .fill(AppColors.cardBackground)
                             )
                             .overlay(
-                                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                                     .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                             )
                     }
@@ -61,11 +61,11 @@ struct LoginView: View {
                             .padding(.horizontal, AppSpacing.standard)
                             .frame(height: 32)
                             .background(
-                                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                                     .fill(AppColors.cardBackground)
                             )
                             .overlay(
-                                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                                     .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                             )
                     }

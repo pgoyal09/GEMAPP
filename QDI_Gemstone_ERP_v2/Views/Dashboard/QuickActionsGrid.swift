@@ -84,7 +84,7 @@ struct QuickActionsGrid: View {
                     navigateTo = .customers
                 }
                 QuickActionCard(title: "Scanner", icon: "antenna.radiowaves.left.and.right",
-                                gradient: LinearGradient(colors: [.gray, Color(white: 0.5)], startPoint: .topLeading, endPoint: .bottomTrailing)) {
+                                gradient: AppColors.neutralGradient) {
                     navigateTo = .scanner
                 }
             }

@@ -200,9 +200,9 @@ struct CustomerBalanceView: View {
 
                                     GeometryReader { geo in
                                         ZStack(alignment: .leading) {
-                                            RoundedRectangle(cornerRadius: 3, style: .continuous)
+                                            RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                                                 .fill(AppColors.cardBackground)
-                                            RoundedRectangle(cornerRadius: 3, style: .continuous)
+                                            RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                                                 .fill(AppColors.primary)
                                                 .frame(width: geo.size.width * ratio)
                                         }

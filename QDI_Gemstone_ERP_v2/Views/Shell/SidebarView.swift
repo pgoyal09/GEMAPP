@@ -18,7 +18,7 @@ struct SidebarView: View {
             sidebarHeader
 
             ScrollView {
-                VStack(alignment: .leading, spacing: AppSpacing.hero) {
+                VStack(alignment: .leading, spacing: AppSpacing.section) {
                     ForEach(Self.sidebarGroups, id: \.label) { group in
                         VStack(alignment: .leading, spacing: 2) {
                             Text(group.label.uppercased())
@@ -94,7 +94,7 @@ struct SidebarView: View {
                 Image(systemName: "gearshape")
                     .font(AppTypography.body)
                 Text("Settings")
-                    .font(AppTypography.smallValue)
+                    .font(AppTypography.body)
             }
             .foregroundStyle(selectedItem == .settings ? AppColors.ink : AppColors.inkSubtle)
             .padding(.horizontal, AppSpacing.section)
@@ -121,11 +121,11 @@ struct SidebarView: View {
                     .font(AppTypography.body)
                     .frame(width: 16)
                 Text(item.rawValue)
-                    .font(AppTypography.smallValue)
+                    .font(AppTypography.body)
                 if let hint = item.shortcutHint {
                     Spacer()
                     Text(hint)
-                        .font(AppTypography.sectionLabel)
+                        .font(AppTypography.caption)
                         .foregroundStyle(AppColors.inkMuted)
                 }
             }

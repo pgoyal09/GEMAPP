@@ -160,9 +160,9 @@ struct ARAgingView: View {
 
         return GeometryReader { geo in
             ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                     .fill(AppColors.cardBackground)
-                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                     .fill(ratio >= 1.0 ? AppColors.success : AppColors.primary)
                     .frame(width: geo.size.width * ratio)
             }

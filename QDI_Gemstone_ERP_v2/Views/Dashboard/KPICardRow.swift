@@ -20,7 +20,7 @@ struct KPICard: View {
                 Text(title.uppercased())
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.inkSubtle)
-                    .tracking(1.2)
+                    .tracking(1.5)
             }
             HStack(alignment: .firstTextBaseline, spacing: AppSpacing.compact) {
                 Text(value)

@@ -139,7 +139,7 @@ struct LotInventoryView: View {
                             .foregroundStyle(showAdvancedFilters || activeFilterCount > 0 ? AppColors.primary : AppColors.inkMuted)
                         if activeFilterCount > 0 {
                             Text("\(activeFilterCount)")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(AppTypography.tinyLabel)
                                 .foregroundStyle(.white)
                                 .frame(width: 14, height: 14)
                                 .background(Circle().fill(AppColors.primary))
@@ -262,12 +262,12 @@ struct LotInventoryView: View {
                 .foregroundStyle(AppColors.inkMuted)
                 .frame(width: widths[3], alignment: .trailing)
 
-            Text(formattedPrice(averageCostPerCarat(lot)))
+            Text(formattedPrice(averageCostPerCarat(lot), currency: lot.currencyType))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.inkMuted)
                 .frame(width: widths[4], alignment: .trailing)
 
-            Text(formattedPrice(lot.sellPrice))
+            Text(formattedPrice(lot.sellPrice, currency: lot.currencyType))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
                 .frame(width: widths[5], alignment: .trailing)
@@ -334,10 +334,10 @@ struct LotInventoryView: View {
                 GlassCard(padding: AppSpacing.section) {
                     VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                         SectionHeader(title: "Pricing")
-                        DetailRow(label: "Avg Cost/ct", value: formattedPrice(averageCostPerCarat(lot)))
-                        DetailRow(label: "Total Cost", value: formattedPrice(averageCostPerCarat(lot) * Decimal(lot.effectiveRemainingCarats)))
-                        DetailRow(label: "Sell/ct", value: formattedPrice(lot.sellPrice))
-                        DetailRow(label: "Total Sell", value: formattedPrice(lot.sellPrice * Decimal(lot.effectiveRemainingCarats)))
+                        DetailRow(label: "Avg Cost/ct", value: formattedPrice(averageCostPerCarat(lot), currency: lot.currencyType))
+                        DetailRow(label: "Total Cost", value: formattedPrice(averageCostPerCarat(lot) * Decimal(lot.effectiveRemainingCarats), currency: lot.currencyType))
+                        DetailRow(label: "Sell/ct", value: formattedPrice(lot.sellPrice, currency: lot.currencyType))
+                        DetailRow(label: "Total Sell", value: formattedPrice(lot.sellPrice * Decimal(lot.effectiveRemainingCarats), currency: lot.currencyType))
                     }
                 }
 
@@ -610,7 +610,7 @@ struct LotInventoryView: View {
                                     HStack(spacing: 4) {
                                         Image(systemName: tx.type.displayIcon)
                                             .foregroundStyle(transactionColor(tx.type))
-                                            .font(.system(size: 10))
+                                            .font(AppTypography.footnote)
                                         Text(tx.type.rawValue)
                                             .foregroundStyle(AppColors.ink)
                                     }
@@ -688,8 +688,8 @@ struct LotInventoryView: View {
         }
     }
 
-    private func formattedPrice(_ price: Decimal) -> String {
-        price.asCurrency
+    private func formattedPrice(_ price: Decimal, currency: CurrencyType = .usd) -> String {
+        price.asCurrency(currency)
     }
 
     private func formattedDate(_ date: Date) -> String {

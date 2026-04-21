@@ -94,4 +94,10 @@ enum AppColors {
         startPoint: .leading,
         endPoint: .trailing
     )
+
+    static let neutralGradient = LinearGradient(
+        colors: [Color(white: 0.45), Color(white: 0.35)],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
 }

@@ -50,7 +50,7 @@ struct OnboardingView: View {
     private var welcomeStep: some View {
         VStack(spacing: AppSpacing.hero) {
             Image(systemName: "sparkles")
-                .font(.system(size: 48))
+                .font(AppTypography.displayHero)
                 .foregroundStyle(AppColors.primary)
             Text("Welcome to QDI Gemstone ERP")
                 .font(AppTypography.title)
@@ -98,7 +98,7 @@ struct OnboardingView: View {
     private var finalStep: some View {
         VStack(spacing: AppSpacing.hero) {
             Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 48))
+                .font(AppTypography.displayHero)
                 .foregroundStyle(AppColors.success)
             Text("You're All Set!")
                 .font(AppTypography.title)

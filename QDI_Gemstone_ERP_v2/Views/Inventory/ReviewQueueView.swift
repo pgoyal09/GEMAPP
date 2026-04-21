@@ -108,14 +108,14 @@ struct ReviewQueueView: View {
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: 4, style: .continuous)
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                 .fill(AppColors.cardBackground)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 4, style: .continuous)
+            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                 .strokeBorder(AppColors.cardStroke, lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous))
         .padding(.horizontal, AppSpacing.hero)
         .padding(.bottom, AppSpacing.hero)
     }

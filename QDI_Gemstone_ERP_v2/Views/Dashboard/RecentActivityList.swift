@@ -41,7 +41,7 @@ struct RecentActivityList: View {
                             .frame(height: 32)
                             .padding(.horizontal, AppSpacing.comfortable)
                             .overlay(alignment: .bottom) {
-                                Divider().background(AppColors.panelBackground)
+                                Divider().background(AppColors.cardStroke)
                             }
                         }
                         .buttonStyle(.plain)

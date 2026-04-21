@@ -52,7 +52,7 @@ struct HelpCenterView: View {
             // Header
             HStack {
                 Image(systemName: "questionmark.circle.fill")
-                    .font(.system(size: 24))
+                    .font(AppTypography.displayIcon)
                     .foregroundStyle(AppColors.primary)
                 Text("Help Center")
                     .font(AppTypography.heading)
@@ -102,15 +102,15 @@ struct HelpCenterView: View {
                 }
                 Spacer()
                 Image(systemName: "sparkles")
-                    .font(.system(size: 36))
+                    .font(AppTypography.displayTitle)
                     .foregroundStyle(AppColors.primary.opacity(AppOpacity.medium))
             }
             .padding(AppSpacing.hero)
             .background(
-                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                     .fill(AppColors.cardBackground)
                     .overlay(
-                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                        RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                             .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                     )
             )
@@ -133,7 +133,7 @@ struct HelpCenterView: View {
                                     .fill(AppColors.primary.opacity(AppOpacity.subtle))
                                     .frame(width: 44, height: 44)
                                 Image(systemName: section.icon)
-                                    .font(.system(size: 20))
+                                    .font(AppTypography.displaySmallIcon)
                                     .foregroundStyle(AppColors.primary)
                             }
                             VStack(alignment: .leading, spacing: 2) {
@@ -156,10 +156,10 @@ struct HelpCenterView: View {
                         }
                         .padding(AppSpacing.section)
                         .background(
-                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                                 .fill(AppColors.cardBackground)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                                         .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                                 )
                         )
@@ -204,7 +204,7 @@ struct HelpCenterView: View {
                 .buttonStyle(.plain)
 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 10))
+                    .font(AppTypography.footnote)
                     .foregroundStyle(AppColors.inkSubtle)
 
                 Text(section.title)
@@ -220,7 +220,7 @@ struct HelpCenterView: View {
                 VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                     HStack(spacing: AppSpacing.comfortable) {
                         Image(systemName: section.icon)
-                            .font(.system(size: 24))
+                            .font(AppTypography.displayIcon)
                             .foregroundStyle(AppColors.primary)
                         VStack(alignment: .leading) {
                             Text(section.title)
@@ -253,10 +253,10 @@ struct HelpCenterView: View {
                                 }
                                 .padding(AppSpacing.section)
                                 .background(
-                                    RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                                         .fill(AppColors.cardBackground)
                                         .overlay(
-                                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                                                 .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                                         )
                                 )
@@ -397,7 +397,7 @@ struct HelpCenterView: View {
         case .keyboardShortcut(let key, let description):
             HStack {
                 Text(key)
-                    .font(.system(.body, design: .monospaced).weight(.medium))
+                    .font(AppTypography.bodyMono)
                     .foregroundStyle(AppColors.ink)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
@@ -419,7 +419,7 @@ struct HelpCenterView: View {
                 ForEach(Array(items.enumerated()), id: \.offset) { _, item in
                     HStack {
                         Text(item.key)
-                            .font(.system(.body, design: .monospaced).weight(.medium))
+                            .font(AppTypography.bodyMono)
                             .foregroundStyle(AppColors.ink)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 3)
@@ -481,7 +481,7 @@ struct HelpCenterView: View {
                     GlassCard(padding: AppSpacing.hero) {
                         VStack(spacing: AppSpacing.section) {
                             Image(systemName: "magnifyingglass")
-                                .font(.system(size: 36))
+                                .font(AppTypography.displayTitle)
                                 .foregroundStyle(AppColors.inkSubtle)
                             Text("No articles found")
                                 .font(AppTypography.subheading)

@@ -142,9 +142,9 @@ struct CloudBackupSettingsView: View {
                             .foregroundStyle(AppColors.primary)
                         GeometryReader { geo in
                             ZStack(alignment: .leading) {
-                                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                                     .fill(AppColors.cardBackground)
-                                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                                RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                                     .fill(AppColors.primaryGradient)
                                     .frame(width: geo.size.width * backupService.progress)
                             }

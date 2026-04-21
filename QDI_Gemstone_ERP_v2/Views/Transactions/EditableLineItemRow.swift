@@ -97,7 +97,7 @@ struct EditableLineItemRow: View {
             if let onDelete {
                 Button(action: onDelete) {
                     Image(systemName: "trash")
-                        .font(.system(size: 12))
+                        .font(AppTypography.smallValue)
                         .foregroundStyle(AppColors.inkSubtle)
                 }
                 .buttonStyle(.plain)
