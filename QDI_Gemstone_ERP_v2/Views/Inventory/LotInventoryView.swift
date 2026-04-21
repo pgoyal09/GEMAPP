@@ -139,22 +139,35 @@ struct LotInventoryView: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: AppSpacing.tableColumnGap) {
+        ZStack(alignment: .trailing) {
+            VStack(spacing: 0) {
                 VStack(spacing: 0) {
                     topBar
                     tableContent
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                if let lot = selectedLot {
-                    Divider().background(AppColors.cardStroke)
-                    lotDetailPanel(lot)
-                        .frame(width: 296)
-                }
+                summaryStrip
             }
 
-            summaryStrip
+            if let lot = selectedLot {
+                Color.black.opacity(0.15)
+                    .ignoresSafeArea()
+                    .onTapGesture { viewModel.selectedLotID = nil }
+
+                lotDetailPanel(lot)
+                    .frame(width: 380)
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                            .strokeBorder(Color.white.opacity(AppOpacity.subtle), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.4), radius: 20, x: -6)
+                    .padding(.vertical, AppSpacing.standard)
+                    .padding(.trailing, AppSpacing.standard)
+                    .transition(reduceMotion ? .opacity : .move(edge: .trailing).combined(with: .opacity))
+            }
         }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: selectedLot?.persistentModelID)
         .sheet(isPresented: $viewModel.showAddQuantitySheet) {

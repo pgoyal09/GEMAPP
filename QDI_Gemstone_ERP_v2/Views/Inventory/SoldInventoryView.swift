@@ -47,6 +47,20 @@ struct SoldInventoryView: View {
     @State private var priceMin: Decimal? = nil
     @State private var priceMax: Decimal? = nil
     @State private var stoneTypeFilter: StoneType? = nil
+    @State private var shapeFilter: String? = nil
+    @State private var colorFilter: String? = nil
+    @State private var clarityFilter: String? = nil
+    @State private var statusFilter: GemstoneStatus? = .sold
+    @State private var groupingFilter: StoneGrouping? = nil
+    @State private var cutFilter: String? = nil
+    @State private var labFilter: String? = nil
+    @State private var originFilter: String? = nil
+    @State private var treatmentFilter: String? = nil
+    @State private var caratMinText: String = ""
+    @State private var caratMaxText: String = ""
+    @State private var priceMinText: String = ""
+    @State private var priceMaxText: String = ""
+    @State private var searchFieldFocusRequest: Bool = false
 
     enum SoldTypeToggle: String, CaseIterable {
         case all = "All"
@@ -110,6 +124,12 @@ struct SoldInventoryView: View {
         if let min = priceMin { result = result.filter { $0.sellPrice >= min } }
         if let max = priceMax { result = result.filter { $0.sellPrice <= max } }
         if let type = stoneTypeFilter { result = result.filter { $0.stoneType == type } }
+        if let s = shapeFilter, !s.isEmpty { result = result.filter { $0.shape.lowercased().contains(s.lowercased()) } }
+        if let c = colorFilter, !c.isEmpty { result = result.filter { $0.color.uppercased().contains(c.uppercased()) } }
+        if let c = clarityFilter, !c.isEmpty { result = result.filter { $0.clarity.lowercased().contains(c.lowercased()) } }
+        if let c = cutFilter, !c.isEmpty { result = result.filter { $0.cut.lowercased().contains(c.lowercased()) } }
+        if let l = labFilter, !l.isEmpty { result = result.filter { $0.certLab.lowercased().contains(l.lowercased()) } }
+        if let g = groupingFilter { result = result.filter { $0.grouping == g } }
 
         return sortedStones(result)
     }
@@ -223,20 +243,30 @@ struct SoldInventoryView: View {
                 .buttonStyle(.plain)
             }
 
-            if showAdvancedFilters {
-                SoldFilterBar(
-                    customerFilter: $customerFilter,
-                    dateFrom: $dateFrom,
-                    dateTo: $dateTo,
-                    caratMin: $caratMin,
-                    caratMax: $caratMax,
-                    priceMin: $priceMin,
-                    priceMax: $priceMax,
-                    stoneTypeFilter: $stoneTypeFilter,
-                    customers: uniqueCustomers
-                )
-                .transition(.move(edge: .top).combined(with: .opacity))
-            }
+            InventoryFilterBarV2(
+                config: .inventory,
+                statusFilter: $statusFilter,
+                shapeFilter: $shapeFilter,
+                groupingFilter: $groupingFilter,
+                colorFilter: $colorFilter,
+                clarityFilter: $clarityFilter,
+                cutFilter: $cutFilter,
+                originFilter: $originFilter,
+                treatmentFilter: $treatmentFilter,
+                stoneTypeFilter: $stoneTypeFilter,
+                caratMinText: $caratMinText,
+                caratMaxText: $caratMaxText,
+                priceMinText: $priceMinText,
+                priceMaxText: $priceMaxText,
+                labFilter: $labFilter,
+                searchText: $searchText,
+                searchFieldFocusRequest: $searchFieldFocusRequest,
+                onClearAll: { clearAllFilters() }
+            )
+            .onChange(of: caratMinText) { _, val in caratMin = Double(val) }
+            .onChange(of: caratMaxText) { _, val in caratMax = Double(val) }
+            .onChange(of: priceMinText) { _, val in priceMin = Decimal(string: val) }
+            .onChange(of: priceMaxText) { _, val in priceMax = Decimal(string: val) }
 
             if activeFilterCount > 0 {
                 HStack(spacing: AppSpacing.standard) {
@@ -544,6 +574,19 @@ struct SoldInventoryView: View {
         }
         .frame(minWidth: 740, minHeight: 520)
         .appBackground()
+    }
+
+    // MARK: - Filter
+
+    private func clearAllFilters() {
+        statusFilter = .sold
+        shapeFilter = nil; colorFilter = nil; clarityFilter = nil
+        cutFilter = nil; labFilter = nil; originFilter = nil; treatmentFilter = nil
+        groupingFilter = nil; stoneTypeFilter = nil
+        caratMin = nil; caratMax = nil; priceMin = nil; priceMax = nil
+        caratMinText = ""; caratMaxText = ""; priceMinText = ""; priceMaxText = ""
+        customerFilter = ""; dateFrom = nil; dateTo = nil
+        searchText = ""
     }
 
     // MARK: - Helpers
