@@ -110,6 +110,14 @@ struct QDIGemstoneERPApp: App {
                         showMigrationFailureAlert = true
                     }
                 }
+                .disabled(Self.migrationDidFail) // Block all interaction when running in-memory fallback
+                .overlay {
+                    if Self.migrationDidFail {
+                        Color.black.opacity(0.5)
+                            .ignoresSafeArea()
+                            .allowsHitTesting(false)
+                    }
+                }
                 .alert("Data Migration Failed", isPresented: $showMigrationFailureAlert) {
                     Button("Try Again") {
                         // Relaunch the app to retry migration

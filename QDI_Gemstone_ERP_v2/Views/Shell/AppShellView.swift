@@ -123,7 +123,8 @@ struct AppShellView: View {
                 Button("") { routeBinding.wrappedValue = .lots }.keyboardShortcut("7", modifiers: .command)
                 Button("") { routeBinding.wrappedValue = .sold }.keyboardShortcut("8", modifiers: .command)
                 Button("") { routeBinding.wrappedValue = .scanner }.keyboardShortcut("0", modifiers: .command)
-                Button("") { NotificationCenter.default.post(name: .menuEscapeDismiss, object: nil) }.keyboardShortcut(.escape, modifiers: [])
+                // Removed: global Escape capture was breaking sheet/alert/popover dismissal
+                // Individual views handle Escape via onKeyPress(.escape) where appropriate
             }
             .frame(width: 0, height: 0).opacity(0)
         }
@@ -251,7 +252,6 @@ struct AppShellView: View {
                 CompanySettingsView()
             }
         }
-        .id(route)
         .transition(reduceMotion ? .opacity : .asymmetric(
             insertion: .opacity.combined(with: .offset(x: 20)),
             removal: .opacity
