@@ -20,5 +20,5 @@ protocol TransactionServiceProtocol {
     static func addServiceLine(to invoice: Invoice, modelContext: ModelContext) throws
 
     // MARK: - Remove Line Item
-    static func removeLineItem(_ item: LineItem, restoreStone: Bool, modelContext: ModelContext) throws
+    static func removeLineItem(_ item: LineItem, restoreStone: Bool, save: Bool, modelContext: ModelContext) throws
 }

@@ -477,7 +477,7 @@ struct MemoDocumentView: View {
                         onUpdate: { markDirty() },
                         onDelete: {
                             do {
-                                try TransactionService.removeLineItem(item, modelContext: modelContext)
+                                try TransactionService.removeLineItem(item, save: false, modelContext: modelContext)
                                 markDirty()
                             } catch {
                                 showToast("Failed to remove item: \(ErrorMapper.userMessage(from: error))", isError: true)

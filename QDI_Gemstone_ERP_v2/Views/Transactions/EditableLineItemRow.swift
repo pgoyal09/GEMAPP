@@ -12,6 +12,7 @@ struct EditableLineItemRow: View {
     @State private var caratsText: String = ""
     @State private var rateText: String = ""
     @State private var isSyncing = false
+    @State private var showDeleteConfirm = false
 
     var body: some View {
         GridRow {
@@ -99,15 +100,20 @@ struct EditableLineItemRow: View {
                 .foregroundStyle(AppColors.ink)
                 .frame(width: 110, alignment: .trailing)
 
-            // Delete button
+            // Delete button with confirmation
             if let onDelete {
-                Button(action: onDelete) {
+                Button {
+                    showDeleteConfirm = true
+                } label: {
                     Image(systemName: "trash")
                         .font(AppTypography.smallValue)
                         .foregroundStyle(AppColors.inkSubtle)
                 }
                 .buttonStyle(.plain)
                 .frame(width: 28)
+                .confirmationDialog("Remove this line item?", isPresented: $showDeleteConfirm) {
+                    Button("Remove", role: .destructive) { onDelete() }
+                }
             }
         }
         .onAppear { syncFromModel() }

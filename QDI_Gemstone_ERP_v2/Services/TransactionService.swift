@@ -250,7 +250,7 @@ enum TransactionService: TransactionServiceProtocol {
     // MARK: - Remove Line Item
 
     @MainActor
-    static func removeLineItem(_ item: LineItem, restoreStone: Bool = true, modelContext: ModelContext) throws {
+    static func removeLineItem(_ item: LineItem, restoreStone: Bool = true, save: Bool = true, modelContext: ModelContext) throws {
         // Only restore stone if item is still open (not already returned/sold)
         let shouldRestore = restoreStone && (item.status == .open)
         if shouldRestore, let stone = item.gemstone {
@@ -277,6 +277,8 @@ enum TransactionService: TransactionServiceProtocol {
             }
         }
         modelContext.delete(item)
-        try modelContext.save()
+        if save {
+            try modelContext.save()
+        }
     }
 }
