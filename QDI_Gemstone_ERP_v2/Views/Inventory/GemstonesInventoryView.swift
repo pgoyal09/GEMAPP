@@ -305,28 +305,33 @@ struct GemstonesInventoryView: View {
     // MARK: - Top Bar
 
     private var topBar: some View {
-        HStack(spacing: AppSpacing.comfortable) {
-            Spacer()
+        HStack(spacing: AppSpacing.standard) {
             filterPresetMenu
             Button("Save Filter", systemImage: "square.and.arrow.down") {
                 newPresetName = ""
                 showSavePreset = true
             }
             .buttonStyle(.outline)
+            .controlSize(.small)
             .disabled(!hasActiveFilters)
             Button("Quick Intake", systemImage: "plus.circle.fill") {
                 navigateTo = .quickIntake
-            }.buttonStyle(.gradient)
+            }
+            .buttonStyle(.gradient)
+            .controlSize(.small)
             Toggle("Incl. Memo", isOn: $includeMemoStones)
                 .toggleStyle(.checkbox)
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
             Button("Import CSV") { pickCSVFile() }
                 .buttonStyle(.outline)
+                .controlSize(.small)
             Button("Export for RapNet") {
                 showExportConfirm = true
             }
             .buttonStyle(.outline)
+            .controlSize(.small)
+            Spacer()
         }
         .padding(.horizontal, AppSpacing.section)
         .padding(.vertical, AppSpacing.standard)
