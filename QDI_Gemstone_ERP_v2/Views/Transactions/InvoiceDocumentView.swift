@@ -83,6 +83,9 @@ struct InvoiceDocumentView: View {
         .accessibilityIdentifier("InvoiceDocumentView")
         .id(totalRefreshID)
         .onChange(of: invoice.lineItems.count) { _, _ in totalRefreshID = UUID() }
+        .onReceive(NotificationCenter.default.publisher(for: .dataStoreDidChange)) { _ in
+            totalRefreshID = UUID()
+        }
         .sheet(isPresented: $showInventorySheet) {
             InventorySelectSheet { stones in
                 var zeroPriceSkus: [String] = []

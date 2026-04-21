@@ -64,21 +64,31 @@ final class BackupScheduler {
         guard let container = modelContainer, let dir = backupDirectory else { return }
         guard !isPerformingBackup else { return }
         isPerformingBackup = true
-        Task { @MainActor [weak self] in
-            defer { self?.isPerformingBackup = false }
+        Task { [weak self] in
             do {
-                let ctx = container.mainContext
-                try ctx.save()
-                let exportDir = try BackupService.exportDatabaseCopy(modelContext: ctx)
+                // SwiftData operations must be on MainActor
+                let exportDir = try await MainActor.run {
+                    let ctx = container.mainContext
+                    try ctx.save()
+                    return try BackupService.exportDatabaseCopy(modelContext: ctx)
+                }
+                // File copy operations run off MainActor to avoid blocking UI
                 let fm = FileManager.default
-                let destDir = dir.appendingPathComponent("QDI_AutoBackup_\(self?.timestamp() ?? "")")
+                let ts = await MainActor.run { self?.timestamp() ?? "" }
+                let destDir = dir.appendingPathComponent("QDI_AutoBackup_\(ts)")
                 if fm.fileExists(atPath: destDir.path) { try fm.removeItem(at: destDir) }
                 try fm.copyItem(at: exportDir, to: destDir)
                 try fm.removeItem(at: exportDir)
-                self?.lastBackupDate = Date()
-                self?.lastBackupError = nil
+                await MainActor.run {
+                    self?.lastBackupDate = Date()
+                    self?.lastBackupError = nil
+                    self?.isPerformingBackup = false
+                }
             } catch {
-                self?.lastBackupError = "Auto-backup failed: \(error.localizedDescription)"
+                await MainActor.run {
+                    self?.lastBackupError = "Auto-backup failed: \(error.localizedDescription)"
+                    self?.isPerformingBackup = false
+                }
                 AppLogger.data.error("Auto-backup failed: \(error.localizedDescription)")
             }
         }

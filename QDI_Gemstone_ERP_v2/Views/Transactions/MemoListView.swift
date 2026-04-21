@@ -126,6 +126,14 @@ struct MemoListView: View {
         )
         .padding(.horizontal, AppSpacing.hero)
         .padding(.bottom, AppSpacing.comfortable)
+        .onKeyPress(.return) {
+            if let selectedID = viewModel.selectedMemoID,
+               !openDocTracker.isOpen(memoID: selectedID) {
+                openWindow(id: "memo", value: selectedID)
+                return .handled
+            }
+            return .ignored
+        }
     }
 
     private func headerRow(widths: [CGFloat]) -> some View {

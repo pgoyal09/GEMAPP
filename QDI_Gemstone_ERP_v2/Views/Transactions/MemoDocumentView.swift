@@ -85,6 +85,10 @@ struct MemoDocumentView: View {
         .accessibilityIdentifier("MemoDocumentView")
         .id(totalRefreshID)
         .onChange(of: memo.lineItems.count) { _, _ in totalRefreshID = UUID() }
+        .onReceive(NotificationCenter.default.publisher(for: .dataStoreDidChange)) { _ in
+            // Refresh totals when another window saves (shared modelContext)
+            totalRefreshID = UUID()
+        }
         .sheet(isPresented: $showInventorySheet) {
             InventorySelectSheet { stones in
                 var zeroPriceSkus: [String] = []

@@ -130,6 +130,14 @@ struct InvoiceListView: View {
         )
         .padding(.horizontal, AppSpacing.hero)
         .padding(.bottom, AppSpacing.comfortable)
+        .onKeyPress(.return) {
+            if let selectedID = viewModel.selectedInvoiceID,
+               !openDocTracker.isOpen(invoiceID: selectedID) {
+                openWindow(id: "invoice", value: selectedID)
+                return .handled
+            }
+            return .ignored
+        }
     }
 
     private func headerRow(widths: [CGFloat]) -> some View {
