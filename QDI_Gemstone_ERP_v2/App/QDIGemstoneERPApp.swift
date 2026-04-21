@@ -98,15 +98,20 @@ struct QDIGemstoneERPApp: App {
         // observe it and re-fetch, preventing stale data across windows.
         let config = ModelConfiguration(schema: schema, url: storeURL)
         do {
-            let container = try ModelContainer(for: schema, configurations: [config])
+            let container = try ModelContainer(
+                for: schema,
+                migrationPlan: GemAppMigrationPlan.self,
+                configurations: [config]
+            )
             #if DEBUG
-            // Seed demo data immediately so child views see it on first onAppear.
-            // Previously this ran in the WindowGroup.onAppear which fires AFTER
-            // child views' onAppear, leaving the dashboard empty on first launch.
-            do {
-                try DemoDataService.seedIfNeeded(modelContext: container.mainContext)
-            } catch {
-                AppLogger.data.error("Failed to seed demo data: \(error.localizedDescription)")
+            // Seed demo data only if user opted in during onboarding.
+            // Previously this ran unconditionally in DEBUG builds.
+            if UserDefaults.standard.bool(forKey: "seedDemoData") {
+                do {
+                    try DemoDataService.seedIfNeeded(modelContext: container.mainContext)
+                } catch {
+                    AppLogger.data.error("Failed to seed demo data: \(error.localizedDescription)")
+                }
             }
             #endif
             return container

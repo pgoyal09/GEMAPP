@@ -253,6 +253,10 @@ enum TransactionService {
         if shouldRestore, let stone = item.gemstone {
             if item.isLotLineItem {
                 stone.effectiveRemainingCarats += item.carats
+                // Restore lot to .available if it was marked .sold and now has carats again
+                if stone.status == .sold && stone.effectiveRemainingCarats > 0 {
+                    stone.status = .available
+                }
                 let docRef = item.invoice?.referenceNumber ?? item.memo?.referenceNumber ?? "?"
                 let txn = LotTransaction(
                     type: .returned,

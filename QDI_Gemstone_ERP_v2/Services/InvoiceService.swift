@@ -107,6 +107,10 @@ enum InvoiceService {
                     if !isConverted {
                         stone.effectiveRemainingCarats += item.carats
                     }
+                    // Restore lot to .available if it was marked .sold and now has carats again
+                    if stone.status == .sold && stone.effectiveRemainingCarats > 0 {
+                        stone.status = .available
+                    }
                     // Create audit trail for lot reversal
                     let txn = LotTransaction(
                         type: .returned,
@@ -153,6 +157,10 @@ enum InvoiceService {
                     // Only restore lot carats if NOT converted from memo
                     if !isConverted {
                         stone.effectiveRemainingCarats += item.carats
+                    }
+                    // Restore lot to .available if it was marked .sold and now has carats again
+                    if stone.status == .sold && stone.effectiveRemainingCarats > 0 {
+                        stone.status = .available
                     }
                     // Create audit trail for lot reversal
                     let txn = LotTransaction(

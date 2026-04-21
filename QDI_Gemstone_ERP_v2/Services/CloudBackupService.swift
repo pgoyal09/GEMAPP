@@ -156,8 +156,18 @@ final class CloudBackupService {
             let jsonData = try decompress(compressed)
             progress = 0.7
 
-            // Parse and reimport into live SwiftData store
-            try importJSON(jsonData, modelContext: modelContext)
+            // Parse and reimport into live SwiftData store.
+            // importJSON deletes + inserts in a single modelContext transaction.
+            // If import fails, rollback reverts ALL changes (deletes + partial inserts).
+            do {
+                try importJSON(jsonData, modelContext: modelContext)
+            } catch {
+                // Rollback: revert deletes + partial inserts so user data is preserved
+                modelContext.rollback()
+                Self.logger.error("Import failed, rolled back to preserve existing data: \(error.localizedDescription)")
+                lastError = "Restore failed: \(error.localizedDescription). Your existing data was preserved."
+                return false
+            }
 
             progress = 1.0
             Self.logger.info("Cloud backup restored and reimported into SwiftData")
@@ -188,11 +198,14 @@ final class CloudBackupService {
             Self.logger.info("Pre-restore safety backup saved: \(safetyFilename)")
         }
 
-        // Delete ALL existing data before reimport (children first to respect relationships)
+        // Atomic restore: delete all existing data, then reimport.
+        // If import fails after delete, attempt to restore from the safety backup.
+        // Use modelContext.rollback() if save hasn't been called yet.
         func deleteAll<T: PersistentModel>(_ type: T.Type) throws {
             let items = try modelContext.fetch(FetchDescriptor<T>())
             for item in items { modelContext.delete(item) }
         }
+        // Delete in dependency order (children first)
         try deleteAll(HistoryEvent.self)
         try deleteAll(RFIDTag.self)
         try deleteAll(LotTransaction.self)
@@ -204,6 +217,8 @@ final class CloudBackupService {
         try deleteAll(Memo.self)
         try deleteAll(Gemstone.self)
         try deleteAll(Customer.self)
+        // Note: we do NOT save here — all deletes + inserts are committed as a single save at the end.
+        // If anything fails below, modelContext.rollback() reverts both the deletes and partial inserts.
 
         // 1. Restore customers — keyed by displayName for relationship linking
         var customerMap: [String: Customer] = [:]

@@ -53,6 +53,10 @@ enum LotService {
         modelContext: ModelContext
     ) throws {
         guard lot.isLot else { return }
+        // Guard: lot must be available (not sold, at lab, etc.)
+        guard lot.status == .available || lot.status == .onMemo else {
+            throw TransactionError.stoneNotAvailable(sku: lot.sku, status: lot.status.rawValue)
+        }
         guard carats > 0 else {
             throw TransactionError.invalidCaratWeight
         }
@@ -77,6 +81,11 @@ enum LotService {
         modelContext.insert(item)
         item.memo = memo
         lot.effectiveRemainingCarats -= carats
+
+        // Transition lot to .sold if fully depleted
+        if lot.effectiveRemainingCarats <= 0 {
+            lot.status = .sold
+        }
 
         let custName = memo.customer?.displayName ?? "Unknown"
         let txn = LotTransaction(
@@ -103,6 +112,10 @@ enum LotService {
         modelContext: ModelContext
     ) throws {
         guard lot.isLot else { return }
+        // Guard: lot must be available (not sold, at lab, etc.)
+        guard lot.status == .available || lot.status == .onMemo else {
+            throw TransactionError.stoneNotAvailable(sku: lot.sku, status: lot.status.rawValue)
+        }
         guard carats > 0 else {
             throw TransactionError.invalidCaratWeight
         }
@@ -129,6 +142,11 @@ enum LotService {
         modelContext.insert(item)
         item.invoice = invoice
         lot.effectiveRemainingCarats -= carats
+
+        // Transition lot to .sold if fully depleted
+        if lot.effectiveRemainingCarats <= 0 {
+            lot.status = .sold
+        }
 
         let custName = invoice.customer?.displayName ?? "Unknown"
         let txn = LotTransaction(
