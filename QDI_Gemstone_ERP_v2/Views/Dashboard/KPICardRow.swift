@@ -67,9 +67,9 @@ struct KPICardRow: View {
     var body: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: AppSpacing.section), count: 4), spacing: AppSpacing.section) {
             KPICard(title: "Inventory Value", value: viewModel.totalInventoryValue.asCurrencyShort)
-            KPICard(title: "Total Carats", value: String(format: "%.2f", viewModel.totalCaratsInStock), unit: "ct")
             KPICard(title: "Value on Memo", value: viewModel.totalValueOnMemo.asCurrencyShort)
-            KPICard(title: "Open Memos", value: "\(viewModel.totalOpenMemoCount)", icon: "doc.text.magnifyingglass")
+            KPICard(title: "Revenue MTD", value: viewModel.monthlySales.asCurrencyShort, icon: "chart.line.uptrend.xyaxis")
+            KPICard(title: "Items Available", value: "\(viewModel.inventorySnapshot.availableCount)", icon: "tray.full")
         }
     }
 }

@@ -155,21 +155,33 @@ struct AppShellView: View {
             Spacer()
             HStack(spacing: AppSpacing.comfortable) {
                 Button { showNotifications.toggle() } label: {
-                    Image(systemName: "bell")
-                        .font(AppTypography.body)
-                        .foregroundStyle(AppColors.inkSubtle)
-                        .frame(width: 36, height: 36)
-                        .background(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
-                                .fill(AppColors.cardElevated)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
-                                        .strokeBorder(AppColors.cardStroke, lineWidth: 1)
-                                )
-                        )
+                    ZStack(alignment: .topTrailing) {
+                        Image(systemName: "bell")
+                            .font(AppTypography.body)
+                            .foregroundStyle(AppColors.inkSubtle)
+                            .frame(width: 36, height: 36)
+                            .background(
+                                RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                                    .fill(AppColors.cardElevated)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
+                                            .strokeBorder(AppColors.cardStroke, lineWidth: 1)
+                                    )
+                            )
+                        if !overdueMemos.isEmpty {
+                            Text("\(min(overdueMemos.count, 9))\(overdueMemos.count > 9 ? "+" : "")")
+                                .font(AppTypography.tinyLabel)
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, AppSpacing.compact)
+                                .padding(.vertical, 1)
+                                .background(AppColors.danger)
+                                .clipShape(Capsule())
+                                .offset(x: AppSpacing.compact, y: -AppSpacing.compact)
+                        }
+                    }
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("Notifications")
+                .accessibilityLabel(overdueMemos.isEmpty ? "Notifications" : "\(overdueMemos.count) overdue notifications")
                 .popover(isPresented: $showNotifications, arrowEdge: .top) {
                     notificationPopoverContent
                 }
