@@ -149,8 +149,21 @@ final class CloudBackupService {
                 return false
             }
 
-            progress = 0.2
+            progress = 0.1
             let encrypted = try Data(contentsOf: fileURL)
+
+            // Verify integrity checksum if available
+            if !manifest.sha256Checksum.isEmpty {
+                let actualHash = SHA256.hash(data: encrypted)
+                let actualString = actualHash.compactMap { String(format: "%02x", $0) }.joined()
+                guard actualString == manifest.sha256Checksum else {
+                    lastError = "Backup file is corrupted (checksum mismatch). The file may have been modified or damaged."
+                    Self.logger.error("Checksum mismatch: expected \(manifest.sha256Checksum), got \(actualString)")
+                    return false
+                }
+                Self.logger.info("Backup integrity verified (SHA-256 match)")
+            }
+            progress = 0.2
 
             // Decrypt
             let key = try getEncryptionKey()
