@@ -204,6 +204,8 @@ final class CloudBackupService {
                 try? preRestoreData.write(to: safetyURL)
             }
             Self.logger.info("Pre-restore safety backup saved: \(safetyFilename)")
+            // Cleanup: keep only the 3 most recent safety files
+            cleanupOldSafetyFiles()
         }
 
         // Atomic restore: delete all existing data, then reimport.
@@ -756,6 +758,25 @@ final class CloudBackupService {
         let memos = (try? modelContext.fetchCount(FetchDescriptor<Memo>())) ?? 0
         let invoices = (try? modelContext.fetchCount(FetchDescriptor<Invoice>())) ?? 0
         return (stones, customers, memos, invoices)
+    }
+
+    // MARK: - Safety File Cleanup
+
+    private func cleanupOldSafetyFiles() {
+        let fm = FileManager.default
+        guard let contents = try? fm.contentsOfDirectory(at: effectiveBackupDir, includingPropertiesForKeys: [.creationDateKey]) else { return }
+        let safetyFiles = contents
+            .filter { $0.lastPathComponent.hasPrefix("pre_restore_safety_") }
+            .sorted { (a, b) in
+                let dateA = (try? a.resourceValues(forKeys: [.creationDateKey]).creationDate) ?? .distantPast
+                let dateB = (try? b.resourceValues(forKeys: [.creationDateKey]).creationDate) ?? .distantPast
+                return dateA > dateB
+            }
+        // Keep only the 3 most recent
+        for file in safetyFiles.dropFirst(3) {
+            try? fm.removeItem(at: file)
+            Self.logger.info("Cleaned up old safety file: \(file.lastPathComponent)")
+        }
     }
 
     // MARK: - Encryption (AES-256-GCM via CryptoKit)

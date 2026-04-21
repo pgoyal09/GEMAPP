@@ -174,9 +174,13 @@ struct DashboardInfoPanel: View {
     }
 
     private func agingColor(days: Int) -> Color {
-        if days < memoAgingGreen { return AppColors.success }
-        if days < memoAgingYellow { return AppColors.warning }
-        if days < memoAgingOrange { return AppColors.warningDeep }
+        // Sanitize thresholds: ensure green < yellow < orange and all > 0
+        let green = max(1, memoAgingGreen)
+        let yellow = max(green + 1, memoAgingYellow)
+        let orange = max(yellow + 1, memoAgingOrange)
+        if days < green { return AppColors.success }
+        if days < yellow { return AppColors.warning }
+        if days < orange { return AppColors.warningDeep }
         return AppColors.danger
     }
 

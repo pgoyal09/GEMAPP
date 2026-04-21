@@ -11,6 +11,7 @@ struct PaymentListView: View {
     @State private var newAmount: Decimal = 0
     @State private var newMethod: PaymentMethod = .wire
     @State private var newReference: String = ""
+    @State private var toastMessage: String?
 
     var body: some View {
         GlassCard(padding: AppSpacing.section) {
@@ -98,7 +99,10 @@ struct PaymentListView: View {
                 Button("Save Payment") {
                     guard newAmount > 0 else { return }
                     guard invoice.status == .sent || invoice.status == .paid else { return }
-                    guard newAmount <= invoice.balanceDue else { return } // Prevent overpayment
+                    guard newAmount <= invoice.balanceDue else {
+                        toastMessage = "Payment exceeds balance due (\(invoice.balanceDue.asCurrency))"
+                        return
+                    }
                     let payment = Payment(
                         date: Date(),
                         amount: newAmount,
@@ -122,5 +126,16 @@ struct PaymentListView: View {
         .padding(AppSpacing.hero)
         .frame(minWidth: 380)
         .appBackground()
+        .overlay {
+            if let msg = toastMessage {
+                ToastOverlay(message: msg, isError: true)
+                    .onAppear {
+                        Task {
+                            try? await Task.sleep(for: .seconds(3))
+                            toastMessage = nil
+                        }
+                    }
+            }
+        }
     }
 }

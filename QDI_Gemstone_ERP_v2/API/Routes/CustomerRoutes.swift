@@ -66,10 +66,10 @@ enum CustomerRoutes {
             let context = ModelContext(container)
 
             let customer = Customer(
-                firstName: body["firstName"] as? String ?? "",
-                lastName: body["lastName"] as? String ?? "",
-                company: body["company"] as? String ?? "",
-                email: body["email"] as? String ?? "",
+                firstName: firstName,
+                lastName: lastName,
+                company: company,
+                email: email.trimmingCharacters(in: .whitespaces),
                 phone: body["phone"] as? String ?? "",
                 address: body["address"] as? String ?? "",
                 city: body["city"] as? String ?? "",
