@@ -1,6 +1,7 @@
-nonisolated(unsafe) private let sharedISOFormatter = ISO8601DateFormatter()
 import Foundation
 import SwiftData
+
+nonisolated(unsafe) private let sharedISOFormatter = ISO8601DateFormatter()
 
 enum MemoRoutes {
     static func register(router: APIRouter) {

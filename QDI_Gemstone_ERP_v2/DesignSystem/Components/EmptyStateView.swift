@@ -9,7 +9,7 @@ struct EmptyStateView: View {
     var body: some View {
         VStack(spacing: AppSpacing.section) {
             Image(systemName: icon)
-                .font(.system(size: 40))
+                .font(AppTypography.title)
                 .foregroundStyle(AppColors.inkSubtle)
             Text(title)
                 .font(AppTypography.heading)

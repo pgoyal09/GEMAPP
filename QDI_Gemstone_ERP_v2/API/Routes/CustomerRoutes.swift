@@ -1,6 +1,7 @@
-nonisolated(unsafe) private let sharedISOFormatter = ISO8601DateFormatter()
 import Foundation
 import SwiftData
+
+nonisolated(unsafe) private let sharedISOFormatter = ISO8601DateFormatter()
 
 enum CustomerRoutes {
     static func register(router: APIRouter) {
@@ -56,6 +57,11 @@ enum CustomerRoutes {
             let company = (body["company"] as? String ?? "").trimmingCharacters(in: .whitespaces)
             guard !firstName.isEmpty || !lastName.isEmpty || !company.isEmpty else {
                 return .error(code: "VALIDATION_FAILED", message: "At least one of firstName, lastName, or company is required.", status: 422)
+            }
+            // Basic email format validation
+            let email = body["email"] as? String ?? ""
+            if !email.isEmpty && !email.contains("@") {
+                return .error(code: "VALIDATION_FAILED", message: "Invalid email format.", status: 422)
             }
             let context = ModelContext(container)
 

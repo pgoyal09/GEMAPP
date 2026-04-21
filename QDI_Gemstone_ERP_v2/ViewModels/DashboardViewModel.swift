@@ -148,11 +148,4 @@ final class DashboardViewModel {
         }
     }
 
-    private func safeCount<T: PersistentModel>(_ descriptor: FetchDescriptor<T>, modelContext: ModelContext) -> Int {
-        do { return try modelContext.fetchCount(descriptor) }
-        catch {
-            AppLogger.data.error("Dashboard count failed: \(error.localizedDescription, privacy: .public)")
-            return 0
-        }
-    }
 }

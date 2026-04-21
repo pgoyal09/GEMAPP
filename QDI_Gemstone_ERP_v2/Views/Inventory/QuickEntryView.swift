@@ -15,6 +15,7 @@ struct QuickEntryView: View {
     @State private var rows: [QuickEntryRow] = [QuickEntryRow()]
     @State private var toastMessage: String?
     @State private var toastIsError = false
+    @State private var showClearConfirm = false
     @FocusState private var focusedField: FieldFocus?
 
     // MARK: - Column Widths
@@ -108,11 +109,16 @@ struct QuickEntryView: View {
             Spacer()
 
             Button("Clear All") {
-                rows = [QuickEntryRow(stoneType: selectedCategory)]
-                focusedField = .shape(rows[0].id)
+                showClearConfirm = true
             }
             .buttonStyle(.outline)
             .disabled(rows.count == 1 && rows[0].isEmpty)
+            .confirmationDialog("Clear all rows?", isPresented: $showClearConfirm) {
+                Button("Clear All", role: .destructive) {
+                    rows = [QuickEntryRow(stoneType: selectedCategory)]
+                    focusedField = .shape(rows[0].id)
+                }
+            }
 
             Button("Save All (\(validRowCount))", systemImage: "checkmark.circle.fill") {
                 saveAll()

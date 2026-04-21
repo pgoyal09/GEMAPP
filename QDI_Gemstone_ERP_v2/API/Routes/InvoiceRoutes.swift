@@ -1,6 +1,7 @@
-nonisolated(unsafe) private let sharedISOFormatter = ISO8601DateFormatter()
 import Foundation
 import SwiftData
+
+nonisolated(unsafe) private let sharedISOFormatter = ISO8601DateFormatter()
 
 enum InvoiceRoutes {
     static func register(router: APIRouter) {
@@ -134,7 +135,7 @@ enum InvoiceRoutes {
                     return .notFound("Invoice '\(id)' not found")
                 }
                 guard invoice.status == .draft else {
-                    return .error(code: "BAD_REQUEST", message: "Only draft invoices can be sent")
+                    return .error(code: "CONFLICT", message: "Only draft invoices can be sent", status: 409)
                 }
                 invoice.status = .sent
                 do { try context.save() } catch {

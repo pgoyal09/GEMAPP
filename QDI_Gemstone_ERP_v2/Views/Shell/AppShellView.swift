@@ -192,19 +192,51 @@ struct AppShellView: View {
 
     private var notificationPopoverContent: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Recent Activity")
+            Text("Notifications")
                 .font(AppTypography.caption.bold())
                 .foregroundStyle(AppColors.ink)
             Divider()
-            // TODO: Wire real notification data from overdue memos/invoices
-            Text("No new notifications")
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.inkSubtle)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, AppSpacing.standard)
+            let overdue = overdueMemos
+            if overdue.isEmpty {
+                Text("No new notifications")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColors.inkSubtle)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, AppSpacing.standard)
+            } else {
+                ForEach(overdue.prefix(5), id: \.persistentModelID) { memo in
+                    HStack(spacing: 6) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.warningDeep)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text("Memo #\(memo.referenceNumber)")
+                                .font(AppTypography.caption.weight(.medium))
+                                .foregroundStyle(AppColors.ink)
+                            let custName = memo.customer?.displayName ?? "Unknown"
+                            Text("\(memo.ageInDays) days — \(custName)")
+                                .font(AppTypography.sectionLabel)
+                                .foregroundStyle(AppColors.inkSubtle)
+                        }
+                        Spacer()
+                    }
+                    .padding(.vertical, 2)
+                }
+                if overdue.count > 5 {
+                    Text("+\(overdue.count - 5) more overdue")
+                        .font(AppTypography.sectionLabel)
+                        .foregroundStyle(AppColors.inkMuted)
+                }
+            }
         }
         .padding()
-        .frame(width: 280)
+        .frame(width: 300)
+    }
+
+    private var overdueMemos: [Memo] {
+        let all = (try? modelContext.fetch(FetchDescriptor<Memo>())) ?? []
+        return all.filter { $0.status == .onMemo && $0.ageInDays > 60 }
+            .sorted { $0.ageInDays > $1.ageInDays }
     }
 
     // MARK: - Content Router

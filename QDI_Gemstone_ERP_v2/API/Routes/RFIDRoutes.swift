@@ -1,6 +1,7 @@
-nonisolated(unsafe) private let sharedISOFormatter = ISO8601DateFormatter()
 import Foundation
 import SwiftData
+
+nonisolated(unsafe) private let sharedISOFormatter = ISO8601DateFormatter()
 
 enum RFIDRoutes {
     static func register(router: APIRouter) {
