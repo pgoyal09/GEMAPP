@@ -6,7 +6,7 @@ import SwiftData
 enum CSVImportService {
 
     /// A single parsed row ready for preview before import.
-    struct ImportRow: Identifiable {
+    struct ImportRow: Identifiable, Sendable {
         let id = UUID()
         var stoneType: StoneType
         var grouping: StoneGrouping

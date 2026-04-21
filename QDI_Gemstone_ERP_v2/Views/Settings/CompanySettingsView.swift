@@ -11,6 +11,7 @@ struct CompanySettingsView: View {
     @AppStorage("companyEmail") private var companyEmail: String = ""
     @State private var logoData: Data? = UserDefaults.standard.data(forKey: PDFService.companyLogoUserDefaultsKey)
     @State private var showSavedToast = false
+    @State private var settingsInitialized = false
     @AppStorage("appAppearance") private var appAppearance: String = "dark"
     @AppStorage("requireSalespersonOnMemos") private var requireSalesperson: Bool = true
     @AppStorage("displayFontSize") private var displayFontSize: String = "Small"
@@ -377,13 +378,19 @@ struct CompanySettingsView: View {
             LoginView()
         }
         .onAppear {
-            if !companyName.isEmpty {
-                showSavedToast = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    withAnimation(reduceMotion ? nil : .default) { showSavedToast = false }
-                }
-            }
+            // Mark initialized after a brief delay so onChange handlers
+            // triggered by initial load don't flash the toast.
+            DispatchQueue.main.async { settingsInitialized = true }
         }
+        .onChange(of: companyName) { _, _ in showSavedToastIfReady() }
+        .onChange(of: companyAddress) { _, _ in showSavedToastIfReady() }
+        .onChange(of: companyPhone) { _, _ in showSavedToastIfReady() }
+        .onChange(of: companyEmail) { _, _ in showSavedToastIfReady() }
+        .onChange(of: requireSalesperson) { _, _ in showSavedToastIfReady() }
+        .onChange(of: displayFontSize) { _, _ in showSavedToastIfReady() }
+        .onChange(of: memoAgingGreen) { _, _ in showSavedToastIfReady() }
+        .onChange(of: memoAgingYellow) { _, _ in showSavedToastIfReady() }
+        .onChange(of: memoAgingOrange) { _, _ in showSavedToastIfReady() }
     }
 
     // MARK: - Reusable Section Card
@@ -503,6 +510,14 @@ struct CompanySettingsView: View {
         panel.canCreateDirectories = true
         guard panel.runModal() == .OK, let url = panel.url else { return }
         backupScheduler.backupDirectory = url
+    }
+
+    private func showSavedToastIfReady() {
+        guard settingsInitialized else { return }
+        showSavedToast = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation(reduceMotion ? nil : .default) { showSavedToast = false }
+        }
     }
 
     private func pickLogo() {

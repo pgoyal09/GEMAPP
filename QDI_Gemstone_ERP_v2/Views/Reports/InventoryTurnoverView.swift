@@ -126,7 +126,15 @@ struct InventoryTurnoverView: View {
     private func slowMoversSection(_ report: InventoryTurnoverReport) -> some View {
         GlassCard(padding: AppSpacing.section) {
             VStack(alignment: .leading, spacing: AppSpacing.section) {
-                SectionHeader(title: "Slow Movers (> 90 Days)")
+                HStack {
+                    SectionHeader(title: "Slow Movers (> 90 Days)")
+                    Spacer()
+                    if report.slowMovers.count >= 50 {
+                        Text("Showing top 50 of \(report.slowMovers.count)")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColors.inkSubtle)
+                    }
+                }
 
                 if report.slowMovers.isEmpty {
                     Text("No slow-moving inventory")

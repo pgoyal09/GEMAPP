@@ -81,9 +81,22 @@ struct DashboardInfoPanel: View {
                                 }
                                 Spacer()
                                 VStack(alignment: .trailing, spacing: 2) {
-                                    Text("\(item.ageDays)d")
-                                        .font(AppTypography.caption)
-                                        .foregroundStyle(agingColor(days: item.ageDays))
+                                    HStack(spacing: 4) {
+                                        if item.ageDays > 60 {
+                                            Text("OVERDUE")
+                                                .font(AppTypography.caption.weight(.semibold))
+                                                .foregroundStyle(.white)
+                                                .padding(.horizontal, 5)
+                                                .padding(.vertical, 1)
+                                                .background(
+                                                    RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
+                                                        .fill(AppColors.danger)
+                                                )
+                                        }
+                                        Text("\(item.ageDays)d")
+                                            .font(AppTypography.caption)
+                                            .foregroundStyle(agingColor(days: item.ageDays))
+                                    }
                                     Text(item.openAmount.asCurrency)
                                         .font(AppTypography.caption)
                                         .foregroundStyle(AppColors.inkMuted)

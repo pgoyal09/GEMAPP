@@ -30,6 +30,7 @@ struct CustomerFormSheet: View {
     @State private var toastIsError = false
     @State private var isSaving = false
     @State private var isDirty = false
+    @State private var isInitialLoad = true
     @State private var showDiscardAlert = false
 
     var body: some View {
@@ -59,7 +60,7 @@ struct CustomerFormSheet: View {
                     .keyboardShortcut(.escape, modifiers: [])
                 Button("Save") { save() }
                     .buttonStyle(.gradient)
-                    .disabled(isSaving || (firstName.trimmed.isEmpty && lastName.trimmed.isEmpty && company.trimmed.isEmpty))
+                    .disabled(isSaving || !hasAnyIdentifier)
             }
             .padding(AppSpacing.section)
         }
@@ -80,17 +81,20 @@ struct CustomerFormSheet: View {
         .onAppear {
             loadExisting()
             focusedField = .firstName
+            // Defer clearing the initial load flag so onChange handlers
+            // triggered by loadExisting() won't mark the form dirty.
+            DispatchQueue.main.async { isInitialLoad = false }
         }
-        .onChange(of: firstName) { _, _ in isDirty = true }
-        .onChange(of: lastName) { _, _ in isDirty = true }
-        .onChange(of: company) { _, _ in isDirty = true }
-        .onChange(of: email) { _, _ in isDirty = true }
-        .onChange(of: phone) { _, _ in isDirty = true }
-        .onChange(of: address) { _, _ in isDirty = true }
-        .onChange(of: city) { _, _ in isDirty = true }
-        .onChange(of: country) { _, _ in isDirty = true }
-        .onChange(of: zip) { _, _ in isDirty = true }
-        .onChange(of: notes) { _, _ in isDirty = true }
+        .onChange(of: firstName) { _, _ in markDirtyIfNeeded() }
+        .onChange(of: lastName) { _, _ in markDirtyIfNeeded() }
+        .onChange(of: company) { _, _ in markDirtyIfNeeded() }
+        .onChange(of: email) { _, _ in markDirtyIfNeeded() }
+        .onChange(of: phone) { _, _ in markDirtyIfNeeded() }
+        .onChange(of: address) { _, _ in markDirtyIfNeeded() }
+        .onChange(of: city) { _, _ in markDirtyIfNeeded() }
+        .onChange(of: country) { _, _ in markDirtyIfNeeded() }
+        .onChange(of: zip) { _, _ in markDirtyIfNeeded() }
+        .onChange(of: notes) { _, _ in markDirtyIfNeeded() }
         .alert("Unsaved Changes", isPresented: $showDiscardAlert) {
             Button("Discard", role: .destructive) { dismiss() }
             Button("Cancel", role: .cancel) { }
@@ -100,6 +104,16 @@ struct CustomerFormSheet: View {
     private var isEditing: Bool {
         if case .edit = mode { return true }
         return false
+    }
+
+    /// At least one identifying field (first name, last name, or company) must be non-empty to save.
+    private var hasAnyIdentifier: Bool {
+        !firstName.trimmed.isEmpty || !lastName.trimmed.isEmpty || !company.trimmed.isEmpty
+    }
+
+    private func markDirtyIfNeeded() {
+        guard !isInitialLoad else { return }
+        isDirty = true
     }
 
     private var contactSection: some View {
