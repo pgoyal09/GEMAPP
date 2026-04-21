@@ -280,7 +280,9 @@ struct InventoryListView: View {
                         EmptyStateView(
                             icon: mode == .sold ? "tag.slash" : "tray",
                             title: mode == .sold ? "No sold stones" : "No stones found",
-                            subtitle: viewModel.hasActiveFilters ? "Try adjusting your filters" : nil
+                            subtitle: viewModel.hasActiveFilters ? "Try adjusting your filters" : nil,
+                            actionLabel: mode == .current && !viewModel.hasActiveFilters ? "Quick Intake" : nil,
+                            action: mode == .current && !viewModel.hasActiveFilters ? { navigateTo = .quickIntake } : nil
                         )
                         .frame(maxWidth: .infinity)
                     } else {

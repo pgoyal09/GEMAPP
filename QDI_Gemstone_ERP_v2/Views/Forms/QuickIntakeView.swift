@@ -332,7 +332,7 @@ struct QuickIntakeView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { dismiss() }
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             withAnimation(reduceMotion ? nil : .default) { toastMessage = nil }
         }
     }

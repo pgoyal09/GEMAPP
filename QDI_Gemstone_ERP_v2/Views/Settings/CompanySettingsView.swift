@@ -349,7 +349,7 @@ struct CompanySettingsView: View {
                         Button("Reset") {
                             UserDefaults.standard.set(false, forKey: "onboardingComplete")
                             showSavedToast = true
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                                 withAnimation(reduceMotion ? nil : .default) { showSavedToast = false }
                             }
                         }
@@ -520,7 +520,7 @@ struct CompanySettingsView: View {
             try BackupService.restoreDatabase(from: backupURL, modelContext: modelContext)
             backupIsError = false
             backupMessage = "Restore successful. Quitting app — please relaunch."
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 NSApplication.shared.terminate(nil)
             }
         } catch {
@@ -542,7 +542,7 @@ struct CompanySettingsView: View {
     private func showSavedToastIfReady() {
         guard settingsInitialized else { return }
         showSavedToast = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             withAnimation(reduceMotion ? nil : .default) { showSavedToast = false }
         }
     }

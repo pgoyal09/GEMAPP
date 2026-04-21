@@ -101,7 +101,9 @@ struct InvoiceListView: View {
                 headerRow(widths: widths)
                 Divider().background(AppColors.cardStroke)
                 if filtered.isEmpty {
-                    EmptyStateView(icon: "dollarsign.circle", title: "No invoices found")
+                    EmptyStateView(icon: "dollarsign.circle", title: "No invoices found",
+                                   actionLabel: viewModel.searchText.isEmpty ? "New Invoice" : nil,
+                                   action: viewModel.searchText.isEmpty ? { createNewInvoice() } : nil)
                         .frame(height: 200)
                         .frame(maxWidth: .infinity)
                 } else {

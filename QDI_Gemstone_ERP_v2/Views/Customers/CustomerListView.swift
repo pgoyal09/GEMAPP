@@ -96,7 +96,9 @@ struct CustomerListView: View {
                     Divider().background(AppColors.cardStroke)
 
                     if filtered.isEmpty {
-                        EmptyStateView(icon: "person.2", title: "No customers found")
+                        EmptyStateView(icon: "person.2", title: "No customers found",
+                                       actionLabel: viewModel.searchText.isEmpty ? "Add Customer" : nil,
+                                       action: viewModel.searchText.isEmpty ? { viewModel.showAddCustomerSheet = true } : nil)
                             .frame(maxWidth: .infinity)
                             .frame(height: 200)
                     } else {

@@ -168,8 +168,8 @@ struct QuickEntryView: View {
             headerCell("Carat", width: Col.carat, alignment: .trailing)
             headerCell("Color", width: Col.color)
             headerCell("Clarity", width: Col.clarity)
-            headerCell("Cost $", width: Col.cost, alignment: .trailing)
-            headerCell("Sell $", width: Col.sell, alignment: .trailing)
+            headerCell("Cost/ct", width: Col.cost, alignment: .trailing)
+            headerCell("Sell/ct", width: Col.sell, alignment: .trailing)
             headerCell("Origin", width: Col.origin)
             headerCell("Cert Lab", width: Col.certLab)
             headerCell("Cert #", width: Col.certNo)
@@ -201,7 +201,7 @@ struct QuickEntryView: View {
                 // Row Type picker
                 Picker("", selection: binding(for: index, keyPath: \.rowType)) {
                     Text("Single").tag(RowType.single)
-
+                    Text("Pair").tag(RowType.pair)
                     Text("Lot").tag(RowType.lot)
                 }
                 .labelsHidden()
@@ -384,7 +384,7 @@ struct QuickEntryView: View {
             let grouping: StoneGrouping
             switch row.rowType {
             case .single: grouping = .single
-
+            case .pair: grouping = .pair
             case .lot: grouping = .lot
             }
 
@@ -429,7 +429,7 @@ struct QuickEntryView: View {
         rows = [QuickEntryRow(stoneType: selectedCategory)]
         focusedField = .shape(rows[0].id)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             withAnimation(reduceMotion ? nil : .default) { toastMessage = nil }
         }
     }
@@ -454,6 +454,7 @@ struct QuickEntryView: View {
 
 private enum RowType: String, CaseIterable, Identifiable {
     case single = "Single"
+    case pair = "Pair"
     case lot = "Lot"
     var id: String { rawValue }
 }

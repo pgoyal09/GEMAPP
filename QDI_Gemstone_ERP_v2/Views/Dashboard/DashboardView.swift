@@ -167,7 +167,7 @@ struct DashboardView: View {
                 toastMessage = "Error: \(ErrorMapper.userMessage(from: error))"
             }
             isResetting = false
-            try? await Task.sleep(for: .seconds(2.5))
+            try? await Task.sleep(for: .seconds(3))
             withAnimation(reduceMotion ? nil : .default) { toastMessage = nil }
         }
     }

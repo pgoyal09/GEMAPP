@@ -370,7 +370,7 @@ struct AccountingView: View {
                     try csv.write(to: url, atomically: true, encoding: .utf8)
                     showExportSuccess = true
                     Task { @MainActor in
-                        try? await Task.sleep(for: .seconds(2))
+                        try? await Task.sleep(for: .seconds(3))
                         showExportSuccess = false
                     }
                 } catch {

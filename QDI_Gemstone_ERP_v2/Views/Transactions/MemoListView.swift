@@ -96,7 +96,9 @@ struct MemoListView: View {
                 headerRow(widths: widths)
                 Divider().background(AppColors.cardStroke)
                 if filtered.isEmpty {
-                    EmptyStateView(icon: "doc.text", title: "No memos found")
+                    EmptyStateView(icon: "doc.text", title: "No memos found",
+                                   actionLabel: viewModel.searchText.isEmpty ? "New Memo" : nil,
+                                   action: viewModel.searchText.isEmpty ? { createNewMemo() } : nil)
                         .frame(height: 200)
                         .frame(maxWidth: .infinity)
                 } else {
