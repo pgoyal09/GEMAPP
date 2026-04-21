@@ -190,6 +190,9 @@ struct InvoiceDocumentView: View {
                 VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                     Text("Terms").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                     TextField("Net 30", text: $invoice.terms)
+                        .textFieldStyle(.plain)
+                        .font(AppTypography.smallValue)
+                        .foregroundStyle(AppColors.ink)
                         .glassField()
                         .frame(width: 100)
                         .disabled(!isEditable)
@@ -204,6 +207,7 @@ struct InvoiceDocumentView: View {
                         set: { invoice.dueDate = $0; markDirty() }
                     ), displayedComponents: .date)
                     .labelsHidden()
+                    .colorScheme(.dark)
                     .glassField()
                     .frame(width: 130)
                     .disabled(!isEditable)
@@ -216,6 +220,9 @@ struct InvoiceDocumentView: View {
                         get: { invoice.salesperson ?? "" },
                         set: { invoice.salesperson = $0.isEmpty ? nil : $0; markDirty() }
                     ))
+                    .textFieldStyle(.plain)
+                    .font(AppTypography.smallValue)
+                    .foregroundStyle(AppColors.ink)
                     .glassField()
                     .frame(width: 160)
                     .disabled(!isEditable)

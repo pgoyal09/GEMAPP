@@ -202,6 +202,9 @@ struct MemoDocumentView: View {
                         get: { memo.salesperson ?? "" },
                         set: { memo.salesperson = $0.isEmpty ? nil : $0; markDirty() }
                     ))
+                    .textFieldStyle(.plain)
+                    .font(AppTypography.smallValue)
+                    .foregroundStyle(AppColors.ink)
                     .glassField()
                     .frame(width: 160)
                 }
