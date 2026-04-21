@@ -235,8 +235,8 @@ struct MemoListView: View {
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
             Text("Total: \(totalAmount.asCurrency)")
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.inkMuted)
+                .font(AppTypography.caption.bold())
+                .foregroundStyle(AppColors.ink)
             Spacer()
         }
         .padding(.horizontal, AppSpacing.hero)

@@ -5,7 +5,7 @@ struct StatusBadge: View {
     let tone: Tone
 
     enum Tone {
-        case neutral, success, warning, danger, accent
+        case neutral, success, warning, danger, accent, info, violet
 
         var foreground: Color {
             switch self {
@@ -14,6 +14,8 @@ struct StatusBadge: View {
             case .warning: return AppColors.warning
             case .danger:  return AppColors.danger
             case .accent:  return AppColors.primary
+            case .info:    return AppColors.diamondColor
+            case .violet:  return AppColors.tanzaniteColor
             }
         }
 
@@ -26,6 +28,8 @@ struct StatusBadge: View {
             case .warning: return "exclamationmark.triangle.fill"
             case .danger:  return "xmark.circle.fill"
             case .accent:  return "diamond.fill"
+            case .info:    return "info.circle.fill"
+            case .violet:  return "arrow.triangle.2.circlepath"
             }
         }
     }

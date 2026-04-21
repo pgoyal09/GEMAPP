@@ -286,9 +286,9 @@ struct LotInventoryView: View {
         case .available:    return StatusBadge(title: "Available", tone: .success)
         case .onMemo:       return StatusBadge(title: "On Memo", tone: .warning)
         case .sold:         return StatusBadge(title: "Sold", tone: .accent)
-        case .atLab:        return StatusBadge(title: "At Lab", tone: .neutral)
-        case .reserved:     return StatusBadge(title: "Reserved", tone: .warning)
-        case .inTransit:    return StatusBadge(title: "In Transit", tone: .neutral)
+        case .atLab:        return StatusBadge(title: "At Lab", tone: .info)
+        case .reserved:     return StatusBadge(title: "Reserved", tone: .danger)
+        case .inTransit:    return StatusBadge(title: "In Transit", tone: .violet)
         case .consignment:  return StatusBadge(title: "Consignment", tone: .neutral)
         }
     }

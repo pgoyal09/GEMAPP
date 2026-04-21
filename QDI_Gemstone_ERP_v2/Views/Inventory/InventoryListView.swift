@@ -445,8 +445,8 @@ struct InventoryListView: View {
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkMuted)
             Text("Value: \(totalValue.asCurrency)")
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.inkMuted)
+                .font(AppTypography.caption.bold())
+                .foregroundStyle(AppColors.ink)
             if viewModel.fetchedStones.count != stones.count {
                 Text("(of \(viewModel.fetchedStones.count) loaded)")
                     .font(AppTypography.caption)
@@ -466,9 +466,9 @@ struct InventoryListView: View {
         case .available:    return StatusBadge(title: "Available", tone: .success)
         case .onMemo:       return StatusBadge(title: "On Memo", tone: .warning)
         case .sold:         return StatusBadge(title: "Sold", tone: .accent)
-        case .atLab:        return StatusBadge(title: "At Lab", tone: .accent)
-        case .reserved:     return StatusBadge(title: "Reserved", tone: .warning)
-        case .inTransit:    return StatusBadge(title: "In Transit", tone: .accent)
+        case .atLab:        return StatusBadge(title: "At Lab", tone: .info)
+        case .reserved:     return StatusBadge(title: "Reserved", tone: .danger)
+        case .inTransit:    return StatusBadge(title: "In Transit", tone: .violet)
         case .consignment:  return StatusBadge(title: "Consignment", tone: .neutral)
         }
     }
