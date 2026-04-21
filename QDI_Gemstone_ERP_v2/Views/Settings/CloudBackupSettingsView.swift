@@ -174,7 +174,7 @@ struct CloudBackupSettingsView: View {
                                 .foregroundStyle(manifest.isEncrypted ? AppColors.success : AppColors.warning)
                                 .frame(width: 20)
 
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: AppSpacing.tight) {
                                 Text(manifest.createdAt.formatted(date: .abbreviated, time: .shortened))
                                     .font(AppTypography.body)
                                     .foregroundStyle(AppColors.ink)

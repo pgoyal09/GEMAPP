@@ -66,7 +66,7 @@ struct CustomerActivityView: View {
             SectionHeader(title: "Activity Log")
 
             // Summary stats
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                 if let memoDate = lastMemoDate {
                     DetailRow(label: "Last Memo", value: memoDate.formatted(date: .abbreviated, time: .omitted))
                 }
@@ -119,7 +119,7 @@ struct CustomerActivityView: View {
                                 .foregroundStyle(activity.iconColor)
                                 .frame(width: 24)
 
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: AppSpacing.tight) {
                                 Text(activity.title)
                                     .font(AppTypography.body.weight(.medium))
                                     .foregroundStyle(AppColors.ink)
@@ -130,7 +130,7 @@ struct CustomerActivityView: View {
 
                             Spacer()
 
-                            VStack(alignment: .trailing, spacing: 2) {
+                            VStack(alignment: .trailing, spacing: AppSpacing.tight) {
                                 Text(activity.amount.asCurrency)
                                     .font(AppTypography.mono)
                                     .foregroundStyle(AppColors.inkMuted)

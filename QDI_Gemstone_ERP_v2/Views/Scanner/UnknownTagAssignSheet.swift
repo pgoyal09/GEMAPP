@@ -39,7 +39,7 @@ struct UnknownTagAssignSheet: View {
                     .font(AppTypography.heading)
                     .foregroundStyle(AppColors.ink)
                 GlassCard(padding: AppSpacing.comfortable) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                         DetailRow(label: "EPC", value: epc)
                             .help("Electronic Product Code stored on RFID tags")
                         if !tid.isEmpty { DetailRow(label: "TID", value: tid) }

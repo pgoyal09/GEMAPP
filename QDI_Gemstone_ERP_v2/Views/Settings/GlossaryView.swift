@@ -25,7 +25,7 @@ struct GlossaryView: View {
                 LazyVStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                     ForEach(filteredTerms, id: \.term) { entry in
                         GlassCard(padding: AppSpacing.section) {
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                                 Text(entry.term)
                                     .font(AppTypography.subheading)
                                     .foregroundStyle(AppColors.ink)

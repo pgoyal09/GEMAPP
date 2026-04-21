@@ -136,7 +136,7 @@ struct HelpCenterView: View {
                                     .font(AppTypography.displaySmallIcon)
                                     .foregroundStyle(AppColors.primary)
                             }
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: AppSpacing.tight) {
                                 Text(section.title)
                                     .font(AppTypography.subheading)
                                     .foregroundStyle(AppColors.ink)
@@ -194,7 +194,7 @@ struct HelpCenterView: View {
                         selectedSection = nil
                     }
                 } label: {
-                    HStack(spacing: 4) {
+                    HStack(spacing: AppSpacing.tableColumnGap) {
                         Image(systemName: "chevron.left")
                         Text("All Topics")
                     }
@@ -282,7 +282,7 @@ struct HelpCenterView: View {
                         selectedArticle = nil
                     }
                 } label: {
-                    HStack(spacing: 4) {
+                    HStack(spacing: AppSpacing.tableColumnGap) {
                         Image(systemName: "chevron.left")
                         Text(selectedSection?.title ?? "Back")
                     }
@@ -505,7 +505,7 @@ struct HelpCenterView: View {
                                 HStack {
                                     Image(systemName: section.icon)
                                         .foregroundStyle(AppColors.primary)
-                                    VStack(alignment: .leading, spacing: 2) {
+                                    VStack(alignment: .leading, spacing: AppSpacing.tight) {
                                         Text(article.title)
                                             .font(AppTypography.body)
                                             .foregroundStyle(AppColors.ink)

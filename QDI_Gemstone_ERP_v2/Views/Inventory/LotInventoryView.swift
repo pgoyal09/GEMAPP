@@ -12,7 +12,7 @@ struct LotInventoryView: View {
         ColumnDef("avgCost", weight: 1.5, minWidth: 70, alignment: .trailing),
         ColumnDef("sellPrice", weight: 1.5, minWidth: 70, alignment: .trailing),
         ColumnDef("status", weight: 1.5, minWidth: 65),
-    ], spacing: 4)
+    ], spacing: AppSpacing.tableColumnGap)
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -90,7 +90,7 @@ struct LotInventoryView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 4) {
+            HStack(spacing: AppSpacing.tableColumnGap) {
                 VStack(spacing: 0) {
                     topBar
                     tableContent
@@ -199,7 +199,7 @@ struct LotInventoryView: View {
                     )
                 } else {
                     ScrollView(.vertical) {
-                        LazyVStack(spacing: 2) {
+                        LazyVStack(spacing: AppSpacing.tight) {
                             ForEach(Array(filteredLots.enumerated()), id: \.element.persistentModelID) { index, lot in
                                 lotRow(lot, widths: widths)
                                     .staggeredRow(index: index, reduceMotion: reduceMotion)
@@ -217,7 +217,7 @@ struct LotInventoryView: View {
     }
 
     private func tableHeader(widths: [CGFloat]) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: AppSpacing.tableColumnGap) {
             sortableHeader("Lot#", key: "sku", width: widths[0], alignment: .leading)
             sortableHeader("Stone Type", key: "type", width: widths[1], alignment: .leading)
             sortableHeader("Carats", key: "carats", width: widths[2], alignment: .trailing)
@@ -382,7 +382,7 @@ struct LotInventoryView: View {
     }
 
     private func summaryItem(label: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: AppSpacing.tight) {
             Text(label.uppercased())
                 .font(AppTypography.sectionLabel)
                 .foregroundStyle(AppColors.inkSubtle)
@@ -471,7 +471,7 @@ struct LotInventoryView: View {
                                         .foregroundStyle(transactionColor(tx.type))
                                         .frame(width: 28)
 
-                                    VStack(alignment: .leading, spacing: 2) {
+                                    VStack(alignment: .leading, spacing: AppSpacing.tight) {
                                         Text(tx.type.rawValue)
                                             .font(AppTypography.subheading)
                                             .foregroundStyle(AppColors.ink)
@@ -487,7 +487,7 @@ struct LotInventoryView: View {
 
                                     Spacer()
 
-                                    VStack(alignment: .trailing, spacing: 2) {
+                                    VStack(alignment: .trailing, spacing: AppSpacing.tight) {
                                         Text(formattedPrice(tx.totalPrice))
                                             .font(AppTypography.mono)
                                             .foregroundStyle(AppColors.ink)
@@ -516,7 +516,7 @@ struct LotInventoryView: View {
         return VStack(spacing: 0) {
             // Header
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                     HStack(spacing: AppSpacing.comfortable) {
                         Text(lot.sku)
                             .font(AppTypography.heading)
@@ -571,7 +571,7 @@ struct LotInventoryView: View {
 
             // History table
             VStack(spacing: 0) {
-                HStack(spacing: 4) {
+                HStack(spacing: AppSpacing.tableColumnGap) {
                     Text("Date")
                         .frame(width: TableColumn.date, alignment: .leading)
                     Text("Action")
@@ -599,15 +599,15 @@ struct LotInventoryView: View {
                         .frame(height: 200)
                 } else {
                     ScrollView(.vertical) {
-                        LazyVStack(spacing: 2) {
+                        LazyVStack(spacing: AppSpacing.tight) {
                             ForEach(transactions, id: \.persistentModelID) { tx in
-                                HStack(spacing: 4) {
+                                HStack(spacing: AppSpacing.tableColumnGap) {
                                     Text(tx.date.formatted(.dateTime.month(.abbreviated).day().year()))
                                         .font(AppTypography.caption)
                                         .foregroundStyle(AppColors.inkMuted)
                                         .frame(width: TableColumn.date, alignment: .leading)
 
-                                    HStack(spacing: 4) {
+                                    HStack(spacing: AppSpacing.tableColumnGap) {
                                         Image(systemName: tx.type.displayIcon)
                                             .foregroundStyle(transactionColor(tx.type))
                                             .font(AppTypography.footnote)
@@ -659,7 +659,7 @@ struct LotInventoryView: View {
     }
 
     private func lotInfoItem(label: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: AppSpacing.tight) {
             Text(label.uppercased())
                 .font(AppTypography.sectionLabel)
                 .foregroundStyle(AppColors.inkSubtle)

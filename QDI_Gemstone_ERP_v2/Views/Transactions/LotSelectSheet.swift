@@ -10,7 +10,7 @@ struct LotSelectSheet: View {
         ColumnDef("type", weight: 1.5, minWidth: 60),
         ColumnDef("remaining", weight: 1.5, minWidth: 60),
         ColumnDef("sellPerCt", weight: 1.5, minWidth: 70),
-    ], spacing: 4)
+    ], spacing: AppSpacing.tableColumnGap)
 
     @State private var fetchedLots: [Gemstone] = []
     @State private var selectedLotID: PersistentIdentifier?
@@ -48,7 +48,7 @@ struct LotSelectSheet: View {
                 let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        HStack(spacing: 4) {
+                        HStack(spacing: AppSpacing.tableColumnGap) {
                             TableHeader(title: "SKU", width: widths[0])
                             TableHeader(title: "Type", width: widths[1])
                             TableHeader(title: "Remaining", width: widths[2])
@@ -73,15 +73,15 @@ struct LotSelectSheet: View {
 
             // Bottom panel
             if let lot = selectedLot {
-                VStack(spacing: 12) {
+                VStack(spacing: AppSpacing.comfortable) {
                     Divider().background(AppColors.cardElevated)
-                    HStack(spacing: 16) {
-                        VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: AppSpacing.section) {
+                        VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                             Text("Selected: \(lot.sku)").font(AppTypography.body.weight(.medium)).foregroundStyle(AppColors.ink)
                             Text("Available: \(String(format: "%.2f", lot.effectiveRemainingCarats)) ct")
                                 .font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                         }
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                             Text("Carats to allocate").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                             TextField("0.00", text: $caratsText).glassField().frame(width: 100)
                         }

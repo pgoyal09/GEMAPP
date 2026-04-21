@@ -17,7 +17,7 @@ struct MemoListView: View {
         ColumnDef("items", weight: 1.0, minWidth: 45, alignment: .trailing),
         ColumnDef("total", weight: 1.5, minWidth: 70, alignment: .trailing),
         ColumnDef("status", weight: 1.5, minWidth: 80),
-    ], spacing: 4)
+    ], spacing: AppSpacing.tableColumnGap)
 
     var body: some View {
         VStack(spacing: 0) {
@@ -70,7 +70,7 @@ struct MemoListView: View {
     }
 
     private var statusPills: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: AppSpacing.small) {
             FilterPill(title: "All", isActive: viewModel.statusFilter == nil) {
                 viewModel.statusFilter = nil
             }
@@ -101,7 +101,7 @@ struct MemoListView: View {
                         .frame(maxWidth: .infinity)
                 } else {
                     ScrollView(.vertical) {
-                        LazyVStack(spacing: 2) {
+                        LazyVStack(spacing: AppSpacing.tight) {
                             ForEach(filtered, id: \.persistentModelID) { memo in
                                 memoRow(memo, widths: widths)
                                     .onAppear {
@@ -137,7 +137,7 @@ struct MemoListView: View {
     }
 
     private func headerRow(widths: [CGFloat]) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: AppSpacing.tableColumnGap) {
             sortableHeader("Ref #", key: "reference", width: widths[0])
             sortableHeader("Customer", key: "customer", width: widths[1])
             sortableHeader("Date", key: "date", width: widths[2])
@@ -166,7 +166,7 @@ struct MemoListView: View {
         return HoverRow(isSelected: isSelected, onTap: {
             viewModel.selectedMemoID = memo.persistentModelID
         }) {
-            HStack(spacing: 4) {
+            HStack(spacing: AppSpacing.tableColumnGap) {
                 if isOpen {
                     Image(systemName: "macwindow")
                         .font(AppTypography.sectionLabel)

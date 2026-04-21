@@ -20,7 +20,7 @@ struct SidebarView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: AppSpacing.section) {
                     ForEach(Self.sidebarGroups, id: \.label) { group in
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: AppSpacing.tight) {
                             Text(group.label.uppercased())
                                 .font(AppTypography.caption)
                                 .foregroundStyle(AppColors.inkSubtle)
@@ -90,7 +90,7 @@ struct SidebarView: View {
         Button {
             selectedItem = .settings
         } label: {
-            HStack(spacing: 10) {
+            HStack(spacing: AppSpacing.standard) {
                 Image(systemName: "gearshape")
                     .font(AppTypography.body)
                 Text("Settings")
@@ -116,7 +116,7 @@ struct SidebarView: View {
         return Button {
             selectedItem = item
         } label: {
-            HStack(spacing: 10) {
+            HStack(spacing: AppSpacing.standard) {
                 Image(systemName: item.icon)
                     .font(AppTypography.body)
                     .frame(width: 16)

@@ -20,7 +20,7 @@ struct CustomerProfitabilityView: View {
         ColumnDef("margin", weight: 1.0, minWidth: 50, alignment: .trailing),
         ColumnDef("count", weight: 0.8, minWidth: 40, alignment: .trailing),
         ColumnDef("avgOrder", weight: 1.5, minWidth: 65, alignment: .trailing),
-    ], spacing: 4)
+    ], spacing: AppSpacing.tableColumnGap)
 
     private var filteredRows: [CustomerProfitRow] {
         guard let report else { return [] }
@@ -64,7 +64,7 @@ struct CustomerProfitabilityView: View {
 
                             VStack(alignment: .leading, spacing: 0) {
                                 // Header row
-                                HStack(spacing: 4) {
+                                HStack(spacing: AppSpacing.tableColumnGap) {
                                     TableHeader(title: "Customer", width: widths[0])
                                     TableHeader(title: "Revenue", width: widths[1], alignment: .trailing)
                                     TableHeader(title: "COGS", width: widths[2], alignment: .trailing)
@@ -85,7 +85,7 @@ struct CustomerProfitabilityView: View {
                                             HoverRow(isSelected: selectedCustomerId == row.customerId) {
                                                 selectedCustomerId = row.customerId
                                             } content: {
-                                                HStack(spacing: 4) {
+                                                HStack(spacing: AppSpacing.tableColumnGap) {
                                                     HStack(spacing: AppSpacing.standard) {
                                                         if isTop10 {
                                                             Image(systemName: "star.fill")
@@ -172,7 +172,7 @@ struct CustomerProfitabilityView: View {
                         ForEach(customer.invoices.filter { $0.status == .paid }.sorted(by: { $0.invoiceDate > $1.invoiceDate })) { invoice in
                             GlassCard(padding: AppSpacing.comfortable) {
                                 HStack {
-                                    VStack(alignment: .leading, spacing: 2) {
+                                    VStack(alignment: .leading, spacing: AppSpacing.tight) {
                                         Text(invoice.referenceNumber)
                                             .font(AppTypography.mono)
                                             .foregroundStyle(AppColors.ink)

@@ -196,7 +196,7 @@ struct MemoDocumentView: View {
                 dateField
 
                 // Salesperson
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                     Text("Salesperson").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                     TextField("Salesperson name", text: Binding(
                         get: { memo.salesperson ?? "" },
@@ -225,7 +225,7 @@ struct MemoDocumentView: View {
     }
 
     private var customerField: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
             Text("Customer").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
             ZStack(alignment: .topLeading) {
                 HStack(spacing: AppSpacing.standard) {
@@ -317,7 +317,7 @@ struct MemoDocumentView: View {
     }
 
     private var dateField: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
             Text("Date").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
             HStack(spacing: 0) {
                 TextField("MM/DD/YYYY", text: $dateText)
@@ -510,7 +510,7 @@ struct MemoDocumentView: View {
                             }
                         }
                     } label: {
-                        HStack(spacing: 4) {
+                        HStack(spacing: AppSpacing.tableColumnGap) {
                             Image(systemName: "plus.circle.fill")
                                 .font(AppTypography.heading)
                             Text("Add Item")
@@ -546,7 +546,7 @@ struct MemoDocumentView: View {
     }
 
     private var addItemsMenu: some View {
-        HStack(spacing: 2) {
+        HStack(spacing: AppSpacing.tight) {
             addButton("Single/Pair") { showInventorySheet = true }
             addButton("Lot") { showLotSheet = true }
             addButton("Brokered") {
@@ -630,7 +630,7 @@ struct MemoDocumentView: View {
     private var totalsSection: some View {
         HStack {
             Spacer()
-            VStack(alignment: .trailing, spacing: 4) {
+            VStack(alignment: .trailing, spacing: AppSpacing.tableColumnGap) {
                 Text("Subtotal: \(memo.totalAmount.asCurrency)")
                     .font(AppTypography.heading)
                     .foregroundStyle(AppColors.ink)
@@ -653,7 +653,7 @@ struct MemoDocumentView: View {
     // MARK: - Notes
 
     private var notesSection: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
             Text("Notes").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
             TextEditor(text: $memo.notes)
                 .font(AppTypography.body)

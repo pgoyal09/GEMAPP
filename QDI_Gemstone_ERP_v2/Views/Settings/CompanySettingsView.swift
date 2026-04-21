@@ -229,7 +229,7 @@ struct CompanySettingsView: View {
                         HStack(spacing: AppSpacing.standard) {
                             Image(systemName: "checkmark.circle.fill")
                                 .foregroundStyle(AppColors.success)
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: AppSpacing.tight) {
                                 Text("Signed in as \(authService.currentUserEmail ?? "—")")
                                     .font(AppTypography.body)
                                     .foregroundStyle(AppColors.ink)
@@ -287,7 +287,7 @@ struct CompanySettingsView: View {
                             Image(systemName: "cloud.fill")
                                 .font(AppTypography.heading)
                                 .foregroundStyle(AppColors.inkMuted)
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: AppSpacing.tight) {
                                 Text("Not signed in")
                                     .font(AppTypography.body)
                                     .foregroundStyle(AppColors.ink)

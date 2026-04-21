@@ -10,7 +10,7 @@ struct ReviewQueueView: View {
         ColumnDef("shape", weight: 1.5, minWidth: 60),
         ColumnDef("created", weight: 1.5, minWidth: 70),
         ColumnDef("missing", weight: 3.0, minWidth: 120),
-    ], spacing: 4)
+    ], spacing: AppSpacing.tableColumnGap)
 
     @Environment(\.modelContext) private var modelContext
     @Query private var allGemstones: [Gemstone]
@@ -96,7 +96,7 @@ struct ReviewQueueView: View {
                     )
                 } else {
                     ScrollView {
-                        LazyVStack(spacing: 2) {
+                        LazyVStack(spacing: AppSpacing.tight) {
                             ForEach(reviewStones, id: \.persistentModelID) { stone in
                                 reviewRow(stone, widths: widths)
                             }
@@ -121,7 +121,7 @@ struct ReviewQueueView: View {
     }
 
     private func tableHeader(widths: [CGFloat]) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: AppSpacing.tableColumnGap) {
             TableHeader(title: "SKU", width: widths[0], alignment: .leading)
             TableHeader(title: "Type", width: widths[1], alignment: .leading)
             TableHeader(title: "Shape", width: widths[2], alignment: .leading)

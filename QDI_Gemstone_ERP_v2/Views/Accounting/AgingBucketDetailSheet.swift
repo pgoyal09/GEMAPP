@@ -41,7 +41,7 @@ struct AgingBucketDetailSheet: View {
                                 openWindow(id: "invoice", value: invoice.persistentModelID)
                             } label: {
                                 HStack {
-                                    VStack(alignment: .leading, spacing: 2) {
+                                    VStack(alignment: .leading, spacing: AppSpacing.tight) {
                                         Text("Invoice \(invoice.referenceNumber)")
                                             .font(AppTypography.body.weight(.medium))
                                             .foregroundStyle(AppColors.ink)
@@ -50,7 +50,7 @@ struct AgingBucketDetailSheet: View {
                                             .foregroundStyle(AppColors.inkSubtle)
                                     }
                                     Spacer()
-                                    VStack(alignment: .trailing, spacing: 2) {
+                                    VStack(alignment: .trailing, spacing: AppSpacing.tight) {
                                         Text(invoice.totalAmount.asCurrency)
                                             .font(AppTypography.mono)
                                             .foregroundStyle(AppColors.ink)

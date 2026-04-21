@@ -10,7 +10,7 @@ struct CustomerBalanceView: View {
         ColumnDef("outstanding", weight: 1.5, minWidth: 70, alignment: .trailing),
         ColumnDef("invoices", weight: 1.0, minWidth: 50, alignment: .trailing),
         ColumnDef("overdue", weight: 1.0, minWidth: 50, alignment: .trailing),
-    ], spacing: 4)
+    ], spacing: AppSpacing.tableColumnGap)
 
     @State private var balances: [CustomerBalance] = []
     @State private var selectedCustomer: CustomerBalance?
@@ -25,7 +25,7 @@ struct CustomerBalanceView: View {
     @State private var cooldownDaysAgo: Int = 0
 
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: AppSpacing.tableColumnGap) {
             customerList
             if selectedCustomer != nil {
                 Divider().background(AppColors.cardStroke)
@@ -72,7 +72,7 @@ struct CustomerBalanceView: View {
                     GeometryReader { geo in
                         let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
                         VStack(spacing: 0) {
-                            HStack(spacing: 4) {
+                            HStack(spacing: AppSpacing.tableColumnGap) {
                                 TableHeader(title: "Customer", width: widths[0])
                                 TableHeader(title: "Outstanding", width: widths[1], alignment: .trailing)
                                 TableHeader(title: "Invoices", width: widths[2], alignment: .trailing)

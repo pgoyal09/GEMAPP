@@ -175,7 +175,7 @@ struct RapNetSettingsView: View {
                             Image(systemName: entry.status == "Success" ? "checkmark.circle.fill" : entry.status == "Skipped" ? "minus.circle" : "xmark.circle.fill")
                                 .foregroundStyle(entry.status == "Success" ? AppColors.success : entry.status == "Skipped" ? AppColors.inkSubtle : AppColors.danger)
 
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: AppSpacing.tight) {
                                 Text(entry.action)
                                     .font(AppTypography.body)
                                     .foregroundStyle(AppColors.ink)

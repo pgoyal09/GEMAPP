@@ -14,7 +14,7 @@ struct ARAgingView: View {
         ColumnDef("dueDate", weight: 1.5, minWidth: 70),
         ColumnDef("days", weight: 1.0, minWidth: 50, alignment: .trailing),
         ColumnDef("status", weight: 1.5, minWidth: 65),
-    ], spacing: 4)
+    ], spacing: AppSpacing.tableColumnGap)
 
     @State private var invoices: [Invoice] = []
     @State private var filterBucket: String = "All"
@@ -59,7 +59,7 @@ struct ARAgingView: View {
                         let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
                         VStack(spacing: 0) {
                             // Header
-                            HStack(spacing: 4) {
+                            HStack(spacing: AppSpacing.tableColumnGap) {
                                 TableHeader(title: "Invoice #", width: widths[0])
                                 TableHeader(title: "Customer", width: widths[1])
                                 TableHeader(title: "Amount", width: widths[2], alignment: .trailing)
@@ -77,7 +77,7 @@ struct ARAgingView: View {
                                         let daysOverdue = daysOver(inv)
                                         let color = agingColor(daysOverdue)
 
-                                        HStack(spacing: 4) {
+                                        HStack(spacing: AppSpacing.tableColumnGap) {
                                             Text(inv.referenceNumber)
                                                 .font(AppTypography.mono)
                                                 .foregroundStyle(AppColors.ink)

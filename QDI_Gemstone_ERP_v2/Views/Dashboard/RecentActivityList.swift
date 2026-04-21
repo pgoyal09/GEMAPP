@@ -25,7 +25,7 @@ struct RecentActivityList: View {
                                     .font(AppTypography.caption)
                                     .foregroundStyle(AppColors.primary)
                                     .frame(width: 20)
-                                VStack(alignment: .leading, spacing: 2) {
+                                VStack(alignment: .leading, spacing: AppSpacing.tight) {
                                     Text(item.title)
                                         .font(AppTypography.body)
                                         .foregroundStyle(AppColors.inkMuted)

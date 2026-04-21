@@ -187,7 +187,7 @@ struct InvoiceDocumentView: View {
                 dateField
 
                 // Terms
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                     Text("Terms").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                     TextField("Net 30", text: $invoice.terms)
                         .glassField()
@@ -197,7 +197,7 @@ struct InvoiceDocumentView: View {
                 }
 
                 // Due Date
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                     Text("Due Date").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                     DatePicker("", selection: Binding(
                         get: { invoice.dueDate ?? Calendar.current.date(byAdding: .day, value: 30, to: invoice.invoiceDate) ?? Date() },
@@ -210,7 +210,7 @@ struct InvoiceDocumentView: View {
                 }
 
                 // Salesperson
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                     Text("Salesperson").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                     TextField("Salesperson name", text: Binding(
                         get: { invoice.salesperson ?? "" },
@@ -240,7 +240,7 @@ struct InvoiceDocumentView: View {
     }
 
     private var customerField: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
             Text("Customer").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
             ZStack(alignment: .topLeading) {
                 HStack(spacing: AppSpacing.standard) {
@@ -335,7 +335,7 @@ struct InvoiceDocumentView: View {
     }
 
     private var dateField: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
             Text("Date").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
             HStack(spacing: 0) {
                 TextField("MM/DD/YYYY", text: $dateText)
@@ -524,7 +524,7 @@ struct InvoiceDocumentView: View {
                                 }
                             }
                         } label: {
-                            HStack(spacing: 4) {
+                            HStack(spacing: AppSpacing.tableColumnGap) {
                                 Image(systemName: "plus.circle.fill")
                                     .font(AppTypography.heading)
                                 Text("Add Item")
@@ -561,7 +561,7 @@ struct InvoiceDocumentView: View {
     }
 
     private var addItemsMenu: some View {
-        HStack(spacing: 2) {
+        HStack(spacing: AppSpacing.tight) {
             addButton("Single/Pair") { showInventorySheet = true }
             addButton("Lot") { showLotSheet = true }
             addButton("Brokered") {
@@ -609,7 +609,7 @@ struct InvoiceDocumentView: View {
         VStack(alignment: .trailing, spacing: AppSpacing.comfortable) {
             HStack {
                 Spacer()
-                VStack(alignment: .trailing, spacing: 4) {
+                VStack(alignment: .trailing, spacing: AppSpacing.tableColumnGap) {
                     HStack {
                         Text("Subtotal")
                             .font(AppTypography.body)
@@ -699,7 +699,7 @@ struct InvoiceDocumentView: View {
     // MARK: - Notes
 
     private var notesSection: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
             Text("Notes").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
             TextEditor(text: $invoice.notes)
                 .font(AppTypography.body)

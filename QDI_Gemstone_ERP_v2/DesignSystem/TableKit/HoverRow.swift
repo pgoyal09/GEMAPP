@@ -14,7 +14,7 @@ struct HoverRow<Content: View>: View {
         Button {
             onTap?()
         } label: {
-            HStack(spacing: 4) {
+            HStack(spacing: AppSpacing.tableColumnGap) {
                 content()
             }
             .frame(maxWidth: .infinity)

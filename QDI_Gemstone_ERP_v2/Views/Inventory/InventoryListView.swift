@@ -21,7 +21,7 @@ struct InventoryListView: View {
         ColumnDef("clarity", weight: 1.2, minWidth: 55),
         ColumnDef("price", weight: 1.5, minWidth: 70, alignment: .trailing),
         ColumnDef("status", weight: 1.5, minWidth: 65, alignment: .center),
-    ], spacing: 4)
+    ], spacing: AppSpacing.tableColumnGap)
 
     private static let soldLayout = TableColumnLayout(columns: [
         ColumnDef("sku", weight: 2.0, minWidth: 80),
@@ -33,7 +33,7 @@ struct InventoryListView: View {
         ColumnDef("price", weight: 1.5, minWidth: 70, alignment: .trailing),
         ColumnDef("soldTo", weight: 2.0, minWidth: 90),
         ColumnDef("status", weight: 1.5, minWidth: 65, alignment: .center),
-    ], spacing: 4)
+    ], spacing: AppSpacing.tableColumnGap)
 
     @Binding var navigateTo: NavigationItem
     let mode: InventoryListMode
@@ -66,7 +66,7 @@ struct InventoryListView: View {
     // MARK: - Body
 
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: AppSpacing.tableColumnGap) {
             // Main list area
             VStack(spacing: 0) {
                 topBar
@@ -186,7 +186,7 @@ struct InventoryListView: View {
         Button {
             viewModel.showFiltersPanel.toggle()
         } label: {
-            HStack(spacing: 4) {
+            HStack(spacing: AppSpacing.tableColumnGap) {
                 Image(systemName: "line.3.horizontal.decrease.circle")
                     .font(AppTypography.body)
                 Text("Filters")
@@ -222,7 +222,7 @@ struct InventoryListView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: AppSpacing.standard) {
                     ForEach(pills, id: \.label) { pill in
-                        HStack(spacing: 4) {
+                        HStack(spacing: AppSpacing.tableColumnGap) {
                             Text(pill.label)
                                 .font(AppTypography.caption)
                                 .foregroundStyle(AppColors.primary)
@@ -284,7 +284,7 @@ struct InventoryListView: View {
                         )
                         .frame(maxWidth: .infinity)
                     } else {
-                        LazyVStack(spacing: 2) {
+                        LazyVStack(spacing: AppSpacing.tight) {
                             ForEach(filteredStones, id: \.persistentModelID) { stone in
                                 stoneRow(stone, widths: widths, dateWidth: dateWidth)
                                     .onAppear {
@@ -308,7 +308,7 @@ struct InventoryListView: View {
     }
 
     private func tableHeader(widths: [CGFloat], dateWidth: CGFloat) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: AppSpacing.tableColumnGap) {
             if mode == .current {
                 Color.clear.frame(width: 24)
             }

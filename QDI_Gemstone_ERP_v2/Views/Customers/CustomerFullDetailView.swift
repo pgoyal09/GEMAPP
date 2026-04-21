@@ -152,7 +152,7 @@ struct CustomerFullDetailView: View {
 
     private var memosTab: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 4) {
+            HStack(spacing: AppSpacing.tableColumnGap) {
                 Text("Ref #").frame(width: 70, alignment: .leading)
                 Text("Status").frame(width: 70, alignment: .leading)
                 Text("Items").frame(width: 50, alignment: .trailing)
@@ -173,9 +173,9 @@ struct CustomerFullDetailView: View {
                     .frame(height: 150)
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 2) {
+                    LazyVStack(spacing: AppSpacing.tight) {
                         ForEach(customer.memos.sorted(by: { $0.createdAt > $1.createdAt })) { memo in
-                            HStack(spacing: 4) {
+                            HStack(spacing: AppSpacing.tableColumnGap) {
                                 Text("#\(memo.referenceNumber)")
                                     .font(AppTypography.mono)
                                     .foregroundStyle(AppColors.primary)
@@ -218,7 +218,7 @@ struct CustomerFullDetailView: View {
 
     private var invoicesTab: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 4) {
+            HStack(spacing: AppSpacing.tableColumnGap) {
                 Text("Ref #").frame(width: 80, alignment: .leading)
                 Text("Status").frame(width: 70, alignment: .leading)
                 Text("Total").frame(width: 80, alignment: .trailing)
@@ -238,9 +238,9 @@ struct CustomerFullDetailView: View {
                     .frame(height: 150)
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 2) {
+                    LazyVStack(spacing: AppSpacing.tight) {
                         ForEach(customer.invoices.sorted(by: { $0.invoiceDate > $1.invoiceDate })) { invoice in
-                            HStack(spacing: 4) {
+                            HStack(spacing: AppSpacing.tableColumnGap) {
                                 Text(invoice.referenceNumber)
                                     .font(AppTypography.mono)
                                     .foregroundStyle(AppColors.primary)
@@ -278,7 +278,7 @@ struct CustomerFullDetailView: View {
 
     private var soldItemsTab: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 4) {
+            HStack(spacing: AppSpacing.tableColumnGap) {
                 Text("Date").frame(width: 70, alignment: .leading)
                 Text("Item").frame(width: 120, alignment: .leading)
                 Text("Ct").frame(width: 50, alignment: .trailing)
@@ -299,9 +299,9 @@ struct CustomerFullDetailView: View {
                     .frame(height: 150)
             } else {
                 ScrollView {
-                    LazyVStack(spacing: 2) {
+                    LazyVStack(spacing: AppSpacing.tight) {
                         ForEach(soldLineItems) { entry in
-                            HStack(spacing: 4) {
+                            HStack(spacing: AppSpacing.tableColumnGap) {
                                 Text(entry.refDate.formatted(.dateTime.month(.abbreviated).day()))
                                     .font(AppTypography.caption)
                                     .foregroundStyle(AppColors.inkMuted)

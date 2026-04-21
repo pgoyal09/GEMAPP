@@ -17,7 +17,7 @@ struct PLReportView: View {
         ColumnDef("cogs", weight: 1.5, minWidth: 65, alignment: .trailing),
         ColumnDef("grossProfit", weight: 1.5, minWidth: 65, alignment: .trailing),
         ColumnDef("margin", weight: 1.0, minWidth: 50, alignment: .trailing),
-    ], spacing: 4)
+    ], spacing: AppSpacing.tableColumnGap)
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.hero) {
@@ -80,7 +80,7 @@ struct PLReportView: View {
 
                         VStack(alignment: .leading, spacing: 0) {
                             // Header
-                            HStack(spacing: 4) {
+                            HStack(spacing: AppSpacing.tableColumnGap) {
                                 TableHeader(title: "Stone Type", width: widths[0])
                                 TableHeader(title: "Units", width: widths[1], alignment: .trailing)
                                 TableHeader(title: "Revenue", width: widths[2], alignment: .trailing)
@@ -92,7 +92,7 @@ struct PLReportView: View {
                             .padding(.vertical, AppSpacing.compact)
 
                             ForEach(Array(report.breakdownByType.enumerated()), id: \.element.id) { index, row in
-                                HStack(spacing: 4) {
+                                HStack(spacing: AppSpacing.tableColumnGap) {
                                     StoneTypeBadge(type: row.stoneType)
                                         .frame(width: widths[0], alignment: .leading)
                                     Text("\(row.unitsSold)")

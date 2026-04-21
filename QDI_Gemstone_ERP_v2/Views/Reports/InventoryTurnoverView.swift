@@ -16,7 +16,7 @@ struct InventoryTurnoverView: View {
         ColumnDef("carats", weight: 1.2, minWidth: 55, alignment: .trailing),
         ColumnDef("cost", weight: 1.5, minWidth: 65, alignment: .trailing),
         ColumnDef("days", weight: 1.0, minWidth: 50, alignment: .trailing),
-    ], spacing: 4)
+    ], spacing: AppSpacing.tableColumnGap)
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.hero) {
@@ -146,7 +146,7 @@ struct InventoryTurnoverView: View {
                         let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
 
                         VStack(alignment: .leading, spacing: 0) {
-                            HStack(spacing: 4) {
+                            HStack(spacing: AppSpacing.tableColumnGap) {
                                 TableHeader(title: "SKU", width: widths[0])
                                 TableHeader(title: "Type", width: widths[1])
                                 TableHeader(title: "Carats", width: widths[2], alignment: .trailing)
@@ -157,7 +157,7 @@ struct InventoryTurnoverView: View {
                             .padding(.vertical, AppSpacing.compact)
 
                             ForEach(Array(report.slowMovers.prefix(50).enumerated()), id: \.element.id) { index, stone in
-                                HStack(spacing: 4) {
+                                HStack(spacing: AppSpacing.tableColumnGap) {
                                     Text(stone.sku)
                                         .font(AppTypography.mono)
                                         .foregroundStyle(AppColors.ink)

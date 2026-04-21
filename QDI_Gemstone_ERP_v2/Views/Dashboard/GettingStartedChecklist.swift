@@ -44,7 +44,7 @@ struct GettingStartedChecklist: View {
 
     private var header: some View {
         HStack {
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: AppSpacing.tight) {
                 Text("Getting Started")
                     .font(AppTypography.heading)
                     .foregroundStyle(AppColors.ink)
@@ -107,7 +107,7 @@ struct GettingStartedChecklist: View {
                             .foregroundStyle(done ? AppColors.success : AppColors.primary)
                             .frame(width: 28)
 
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: AppSpacing.tight) {
                             Text(item.title)
                                 .font(AppTypography.body)
                                 .foregroundStyle(done ? AppColors.inkSubtle : AppColors.ink)

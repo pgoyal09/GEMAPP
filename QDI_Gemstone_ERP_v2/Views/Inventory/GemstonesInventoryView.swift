@@ -19,7 +19,7 @@ struct GemstonesInventoryView: View {
         ColumnDef("costPrice", weight: 1.5, minWidth: 70, alignment: .trailing),
         ColumnDef("margin", weight: 1.2, minWidth: 60, alignment: .trailing),
         ColumnDef("status", weight: 1.5, minWidth: 65, alignment: .center),
-    ], spacing: 4)
+    ], spacing: AppSpacing.tableColumnGap)
 
     @Binding var navigateTo: NavigationItem
 
@@ -450,7 +450,7 @@ struct GemstonesInventoryView: View {
     }
 
     private func chipButton(_ label: String, action: @escaping () -> Void) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: AppSpacing.tableColumnGap) {
             Text(label).font(AppTypography.caption).foregroundStyle(AppColors.primary)
             Button(action: action) {
                 Image(systemName: "xmark").font(AppTypography.sectionLabel.weight(.bold)).foregroundStyle(AppColors.primary.opacity(AppOpacity.strong))
@@ -480,7 +480,7 @@ struct GemstonesInventoryView: View {
                         .frame(maxWidth: .infinity)
                 } else {
                     ScrollView(.vertical) {
-                        LazyVStack(spacing: 2) {
+                        LazyVStack(spacing: AppSpacing.tight) {
                             ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
                                 stoneRow(stone, widths: widths)
                                     .simultaneousGesture(TapGesture(count: 2).onEnded {
@@ -501,7 +501,7 @@ struct GemstonesInventoryView: View {
     }
 
     private func tableHeader(widths: [CGFloat]) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: AppSpacing.tableColumnGap) {
             Color.clear.frame(width: 24)
             sortableHeader("SKU", key: "sku", width: widths[0], alignment: .leading)
             sortableHeader("Type", key: "type", width: widths[1], alignment: .leading)

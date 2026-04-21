@@ -64,7 +64,7 @@ struct LabelSettingsView: View {
                             Image(systemName: tmpl.rawValue == selectedTemplate ? "checkmark.circle.fill" : "circle")
                                 .foregroundStyle(tmpl.rawValue == selectedTemplate ? AppColors.primary : AppColors.inkSubtle)
 
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: AppSpacing.tight) {
                                 Text(tmpl.rawValue)
                                     .font(AppTypography.body)
                                     .foregroundStyle(AppColors.ink)
@@ -256,7 +256,7 @@ struct LabelSettingsView: View {
         HStack(spacing: AppSpacing.standard) {
             Image(systemName: status.isReady ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                 .foregroundStyle(status.isReady ? AppColors.success : AppColors.warning)
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: AppSpacing.tight) {
                 Text(status.isReady ? "Printer Ready" : "Printer Issue Detected")
                     .font(AppTypography.caption)
                     .foregroundStyle(status.isReady ? AppColors.ink : AppColors.warning)

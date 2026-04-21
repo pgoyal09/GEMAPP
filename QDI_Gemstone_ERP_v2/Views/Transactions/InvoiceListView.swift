@@ -22,7 +22,7 @@ struct InvoiceListView: View {
         ColumnDef("total", weight: 1.5, minWidth: 70, alignment: .trailing),
         ColumnDef("balance", weight: 1.5, minWidth: 70, alignment: .trailing),
         ColumnDef("status", weight: 1.5, minWidth: 80),
-    ], spacing: 4)
+    ], spacing: AppSpacing.tableColumnGap)
 
     private var allInvoices: [Invoice] { viewModel.fetchedInvoices }
 
@@ -79,7 +79,7 @@ struct InvoiceListView: View {
     }
 
     private var statusPills: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: AppSpacing.small) {
             FilterPill(title: "All", isActive: viewModel.statusFilter == nil) {
                 viewModel.statusFilter = nil
             }
@@ -106,7 +106,7 @@ struct InvoiceListView: View {
                         .frame(maxWidth: .infinity)
                 } else {
                     ScrollView(.vertical) {
-                        LazyVStack(spacing: 2) {
+                        LazyVStack(spacing: AppSpacing.tight) {
                             ForEach(filtered, id: \.persistentModelID) { invoice in
                                 invoiceRow(invoice, widths: widths)
                                     .onAppear {
@@ -142,7 +142,7 @@ struct InvoiceListView: View {
     }
 
     private func headerRow(widths: [CGFloat]) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: AppSpacing.tableColumnGap) {
             sortableHeader("Ref #", key: "reference", width: widths[0])
             sortableHeader("Customer", key: "customer", width: widths[1])
             sortableHeader("Date", key: "date", width: widths[2])
@@ -175,7 +175,7 @@ struct InvoiceListView: View {
         return HoverRow(isSelected: isSelected, onTap: {
             viewModel.selectedInvoiceID = invoice.persistentModelID
         }) {
-            HStack(spacing: 4) {
+            HStack(spacing: AppSpacing.tableColumnGap) {
                 if isOpen {
                     Image(systemName: "macwindow")
                         .font(AppTypography.sectionLabel)

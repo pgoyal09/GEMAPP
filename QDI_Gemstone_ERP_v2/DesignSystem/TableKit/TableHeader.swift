@@ -24,7 +24,7 @@ struct TableHeader: View {
     }
 
     private var label: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: AppSpacing.tableColumnGap) {
             Text(title)
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.inkSubtle)

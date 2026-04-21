@@ -34,7 +34,7 @@ struct DashboardInfoPanel: View {
         VStack(alignment: .leading, spacing: AppSpacing.standard) {
             SectionHeader(title: "Oldest Open Memos")
             if viewModel.overdueMemoCount > 0 {
-                HStack(spacing: 6) {
+                HStack(spacing: AppSpacing.small) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.warningDeep)
@@ -71,7 +71,7 @@ struct DashboardInfoPanel: View {
                             openWindow(id: "memo", value: item.id)
                         } label: {
                             HStack {
-                                VStack(alignment: .leading, spacing: 2) {
+                                VStack(alignment: .leading, spacing: AppSpacing.tight) {
                                     Text("#\(item.referenceNumber)")
                                         .font(AppTypography.body.weight(.medium))
                                         .foregroundStyle(AppColors.inkMuted)
@@ -80,8 +80,8 @@ struct DashboardInfoPanel: View {
                                         .foregroundStyle(AppColors.inkSubtle)
                                 }
                                 Spacer()
-                                VStack(alignment: .trailing, spacing: 2) {
-                                    HStack(spacing: 4) {
+                                VStack(alignment: .trailing, spacing: AppSpacing.tight) {
+                                    HStack(spacing: AppSpacing.tableColumnGap) {
                                         if item.ageDays > 60 {
                                             Text("OVERDUE")
                                                 .font(AppTypography.caption.weight(.semibold))
@@ -128,7 +128,7 @@ struct DashboardInfoPanel: View {
             SectionHeader(title: "Open Memos")
             HStack(spacing: AppSpacing.standard) {
                 snapshotChip("Count", viewModel.totalOpenMemoCount, color: AppColors.primary)
-                VStack(spacing: 2) {
+                VStack(spacing: AppSpacing.tight) {
                     Text(viewModel.totalValueOnMemo.asCurrency)
                         .font(AppTypography.largeValue.monospacedDigit())
                         .foregroundStyle(AppColors.warning)
@@ -160,7 +160,7 @@ struct DashboardInfoPanel: View {
         VStack(alignment: .leading, spacing: AppSpacing.standard) {
             SectionHeader(title: "Auto Backup")
             if let error = backupScheduler.lastBackupError {
-                HStack(spacing: 6) {
+                HStack(spacing: AppSpacing.small) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.danger)
@@ -172,7 +172,7 @@ struct DashboardInfoPanel: View {
                 .padding(.horizontal, AppSpacing.comfortable)
                 .padding(.vertical, AppSpacing.standard)
             } else {
-                HStack(spacing: 6) {
+                HStack(spacing: AppSpacing.small) {
                     Image(systemName: "externaldrive.fill.badge.checkmark")
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColors.success)
@@ -198,7 +198,7 @@ struct DashboardInfoPanel: View {
     }
 
     private func snapshotChip(_ label: String, _ count: Int, color: Color) -> some View {
-        VStack(spacing: 2) {
+        VStack(spacing: AppSpacing.tight) {
             Text("\(count)")
                 .font(AppTypography.largeValue.monospacedDigit())
                 .foregroundStyle(color)

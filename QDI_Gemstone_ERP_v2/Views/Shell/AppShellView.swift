@@ -191,7 +191,7 @@ struct AppShellView: View {
     }
 
     private var notificationPopoverContent: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: AppSpacing.standard) {
             Text("Notifications")
                 .font(AppTypography.caption.bold())
                 .foregroundStyle(AppColors.ink)
@@ -205,7 +205,7 @@ struct AppShellView: View {
                     .padding(.vertical, AppSpacing.standard)
             } else {
                 ForEach(overdue.prefix(5), id: \.persistentModelID) { memo in
-                    HStack(spacing: 6) {
+                    HStack(spacing: AppSpacing.small) {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .font(AppTypography.caption)
                             .foregroundStyle(AppColors.warningDeep)

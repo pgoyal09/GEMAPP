@@ -13,7 +13,7 @@ struct SoldInventoryView: View {
         ColumnDef("margin", weight: 1.2, minWidth: 60, alignment: .trailing),
         ColumnDef("customer", weight: 2.5, minWidth: 100),
         ColumnDef("date", weight: 1.5, minWidth: 70),
-    ], spacing: 4)
+    ], spacing: AppSpacing.tableColumnGap)
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -152,7 +152,7 @@ struct SoldInventoryView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 4) {
+            HStack(spacing: AppSpacing.tableColumnGap) {
                 VStack(spacing: 0) {
                     topBar
                     tableContent
@@ -284,7 +284,7 @@ struct SoldInventoryView: View {
                         .frame(maxWidth: .infinity)
                 } else {
                     ScrollView(.vertical) {
-                        LazyVStack(spacing: 2) {
+                        LazyVStack(spacing: AppSpacing.tight) {
                             ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
                                 stoneRow(stone, widths: widths)
                                     .staggeredRow(index: index, reduceMotion: reduceMotion)
@@ -302,7 +302,7 @@ struct SoldInventoryView: View {
     }
 
     private func tableHeader(widths: [CGFloat]) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: AppSpacing.tableColumnGap) {
             sortableHeader("SKU", key: "sku", width: widths[0], alignment: .leading)
             sortableHeader("Stone Type", key: "type", width: widths[1], alignment: .leading)
             sortableHeader("Carats", key: "carat", width: widths[2], alignment: .trailing)
@@ -419,7 +419,7 @@ struct SoldInventoryView: View {
         return VStack(spacing: 0) {
             // Header
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                     HStack(spacing: AppSpacing.comfortable) {
                         Text(stone.sku)
                             .font(AppTypography.heading)
@@ -496,7 +496,7 @@ struct SoldInventoryView: View {
                         SectionHeader(title: "Stone History")
 
                         VStack(spacing: 0) {
-                            HStack(spacing: 4) {
+                            HStack(spacing: AppSpacing.tableColumnGap) {
                                 Text("Date")
                                     .frame(width: TableColumn.date, alignment: .leading)
                                 Text("Action")
@@ -517,7 +517,7 @@ struct SoldInventoryView: View {
                                     .padding(AppSpacing.section)
                             } else {
                                 ForEach(history, id: \.persistentModelID) { event in
-                                    HStack(spacing: 4) {
+                                    HStack(spacing: AppSpacing.tableColumnGap) {
                                         Text(event.date.formatted(.dateTime.month(.abbreviated).day().year()))
                                             .font(AppTypography.caption)
                                             .foregroundStyle(AppColors.inkMuted)
@@ -560,7 +560,7 @@ struct SoldInventoryView: View {
     }
 
     private func filterChip(_ label: String, onRemove: @escaping () -> Void) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: AppSpacing.tableColumnGap) {
             Text(label)
                 .font(AppTypography.caption)
                 .foregroundStyle(AppColors.ink)

@@ -12,7 +12,7 @@ struct InventorySelectSheet: View {
         ColumnDef("color", weight: 1.5, minWidth: 60),
         ColumnDef("shape", weight: 1.5, minWidth: 60),
         ColumnDef("price", weight: 1.5, minWidth: 70),
-    ], spacing: 4)
+    ], spacing: AppSpacing.tableColumnGap)
 
     @State private var fetchedStones: [Gemstone] = []
     @State private var selectedIDs: Set<PersistentIdentifier> = []
@@ -40,7 +40,7 @@ struct InventorySelectSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             // Search bar
-            HStack(spacing: 12) {
+            HStack(spacing: AppSpacing.comfortable) {
                 GlassSearchField(text: $searchText, placeholder: "Search SKU, type, color…")
                 Picker("Type", selection: $typeFilter) {
                     Text("All Types").tag(StoneType?.none)
@@ -57,7 +57,7 @@ struct InventorySelectSheet: View {
                 let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        HStack(spacing: 4) {
+                        HStack(spacing: AppSpacing.tableColumnGap) {
                             TableHeader(title: "SKU", width: widths[0])
                             TableHeader(title: "Type", width: widths[1])
                             TableHeader(title: "Carats", width: widths[2])
@@ -78,7 +78,7 @@ struct InventorySelectSheet: View {
                                 Text(String(format: "%.2f", stone.caratWeight)).font(AppTypography.mono).frame(width: widths[2], alignment: .trailing)
                                 Text(stone.color).font(AppTypography.body).frame(width: widths[3], alignment: .leading)
                                 Text(stone.shape).font(AppTypography.body).frame(width: widths[4], alignment: .leading)
-                                Text(stone.sellPrice.asCurrency).font(AppTypography.mono).frame(width: widths[5], alignment: .trailing)
+                                Text(stone.sellPrice.asCurrency(stone.currencyType)).font(AppTypography.mono).frame(width: widths[5], alignment: .trailing)
                             }
                         }
                     }

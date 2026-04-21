@@ -36,7 +36,7 @@ struct ScannerView: View {
                         .frame(width: 12, height: 12)
                 }
                 .accessibilityLabel(viewModel.isScanning ? "Scanner Active" : "Scanner Idle")
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                     Text(viewModel.isScanning ? "Scanning Active" : "Scanner Idle")
                         .font(AppTypography.subheading)
                         .foregroundStyle(AppColors.ink)
@@ -80,7 +80,7 @@ struct ScannerView: View {
     private var infoCardsRow: some View {
         HStack(spacing: AppSpacing.section) {
             GlassCard(padding: AppSpacing.section) {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: AppSpacing.standard) {
                     Text("LAST SCANNED EPC").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle).tracking(1)
                     Text(viewModel.lastDiscoveredTagID ?? "—")
                         .font(AppTypography.mono)
@@ -92,7 +92,7 @@ struct ScannerView: View {
             }
 
             GlassCard(padding: AppSpacing.section) {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: AppSpacing.standard) {
                     Text("TOTAL EVENTS").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle).tracking(1)
                     Text("\(viewModel.discoveredTagIDs.count)")
                         .font(AppTypography.largeValue)
@@ -115,9 +115,9 @@ struct ScannerView: View {
                         .foregroundStyle(AppColors.inkSubtle)
                 } else {
                     ScrollView {
-                        LazyVStack(alignment: .leading, spacing: 4) {
+                        LazyVStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                             ForEach(viewModel.discoveredTagIDs.reversed(), id: \.self) { tag in
-                                HStack(spacing: 8) {
+                                HStack(spacing: AppSpacing.standard) {
                                     Image(systemName: "wave.3.right")
                                         .font(AppTypography.sectionLabel)
                                         .foregroundStyle(AppColors.primary)

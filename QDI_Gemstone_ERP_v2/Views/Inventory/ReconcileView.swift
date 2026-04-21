@@ -293,7 +293,7 @@ struct ReconcileView: View {
                             Image(systemName: record.missingCount == 0 ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                                 .foregroundStyle(record.missingCount == 0 ? AppColors.success : AppColors.warning)
 
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: AppSpacing.tight) {
                                 Text(record.date.formatted(.dateTime.month().day().hour().minute()))
                                     .font(AppTypography.body)
                                     .foregroundStyle(AppColors.ink)

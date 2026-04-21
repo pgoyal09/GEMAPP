@@ -135,7 +135,7 @@ struct MemoReturnScanView: View {
                         Image(systemName: item.confirmed ? "checkmark.circle.fill" : "arrow.uturn.left.circle")
                             .foregroundStyle(item.confirmed ? AppColors.success : AppColors.warning)
 
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: AppSpacing.tight) {
                             HStack(spacing: AppSpacing.standard) {
                                 Text(item.stone.sku)
                                     .font(AppTypography.mono)

@@ -15,7 +15,7 @@ struct CustomerListView: View {
         ColumnDef("phone", weight: 1.5, minWidth: 80),
         ColumnDef("openMemos", weight: 1.5, minWidth: 70, alignment: .trailing),
         ColumnDef("totalPurchases", weight: 1.5, minWidth: 70, alignment: .trailing),
-    ], spacing: 4)
+    ], spacing: AppSpacing.tableColumnGap)
 
     var body: some View {
         GeometryReader { geometry in
@@ -82,7 +82,7 @@ struct CustomerListView: View {
             ScrollView(.vertical) {
                 VStack(spacing: 0) {
                     // Header row
-                    HStack(spacing: 4) {
+                    HStack(spacing: AppSpacing.tableColumnGap) {
                         customerSortableHeader("Name", key: "name", width: widths[0])
                         customerSortableHeader("Company", key: "company", width: widths[1])
                         customerSortableHeader("Email", key: "contact", width: widths[2])
@@ -100,7 +100,7 @@ struct CustomerListView: View {
                             .frame(maxWidth: .infinity)
                             .frame(height: 200)
                     } else {
-                        VStack(spacing: 2) {
+                        VStack(spacing: AppSpacing.tight) {
                             ForEach(filtered) { customer in
                                 let isSelected = viewModel.selectedCustomerID == customer.persistentModelID
                                 HoverRow(isSelected: isSelected, onTap: {

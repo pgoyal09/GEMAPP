@@ -177,11 +177,11 @@ struct GemstoneDetailPanel: View {
         VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
             SectionHeader(title: "Pricing")
             LazyVGrid(columns: twoColumnLayout, alignment: .leading, spacing: AppSpacing.comfortable) {
-                DetailRow(label: "Cost", value: formattedPrice(gemstone.costPrice))
+                DetailRow(label: "Cost", value: formattedPrice(gemstone.costPrice, currency: gemstone.currencyType))
                 DetailRow(label: "Price/ct", value: gemstone.caratWeight > 0
-                    ? formattedPrice(gemstone.sellPrice)
+                    ? formattedPrice(gemstone.sellPrice, currency: gemstone.currencyType)
                     : "--")
-                DetailRow(label: "Total Price", value: formattedPrice(gemstone.sellPrice * Decimal(gemstone.caratWeight)))
+                DetailRow(label: "Total Price", value: formattedPrice(gemstone.sellPrice * Decimal(gemstone.caratWeight), currency: gemstone.currencyType))
             }
         }
         .padding(.horizontal, AppSpacing.section)
@@ -225,7 +225,7 @@ struct GemstoneDetailPanel: View {
                             .frame(width: 8, height: 8)
                             .padding(.top, AppSpacing.compact)
 
-                        VStack(alignment: .leading, spacing: 2) {
+                        VStack(alignment: .leading, spacing: AppSpacing.tight) {
                             Text(event.eventDescription)
                                 .font(AppTypography.body)
                                 .foregroundStyle(AppColors.ink)
@@ -270,8 +270,8 @@ struct GemstoneDetailPanel: View {
         }
     }
 
-    private func formattedPrice(_ price: Decimal) -> String {
-        price.asCurrency
+    private func formattedPrice(_ price: Decimal, currency: CurrencyType = .usd) -> String {
+        price.asCurrency(currency)
     }
 
     private func formattedDate(_ date: Date) -> String {

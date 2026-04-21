@@ -70,22 +70,22 @@ struct OnboardingView: View {
                 .font(AppTypography.heading)
                 .foregroundStyle(AppColors.ink)
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                 Text("Company Name").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                 TextField("e.g. Quality Diajewels Inc.", text: $inputName)
                     .glassField()
             }
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                 Text("Phone").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                 TextField("e.g. +1 212-555-0100", text: $inputPhone)
                     .glassField()
             }
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                 Text("Email").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                 TextField("e.g. info@company.com", text: $inputEmail)
                     .glassField()
             }
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: AppSpacing.tableColumnGap) {
                 Text("Address").font(AppTypography.caption).foregroundStyle(AppColors.inkSubtle)
                 TextField("e.g. 47th Street, New York, NY 10036", text: $inputAddress)
                     .glassField()
