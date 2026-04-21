@@ -39,8 +39,19 @@ struct InvoiceWindowView: View {
         }
         .onAppear {
             openDocTracker.trackOpen(invoiceID: invoiceID)
+            if let invoice = fetchInvoice() {
+                for item in invoice.lineItems {
+                    if let stoneID = item.gemstone?.persistentModelID {
+                        openDocTracker.lockStone(stoneID, by: "Invoice #\(invoice.referenceNumber)")
+                    }
+                }
+            }
         }
         .onDisappear {
+            if let invoice = fetchInvoice() {
+                let stoneIDs = Set(invoice.lineItems.compactMap { $0.gemstone?.persistentModelID })
+                openDocTracker.unlockStones(stoneIDs)
+            }
             openDocTracker.trackClose(invoiceID: invoiceID)
             cleanupEmptyInvoice()
         }

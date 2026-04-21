@@ -94,8 +94,15 @@ struct MemoDocumentView: View {
                 var zeroPriceSkus: [String] = []
                 var duplicateMessages: [String] = []
                 for stone in stones {
+                    // Check if stone is locked by another open document
+                    if let lockingDoc = openDocTracker.lockingDocument(for: stone.persistentModelID) {
+                        duplicateMessages.append("\(stone.sku) is open in \(lockingDoc)")
+                        continue
+                    }
                     do {
                         try TransactionService.addStone(stone, to: memo, modelContext: modelContext)
+                        // Lock stone to this document
+                        openDocTracker.lockStone(stone.persistentModelID, by: "Memo #\(memo.referenceNumber)")
                         if stone.sellPrice == 0 { zeroPriceSkus.append(stone.sku) }
                     } catch let error as TransactionError {
                         switch error {

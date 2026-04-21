@@ -8,6 +8,7 @@ struct InvoiceDocumentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(\.documentDirtyTracker) private var dirtyTracker
+    @Environment(\.openDocumentTracker) private var openDocTracker
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query(sort: \Customer.lastName) private var allCustomers: [Customer]
 
@@ -89,13 +90,22 @@ struct InvoiceDocumentView: View {
         .sheet(isPresented: $showInventorySheet) {
             InventorySelectSheet { stones in
                 var zeroPriceSkus: [String] = []
+                var lockMessages: [String] = []
                 for stone in stones {
+                    if let lockingDoc = openDocTracker.lockingDocument(for: stone.persistentModelID) {
+                        lockMessages.append("\(stone.sku) is open in \(lockingDoc)")
+                        continue
+                    }
                     do {
                         try TransactionService.addStone(stone, to: invoice, modelContext: modelContext)
+                        openDocTracker.lockStone(stone.persistentModelID, by: "Invoice #\(invoice.referenceNumber)")
                         if stone.sellPrice == 0 { zeroPriceSkus.append(stone.sku) }
                     } catch {
                         showToast("Failed to add stone: \(ErrorMapper.userMessage(from: error))", isError: true)
                     }
+                }
+                if !lockMessages.isEmpty {
+                    showToast(lockMessages.joined(separator: ", "), isError: true)
                 }
                 if !zeroPriceSkus.isEmpty {
                     showToast("Zero price: \(zeroPriceSkus.joined(separator: ", "))", isError: false)

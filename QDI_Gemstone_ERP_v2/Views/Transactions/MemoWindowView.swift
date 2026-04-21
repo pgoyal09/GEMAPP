@@ -39,8 +39,21 @@ struct MemoWindowView: View {
         }
         .onAppear {
             openDocTracker.trackOpen(memoID: memoID)
+            // Lock all stones currently on this memo
+            if let memo = fetchMemo() {
+                for item in memo.lineItems {
+                    if let stoneID = item.gemstone?.persistentModelID {
+                        openDocTracker.lockStone(stoneID, by: "Memo #\(memo.referenceNumber)")
+                    }
+                }
+            }
         }
         .onDisappear {
+            // Unlock all stones when window closes
+            if let memo = fetchMemo() {
+                let stoneIDs = Set(memo.lineItems.compactMap { $0.gemstone?.persistentModelID })
+                openDocTracker.unlockStones(stoneIDs)
+            }
             openDocTracker.trackClose(memoID: memoID)
             cleanupEmptyMemo()
         }
