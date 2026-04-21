@@ -49,7 +49,7 @@ struct MemoWindowView: View {
             }
         }
         .onDisappear {
-            // Unlock all stones when window closes
+            // Unlock stones BEFORE cleanup to prevent orphaned locks
             if let memo = fetchMemo() {
                 let stoneIDs = Set(memo.lineItems.compactMap { $0.gemstone?.persistentModelID })
                 openDocTracker.unlockStones(stoneIDs)
@@ -93,13 +93,11 @@ struct MemoWindowView: View {
     }
 
     private func fetchMemo() -> Memo? {
-        let descriptor = FetchDescriptor<Memo>()
-        do {
-            return try modelContext.fetch(descriptor).first { $0.persistentModelID == memoID }
-        } catch {
-            AppLogger.data.error("Failed to fetch memo: \(error.localizedDescription)")
-            return nil
+        // Use direct model lookup by ID instead of full table scan
+        if let memo = modelContext.model(for: memoID) as? Memo, !memo.isDeleted {
+            return memo
         }
+        return nil
     }
 
     private func cleanupEmptyMemo() {

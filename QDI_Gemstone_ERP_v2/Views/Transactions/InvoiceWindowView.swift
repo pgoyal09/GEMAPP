@@ -91,13 +91,11 @@ struct InvoiceWindowView: View {
     }
 
     private func fetchInvoice() -> Invoice? {
-        let descriptor = FetchDescriptor<Invoice>()
-        do {
-            return try modelContext.fetch(descriptor).first { $0.persistentModelID == invoiceID }
-        } catch {
-            AppLogger.data.error("Failed to fetch invoice: \(error.localizedDescription)")
-            return nil
+        // Use direct model lookup by ID instead of full table scan
+        if let invoice = modelContext.model(for: invoiceID) as? Invoice, !invoice.isDeleted {
+            return invoice
         }
+        return nil
     }
 
     private func cleanupEmptyInvoice() {
