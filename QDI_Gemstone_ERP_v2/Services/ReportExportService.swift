@@ -114,6 +114,33 @@ enum ReportExportService {
         """)
     }
 
+    static func buildCustomerProfitabilityHTML(_ report: CustomerProfitabilityReport, dateRange: String) -> String {
+        var rows = ""
+        for row in report.rows {
+            rows += "<tr><td>\(row.customerName)</td><td>\(row.totalRevenue.asCurrency)</td><td>\(row.totalCOGS.asCurrency)</td><td>\(row.profit.asCurrency)</td><td>\(String(format: "%.1f%%", row.marginPercent))</td><td>\(row.transactionCount)</td><td>\(row.avgOrderValue.asCurrency)</td></tr>"
+        }
+        return wrapHTML(title: "Customer Profitability Report", subtitle: dateRange, body: """
+        <table><thead><tr><th>Customer</th><th>Revenue</th><th>COGS</th><th>Profit</th><th>Margin</th><th>Transactions</th><th>Avg Order</th></tr></thead><tbody>\(rows)</tbody></table>
+        """)
+    }
+
+    static func buildMarginAnalysisHTML(_ report: MarginAnalysisReport, dateRange: String) -> String {
+        var typeRows = ""
+        for row in report.byStoneType {
+            typeRows += "<tr><td>\(row.stoneType)</td><td>\(String(format: "%.1f%%", row.avgMarginPercent))</td><td>\(row.count)</td></tr>"
+        }
+        var distRows = ""
+        for bucket in report.distribution {
+            distRows += "<tr><td>\(bucket.label)</td><td>\(bucket.count)</td><td>\(String(format: "%.1f%%", bucket.percent))</td></tr>"
+        }
+        return wrapHTML(title: "Margin Analysis Report", subtitle: dateRange, body: """
+        <h3>Margin by Stone Type</h3>
+        <table><thead><tr><th>Stone Type</th><th>Avg Margin</th><th>Count</th></tr></thead><tbody>\(typeRows)</tbody></table>
+        <h3>Margin Distribution</h3>
+        <table><thead><tr><th>Bucket</th><th>Count</th><th>% of Total</th></tr></thead><tbody>\(distRows)</tbody></table>
+        """)
+    }
+
     // MARK: - HTML Wrapper
 
     private static func wrapHTML(title: String, subtitle: String, body: String) -> String {
