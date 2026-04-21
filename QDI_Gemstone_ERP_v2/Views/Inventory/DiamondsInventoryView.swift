@@ -239,7 +239,9 @@ struct DiamondsInventoryView: View {
         } message: {
             Text("Export \(exportableStones.count) diamond\(exportableStones.count == 1 ? "" : "s") to RapNet CSV?")
         }
-        .sheet(isPresented: $showCSVImportPreview) {
+        .sheet(isPresented: $showCSVImportPreview, onDismiss: {
+            csvImportRows = []  // Reset for next import
+        }) {
             CSVImportPreviewSheet(rows: csvImportRows)
         }
         .alert("CSV Import Error", isPresented: .constant(csvImportError != nil)) {
