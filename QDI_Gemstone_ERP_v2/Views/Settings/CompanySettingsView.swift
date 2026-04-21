@@ -330,6 +330,33 @@ struct CompanySettingsView: View {
                     }
                 }
 
+                // MARK: - Reset Onboarding
+
+                settingsSection(title: "Onboarding") {
+                    HStack(spacing: AppSpacing.standard) {
+                        Image(systemName: "arrow.counterclockwise")
+                            .font(AppTypography.heading)
+                            .foregroundStyle(AppColors.primary)
+                        VStack(alignment: .leading, spacing: AppSpacing.compact) {
+                            Text("Reset Onboarding")
+                                .font(AppTypography.body)
+                                .foregroundStyle(AppColors.ink)
+                            Text("Re-run the initial setup wizard on next launch.")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.inkSubtle)
+                        }
+                        Spacer()
+                        Button("Reset") {
+                            UserDefaults.standard.set(false, forKey: "onboardingComplete")
+                            showSavedToast = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                withAnimation(reduceMotion ? nil : .default) { showSavedToast = false }
+                            }
+                        }
+                        .buttonStyle(.outline(AppColors.warning))
+                    }
+                }
+
                 // MARK: - Privacy & Legal
 
                 settingsSection(title: "Privacy & Legal") {

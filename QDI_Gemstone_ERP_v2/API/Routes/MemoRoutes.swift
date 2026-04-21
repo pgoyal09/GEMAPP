@@ -58,10 +58,24 @@ enum MemoRoutes {
             await MainActor.run {
                 let context = ModelContext(container)
                 let body = req.jsonBody()
+
+                // Validate salesperson is provided when required
+                // Default to true to match the @AppStorage default in CompanySettingsView
+                let requireSalesperson = UserDefaults.standard.object(forKey: "requireSalespersonOnMemos") as? Bool ?? true
+                if requireSalesperson {
+                    let salesperson = (body?["salesperson"] as? String)?.trimmingCharacters(in: .whitespaces) ?? ""
+                    if salesperson.isEmpty {
+                        return .error(code: "VALIDATION_ERROR", message: "Salesperson is required when the setting is enabled.")
+                    }
+                }
+
                 do {
                     let memo = try TransactionService.createMemo(modelContext: context)
                     if let customerName = body?["customer"] as? String {
                         memo.customer = findCustomer(name: customerName, context: context)
+                    }
+                    if let salesperson = body?["salesperson"] as? String {
+                        memo.salesperson = salesperson.trimmingCharacters(in: .whitespaces)
                     }
                     try context.save()
                     return .created(memoJSON(memo))

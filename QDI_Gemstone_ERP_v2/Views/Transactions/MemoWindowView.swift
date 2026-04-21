@@ -105,7 +105,9 @@ struct MemoWindowView: View {
     private func cleanupEmptyMemo() {
         guard let memo = fetchMemo() else { return }
         guard !memo.isDeleted else { return }
-        if memo.lineItems.isEmpty {
+        // Only cleanup if the memo has no customer AND no line items.
+        // A memo with a customer assigned but no items yet should be preserved.
+        if memo.lineItems.isEmpty && memo.customer == nil {
             modelContext.delete(memo)
             do {
                 try modelContext.save()

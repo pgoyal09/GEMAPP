@@ -96,6 +96,9 @@ enum InvoiceService {
         // Void all associated payments so totalPaid/balanceDue are correct
         for payment in invoice.payments {
             payment.isVoided = true
+            // Annotate the payment record so the void is traceable in payment history
+            let voidNote = " [VOIDED - Invoice #\(invoice.referenceNumber) voided \(Date().formatted(date: .abbreviated, time: .omitted))]"
+            payment.referenceNumber += voidNote
         }
         for item in invoice.lineItems {
             // Reset origin memo line item if this was a conversion

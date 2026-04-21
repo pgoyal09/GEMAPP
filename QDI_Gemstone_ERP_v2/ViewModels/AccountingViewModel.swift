@@ -86,6 +86,7 @@ struct MonthlySales: Identifiable {
     let id: String // "YYYY-MM"
     let month: String
     var revenue: Decimal = 0
+    var cost: Decimal = 0
 }
 
 // MARK: - ViewModel
@@ -142,9 +143,9 @@ final class AccountingViewModel {
     // MARK: - CSV Export
 
     func exportCSV() -> String {
-        var lines = ["Month,Revenue"]
+        var lines = ["Month,Revenue,Cost,Profit"]
         for row in monthlySales {
-            lines.append("\(row.month),\(row.revenue)")
+            lines.append("\(row.month),\(row.revenue),\(row.cost),\(row.revenue - row.cost)")
         }
         lines.append("")
         lines.append("Total Revenue,\(totalRevenue)")
@@ -163,21 +164,25 @@ final class AccountingViewModel {
         var revenue: Decimal = 0
         var cost: Decimal = 0
         var stoneTypeMap: [String: Decimal] = [:]
-        var monthlyMap: [String: Decimal] = [:]
+        var monthlyRevenueMap: [String: Decimal] = [:]
+        var monthlyCostMap: [String: Decimal] = [:]
 
         for inv in invoices {
             revenue += inv.totalAmount
             let monthKey = fmt.string(from: inv.invoiceDate)
-            monthlyMap[monthKey, default: 0] += inv.totalAmount
+            monthlyRevenueMap[monthKey, default: 0] += inv.totalAmount
 
             for item in inv.lineItems {
                 stoneTypeMap[item.stoneTypeDisplay, default: 0] += item.amount
+                var itemCost: Decimal = 0
                 if let stone = item.gemstone {
                     if item.isLotLineItem {
-                        cost += (item.lockedCostPerCarat ?? stone.effectiveAverageCost) * Decimal(item.carats)
+                        itemCost = (item.lockedCostPerCarat ?? stone.effectiveAverageCost) * Decimal(item.carats)
                     } else {
-                        cost += stone.costPrice
+                        itemCost = stone.costPrice
                     }
+                    cost += itemCost
+                    monthlyCostMap[monthKey, default: 0] += itemCost
                 }
             }
         }
@@ -186,8 +191,9 @@ final class AccountingViewModel {
         totalCost = cost
         salesByStoneType = stoneTypeMap.map { SalesByStoneType(id: $0.key, stoneType: $0.key, revenue: $0.value) }
             .sorted { $0.revenue > $1.revenue }
-        monthlySales = monthlyMap.map { MonthlySales(id: $0.key, month: $0.key, revenue: $0.value) }
-            .sorted { $0.id < $1.id }
+        monthlySales = monthlyRevenueMap.map {
+            MonthlySales(id: $0.key, month: $0.key, revenue: $0.value, cost: monthlyCostMap[$0.key] ?? 0)
+        }.sorted { $0.id < $1.id }
     }
 
     /// Compute aged receivables from pre-fetched sent invoices (no additional DB fetch).

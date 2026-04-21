@@ -103,7 +103,9 @@ struct InvoiceWindowView: View {
     private func cleanupEmptyInvoice() {
         guard let invoice = fetchInvoice() else { return }
         guard !invoice.isDeleted else { return }
-        if invoice.lineItems.isEmpty && invoice.status == .draft {
+        // Only cleanup if the invoice has no customer AND no line items.
+        // An invoice with a customer assigned but no items yet should be preserved.
+        if invoice.lineItems.isEmpty && invoice.customer == nil && invoice.status == .draft {
             do {
                 try InvoiceService.deleteInvoice(invoice, modelContext: modelContext)
             } catch {
