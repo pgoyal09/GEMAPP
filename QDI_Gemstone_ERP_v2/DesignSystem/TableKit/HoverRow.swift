@@ -47,7 +47,7 @@ struct HoverRow<Content: View>: View {
         if isSelected {
             AppColors.primary.opacity(AppOpacity.muted)
         } else if isHovered {
-            Color.white.opacity(0.04)
+            Color.white.opacity(AppOpacity.whisper)
         } else {
             Color.clear
         }

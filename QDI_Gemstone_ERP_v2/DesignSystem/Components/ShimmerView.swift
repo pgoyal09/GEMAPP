@@ -25,10 +25,10 @@ struct ShimmerView: View {
                 .fill(Color.white.opacity(0.06))
                 .frame(width: 80, height: 14)
             RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                .fill(Color.white.opacity(0.04))
+                .fill(Color.white.opacity(AppOpacity.whisper))
                 .frame(width: 120, height: 14)
             RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                .fill(Color.white.opacity(0.04))
+                .fill(Color.white.opacity(AppOpacity.whisper))
                 .frame(width: 60, height: 14)
             Spacer()
         }

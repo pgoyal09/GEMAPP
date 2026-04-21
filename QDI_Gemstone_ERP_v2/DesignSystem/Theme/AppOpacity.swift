@@ -1,6 +1,12 @@
 import SwiftUI
 
 enum AppOpacity {
+    /// 0.03 — near-invisible hover/highlight
+    static let faint: Double = 0.03
+    /// 0.04 — minimal background tint
+    static let whisper: Double = 0.04
+    /// 0.05 — soft background, card hover
+    static let soft: Double = 0.05
     /// 0.08 — barely visible tints, glass fills
     static let subtle: Double = 0.08
     /// 0.15 — muted backgrounds, badge fills

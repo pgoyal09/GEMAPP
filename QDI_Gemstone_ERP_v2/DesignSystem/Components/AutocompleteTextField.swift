@@ -68,7 +68,7 @@ struct AutocompleteTextField: View {
                     RoundedRectangle(cornerRadius: AppCornerRadius.field, style: .continuous)
                         .strokeBorder(AppColors.cardStroke, lineWidth: 1)
                 )
-                .shadow(color: Color.black.opacity(0.3), radius: 8)
+                .shadow(color: Color.black.opacity(AppOpacity.muted), radius: 8, y: 4)
                 .offset(y: 32)
                 .zIndex(10)
             }

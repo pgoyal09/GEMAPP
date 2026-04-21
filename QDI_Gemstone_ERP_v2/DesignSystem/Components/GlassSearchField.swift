@@ -26,7 +26,7 @@ struct GlassSearchField: View {
         .padding(.vertical, AppSpacing.comfortable)
         .background(
             RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
-                .fill(Color.white.opacity(0.04))
+                .fill(Color.white.opacity(AppOpacity.whisper))
                 .overlay(
                     RoundedRectangle(cornerRadius: AppCornerRadius.medium, style: .continuous)
                         .strokeBorder(

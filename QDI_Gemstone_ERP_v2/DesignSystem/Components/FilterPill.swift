@@ -15,7 +15,7 @@ struct FilterPill: View {
                 .padding(.vertical, AppSpacing.standard)
                 .background(
                     RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                        .fill(isActive ? AppColors.primary.opacity(0.20) : Color.white.opacity(0.03))
+                        .fill(isActive ? AppColors.primary.opacity(0.20) : Color.white.opacity(AppOpacity.faint))
                         .overlay(
                             RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                                 .strokeBorder(

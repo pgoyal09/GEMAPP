@@ -31,7 +31,7 @@ enum AppColors {
     // MARK: - Borders & Effects
 
     static let cardStroke       = Color.white.opacity(0.08)
-    static let softHighlight    = Color.white.opacity(0.04)
+    static let softHighlight    = Color.white.opacity(AppOpacity.whisper)
     static let softShadow       = Color(red: 0.22, green: 0.74, blue: 0.97).opacity(0.20)
 
     // MARK: - Stone Type Colors
