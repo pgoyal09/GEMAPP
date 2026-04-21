@@ -76,6 +76,7 @@ struct GemstonesInventoryView: View {
     @State private var filterPresets: [FilterPreset] = FilterPresetStore.loadGemstonePresets()
     @State private var showSavePreset = false
     @State private var newPresetName = ""
+    @State private var headerHeight: CGFloat = 0
 
     // MARK: - Init
 
@@ -309,8 +310,8 @@ struct GemstonesInventoryView: View {
             }
             .buttonStyle(.outline)
         }
-        .padding(.horizontal, AppSpacing.hero)
-        .padding(.vertical, AppSpacing.section)
+        .padding(.horizontal, AppSpacing.section)
+        .padding(.vertical, AppSpacing.standard)
         .alert("Save Filter Preset", isPresented: $showSavePreset) {
             TextField("Preset name", text: $newPresetName)
             Button("Save") { saveGemstonePreset() }
@@ -444,7 +445,7 @@ struct GemstonesInventoryView: View {
                     }
                     .buttonStyle(.plain)
                 }
-                .padding(.horizontal, AppSpacing.hero).padding(.bottom, AppSpacing.comfortable)
+                .padding(.horizontal, AppSpacing.section).padding(.bottom, AppSpacing.standard)
             }
         }
     }
@@ -469,35 +470,41 @@ struct GemstonesInventoryView: View {
     // MARK: - Table
 
     private var tableContent: some View {
-        GeometryReader { geo in
-            let fixedWidth: CGFloat = 24 // checkbox
-            let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard - fixedWidth)
-            VStack(spacing: 0) {
-                tableHeader(widths: widths)
-                Divider().background(AppColors.cardStroke)
-                if filteredStones.isEmpty {
-                    EmptyStateView(icon: "aqi.medium", title: "No gemstones found", subtitle: "Try adjusting your search or filters")
-                        .frame(maxWidth: .infinity)
-                } else {
-                    ScrollView(.vertical) {
-                        LazyVStack(spacing: AppSpacing.tight) {
-                            ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
-                                stoneRow(stone, widths: widths)
-                                    .simultaneousGesture(TapGesture(count: 2).onEnded {
-                                        detailSheetStone = stone
-                                    })
-                                    .staggeredRow(index: index, reduceMotion: reduceMotion)
+        VStack(spacing: 0) {
+            GeometryReader { geo in
+                let fixedWidth: CGFloat = 24
+                let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard - fixedWidth)
+                VStack(spacing: 0) {
+                    tableHeader(widths: widths)
+                        .background(GeometryReader { hg in
+                            Color.clear.onAppear { headerHeight = hg.size.height }
+                        })
+                    Divider().background(AppColors.cardStroke)
+                    if filteredStones.isEmpty {
+                        EmptyStateView(icon: "aqi.medium", title: "No gemstones found", subtitle: "Try adjusting your search or filters")
+                            .frame(maxWidth: .infinity)
+                            .frame(height: max(0, geo.size.height - headerHeight - 1))
+                    } else {
+                        ScrollView(.vertical) {
+                            LazyVStack(spacing: AppSpacing.tight) {
+                                ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
+                                    stoneRow(stone, widths: widths)
+                                        .simultaneousGesture(TapGesture(count: 2).onEnded {
+                                            detailSheetStone = stone
+                                        })
+                                        .staggeredRow(index: index, reduceMotion: reduceMotion)
+                                }
                             }
+                            .padding(.vertical, AppSpacing.compact)
                         }
-                        .padding(.vertical, AppSpacing.standard)
+                        .frame(height: max(0, geo.size.height - headerHeight - 1))
                     }
                 }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
-        .padding(.horizontal, AppSpacing.hero)
-        .padding(.bottom, AppSpacing.comfortable)
+        .padding(.horizontal, AppSpacing.standard)
+        .padding(.bottom, AppSpacing.compact)
     }
 
     private func tableHeader(widths: [CGFloat]) -> some View {
