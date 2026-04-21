@@ -5,7 +5,7 @@ import os
 private let logger = Logger(subsystem: "com.qdi.gemapp", category: "transaction")
 
 /// Errors thrown by transaction operations.
-enum TransactionError: LocalizedError {
+enum TransactionError: LocalizedError, Sendable {
     case stoneNotAvailable(sku: String, status: String)
     case stoneOnMemo(sku: String)
     case duplicateStone(sku: String)
@@ -18,7 +18,10 @@ enum TransactionError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .stoneNotAvailable(let sku, let status):
-            return "Stone \(sku) is not available (current status: \(status))."
+            let friendlyStatus = status.replacingOccurrences(of: "onMemo", with: "on a memo")
+                .replacingOccurrences(of: "atLab", with: "at the lab")
+                .replacingOccurrences(of: "inTransit", with: "in transit")
+            return "Stone \(sku) is not available (currently \(friendlyStatus))."
         case .stoneOnMemo(let sku):
             return "Stone \(sku) is currently on a memo. Use Convert to Invoice from the memo instead."
         case .duplicateStone(let sku):

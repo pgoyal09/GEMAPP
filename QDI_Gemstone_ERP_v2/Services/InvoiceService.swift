@@ -4,14 +4,14 @@ import os
 
 private let logger = Logger(subsystem: "com.qdi.gemapp", category: "invoice")
 
-enum InvoiceError: LocalizedError {
+enum InvoiceError: LocalizedError, Sendable {
     case cannotDeleteNonDraft(status: String)
     case cannotVoidInvoice(status: String)
 
     var errorDescription: String? {
         switch self {
-        case .cannotDeleteNonDraft(let status): return "Cannot delete invoice with status '\(status)'. Only draft invoices can be deleted."
-        case .cannotVoidInvoice(let status): return "Cannot void invoice with status '\(status)'. Only sent or paid invoices can be voided."
+        case .cannotDeleteNonDraft: return "This invoice can only be deleted while it's a draft. Void it instead if it's already been sent."
+        case .cannotVoidInvoice: return "This invoice can only be voided if it's been sent or paid."
         }
     }
 }

@@ -114,10 +114,21 @@ enum InventoryRoutes {
                     modelContext: context
                 )
 
+                let caratWeight = body["caratWeight"] as? Double ?? 0
+                let costPrice = body["costPrice"] as? Double ?? 0
+                let sellPrice = body["sellPrice"] as? Double ?? 0
+                // Validate non-negative numeric values
+                guard caratWeight >= 0 else {
+                    return .error(code: "VALIDATION_FAILED", message: "Carat weight cannot be negative.", status: 422)
+                }
+                guard costPrice >= 0 && sellPrice >= 0 else {
+                    return .error(code: "VALIDATION_FAILED", message: "Prices cannot be negative.", status: 422)
+                }
+
                 let stone = Gemstone(
                     sku: sku,
                     stoneType: stoneType,
-                    caratWeight: body["caratWeight"] as? Double ?? 0,
+                    caratWeight: caratWeight,
                     shape: shape,
                     grouping: grouping,
                     origin: body["origin"] as? String ?? "",
@@ -126,8 +137,8 @@ enum InventoryRoutes {
                     clarity: body["clarity"] as? String ?? "",
                     cut: body["cut"] as? String ?? "",
                     treatment: body["treatment"] as? String ?? "",
-                    costPrice: Decimal(body["costPrice"] as? Double ?? 0),
-                    sellPrice: Decimal(body["sellPrice"] as? Double ?? 0)
+                    costPrice: Decimal(costPrice),
+                    sellPrice: Decimal(sellPrice)
                 )
 
                 context.insert(stone)
@@ -157,9 +168,24 @@ enum InventoryRoutes {
             if let v = body["shape"] as? String { stone.shape = v }
             if let v = body["origin"] as? String { stone.origin = v }
             if let v = body["treatment"] as? String { stone.treatment = v }
-            if let v = body["caratWeight"] as? Double { stone.caratWeight = v }
-            if let v = body["costPrice"] as? Double { stone.costPrice = Decimal(v) }
-            if let v = body["sellPrice"] as? Double { stone.sellPrice = Decimal(v) }
+            if let v = body["caratWeight"] as? Double {
+                guard v >= 0 else {
+                    return .error(code: "VALIDATION_FAILED", message: "Carat weight cannot be negative.", status: 422)
+                }
+                stone.caratWeight = v
+            }
+            if let v = body["costPrice"] as? Double {
+                guard v >= 0 else {
+                    return .error(code: "VALIDATION_FAILED", message: "Cost price cannot be negative.", status: 422)
+                }
+                stone.costPrice = Decimal(v)
+            }
+            if let v = body["sellPrice"] as? Double {
+                guard v >= 0 else {
+                    return .error(code: "VALIDATION_FAILED", message: "Sell price cannot be negative.", status: 422)
+                }
+                stone.sellPrice = Decimal(v)
+            }
 
             do { try context.save() } catch {
                 return .error(code: "SAVE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)

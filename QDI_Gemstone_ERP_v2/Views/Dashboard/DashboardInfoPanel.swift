@@ -114,7 +114,7 @@ struct DashboardInfoPanel: View {
         VStack(alignment: .leading, spacing: AppSpacing.standard) {
             SectionHeader(title: "Open Memos")
             HStack(spacing: AppSpacing.standard) {
-                snapshotChip("Count", viewModel.oldestOpenMemos.count, color: AppColors.primary)
+                snapshotChip("Count", viewModel.totalOpenMemoCount, color: AppColors.primary)
                 VStack(spacing: 2) {
                     Text(viewModel.totalValueOnMemo.asCurrency)
                         .font(AppTypography.largeValue.monospacedDigit())

@@ -38,6 +38,7 @@ final class DashboardViewModel {
     var monthlySales: Decimal = 0
     var recentActivity: [RecentActivityItem] = []
     var oldestOpenMemos: [OldestMemoItem] = []
+    var totalOpenMemoCount: Int = 0
     var inventorySnapshot = InventorySnapshot()
     var overdueMemoCount: Int = 0
     var isLoading: Bool = false
@@ -52,8 +53,10 @@ final class DashboardViewModel {
         let allMemos = safeFetch(FetchDescriptor<Memo>(sortBy: [SortDescriptor(\.createdAt, order: .forward)]), modelContext: modelContext)
         loadMemoMetrics(from: allMemos)
         recentActivity = buildRecentActivity(from: allMemos)
+        let openMemos = allMemos.filter { $0.status == .onMemo }
+        totalOpenMemoCount = openMemos.count
         oldestOpenMemos = buildOldestOpenMemos(from: allMemos)
-        overdueMemoCount = allMemos.filter { $0.status == .onMemo && $0.ageInDays > 60 }.count
+        overdueMemoCount = openMemos.filter { $0.ageInDays > 60 }.count
         
         loadSalesMetrics(modelContext: modelContext)
     }

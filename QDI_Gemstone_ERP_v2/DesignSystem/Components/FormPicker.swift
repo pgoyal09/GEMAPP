@@ -1,16 +1,11 @@
 import SwiftUI
 
 /// Reusable labeled picker with consistent glass styling matching FormField.
-struct FormPicker<SelectionValue: Hashable>: View {
+/// Uses generic Content instead of AnyView to preserve SwiftUI diffing.
+struct FormPicker<SelectionValue: Hashable, Content: View>: View {
     let label: String
     @Binding var selection: SelectionValue
-    let content: () -> AnyView
-
-    init<C: View>(label: String, selection: Binding<SelectionValue>, @ViewBuilder content: @escaping () -> C) {
-        self.label = label
-        self._selection = selection
-        self.content = { AnyView(content()) }
-    }
+    @ViewBuilder let content: () -> Content
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.compact) {

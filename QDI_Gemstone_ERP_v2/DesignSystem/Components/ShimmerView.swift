@@ -22,7 +22,7 @@ struct ShimmerView: View {
     private var shimmerRow: some View {
         HStack(spacing: AppSpacing.section) {
             RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                .fill(Color.white.opacity(0.06))
+                .fill(Color.white.opacity(AppOpacity.dim))
                 .frame(width: 80, height: 14)
             RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                 .fill(Color.white.opacity(AppOpacity.whisper))
@@ -36,7 +36,7 @@ struct ShimmerView: View {
         .overlay(
             GeometryReader { geo in
                 LinearGradient(
-                    colors: [.clear, Color.white.opacity(0.06), .clear],
+                    colors: [.clear, Color.white.opacity(AppOpacity.dim), .clear],
                     startPoint: .leading,
                     endPoint: .trailing
                 )

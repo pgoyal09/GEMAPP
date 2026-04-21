@@ -4,7 +4,7 @@ import SwiftData
 /// Provides backup and export functionality for the gemstone database.
 enum BackupService {
 
-    enum BackupError: LocalizedError {
+    enum BackupError: LocalizedError, Sendable {
         case noStoreFile
         case exportFailed(String)
 

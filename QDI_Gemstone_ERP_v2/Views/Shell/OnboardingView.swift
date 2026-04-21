@@ -123,7 +123,10 @@ struct OnboardingView: View {
             if step < 2 {
                 Button("Next", systemImage: "arrow.right") {
                     withAnimation(reduceMotion ? nil : .default) { step += 1 }
-                }.buttonStyle(.gradient)
+                }
+                .buttonStyle(.gradient)
+                // Require company name before proceeding past step 1
+                .disabled(step == 1 && inputName.trimmingCharacters(in: .whitespaces).isEmpty)
             } else {
                 Button("Get Started", systemImage: "arrow.right") {
                     completeOnboarding()

@@ -19,7 +19,7 @@ struct FilterPill: View {
                         .overlay(
                             RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
                                 .strokeBorder(
-                                    isActive ? AppColors.primary.opacity(0.20) : Color.white.opacity(0.06),
+                                    isActive ? AppColors.primary.opacity(0.20) : Color.white.opacity(AppOpacity.dim),
                                     lineWidth: 1
                                 )
                         )

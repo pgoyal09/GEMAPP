@@ -12,7 +12,11 @@ enum DashboardRoutes {
             let stones = (try? context.fetch(stoneDesc)) ?? []
             let availableStones = stones.filter { $0.status == .available }
             let inventoryCount = availableStones.count
-            let inventoryValue = availableStones.reduce(Decimal.zero) { $0 + $1.sellPrice * Decimal($1.caratWeight) }
+            // Use effectiveRemainingCarats for lots (accounts for partial sales)
+            let inventoryValue = availableStones.reduce(Decimal.zero) {
+                let carats = $1.isLot ? $1.effectiveRemainingCarats : $1.caratWeight
+                return $0 + $1.sellPrice * Decimal(carats)
+            }
 
             // Revenue (paid invoices)
             let invDesc = FetchDescriptor<Invoice>()
@@ -24,7 +28,8 @@ enum DashboardRoutes {
             let memoDesc = FetchDescriptor<Memo>()
             let memos = (try? context.fetch(memoDesc)) ?? []
             let openMemos = memos.filter { $0.status == .onMemo }
-            let overdueMemos = openMemos.filter { $0.ageInDays > 30 }
+            // Match UI threshold of 60 days (configurable via AppStorage memoAgingOrange)
+            let overdueMemos = openMemos.filter { $0.ageInDays > 60 }
 
             // Recent activity (last 10 invoices/memos)
             let recentInvoices = invoices.sorted { $0.createdAt > $1.createdAt }.prefix(5)

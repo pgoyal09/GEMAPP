@@ -858,7 +858,7 @@ final class CloudBackupService {
 
 // MARK: - Errors
 
-enum CloudBackupError: LocalizedError {
+enum CloudBackupError: LocalizedError, Sendable {
     case noEncryptionKey
     case encryptionFailed
     case compressionFailed

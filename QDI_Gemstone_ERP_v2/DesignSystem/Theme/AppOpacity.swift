@@ -7,6 +7,8 @@ enum AppOpacity {
     static let whisper: Double = 0.04
     /// 0.05 — soft background, card hover
     static let soft: Double = 0.05
+    /// 0.06 — dim shimmer/filter overlays
+    static let dim: Double = 0.06
     /// 0.08 — barely visible tints, glass fills
     static let subtle: Double = 0.08
     /// 0.15 — muted backgrounds, badge fills
