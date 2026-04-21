@@ -300,8 +300,8 @@ struct DiamondsInventoryView: View {
             }
             .buttonStyle(.outline)
         }
-        .padding(.horizontal, AppSpacing.hero)
-        .padding(.vertical, AppSpacing.section)
+        .padding(.horizontal, AppSpacing.section)
+        .padding(.vertical, AppSpacing.standard)
         .alert("Save Filter Preset", isPresented: $showSavePreset) {
             TextField("Preset name", text: $newPresetName)
             Button("Save") { saveDiamondPreset() }
@@ -402,8 +402,8 @@ struct DiamondsInventoryView: View {
                     }
                     .buttonStyle(.plain)
                 }
-                .padding(.horizontal, AppSpacing.hero)
-                .padding(.bottom, AppSpacing.comfortable)
+                .padding(.horizontal, AppSpacing.section)
+                .padding(.bottom, AppSpacing.standard)
             }
         }
     }
@@ -448,15 +448,15 @@ struct DiamondsInventoryView: View {
                                     .staggeredRow(index: index, reduceMotion: reduceMotion)
                             }
                         }
-                        .padding(.vertical, AppSpacing.standard)
+                        .padding(.vertical, AppSpacing.compact)
                     }
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
-        .padding(.horizontal, AppSpacing.hero)
-        .padding(.bottom, AppSpacing.comfortable)
+        .padding(.horizontal, AppSpacing.standard)
+        .padding(.bottom, AppSpacing.compact)
     }
 
     private func tableHeader(widths: [CGFloat]) -> some View {
