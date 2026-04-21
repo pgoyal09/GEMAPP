@@ -116,7 +116,7 @@ final class CloudBackupService {
             progress = 1.0
             Self.logger.info("Cloud backup created: \(filename) (\(encrypted.count) bytes)")
         } catch {
-            lastError = error.localizedDescription
+            lastError = ErrorMapper.userMessage(from: error)
             Self.logger.error("Backup failed: \(error.localizedDescription)")
         }
     }
@@ -192,7 +192,7 @@ final class CloudBackupService {
 
             return true
         } catch {
-            lastError = error.localizedDescription
+            lastError = ErrorMapper.userMessage(from: error)
             Self.logger.error("Restore failed: \(error.localizedDescription)")
             return false
         }
