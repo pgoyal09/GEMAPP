@@ -186,6 +186,8 @@ enum ReportEngine {
             }
         }
 
+        // Turnover rate = COGS / Average Inventory Value
+        // Using current inventory as proxy (no period-start snapshot available)
         let avgInventory = currentValue > 0 ? currentValue : 1
         let turnoverRate = soldValue > 0 ? NSDecimalNumber(decimal: soldValue / avgInventory).doubleValue : 0
 

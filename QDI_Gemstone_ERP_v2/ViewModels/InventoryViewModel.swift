@@ -75,7 +75,11 @@ final class InventoryViewModel: SortableViewModel {
     // MARK: - Filter State
 
     var searchText: String = ""
-    var statusFilter: InventoryStatusFilter = .all
+    var statusFilter: InventoryStatusFilter = {
+        InventoryStatusFilter(rawValue: UserDefaults.standard.string(forKey: "inv.statusFilter") ?? "") ?? .all
+    }() {
+        didSet { UserDefaults.standard.set(statusFilter.rawValue, forKey: "inv.statusFilter") }
+    }
     var stoneTypeFilter: StoneType? = nil
     var showFiltersPanel: Bool = false
 
