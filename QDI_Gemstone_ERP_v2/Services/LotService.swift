@@ -80,10 +80,11 @@ enum LotService {
         )
         modelContext.insert(item)
         item.memo = memo
-        lot.effectiveRemainingCarats -= carats
+        lot.effectiveRemainingCarats = ((lot.effectiveRemainingCarats - carats) * 10000).rounded() / 10000
 
         // Transition lot to .sold if fully depleted
         if lot.effectiveRemainingCarats <= 0 {
+            lot.effectiveRemainingCarats = 0
             lot.status = .sold
         }
 
@@ -141,10 +142,11 @@ enum LotService {
         )
         modelContext.insert(item)
         item.invoice = invoice
-        lot.effectiveRemainingCarats -= carats
+        lot.effectiveRemainingCarats = ((lot.effectiveRemainingCarats - carats) * 10000).rounded() / 10000
 
         // Transition lot to .sold if fully depleted
         if lot.effectiveRemainingCarats <= 0 {
+            lot.effectiveRemainingCarats = 0
             lot.status = .sold
         }
 
