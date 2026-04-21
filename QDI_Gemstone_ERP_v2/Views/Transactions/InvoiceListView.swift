@@ -166,11 +166,19 @@ struct InvoiceListView: View {
 
     private func invoiceRow(_ invoice: Invoice, widths: [CGFloat]) -> some View {
         let isSelected = viewModel.selectedInvoiceID == invoice.persistentModelID
+        let isOpen = openDocTracker.isOpen(invoiceID: invoice.persistentModelID)
         return HoverRow(isSelected: isSelected, onTap: {
             viewModel.selectedInvoiceID = invoice.persistentModelID
         }) {
-            Text(invoice.referenceNumber.isEmpty ? "—" : invoice.referenceNumber)
-                .font(AppTypography.mono)
+            HStack(spacing: 4) {
+                if isOpen {
+                    Image(systemName: "macwindow")
+                        .font(AppTypography.sectionLabel)
+                        .foregroundStyle(AppColors.primary)
+                }
+                Text(invoice.referenceNumber.isEmpty ? "—" : invoice.referenceNumber)
+                    .font(AppTypography.mono)
+            }
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
                 .frame(width: widths[0], alignment: .leading)

@@ -162,11 +162,19 @@ struct MemoListView: View {
 
     private func memoRow(_ memo: Memo, widths: [CGFloat]) -> some View {
         let isSelected = viewModel.selectedMemoID == memo.persistentModelID
+        let isOpen = openDocTracker.isOpen(memoID: memo.persistentModelID)
         return HoverRow(isSelected: isSelected, onTap: {
             viewModel.selectedMemoID = memo.persistentModelID
         }) {
-            Text("#\(memo.referenceNumber)")
-                .font(AppTypography.mono)
+            HStack(spacing: 4) {
+                if isOpen {
+                    Image(systemName: "macwindow")
+                        .font(AppTypography.sectionLabel)
+                        .foregroundStyle(AppColors.primary)
+                }
+                Text("#\(memo.referenceNumber)")
+                    .font(AppTypography.mono)
+            }
                 .foregroundStyle(AppColors.ink)
                 .lineLimit(1)
                 .frame(width: widths[0], alignment: .leading)
