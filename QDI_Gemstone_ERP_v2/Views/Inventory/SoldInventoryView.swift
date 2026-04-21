@@ -212,7 +212,7 @@ struct SoldInventoryView: View {
                             .foregroundStyle(showAdvancedFilters ? AppColors.primary : AppColors.inkMuted)
                         if activeFilterCount > 0 {
                             Text("\(activeFilterCount)")
-                                .font(.system(size: 9, weight: .bold))
+                                .font(AppTypography.tinyLabel)
                                 .foregroundStyle(.white)
                                 .frame(width: 14, height: 14)
                                 .background(Circle().fill(AppColors.primary))
@@ -338,12 +338,12 @@ struct SoldInventoryView: View {
                 .foregroundStyle(AppColors.ink)
                 .frame(width: widths[2], alignment: .trailing)
 
-            Text(stone.costPrice.asCurrency)
+            Text(stone.costPrice.asCurrency(stone.currencyType))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.inkMuted)
                 .frame(width: widths[3], alignment: .trailing)
 
-            Text(stone.sellPrice.asCurrency)
+            Text(stone.sellPrice.asCurrency(stone.currencyType))
                 .font(AppTypography.mono)
                 .foregroundStyle(AppColors.ink)
                 .frame(width: widths[4], alignment: .trailing)
@@ -461,10 +461,10 @@ struct SoldInventoryView: View {
                         GlassCard(padding: AppSpacing.section) {
                             VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                                 SectionHeader(title: "Pricing")
-                                DetailRow(label: "Cost $/ct", value: stone.costPrice.asCurrency)
-                                DetailRow(label: "Sell $/ct", value: stone.sellPrice.asCurrency)
-                                DetailRow(label: "Total Cost", value: totalCost.asCurrency)
-                                DetailRow(label: "Total Sold", value: totalSold.asCurrency)
+                                DetailRow(label: "Cost/ct", value: stone.costPrice.asCurrency(stone.currencyType))
+                                DetailRow(label: "Sell/ct", value: stone.sellPrice.asCurrency(stone.currencyType))
+                                DetailRow(label: "Total Cost", value: totalCost.asCurrency(stone.currencyType))
+                                DetailRow(label: "Total Sold", value: totalSold.asCurrency(stone.currencyType))
 
                                 Divider().background(AppColors.cardStroke)
 
@@ -566,7 +566,7 @@ struct SoldInventoryView: View {
                 .foregroundStyle(AppColors.ink)
             Button(action: onRemove) {
                 Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 12))
+                    .font(AppTypography.smallValue)
                     .foregroundStyle(AppColors.inkSubtle)
             }
             .buttonStyle(.plain)

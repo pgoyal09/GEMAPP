@@ -276,7 +276,7 @@ struct GemstonesInventoryView: View {
                         .foregroundStyle(showAdvancedFilters || hasActiveFilters ? AppColors.primary : AppColors.inkMuted)
                     if activeFilterCount > 0 {
                         Text("\(activeFilterCount)")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(AppTypography.tinyLabel)
                             .foregroundStyle(.white)
                             .frame(width: 14, height: 14)
                             .background(Circle().fill(AppColors.primary))
@@ -551,8 +551,8 @@ struct GemstonesInventoryView: View {
             Text(stone.treatment).font(AppTypography.body).foregroundStyle(AppColors.inkMuted).lineLimit(1).frame(width: widths[7], alignment: .leading)
             Text(stone.certLab).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[8], alignment: .leading)
             Text(stone.certNo).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).lineLimit(1).frame(width: widths[9], alignment: .leading)
-            Text(stone.sellPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: widths[10], alignment: .trailing)
-            Text(stone.costPrice.asCurrency).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: widths[11], alignment: .trailing)
+            Text(stone.sellPrice.asCurrency(stone.currencyType)).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: widths[10], alignment: .trailing)
+            Text(stone.costPrice.asCurrency(stone.currencyType)).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: widths[11], alignment: .trailing)
             Text(marginText(cost: stone.costPrice, sell: stone.sellPrice)).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: widths[12], alignment: .trailing)
             statusBadge(for: stone.status).frame(width: widths[13], alignment: .center)
         }
