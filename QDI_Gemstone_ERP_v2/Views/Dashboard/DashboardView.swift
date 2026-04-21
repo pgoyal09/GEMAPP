@@ -21,6 +21,9 @@ struct DashboardView: View {
                     if !hasSeenWelcome {
                         welcomeBanner
                     }
+                    GettingStartedChecklist { item in
+                        handleChecklistNavigation(item)
+                    }
                     KPICardRow(viewModel: viewModel)
                     QuickActionsGrid(navigateTo: $navigateTo, onAddStone: { showAddStoneSheet = true })
                     RecentActivityList(items: viewModel.recentActivity)
@@ -122,12 +125,30 @@ struct DashboardView: View {
         .disabled(isResetting)
     }
 
+    // MARK: - Getting Started Navigation
+
+    private func handleChecklistNavigation(_ item: GettingStartedItem) {
+        switch item {
+        case .addFirstStone:
+            showAddStoneSheet = true
+        case .createMemo:
+            navigateTo = .memos
+        case .createInvoice:
+            navigateTo = .invoices
+        case .setupBackup:
+            navigateTo = .settings
+        case .explorePrinter:
+            navigateTo = .settings
+        }
+    }
+
     /// Debounced refresh — coalesces rapid notification bursts into a single reload
     private func debouncedRefresh() {
         refreshTask?.cancel()
         refreshTask = Task {
             try? await Task.sleep(for: .milliseconds(300))
             guard !Task.isCancelled else { return }
+            GettingStartedService.autoDetectProgress(modelContext: modelContext)
             viewModel.load(modelContext: modelContext)
         }
     }

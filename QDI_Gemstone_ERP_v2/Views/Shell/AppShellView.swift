@@ -234,9 +234,10 @@ struct AppShellView: View {
     }
 
     private var overdueMemos: [Memo] {
-        let all = (try? modelContext.fetch(FetchDescriptor<Memo>())) ?? []
+        // Fetch only what's needed — sort by createdAt ascending (oldest first) for age ordering
+        let descriptor = FetchDescriptor<Memo>(sortBy: [SortDescriptor(\Memo.createdAt, order: .forward)])
+        let all = (try? modelContext.fetch(descriptor)) ?? []
         return all.filter { $0.status == .onMemo && $0.ageInDays > 60 }
-            .sorted { $0.ageInDays > $1.ageInDays }
     }
 
     // MARK: - Content Router

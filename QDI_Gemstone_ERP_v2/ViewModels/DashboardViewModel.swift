@@ -43,9 +43,25 @@ final class DashboardViewModel {
     var overdueMemoCount: Int = 0
     var isLoading: Bool = false
 
+    // MARK: - Cache
+
+    /// Cached inventory hash to skip redundant recomputation.
+    private var cachedInventoryHash: Int = 0
+    /// Timestamp of last full load, used for throttling.
+    private var lastLoadTime: Date?
+    /// Minimum interval between full reloads (avoids re-computing on rapid notifications).
+    private static let minimumLoadInterval: TimeInterval = 1.0
+
     func load(modelContext: ModelContext) {
+        // Throttle: skip reload if last load was < minimumLoadInterval ago
+        if let lastLoad = lastLoadTime, Date().timeIntervalSince(lastLoad) < Self.minimumLoadInterval {
+            return
+        }
         isLoading = true
-        defer { isLoading = false }
+        defer {
+            isLoading = false
+            lastLoadTime = Date()
+        }
         
         loadInventoryMetrics(modelContext: modelContext)
         
@@ -68,39 +84,54 @@ final class DashboardViewModel {
         // ("Unsupported Predicate: Captured/constant values of type 'GemstoneStatus'").
         // Fetch all stones and filter in memory instead.
         let allStones = safeFetch(FetchDescriptor<Gemstone>(), modelContext: modelContext)
-        
+
+        // Quick-check: skip recomputation if the stone set hasn't materially changed.
+        let quickHash = allStones.count &+ (allStones.first?.sku.hashValue ?? 0) &+ (allStones.last?.sku.hashValue ?? 0)
+        guard quickHash != cachedInventoryHash else { return }
+        cachedInventoryHash = quickHash
+
+        // Single-pass: compute snapshot counts AND inventory metrics together
         var snap = InventorySnapshot()
-        snap.availableCount = allStones.filter { $0.status == .available }.count
-        snap.onMemoCount = allStones.filter { $0.status == .onMemo }.count
-        snap.soldCount = allStones.filter { $0.status == .sold }.count
-        inventorySnapshot = snap
-
-        let availableStones = allStones.filter { $0.status == .available }
-
         var carats: Double = 0
         var value: Decimal = 0
-        for stone in availableStones {
-            let effectiveCarats = stone.isLot ? stone.effectiveRemainingCarats : stone.caratWeight
-            carats += effectiveCarats
-            value += stone.sellPrice * Decimal(effectiveCarats)
+
+        for stone in allStones {
+            switch stone.status {
+            case .available:
+                snap.availableCount += 1
+                let effectiveCarats = stone.isLot ? stone.effectiveRemainingCarats : stone.caratWeight
+                carats += effectiveCarats
+                value += stone.sellPrice * Decimal(effectiveCarats)
+            case .onMemo:
+                snap.onMemoCount += 1
+            case .sold:
+                snap.soldCount += 1
+            default:
+                break
+            }
         }
+        inventorySnapshot = snap
         totalCaratsInStock = carats
         totalInventoryValue = value
     }
 
     private func loadMemoMetrics(from allMemos: [Memo]) {
-        let openMemos = allMemos.filter { $0.status == .onMemo }
-        totalValueOnMemo = openMemos.reduce(Decimal.zero) { $0 + $1.openMemoAmount }
+        var memoValue: Decimal = 0
+        for memo in allMemos where memo.status == .onMemo {
+            memoValue += memo.openMemoAmount
+        }
+        totalValueOnMemo = memoValue
     }
 
     private func loadSalesMetrics(modelContext: ModelContext) {
         let calendar = Calendar.current
         let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: Date())) ?? Date()
         let allInvoices = safeFetch(FetchDescriptor<Invoice>(), modelContext: modelContext)
-        let periodInvoices = allInvoices.filter {
-            ($0.status == .paid || $0.status == .sent) && $0.invoiceDate >= startOfMonth
+        var sales: Decimal = 0
+        for inv in allInvoices where (inv.status == .paid || inv.status == .sent) && inv.invoiceDate >= startOfMonth {
+            sales += inv.totalAmount
         }
-        monthlySales = periodInvoices.reduce(Decimal.zero) { $0 + $1.totalAmount }
+        monthlySales = sales
     }
 
     private func buildRecentActivity(from allMemos: [Memo]) -> [RecentActivityItem] {

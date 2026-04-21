@@ -42,7 +42,7 @@ enum TransactionError: LocalizedError, Sendable {
 
 /// Core transaction operations shared by memos and invoices.
 /// All methods throw on failure — callers handle errors in the UI layer.
-enum TransactionService {
+enum TransactionService: TransactionServiceProtocol {
 
     // MARK: - Create Documents
 

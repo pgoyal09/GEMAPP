@@ -150,7 +150,7 @@ struct CustomerProfitabilityView: View {
     private var customerDetail: some View {
         VStack(alignment: .leading, spacing: AppSpacing.section) {
             if let custId = selectedCustomerId,
-               let customer: Customer = try? modelContext.fetch(FetchDescriptor<Customer>()).first(where: { $0.persistentModelID == custId }) {
+               let customer = modelContext.model(for: custId) as? Customer {
                 GlassCard(padding: AppSpacing.hero) {
                     VStack(alignment: .leading, spacing: AppSpacing.comfortable) {
                         Text(customer.displayName)

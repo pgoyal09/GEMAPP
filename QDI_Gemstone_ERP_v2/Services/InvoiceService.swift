@@ -17,7 +17,7 @@ enum InvoiceError: LocalizedError, Sendable {
 }
 
 /// Invoice-specific business operations.
-enum InvoiceService {
+enum InvoiceService: InvoiceServiceProtocol {
 
     /// Mark converted line items (from memo) as sold when invoice is saved.
     @MainActor

@@ -5,7 +5,7 @@ import os
 private let logger = Logger(subsystem: "com.qdi.gemapp", category: "memo")
 
 /// Memo-specific business operations.
-enum MemoService {
+enum MemoService: MemoServiceProtocol {
 
     /// Return selected items from a memo to stock.
     @MainActor

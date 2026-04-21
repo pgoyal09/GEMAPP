@@ -216,9 +216,10 @@ final class TransactionEditorViewModel {
         }
 
         // Look up via RFIDTag table first
-        let tagDescriptor = FetchDescriptor<RFIDTag>(
+        var tagDescriptor = FetchDescriptor<RFIDTag>(
             predicate: #Predicate<RFIDTag> { $0.epcCurrent == canonicalEpc }
         )
+        tagDescriptor.fetchLimit = 1
         if let tag = try? modelContext.fetch(tagDescriptor).first,
            let stone = tag.assignedStone {
             handleScannedStone(stone, modelContext: modelContext)
@@ -226,9 +227,10 @@ final class TransactionEditorViewModel {
         }
 
         // Fallback to Gemstone.rfidEpc
-        let stoneDescriptor = FetchDescriptor<Gemstone>(
+        var stoneDescriptor = FetchDescriptor<Gemstone>(
             predicate: #Predicate<Gemstone> { $0.rfidEpc == canonicalEpc }
         )
+        stoneDescriptor.fetchLimit = 1
         guard let stone = try? modelContext.fetch(stoneDescriptor).first else {
             lastRFIDMessage = "Tag not in database"
             return
