@@ -48,7 +48,7 @@ These files are battle-tested and must be copied verbatim:
 - Background: `#0A0A0F`
 - Card/Panel: `#1C1C1E`
 - Elevated: `#2C2C2E`
-- Accent/Primary: `#00D4AA` (teal-green)
+- Accent/Primary: `#38bdf8` (teal-green)
 - Danger: `#FF453A`
 - Warning: `#FFD60A`
 - Ink: `#FFFFFF`

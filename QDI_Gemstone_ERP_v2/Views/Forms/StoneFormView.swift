@@ -204,6 +204,8 @@ struct StoneFormView: View {
                     field("Cash Price", $viewModel.cashPriceText)
                     field("Cash Disc %", $viewModel.cashDiscountPctText, error: viewModel.cashDiscountError)
                 }
+                .onChange(of: viewModel.rapNetPriceText) { _, _ in viewModel.autoFillSellPriceFromRap() }
+                .onChange(of: viewModel.rapNetDiscountPctText) { _, _ in viewModel.autoFillSellPriceFromRap() }
             }
         }
     }
@@ -317,10 +319,10 @@ struct StoneFormView: View {
                 if let stone = viewModel.mode.existingStone {
                     VStack(alignment: .leading, spacing: AppSpacing.compact) {
                         if let rap = stone.rapNetCalculatedPrice {
-                            DetailRow(label: "RapNet Calc $/ct", value: rap.asCurrency)
+                            DetailRow(label: "RapNet Calc/ct", value: rap.asCurrency(stone.currencyType))
                         }
                         if let ppc = stone.perCaratPrice {
-                            DetailRow(label: "Per Carat Price", value: ppc.asCurrency)
+                            DetailRow(label: "Per Carat Price", value: ppc.asCurrency(stone.currencyType))
                         }
                         if stone.currencyType != .usd {
                             DetailRow(

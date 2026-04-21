@@ -6,4 +6,5 @@ enum PaymentMethod: String, Codable, CaseIterable {
     case cheque = "Check"
     case cash = "Cash"
     case card = "Card"
+    case letterOfCredit = "Letter of Credit"
 }

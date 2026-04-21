@@ -168,11 +168,30 @@ final class StoneFormViewModel {
 
     var isDiamond: Bool { stoneType == .diamond }
     var isLot: Bool { grouping == .lot }
-    var isPair: Bool { false }
+    var isPair: Bool { grouping == .pair }
 
     var caratWeight: Double { Double(caratText) ?? 0 }
     var costPrice: Decimal { Decimal(string: costPriceText) ?? 0 }
     var sellPrice: Decimal { Decimal(string: sellPriceText) ?? 0 }
+
+    /// Computed sell price from RapNet price and discount (e.g. rapPrice × (1 - disc/100)).
+    /// Returns nil if rapNet fields are empty or invalid.
+    var rapNetCalculatedSellPrice: Decimal? {
+        guard let rap = Decimal(string: rapNetPriceText),
+              let disc = Double(rapNetDiscountPctText),
+              rap > 0, abs(disc) <= 100 else { return nil }
+        return rap * (1 - Decimal(disc) / 100)
+    }
+
+    /// Auto-fills sellPrice from RapNet price × (1 - discount%) if sell price is empty or zero.
+    /// Called when rapNetPrice or rapNetDiscountPct changes.
+    func autoFillSellPriceFromRap() {
+        guard isDiamond else { return }
+        guard sellPriceText.isEmpty || sellPrice == 0 else { return }
+        if let calc = rapNetCalculatedSellPrice {
+            sellPriceText = "\(calc)"
+        }
+    }
 
     var canSave: Bool { caratWeight > 0 && !sku.isEmpty && !hasInlineErrors }
 
