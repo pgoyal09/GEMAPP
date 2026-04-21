@@ -5,9 +5,9 @@ enum AppColors {
     // MARK: - Backgrounds
 
     static let background       = Color(red: 0.04, green: 0.10, blue: 0.18)       // #0b1a2e
-    static let panelBackground  = Color.white.opacity(0.04)
-    static let cardBackground   = Color.white.opacity(0.05)
-    static let cardElevated     = Color.white.opacity(0.06)
+    static let panelBackground  = Color(red: 0.04, green: 0.04, blue: 0.06) // #0A0A0F
+    static let cardBackground   = Color(red: 0.11, green: 0.11, blue: 0.12) // #1C1C1E
+    static let cardElevated     = Color(red: 0.17, green: 0.17, blue: 0.18) // #2C2C2E
 
     // MARK: - Primary & Accent
 

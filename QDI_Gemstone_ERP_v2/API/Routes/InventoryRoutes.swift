@@ -1,6 +1,8 @@
 import Foundation
 import SwiftData
 
+nonisolated(unsafe) private let sharedISOFormatter = ISO8601DateFormatter()
+
 enum InventoryRoutes {
     static func register(router: APIRouter) {
         // GET /api/stones — list/search with pagination
@@ -210,7 +212,7 @@ enum InventoryRoutes {
             "hasCert": s.hasCert,
             "certLab": s.certLab,
             "certNo": s.certNo,
-            "createdAt": ISO8601DateFormatter().string(from: s.createdAt)
+            "createdAt": sharedISOFormatter.string(from: s.createdAt)
         ]
     }
 

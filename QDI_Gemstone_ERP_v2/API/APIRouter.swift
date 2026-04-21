@@ -41,25 +41,31 @@ final class APIRouter: @unchecked Sendable {
     }
 
     private var routes: [Route] = []
+    private let routeLock = NSLock()
 
     func get(_ pattern: String, handler: @escaping APIRouteHandler) {
+        routeLock.lock(); defer { routeLock.unlock() }
         routes.append(Route(method: "GET", pattern: pattern, handler: handler))
     }
 
     func post(_ pattern: String, handler: @escaping APIRouteHandler) {
+        routeLock.lock(); defer { routeLock.unlock() }
         routes.append(Route(method: "POST", pattern: pattern, handler: handler))
     }
 
     func patch(_ pattern: String, handler: @escaping APIRouteHandler) {
+        routeLock.lock(); defer { routeLock.unlock() }
         routes.append(Route(method: "PATCH", pattern: pattern, handler: handler))
     }
 
     func delete(_ pattern: String, handler: @escaping APIRouteHandler) {
+        routeLock.lock(); defer { routeLock.unlock() }
         routes.append(Route(method: "DELETE", pattern: pattern, handler: handler))
     }
 
     func dispatch(_ request: APIRequest, container: ModelContainer) async -> APIResponse {
-        for route in routes {
+        let snapshot = routeLock.withLock { routes }
+        for route in snapshot {
             if route.method == request.method,
                let params = matchPath(pattern: route.pattern, path: request.path) {
                 var enriched = request
