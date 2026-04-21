@@ -127,19 +127,21 @@ enum InvoiceRoutes {
 
         // POST /api/invoices/:id/send — mark as sent
         router.post("/api/invoices/:id/send") { req, container in
-            guard let id = req.pathParams["id"] else { return .notFound() }
-            let context = ModelContext(container)
-            guard let invoice = findInvoice(id: id, context: context) else {
-                return .notFound("Invoice '\(id)' not found")
+            await MainActor.run {
+                guard let id = req.pathParams["id"] else { return .notFound() }
+                let context = ModelContext(container)
+                guard let invoice = findInvoice(id: id, context: context) else {
+                    return .notFound("Invoice '\(id)' not found")
+                }
+                guard invoice.status == .draft else {
+                    return .error(code: "BAD_REQUEST", message: "Only draft invoices can be sent")
+                }
+                invoice.status = .sent
+                do { try context.save() } catch {
+                    return .error(code: "SAVE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
+                }
+                return .ok(invoiceJSON(invoice))
             }
-            guard invoice.status == .draft else {
-                return .error(code: "BAD_REQUEST", message: "Only draft invoices can be sent")
-            }
-            invoice.status = .sent
-            do { try context.save() } catch {
-                return .error(code: "SAVE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
-            }
-            return .ok(invoiceJSON(invoice))
         }
 
         // POST /api/invoices/:id/void — void invoice

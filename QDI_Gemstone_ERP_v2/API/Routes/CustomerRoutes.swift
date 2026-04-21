@@ -46,6 +46,7 @@ enum CustomerRoutes {
 
         // POST /api/customers — create
         router.post("/api/customers") { req, container in
+            await MainActor.run {
             guard let body = req.jsonBody() else {
                 return .error(code: "BAD_REQUEST", message: "Invalid JSON body")
             }
@@ -75,10 +76,12 @@ enum CustomerRoutes {
                 return .error(code: "SAVE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
             }
             return .created(customerJSON(customer))
+            }
         }
 
         // PATCH /api/customers/:id — update
         router.patch("/api/customers/:id") { req, container in
+            await MainActor.run {
             guard let id = req.pathParams["id"]?.removingPercentEncoding,
                   let body = req.jsonBody() else {
                 return .error(code: "BAD_REQUEST", message: "Invalid request")
@@ -109,10 +112,12 @@ enum CustomerRoutes {
                 return .error(code: "SAVE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
             }
             return .ok(customerJSON(customer))
+            }
         }
 
         // DELETE /api/customers/:id
         router.delete("/api/customers/:id") { req, container in
+            await MainActor.run {
             guard let id = req.pathParams["id"]?.removingPercentEncoding else { return .notFound() }
             let context = ModelContext(container)
             guard let customer = findCustomer(id: id, context: context) else {
@@ -129,6 +134,7 @@ enum CustomerRoutes {
                 return .error(code: "DELETE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
             }
             return .noContent()
+            }
         }
     }
 
