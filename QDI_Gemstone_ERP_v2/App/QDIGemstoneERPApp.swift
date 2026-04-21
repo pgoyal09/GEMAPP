@@ -7,28 +7,43 @@ import UniformTypeIdentifiers
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        for window in NSApp.windows where window.isDocumentEdited {
-            window.makeKeyAndOrderFront(nil)
-            let alert = NSAlert()
-            alert.messageText = "You have unsaved changes"
-            alert.informativeText = "Do you want to save your changes before quitting?"
-            alert.addButton(withTitle: "Save All & Quit")
-            alert.addButton(withTitle: "Discard & Quit")
-            alert.addButton(withTitle: "Cancel")
-            alert.alertStyle = .warning
-            let response = alert.runModal()
-            switch response {
-            case .alertFirstButtonReturn:
-                NotificationCenter.default.post(name: .appWillTerminateSaveAll, object: nil)
-                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
-                return .terminateNow
-            case .alertSecondButtonReturn:
-                return .terminateNow
-            default:
-                return .terminateCancel
+        let dirtyWindows = NSApp.windows.filter { $0.isDocumentEdited }
+        guard !dirtyWindows.isEmpty else { return .terminateNow }
+
+        // Show a single aggregated alert for all dirty windows
+        let count = dirtyWindows.count
+        dirtyWindows.first?.makeKeyAndOrderFront(nil)
+        let alert = NSAlert()
+        alert.messageText = count == 1
+            ? "You have unsaved changes"
+            : "You have unsaved changes in \(count) windows"
+        alert.informativeText = count == 1
+            ? "Do you want to save your changes before quitting?"
+            : "Do you want to save all changes before quitting?"
+        alert.addButton(withTitle: "Save All & Quit")
+        alert.addButton(withTitle: "Discard & Quit")
+        alert.addButton(withTitle: "Cancel")
+        alert.alertStyle = .warning
+        let response = alert.runModal()
+        switch response {
+        case .alertFirstButtonReturn:
+            NotificationCenter.default.post(name: .appWillTerminateSaveAll, object: nil)
+            // Allow up to 3 seconds for saves to complete, polling every 100ms
+            let deadline = Date(timeIntervalSinceNow: 3.0)
+            while Date() < deadline {
+                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.1))
+                let stillDirty = NSApp.windows.contains { $0.isDocumentEdited }
+                if !stillDirty { break }
             }
+            if NSApp.windows.contains(where: { $0.isDocumentEdited }) {
+                AppLogger.data.warning("Some windows may not have saved before quit")
+            }
+            return .terminateNow
+        case .alertSecondButtonReturn:
+            return .terminateNow
+        default:
+            return .terminateCancel
         }
-        return .terminateNow
     }
 }
 

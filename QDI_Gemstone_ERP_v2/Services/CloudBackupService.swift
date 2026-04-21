@@ -92,7 +92,11 @@ final class CloudBackupService {
             let fileURL = effectiveBackupDir.appendingPathComponent(filename)
             try encrypted.write(to: fileURL)
 
-            // Step 5: Record manifest
+            // Step 5: Compute SHA-256 checksum for integrity verification
+            let checksum = SHA256.hash(data: encrypted)
+            let checksumString = checksum.compactMap { String(format: "%02x", $0) }.joined()
+
+            // Step 6: Record manifest
             let counts = fetchCounts(modelContext: modelContext)
             let manifest = BackupManifest(
                 deviceName: Host.current().localizedName ?? "Unknown",
@@ -102,7 +106,8 @@ final class CloudBackupService {
                 invoiceCount: counts.invoices,
                 fileSize: Int64(encrypted.count),
                 isEncrypted: true,
-                iCloudPath: fileURL.lastPathComponent
+                iCloudPath: fileURL.lastPathComponent,
+                sha256Checksum: checksumString
             )
             modelContext.insert(manifest)
             try modelContext.save()

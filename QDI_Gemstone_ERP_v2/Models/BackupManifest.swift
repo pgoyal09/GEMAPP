@@ -13,6 +13,8 @@ final class BackupManifest {
     var fileSize: Int64 = 0
     var isEncrypted: Bool = true
     var iCloudPath: String = ""
+    /// SHA-256 hash of the encrypted backup file for integrity verification.
+    var sha256Checksum: String = ""
 
     init(
         deviceName: String,
@@ -22,7 +24,8 @@ final class BackupManifest {
         invoiceCount: Int,
         fileSize: Int64,
         isEncrypted: Bool,
-        iCloudPath: String
+        iCloudPath: String,
+        sha256Checksum: String = ""
     ) {
         self.backupId = UUID().uuidString
         self.createdAt = Date()
@@ -34,5 +37,6 @@ final class BackupManifest {
         self.fileSize = fileSize
         self.isEncrypted = isEncrypted
         self.iCloudPath = iCloudPath
+        self.sha256Checksum = sha256Checksum
     }
 }

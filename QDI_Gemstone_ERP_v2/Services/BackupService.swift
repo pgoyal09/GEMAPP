@@ -35,7 +35,7 @@ enum BackupService {
         let oneHourAgo = Date().addingTimeInterval(-3600)
         for url in contents {
             let name = url.lastPathComponent
-            guard name.hasPrefix("QDI_Backup_") || name.hasPrefix("QDI_CSV_") else { continue }
+            guard name.hasPrefix("QDI_Backup_") || name.hasPrefix("QDI_CSV_") || name.hasPrefix("QDI_SafetyBackup_") else { continue }
             if let attrs = try? fm.attributesOfItem(atPath: url.path),
                let created = attrs[.creationDate] as? Date,
                created < oneHourAgo {
