@@ -315,6 +315,10 @@ struct MemoDocumentView: View {
                     .frame(width: 100)
                     .onSubmit { parseDateText() }
                     .onChange(of: dateText) { _, _ in dateError = nil }
+                    .onKeyPress(.tab) {
+                        parseDateText()
+                        return .ignored
+                    }
 
                 Button {
                     showDatePicker.toggle()

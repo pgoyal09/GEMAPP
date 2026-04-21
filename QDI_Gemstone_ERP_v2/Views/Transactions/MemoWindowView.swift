@@ -44,6 +44,16 @@ struct MemoWindowView: View {
             openDocTracker.trackClose(memoID: memoID)
             cleanupEmptyMemo()
         }
+        .onChange(of: dirtyTracker.hasAnyDirty) { _, isDirty in
+            // Sync dirty state to NSWindow so AppDelegate can check on ⌘Q
+            NSApp.keyWindow?.isDocumentEdited = isDirty
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .appWillTerminateSaveAll)) { _ in
+            if dirtyTracker.hasAnyDirty {
+                try? modelContext.save()
+                dirtyTracker.clearMemoDirty()
+            }
+        }
     }
 
     private func requestClose() {

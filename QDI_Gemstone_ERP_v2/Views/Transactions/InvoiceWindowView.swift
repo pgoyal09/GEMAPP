@@ -44,6 +44,16 @@ struct InvoiceWindowView: View {
             openDocTracker.trackClose(invoiceID: invoiceID)
             cleanupEmptyInvoice()
         }
+        .onChange(of: dirtyTracker.hasAnyDirty) { _, isDirty in
+            // Sync dirty state to NSWindow so AppDelegate can check on ⌘Q
+            NSApp.keyWindow?.isDocumentEdited = isDirty
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .appWillTerminateSaveAll)) { _ in
+            if dirtyTracker.hasAnyDirty {
+                try? modelContext.save()
+                dirtyTracker.clearInvoiceDirty()
+            }
+        }
     }
 
     private func requestClose() {

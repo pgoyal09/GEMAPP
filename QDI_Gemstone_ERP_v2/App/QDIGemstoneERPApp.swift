@@ -1,5 +1,35 @@
 import SwiftUI
 import SwiftData
+import AppKit
+
+// MARK: - App Delegate (handles ⌘Q with unsaved document check)
+
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        for window in NSApp.windows where window.isDocumentEdited {
+            window.makeKeyAndOrderFront(nil)
+            let alert = NSAlert()
+            alert.messageText = "You have unsaved changes"
+            alert.informativeText = "Do you want to save your changes before quitting?"
+            alert.addButton(withTitle: "Save All & Quit")
+            alert.addButton(withTitle: "Discard & Quit")
+            alert.addButton(withTitle: "Cancel")
+            alert.alertStyle = .warning
+            let response = alert.runModal()
+            switch response {
+            case .alertFirstButtonReturn:
+                NotificationCenter.default.post(name: .appWillTerminateSaveAll, object: nil)
+                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
+                return .terminateNow
+            case .alertSecondButtonReturn:
+                return .terminateNow
+            default:
+                return .terminateCancel
+            }
+        }
+        return .terminateNow
+    }
+}
 
 // MARK: - Menu Command Notifications
 
@@ -26,10 +56,13 @@ extension Notification.Name {
     static let menuAgingReport = Notification.Name("menuAgingReport")
     static let menuCloudBackup = Notification.Name("menuCloudBackup")
     static let menuEscapeDismiss = Notification.Name("menuEscapeDismiss")
+    // App lifecycle
+    static let appWillTerminateSaveAll = Notification.Name("appWillTerminateSaveAll")
 }
 
 @main
 struct QDIGemstoneERPApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var rfidManager = RFIDManager()
     @State private var rfidCoordinator: RFIDCoordinator?
     @State private var showMigrationFailureAlert = false

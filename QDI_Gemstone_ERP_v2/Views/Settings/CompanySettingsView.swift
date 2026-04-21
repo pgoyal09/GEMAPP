@@ -329,6 +329,34 @@ struct CompanySettingsView: View {
                     }
                 }
 
+                // MARK: - Privacy & Legal
+
+                settingsSection(title: "Privacy & Legal") {
+                    HStack(spacing: AppSpacing.standard) {
+                        Image(systemName: "hand.raised.fill")
+                            .font(AppTypography.heading)
+                            .foregroundStyle(AppColors.primary)
+                        VStack(alignment: .leading, spacing: AppSpacing.compact) {
+                            Text("Privacy Policy")
+                                .font(AppTypography.body)
+                                .foregroundStyle(AppColors.ink)
+                            Text("How your data is stored and protected")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColors.inkSubtle)
+                        }
+                        Spacer()
+                        Button("View") {
+                            if let url = URL(string: "https://qdigemstone.com/privacy") {
+                                NSWorkspace.shared.open(url)
+                            }
+                        }
+                        .buttonStyle(.outline)
+                    }
+                    Text("Your inventory, customer, and financial data is stored locally on this Mac. Cloud sync (when enabled) uses end-to-end encryption via Supabase.")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColors.inkSubtle)
+                }
+
                 Text("These details appear on generated PDF invoices and memos.")
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColors.inkSubtle)
