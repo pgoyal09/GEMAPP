@@ -436,7 +436,7 @@ struct DiamondsInventoryView: View {
                 Divider().background(AppColors.cardStroke)
                 if filteredStones.isEmpty {
                     EmptyStateView(icon: "sparkle", title: "No diamonds found", subtitle: "Try adjusting your search or filters")
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     ScrollView(.vertical) {
                         LazyVStack(spacing: AppSpacing.tight) {
@@ -452,6 +452,7 @@ struct DiamondsInventoryView: View {
                     }
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
