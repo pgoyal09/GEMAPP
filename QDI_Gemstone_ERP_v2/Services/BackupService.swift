@@ -152,6 +152,9 @@ enum BackupService {
     /// Restores a previously exported database backup, replacing the current store.
     /// The `backupDir` should contain the store file (and optional WAL/SHM files).
     /// After restore, the app should be relaunched to pick up the new data.
+    ///
+    /// Safety: creates a pre-restore backup of the current store. If the restore copy
+    /// fails mid-way, the original store is recovered from the safety backup.
     @MainActor
     static func restoreDatabase(from backupDir: URL, modelContext: ModelContext) throws {
         let fm = FileManager.default
@@ -164,8 +167,20 @@ enum BackupService {
             throw BackupError.exportFailed("Backup does not contain \(baseName)")
         }
 
-        // Save current context to flush, then remove existing store files
+        // Save current context to flush pending changes
         try modelContext.save()
+
+        // Create a safety backup of the current store before destructive operation
+        let safetyDir = fm.temporaryDirectory.appendingPathComponent("QDI_SafetyBackup_\(timestamp())")
+        try fm.createDirectory(at: safetyDir, withIntermediateDirectories: true)
+        for suffix in ["", "-wal", "-shm"] {
+            let source = parentDir.appendingPathComponent(baseName + suffix)
+            if fm.fileExists(atPath: source.path) {
+                try fm.copyItem(at: source, to: safetyDir.appendingPathComponent(baseName + suffix))
+            }
+        }
+
+        // Remove existing store files
         for suffix in ["", "-wal", "-shm"] {
             let target = parentDir.appendingPathComponent(baseName + suffix)
             if fm.fileExists(atPath: target.path) {
@@ -173,14 +188,31 @@ enum BackupService {
             }
         }
 
-        // Copy backup files to store location
-        for suffix in ["", "-wal", "-shm"] {
-            let source = backupDir.appendingPathComponent(baseName + suffix)
-            if fm.fileExists(atPath: source.path) {
-                let dest = parentDir.appendingPathComponent(baseName + suffix)
-                try fm.copyItem(at: source, to: dest)
+        // Copy backup files to store location; recover from safety backup on failure
+        do {
+            for suffix in ["", "-wal", "-shm"] {
+                let source = backupDir.appendingPathComponent(baseName + suffix)
+                if fm.fileExists(atPath: source.path) {
+                    let dest = parentDir.appendingPathComponent(baseName + suffix)
+                    try fm.copyItem(at: source, to: dest)
+                }
             }
+        } catch {
+            // Restore copy failed — recover from safety backup
+            AppLogger.data.error("Restore copy failed, recovering from safety backup: \(error.localizedDescription)")
+            for suffix in ["", "-wal", "-shm"] {
+                let dest = parentDir.appendingPathComponent(baseName + suffix)
+                try? fm.removeItem(at: dest)
+                let safetySource = safetyDir.appendingPathComponent(baseName + suffix)
+                if fm.fileExists(atPath: safetySource.path) {
+                    try? fm.copyItem(at: safetySource, to: dest)
+                }
+            }
+            throw BackupError.exportFailed("Restore failed — your original data has been recovered. Error: \(error.localizedDescription)")
         }
+
+        // Clean up safety backup on success
+        try? fm.removeItem(at: safetyDir)
     }
 
     // MARK: - Helpers

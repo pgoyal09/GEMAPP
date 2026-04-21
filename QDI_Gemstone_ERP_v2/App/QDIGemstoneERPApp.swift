@@ -384,42 +384,61 @@ struct QDIGemstoneERPApp: App {
 
     // MARK: - Phase 2 Migrations
 
+    /// Each sub-migration runs independently with its own completion flag.
+    /// If the app crashes mid-migration, only the incomplete step re-runs on next launch.
+    /// Each step is idempotent: re-running it on already-migrated data is a no-op.
     private func runPhase2Migrations() {
-        // Skip if already completed
-        guard !UserDefaults.standard.bool(forKey: "phase2MigrationsComplete") else { return }
         let ctx = sharedModelContainer.mainContext
-        do {
-            let allDescriptor = FetchDescriptor<Gemstone>()
-            let allStones = try ctx.fetch(allDescriptor)
-            var changed = false
 
-            // ONE-TIME: convert all pair → single grouping
-            for stone in allStones where stone.grouping == .pair {
-                stone.grouping = .single
-                changed = true
-            }
-
-            // ONE-TIME: split fluorescence into intensity + color
-            for stone in allStones {
-                if stone.fluorescenceIntensity == nil && !stone.fluorescence.isEmpty {
-                    stone.fluorescenceIntensity = stone.fluorescence
-                    stone.fluorescenceColor = "N"
+        // Step 1: convert pair → single grouping
+        if !UserDefaults.standard.bool(forKey: "phase2_pairToSingle_complete") {
+            do {
+                let allStones = try ctx.fetch(FetchDescriptor<Gemstone>())
+                var changed = false
+                for stone in allStones where stone.grouping == .pair {
+                    stone.grouping = .single
                     changed = true
                 }
+                if changed { try ctx.save() }
+                UserDefaults.standard.set(true, forKey: "phase2_pairToSingle_complete")
+                AppLogger.data.info("Phase 2 step 1 (pair→single) completed")
+            } catch {
+                AppLogger.data.error("Phase 2 step 1 failed: \(error.localizedDescription)")
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("phase2MigrationFailed"),
+                    object: "Migration step 1 (grouping) failed. Will retry on next launch. Error: \(error.localizedDescription)"
+                )
             }
+        }
 
-            if changed {
-                try ctx.save()
-                AppLogger.data.info("Phase 2 migration completed")
+        // Step 2: split fluorescence into intensity + color
+        if !UserDefaults.standard.bool(forKey: "phase2_fluorescenceSplit_complete") {
+            do {
+                let allStones = try ctx.fetch(FetchDescriptor<Gemstone>())
+                var changed = false
+                for stone in allStones {
+                    if stone.fluorescenceIntensity == nil && !stone.fluorescence.isEmpty {
+                        stone.fluorescenceIntensity = stone.fluorescence
+                        stone.fluorescenceColor = "N"
+                        changed = true
+                    }
+                }
+                if changed { try ctx.save() }
+                UserDefaults.standard.set(true, forKey: "phase2_fluorescenceSplit_complete")
+                AppLogger.data.info("Phase 2 step 2 (fluorescence split) completed")
+            } catch {
+                AppLogger.data.error("Phase 2 step 2 failed: \(error.localizedDescription)")
+                NotificationCenter.default.post(
+                    name: NSNotification.Name("phase2MigrationFailed"),
+                    object: "Migration step 2 (fluorescence) failed. Will retry on next launch. Error: \(error.localizedDescription)"
+                )
             }
+        }
+
+        // Mark overall completion for backward compatibility
+        if UserDefaults.standard.bool(forKey: "phase2_pairToSingle_complete") &&
+           UserDefaults.standard.bool(forKey: "phase2_fluorescenceSplit_complete") {
             UserDefaults.standard.set(true, forKey: "phase2MigrationsComplete")
-        } catch {
-            AppLogger.data.error("Phase 2 migration failed: \(error.localizedDescription)")
-            // Surface the error so user is aware — post notification for toast display
-            NotificationCenter.default.post(
-                name: NSNotification.Name("phase2MigrationFailed"),
-                object: "Data migration partially failed. Some legacy fields may not display correctly. Error: \(error.localizedDescription)"
-            )
         }
     }
 
