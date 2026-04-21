@@ -94,6 +94,13 @@ enum MemoService {
         )
         modelContext.insert(invoice)
 
+        // Guard: verify all stones are still on this memo (not already sold/returned)
+        for original in selectedItems {
+            if let stone = original.gemstone, !stone.isLot, stone.status != .onMemo {
+                throw TransactionError.stoneNotAvailable(sku: stone.sku, status: stone.status.rawValue)
+            }
+        }
+
         for original in selectedItems {
             let copy = LineItem(
                 sku: original.sku,

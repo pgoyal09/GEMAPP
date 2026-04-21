@@ -1,8 +1,10 @@
 import SwiftUI
 import SwiftData
 
+/// Tracks which memo/invoice documents have open windows.
+/// All access occurs through SwiftUI views (main actor).
 @Observable
-final class OpenDocumentTracker {
+final class OpenDocumentTracker: @unchecked Sendable {
     private var openMemoIDs: Set<PersistentIdentifier> = []
     private var openInvoiceIDs: Set<PersistentIdentifier> = []
 

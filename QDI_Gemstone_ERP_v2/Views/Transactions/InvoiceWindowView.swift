@@ -93,9 +93,8 @@ struct InvoiceWindowView: View {
         guard let invoice = fetchInvoice() else { return }
         guard !invoice.isDeleted else { return }
         if invoice.lineItems.isEmpty && invoice.status == .draft {
-            modelContext.delete(invoice)
             do {
-                try modelContext.save()
+                try InvoiceService.deleteInvoice(invoice, modelContext: modelContext)
             } catch {
                 AppLogger.data.error("Failed to cleanup empty invoice: \(error.localizedDescription)")
             }
