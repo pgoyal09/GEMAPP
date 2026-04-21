@@ -44,6 +44,8 @@ struct EditableLineItemRow: View {
             // Description — widest column, wraps text
             TextField("Description", text: $descriptionText, axis: .vertical)
                 .textFieldStyle(.plain)
+                .font(AppTypography.smallValue)
+                .foregroundStyle(AppColors.ink)
                 .lineLimit(1...4)
                 .frame(minWidth: 200, idealWidth: 400, maxWidth: .infinity, alignment: .leading)
                 .onChange(of: descriptionText) { _, val in
@@ -61,6 +63,8 @@ struct EditableLineItemRow: View {
             } else {
                 TextField("0.00", text: $caratsText)
                     .textFieldStyle(.plain)
+                    .font(AppTypography.smallValue)
+                    .foregroundStyle(AppColors.ink)
                     .multilineTextAlignment(.trailing)
                     .frame(width: 70, alignment: .trailing)
                     .onChange(of: caratsText) { _, val in
@@ -74,6 +78,8 @@ struct EditableLineItemRow: View {
             // Rate
             TextField("0.00", text: $rateText)
                 .textFieldStyle(.plain)
+                .font(AppTypography.smallValue)
+                .foregroundStyle(AppColors.ink)
                 .multilineTextAlignment(.trailing)
                 .frame(width: 80, alignment: .trailing)
                 .onChange(of: rateText) { _, val in
