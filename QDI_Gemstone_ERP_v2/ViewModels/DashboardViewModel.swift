@@ -43,10 +43,8 @@ final class DashboardViewModel {
     var overdueMemoCount: Int = 0
     var isLoading: Bool = false
 
-    // MARK: - Cache
+    // MARK: - Throttle
 
-    /// Cached inventory hash to skip redundant recomputation.
-    private var cachedInventoryHash: Int = 0
     /// Timestamp of last full load, used for throttling.
     private var lastLoadTime: Date?
     /// Minimum interval between full reloads (avoids re-computing on rapid notifications).
@@ -84,11 +82,6 @@ final class DashboardViewModel {
         // ("Unsupported Predicate: Captured/constant values of type 'GemstoneStatus'").
         // Fetch all stones and filter in memory instead.
         let allStones = safeFetch(FetchDescriptor<Gemstone>(), modelContext: modelContext)
-
-        // Quick-check: skip recomputation if the stone set hasn't materially changed.
-        let quickHash = allStones.count &+ (allStones.first?.sku.hashValue ?? 0) &+ (allStones.last?.sku.hashValue ?? 0)
-        guard quickHash != cachedInventoryHash else { return }
-        cachedInventoryHash = quickHash
 
         // Single-pass: compute snapshot counts AND inventory metrics together
         var snap = InventorySnapshot()

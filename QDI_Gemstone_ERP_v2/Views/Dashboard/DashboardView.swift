@@ -12,6 +12,7 @@ struct DashboardView: View {
     @State private var isResetting = false
     @State private var toastMessage: String?
     @State private var refreshTask: Task<Void, Never>?
+    @State private var checklistRefreshTrigger: Int = 0
     @AppStorage("hasSeenWelcome") private var hasSeenWelcome: Bool = false
 
     var body: some View {
@@ -21,7 +22,7 @@ struct DashboardView: View {
                     if !hasSeenWelcome {
                         welcomeBanner
                     }
-                    GettingStartedChecklist { item in
+                    GettingStartedChecklist(refreshTrigger: checklistRefreshTrigger) { item in
                         handleChecklistNavigation(item)
                     }
                     KPICardRow(viewModel: viewModel)
@@ -149,6 +150,7 @@ struct DashboardView: View {
             try? await Task.sleep(for: .milliseconds(300))
             guard !Task.isCancelled else { return }
             GettingStartedService.autoDetectProgress(modelContext: modelContext)
+            checklistRefreshTrigger += 1
             viewModel.load(modelContext: modelContext)
         }
     }

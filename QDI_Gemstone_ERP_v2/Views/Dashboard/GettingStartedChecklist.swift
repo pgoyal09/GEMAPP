@@ -8,6 +8,9 @@ struct GettingStartedChecklist: View {
         GettingStartedItem.allCases.filter(\.isCompleted).map(\.rawValue)
     )
 
+    /// Incremented by parent to force a re-read of UserDefaults completion state.
+    var refreshTrigger: Int = 0
+
     /// Callback when the user taps a checklist item to navigate.
     var onItemTap: ((GettingStartedItem) -> Void)?
 
@@ -22,7 +25,19 @@ struct GettingStartedChecklist: View {
             }
             .transition(.opacity.combined(with: .move(edge: .top)))
             .accessibilityIdentifier("GettingStartedChecklist")
+            .onChange(of: refreshTrigger) { _, _ in
+                reloadCompletionState()
+            }
         }
+    }
+
+    /// Re-read completion state from UserDefaults.
+    private func reloadCompletionState() {
+        let newSet = Set(GettingStartedItem.allCases.filter(\.isCompleted).map(\.rawValue))
+        if newSet != completedItems {
+            completedItems = newSet
+        }
+        isDismissed = GettingStartedService.isDismissed
     }
 
     // MARK: - Header
