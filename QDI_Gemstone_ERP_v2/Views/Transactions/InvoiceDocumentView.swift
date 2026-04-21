@@ -208,8 +208,11 @@ struct InvoiceDocumentView: View {
                     ), displayedComponents: .date)
                     .labelsHidden()
                     .colorScheme(.dark)
+                    .tint(AppColors.ink)
+                    .foregroundStyle(AppColors.ink)
+                    .environment(\.colorScheme, .dark)
                     .glassField()
-                    .frame(width: 130)
+                    .frame(width: 150)
                     .disabled(!isEditable)
                 }
 
@@ -692,7 +695,8 @@ struct InvoiceDocumentView: View {
                 }
             }
         }
-        .padding(AppSpacing.section)
+        .padding(.horizontal, AppSpacing.hero)
+        .padding(.vertical, AppSpacing.section)
         .background(
             RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous)
                 .fill(AppColors.cardBackground)
