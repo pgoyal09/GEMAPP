@@ -4,25 +4,20 @@ import SwiftData
 struct DiamondsInventoryView: View {
     // MARK: - Table Layout
 
+    // Core columns visible by default (11 columns — fits comfortably)
     private static let tableLayout = TableColumnLayout(columns: [
-        ColumnDef("sku", weight: 2.0, minWidth: 80),
-        ColumnDef("shape", weight: 1.5, minWidth: 60),
-        ColumnDef("carat", weight: 1.2, minWidth: 55, alignment: .trailing),
-        ColumnDef("color", weight: 1.5, minWidth: 60),
-        ColumnDef("clarity", weight: 1.2, minWidth: 55),
-        ColumnDef("cut", weight: 1.0, minWidth: 45),
-        ColumnDef("polish", weight: 1.0, minWidth: 45),
-        ColumnDef("sym", weight: 0.8, minWidth: 40),
-        ColumnDef("fluor", weight: 1.0, minWidth: 45),
-        ColumnDef("lab", weight: 0.8, minWidth: 40),
+        ColumnDef("sku", weight: 2.0, minWidth: 75),
+        ColumnDef("shape", weight: 1.5, minWidth: 55),
+        ColumnDef("carat", weight: 1.0, minWidth: 50, alignment: .trailing),
+        ColumnDef("color", weight: 0.8, minWidth: 40),
+        ColumnDef("clarity", weight: 0.8, minWidth: 45),
+        ColumnDef("cut", weight: 0.8, minWidth: 40),
+        ColumnDef("lab", weight: 0.8, minWidth: 35),
         ColumnDef("cert", weight: 1.5, minWidth: 65),
-        ColumnDef("depth", weight: 1.0, minWidth: 50, alignment: .trailing),
-        ColumnDef("table", weight: 1.0, minWidth: 50, alignment: .trailing),
-        ColumnDef("askPrice", weight: 1.5, minWidth: 70, alignment: .trailing),
-        ColumnDef("costPrice", weight: 1.5, minWidth: 70, alignment: .trailing),
-        ColumnDef("margin", weight: 1.2, minWidth: 60, alignment: .trailing),
-        ColumnDef("rap", weight: 1.0, minWidth: 50, alignment: .trailing),
-        ColumnDef("status", weight: 1.5, minWidth: 65, alignment: .center),
+        ColumnDef("askPrice", weight: 1.5, minWidth: 80, alignment: .trailing),
+        ColumnDef("costPrice", weight: 1.5, minWidth: 80, alignment: .trailing),
+        ColumnDef("rap", weight: 1.0, minWidth: 55, alignment: .trailing),
+        ColumnDef("status", weight: 1.2, minWidth: 65, alignment: .center),
     ], spacing: AppSpacing.tableColumnGap)
 
     @Binding var navigateTo: NavigationItem
@@ -473,18 +468,12 @@ struct DiamondsInventoryView: View {
             sortableHeader("Color", key: "color", width: widths[3], alignment: .leading)
             sortableHeader("Clarity", key: "clarity", width: widths[4], alignment: .leading)
             TableHeader(title: "Cut", width: widths[5], alignment: .leading)
-            TableHeader(title: "Polish", width: widths[6], alignment: .leading)
-            TableHeader(title: "Sym", width: widths[7], alignment: .leading)
-            TableHeader(title: "Fluor", width: widths[8], alignment: .leading)
-            TableHeader(title: "Lab", width: widths[9], alignment: .leading)
-            TableHeader(title: "Cert #", width: widths[10], alignment: .leading)
-            TableHeader(title: "Depth%", width: widths[11], alignment: .trailing)
-            TableHeader(title: "Table%", width: widths[12], alignment: .trailing)
-            sortableHeader("Ask/ct", key: "price", width: widths[13], alignment: .trailing)
-            sortableHeader("Cost/ct", key: "cost", width: widths[14], alignment: .trailing)
-            TableHeader(title: "Margin %", width: widths[15], alignment: .trailing)
-            TableHeader(title: "% Rap", width: widths[16], alignment: .trailing)
-            sortableHeader("Status", key: "status", width: widths[17], alignment: .center)
+            TableHeader(title: "Lab", width: widths[6], alignment: .leading)
+            TableHeader(title: "Cert #", width: widths[7], alignment: .leading)
+            sortableHeader("Ask/ct", key: "price", width: widths[8], alignment: .trailing)
+            sortableHeader("Cost/ct", key: "cost", width: widths[9], alignment: .trailing)
+            TableHeader(title: "% Rap", width: widths[10], alignment: .trailing)
+            sortableHeader("Status", key: "status", width: widths[11], alignment: .center)
         }
         .padding(.horizontal, AppSpacing.standard)
         .padding(.vertical, AppSpacing.compact)
@@ -515,18 +504,12 @@ struct DiamondsInventoryView: View {
             Text(stone.color).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[3], alignment: .leading)
             Text(stone.clarity).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[4], alignment: .leading)
             Text(stone.cut).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[5], alignment: .leading)
-            Text(stone.polish).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[6], alignment: .leading)
-            Text(stone.symmetry).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[7], alignment: .leading)
-            Text(stone.fluorescenceIntensity ?? stone.fluorescence).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[8], alignment: .leading)
-            Text(stone.certLab).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[9], alignment: .leading)
-            Text(stone.certNo).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).lineLimit(1).frame(width: widths[10], alignment: .leading)
-            Text(stone.depthPct.map { String(format: "%.1f", $0) } ?? "—").font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: widths[11], alignment: .trailing)
-            Text(stone.tablePct.map { String(format: "%.0f", $0) } ?? "—").font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: widths[12], alignment: .trailing)
-            Text(stone.sellPrice.asCurrency(stone.currencyType)).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: widths[13], alignment: .trailing)
-            Text(stone.costPrice.asCurrency(stone.currencyType)).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: widths[14], alignment: .trailing)
-            Text(marginText(cost: stone.costPrice, sell: stone.sellPrice)).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: widths[15], alignment: .trailing)
-            Text(rapDiscountText(rapNet: stone.rapNetPrice, sell: stone.sellPrice)).font(AppTypography.mono).foregroundStyle(rapDiscountColor(rapNet: stone.rapNetPrice, sell: stone.sellPrice)).frame(width: widths[16], alignment: .trailing)
-            statusBadge(for: stone.status).frame(width: widths[17], alignment: .center)
+            Text(stone.certLab).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[6], alignment: .leading)
+            Text(stone.certNo).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).lineLimit(1).frame(width: widths[7], alignment: .leading)
+            Text(stone.sellPrice.asCurrency(stone.currencyType)).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: widths[8], alignment: .trailing)
+            Text(stone.costPrice.asCurrency(stone.currencyType)).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: widths[9], alignment: .trailing)
+            Text(rapDiscountText(rapNet: stone.rapNetPrice, sell: stone.sellPrice)).font(AppTypography.mono).foregroundStyle(rapDiscountColor(rapNet: stone.rapNetPrice, sell: stone.sellPrice)).frame(width: widths[10], alignment: .trailing)
+            statusBadge(for: stone.status).frame(width: widths[11], alignment: .center)
         }
     }
 
