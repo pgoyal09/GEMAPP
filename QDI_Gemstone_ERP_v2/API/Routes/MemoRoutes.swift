@@ -7,7 +7,7 @@ enum MemoRoutes {
         // GET /api/memos
         router.get("/api/memos") { req, container in
             let context = ModelContext(container)
-            let page = req.queryInt("page", default: 1)
+            let page = max(1, req.queryInt("page", default: 1))
             let pageSize = min(req.queryInt("pageSize", default: 50), 200)
             let search = req.queryString("search")
             let statusFilter = req.queryString("status")

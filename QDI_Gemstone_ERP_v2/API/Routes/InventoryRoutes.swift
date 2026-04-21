@@ -8,7 +8,7 @@ enum InventoryRoutes {
         // GET /api/stones — list/search with pagination
         router.get("/api/stones") { req, container in
             let context = ModelContext(container)
-            let page = req.queryInt("page", default: 1)
+            let page = max(1, req.queryInt("page", default: 1))
             let pageSize = min(req.queryInt("pageSize", default: 50), 200)
             let search = req.queryString("search")
             let statusFilter = req.queryString("status")
@@ -142,6 +142,7 @@ enum InventoryRoutes {
 
         // PATCH /api/stones/:id — update
         router.patch("/api/stones/:id") { req, container in
+            await MainActor.run {
             guard let id = req.pathParams["id"], let body = req.jsonBody() else {
                 return .error(code: "BAD_REQUEST", message: "Invalid request")
             }
@@ -164,10 +165,12 @@ enum InventoryRoutes {
                 return .error(code: "SAVE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
             }
             return .ok(stoneJSON(stone))
+            }
         }
 
         // DELETE /api/stones/:id
         router.delete("/api/stones/:id") { req, container in
+            await MainActor.run {
             guard let id = req.pathParams["id"] else { return .notFound() }
             let context = ModelContext(container)
             guard let stone = findStone(id: id, context: context) else {
@@ -184,6 +187,7 @@ enum InventoryRoutes {
                 return .error(code: "DELETE_FAILED", message: ErrorMapper.userMessage(from: error), status: 500)
             }
             return .noContent()
+            }
         }
     }
 

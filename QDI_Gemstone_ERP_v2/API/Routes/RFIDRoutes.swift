@@ -19,7 +19,7 @@ enum RFIDRoutes {
         // GET /api/rfid/tags — list assigned RFID tags
         router.get("/api/rfid/tags") { req, container in
             let context = ModelContext(container)
-            let page = req.queryInt("page", default: 1)
+            let page = max(1, req.queryInt("page", default: 1))
             let pageSize = min(req.queryInt("pageSize", default: 50), 200)
 
             let descriptor = FetchDescriptor<RFIDTag>()

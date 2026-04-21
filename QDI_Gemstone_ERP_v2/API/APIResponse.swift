@@ -14,13 +14,15 @@ struct APIResponse: Sendable {
 
     var httpData: Data {
         var header = "HTTP/1.1 \(statusCode) \(statusText)\r\n"
-        header += "Content-Type: \(contentType)\r\n"
-        header += "Content-Length: \(body.count)\r\n"
+        if statusCode != 204 {
+            header += "Content-Type: \(contentType)\r\n"
+            header += "Content-Length: \(body.count)\r\n"
+        }
         header += "Access-Control-Allow-Origin: *\r\n"
         header += "Connection: close\r\n"
         header += "\r\n"
         var data = Data(header.utf8)
-        data.append(body)
+        if statusCode != 204 { data.append(body) }
         return data
     }
 
