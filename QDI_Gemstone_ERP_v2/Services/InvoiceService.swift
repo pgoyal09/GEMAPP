@@ -95,13 +95,18 @@ enum InvoiceService {
         invoice.status = .void
         for item in invoice.lineItems {
             // Reset origin memo line item if this was a conversion
+            let isConverted = item.originLineItem != nil
             if let origin = item.originLineItem {
                 origin.status = .open
                 origin.soldDate = nil
             }
             if let stone = item.gemstone {
                 if item.isLotLineItem {
-                    stone.effectiveRemainingCarats += item.carats
+                    // Only restore lot carats if NOT converted from memo
+                    // (memo owns the carat deduction for converted items)
+                    if !isConverted {
+                        stone.effectiveRemainingCarats += item.carats
+                    }
                     // Create audit trail for lot reversal
                     let txn = LotTransaction(
                         type: .returned,
@@ -114,8 +119,13 @@ enum InvoiceService {
                     modelContext.insert(txn)
                     stone.lotTransactions.append(txn)
                 } else {
-                    stone.status = .available
-                    stone.memo = nil
+                    // For converted items, restore to onMemo (memo still owns the stone)
+                    if isConverted {
+                        stone.status = .onMemo
+                    } else {
+                        stone.status = .available
+                        stone.memo = nil
+                    }
                     HistoryLogger.logQuietly(stone: stone, type: .returnedFromCustomer,
                                               message: "Restored from voided Invoice #\(invoice.referenceNumber)", modelContext: modelContext)
                 }
@@ -133,13 +143,17 @@ enum InvoiceService {
         }
         for item in invoice.lineItems {
             // Reset origin memo line item if this was a conversion
+            let isConverted = item.originLineItem != nil
             if let origin = item.originLineItem {
                 origin.status = .open
                 origin.soldDate = nil
             }
             if let stone = item.gemstone {
                 if item.isLotLineItem {
-                    stone.effectiveRemainingCarats += item.carats
+                    // Only restore lot carats if NOT converted from memo
+                    if !isConverted {
+                        stone.effectiveRemainingCarats += item.carats
+                    }
                     // Create audit trail for lot reversal
                     let txn = LotTransaction(
                         type: .returned,
@@ -152,8 +166,13 @@ enum InvoiceService {
                     modelContext.insert(txn)
                     stone.lotTransactions.append(txn)
                 } else {
-                    stone.status = .available
-                    stone.memo = nil
+                    // For converted items, restore to onMemo (memo still owns the stone)
+                    if isConverted {
+                        stone.status = .onMemo
+                    } else {
+                        stone.status = .available
+                        stone.memo = nil
+                    }
                     HistoryLogger.logQuietly(stone: stone, type: .returnedFromCustomer,
                                               message: "Restored from deleted Invoice #\(invoice.referenceNumber)", modelContext: modelContext)
                 }

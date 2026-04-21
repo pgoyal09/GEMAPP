@@ -116,6 +116,9 @@ enum MemoService {
         // Atomically mark converted items as sold
         InvoiceService.markConvertedItemsAsSold(invoice: invoice, modelContext: modelContext)
 
+        // Save atomically — if this fails, all changes are reverted by the caller
+        try modelContext.save()
+
         // Check if memo should auto-close after conversion
         checkAndAutoClose(memo: memo, modelContext: modelContext)
 

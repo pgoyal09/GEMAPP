@@ -106,11 +106,20 @@ enum TransactionService {
         modelContext.insert(item)
         item.memo = memo
         stone.memo = memo
+        let previousStatus = stone.status
         stone.status = .onMemo
         let custName = memo.customer?.displayName ?? "Unknown"
         HistoryLogger.logQuietly(stone: stone, type: .sentToCustomer,
                                   message: "On memo to \(custName)", modelContext: modelContext)
-        try modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            // Revert status on save failure to prevent auto-save persisting incorrect state
+            stone.status = previousStatus
+            stone.memo = nil
+            modelContext.delete(item)
+            throw error
+        }
     }
 
     @MainActor
@@ -195,12 +204,22 @@ enum TransactionService {
         )
         modelContext.insert(item)
         item.invoice = invoice
+        let previousStatus = stone.status
+        let previousMemo = stone.memo
         stone.memo = nil
         stone.status = .sold
         let custName = invoice.customer?.displayName ?? "Unknown"
         HistoryLogger.logQuietly(stone: stone, type: .sold,
                                   message: "Sold to \(custName)", modelContext: modelContext)
-        try modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            // Revert status on save failure to prevent auto-save persisting incorrect state
+            stone.status = previousStatus
+            stone.memo = previousMemo
+            modelContext.delete(item)
+            throw error
+        }
     }
 
     @MainActor
@@ -229,7 +248,9 @@ enum TransactionService {
 
     @MainActor
     static func removeLineItem(_ item: LineItem, restoreStone: Bool = true, modelContext: ModelContext) throws {
-        if restoreStone, let stone = item.gemstone {
+        // Only restore stone if item is still open (not already returned/sold)
+        let shouldRestore = restoreStone && (item.status == .open)
+        if shouldRestore, let stone = item.gemstone {
             if item.isLotLineItem {
                 stone.effectiveRemainingCarats += item.carats
                 let docRef = item.invoice?.referenceNumber ?? item.memo?.referenceNumber ?? "?"
