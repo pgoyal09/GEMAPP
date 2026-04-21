@@ -89,10 +89,18 @@ final class InventoryViewModel: SortableViewModel {
     var groupingFilter: StoneGrouping? = nil
     var caratMin: Double? = nil
     var caratMax: Double? = nil
+    var caratMinText: String = ""
+    var caratMaxText: String = ""
     var sellMin: Decimal? = nil
     var sellMax: Decimal? = nil
+    var sellMinText: String = ""
+    var sellMaxText: String = ""
     var colorFilter: String? = nil
     var clarityFilter: String? = nil
+    var cutFilter: String? = nil
+    var labFilter: String? = nil
+    var statusFilterGemstone: GemstoneStatus? = nil
+    var originFilter: String? = nil
 
     // MARK: - Pagination
 
@@ -191,7 +199,9 @@ final class InventoryViewModel: SortableViewModel {
         groupingFilter != nil ||
         caratMin != nil || caratMax != nil ||
         sellMin != nil || sellMax != nil ||
-        colorFilter != nil || clarityFilter != nil
+        colorFilter != nil || clarityFilter != nil ||
+        cutFilter != nil || labFilter != nil ||
+        statusFilterGemstone != nil || originFilter != nil
     }
 
     var activeFilterCount: Int {
@@ -205,6 +215,10 @@ final class InventoryViewModel: SortableViewModel {
         if sellMin != nil || sellMax != nil { count += 1 }
         if colorFilter != nil { count += 1 }
         if clarityFilter != nil { count += 1 }
+        if cutFilter != nil { count += 1 }
+        if labFilter != nil { count += 1 }
+        if statusFilterGemstone != nil { count += 1 }
+        if originFilter != nil { count += 1 }
         return count
     }
 
@@ -225,6 +239,7 @@ final class InventoryViewModel: SortableViewModel {
         }
         if let c = colorFilter, !c.isEmpty { pills.append(.color(c)) }
         if let c = clarityFilter, !c.isEmpty { pills.append(.clarity(c)) }
+        // cutFilter, labFilter, statusFilterGemstone, originFilter not in pills (shown in filter bar)
         return pills
     }
 
@@ -252,10 +267,19 @@ final class InventoryViewModel: SortableViewModel {
         groupingFilter = nil
         caratMin = nil
         caratMax = nil
+        caratMinText = ""
+        caratMaxText = ""
         sellMin = nil
         sellMax = nil
+        sellMinText = ""
+        sellMaxText = ""
         colorFilter = nil
         clarityFilter = nil
+        cutFilter = nil
+        labFilter = nil
+        statusFilterGemstone = nil
+        originFilter = nil
+        searchText = ""
     }
 
     /// Filter gemstones by search and structured filters.
@@ -311,14 +335,46 @@ final class InventoryViewModel: SortableViewModel {
         if let min = sellMin { result = result.filter { $0.sellPrice >= min } }
         if let max = sellMax { result = result.filter { $0.sellPrice <= max } }
 
-        // Diamond-only filters
+        // Color filter
         if let c = colorFilter, !c.isEmpty {
-            let color = c.uppercased()
-            result = result.filter { $0.stoneType == .diamond && $0.color.uppercased().contains(color) }
+            if c == "K+" {
+                let early = ["D","E","F","G","H","I","J"]
+                result = result.filter { !early.contains($0.color.uppercased()) }
+            } else {
+                let color = c.uppercased()
+                result = result.filter { $0.color.uppercased().contains(color) }
+            }
         }
+        // Clarity filter
         if let c = clarityFilter, !c.isEmpty {
-            let clarity = c.lowercased()
-            result = result.filter { $0.stoneType == .diamond && $0.clarity.lowercased().contains(clarity) }
+            if c == "I1+" {
+                let better = ["IF","VVS1","VVS2","VS1","VS2","SI1","SI2"]
+                result = result.filter { !better.contains($0.clarity.uppercased()) }
+            } else {
+                let clarity = c.lowercased()
+                result = result.filter { $0.clarity.lowercased().contains(clarity) }
+            }
+        }
+
+        // Cut
+        if let c = cutFilter, !c.isEmpty {
+            result = result.filter { $0.cut.lowercased() == c.lowercased() }
+        }
+
+        // Lab
+        if let l = labFilter, !l.isEmpty {
+            if l == "None" { result = result.filter { $0.certLab.isEmpty } }
+            else { result = result.filter { $0.certLab.uppercased() == l.uppercased() } }
+        }
+
+        // Status (GemstoneStatus direct filter)
+        if let s = statusFilterGemstone {
+            result = result.filter { $0.status == s }
+        }
+
+        // Origin
+        if let o = originFilter, !o.isEmpty {
+            result = result.filter { $0.origin.lowercased().contains(o.lowercased()) }
         }
 
         return sorted(result)

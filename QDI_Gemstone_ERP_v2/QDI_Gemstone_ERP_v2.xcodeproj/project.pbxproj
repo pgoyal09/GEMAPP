@@ -192,6 +192,7 @@
 		E56A8D662F2E1D90E871A970 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4ECE3F56706FBA13A89DF47 /* AppConstants.swift */; };
 		E58E1463E55DEDB6E3BC478E /* RapNetSyncStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DEA801B9732A7292B7D6021 /* RapNetSyncStatus.swift */; };
 		E87D650B61167FA6D12F2169 /* InventoryFilterBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A9B8686EE1663B720013FC /* InventoryFilterBar.swift */; };
+		B2C3D4E5F6789012345678A1 /* InventoryFilterBarV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6789012345678 /* InventoryFilterBarV2.swift */; };
 		E9EA1A74670EFB1C0D87AF61 /* RFIDScanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FFA42D7ADC3BDCCB4B372B4 /* RFIDScanService.swift */; };
 		EB9A2DCD8E6BCCAC13026227 /* NavigationGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 037857AF7FF32943A3CBC483 /* NavigationGuard.swift */; };
 		EE499D3205E9CC1CC527E85F /* SupabaseAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 393E603507B63806900CD0D5 /* SupabaseAuthService.swift */; };
@@ -389,6 +390,7 @@
 		E4B93A305750694D17BD25DC /* QDI_Gemstone_ERP_v2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QDI_Gemstone_ERP_v2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5FBD15DCE21EE1BD176D04F /* AccountingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountingView.swift; sourceTree = "<group>"; };
 		E6A9B8686EE1663B720013FC /* InventoryFilterBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryFilterBar.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6789012345678 /* InventoryFilterBarV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryFilterBarV2.swift; sourceTree = "<group>"; };
 		E77251A0991E8AD031C0ED28 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
 		EA6B133B323D833E799468EA /* StoneType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneType.swift; sourceTree = "<group>"; };
 		EDF43F66FC7402DC31864900 /* QuickActionsGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActionsGrid.swift; sourceTree = "<group>"; };
@@ -800,6 +802,7 @@
 				814CBBF32C678A903E1B3D9C /* GemstoneDetailPanel.swift */,
 				51E9AFFB3AAD9F806B0F2A13 /* GemstonesInventoryView.swift */,
 				E6A9B8686EE1663B720013FC /* InventoryFilterBar.swift */,
+				A1B2C3D4E5F6789012345678 /* InventoryFilterBarV2.swift */,
 				0802F6FC50765CEE19C0FB4E /* InventoryListView.swift */,
 				25CDDAACE2FF674CA40DBD20 /* LotInventoryView.swift */,
 				4D8C27FE3D81DB349A0639CD /* QuickEntryView.swift */,
@@ -1098,6 +1101,7 @@
 				5041255737768DE30B3309AD /* HoverRow.swift in Sources */,
 				7975E425CB137B9FE818E3DF /* InputValidator.swift in Sources */,
 				E87D650B61167FA6D12F2169 /* InventoryFilterBar.swift in Sources */,
+				B2C3D4E5F6789012345678A1 /* InventoryFilterBarV2.swift in Sources */,
 				303AE869A631CC57C6648528 /* InventoryListView.swift in Sources */,
 				5A35814DAD47C9CDE9833234 /* InventoryRoutes.swift in Sources */,
 				7EA01D623D3136817EE57733 /* InventorySelectSheet.swift in Sources */,

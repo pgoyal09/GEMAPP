@@ -9,6 +9,10 @@ struct FilterPreset: Codable, Identifiable, Equatable {
     var shapeFilter: String?
     var colorFilter: String?
     var clarityFilter: String?
+    var cutFilter: String?
+    var labFilter: String?
+    var statusFilter: String?   // GemstoneStatus raw value
+    var groupingFilter: String? // StoneGrouping raw value
 
     // Gemstone filters
     var stoneTypeFilter: String?  // StoneType raw value
@@ -18,6 +22,8 @@ struct FilterPreset: Codable, Identifiable, Equatable {
     // Shared
     var caratMin: Double?
     var caratMax: Double?
+    var priceMin: Decimal?
+    var priceMax: Decimal?
 }
 
 /// Manages saving and loading filter presets to/from UserDefaults.

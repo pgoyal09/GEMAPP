@@ -19,8 +19,25 @@ struct LotInventoryView: View {
     @Query private var allStones: [Gemstone]
 
     @State var viewModel = LotInventoryViewModel()
-    @State private var showAdvancedFilters = false
     @State private var stoneTypeFilter: StoneType?
+    @State private var statusFilter: GemstoneStatus?
+    @State private var shapeFilter: String?
+    @State private var groupingFilter: StoneGrouping?
+    @State private var colorFilter: String?
+    @State private var clarityFilter: String?
+    @State private var cutFilter: String?
+    @State private var originFilter: String?
+    @State private var treatmentFilter: String?
+    @State private var labFilter: String?
+    @State private var caratMin: Double?
+    @State private var caratMax: Double?
+    @State private var caratMinText: String = ""
+    @State private var caratMaxText: String = ""
+    @State private var priceMin: Decimal?
+    @State private var priceMax: Decimal?
+    @State private var priceMinText: String = ""
+    @State private var priceMaxText: String = ""
+    @State private var searchFieldFocusRequest = false
 
     // MARK: - Init
 
@@ -42,14 +59,47 @@ struct LotInventoryView: View {
 
     private var filteredLots: [Gemstone] {
         var result = viewModel.filtered(from: lots)
-        if let type = stoneTypeFilter {
-            result = result.filter { $0.stoneType == type }
+        // Status
+        if let s = statusFilter { result = result.filter { $0.status == s } }
+        // Stone Type
+        if let type = stoneTypeFilter { result = result.filter { $0.stoneType == type } }
+        // Shape
+        if let s = shapeFilter, !s.isEmpty {
+            if s == "Other" {
+                let top = ["round","cushion","oval","pear","emerald","princess","marquise"]
+                result = result.filter { !top.contains($0.shape.lowercased()) }
+            } else {
+                result = result.filter { $0.shape.lowercased().contains(s.lowercased()) }
+            }
         }
+        // Color
+        if let c = colorFilter, !c.isEmpty {
+            result = result.filter { $0.color.lowercased().contains(c.lowercased()) }
+        }
+        // Lab
+        if let l = labFilter, !l.isEmpty {
+            if l == "None" { result = result.filter { $0.certLab.isEmpty } }
+            else { result = result.filter { $0.certLab.uppercased() == l.uppercased() } }
+        }
+        // Carat range
+        if let min = caratMin { result = result.filter { $0.effectiveRemainingCarats >= min } }
+        if let max = caratMax { result = result.filter { $0.effectiveRemainingCarats <= max } }
+        // Price range
+        if let min = priceMin { result = result.filter { $0.sellPrice >= min } }
+        if let max = priceMax { result = result.filter { $0.sellPrice <= max } }
         return sortedLots(result)
     }
 
     private var activeFilterCount: Int {
-        stoneTypeFilter != nil ? 1 : 0
+        var count = 0
+        if statusFilter != nil { count += 1 }
+        if stoneTypeFilter != nil { count += 1 }
+        if shapeFilter != nil { count += 1 }
+        if colorFilter != nil { count += 1 }
+        if labFilter != nil { count += 1 }
+        if caratMin != nil || caratMax != nil { count += 1 }
+        if priceMin != nil || priceMax != nil { count += 1 }
+        return count
     }
 
     private func sortedLots(_ lots: [Gemstone]) -> [Gemstone] {
@@ -126,60 +176,46 @@ struct LotInventoryView: View {
 
     private var topBar: some View {
         VStack(spacing: 0) {
-            HStack(spacing: AppSpacing.comfortable) {
-                GlassSearchField(text: $viewModel.searchText, placeholder: "Search lots...")
-                    .frame(maxWidth: 320)
-
-                Button {
-                    withAnimation { showAdvancedFilters.toggle() }
-                } label: {
-                    ZStack(alignment: .topTrailing) {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
-                            .font(.title3)
-                            .foregroundStyle(showAdvancedFilters || activeFilterCount > 0 ? AppColors.primary : AppColors.inkMuted)
-                        if activeFilterCount > 0 {
-                            Text("\(activeFilterCount)")
-                                .font(AppTypography.tinyLabel)
-                                .foregroundStyle(.white)
-                                .frame(width: 14, height: 14)
-                                .background(Circle().fill(AppColors.primary))
-                                .offset(x: 4, y: -4)
-                        }
-                    }
-                }
-                .buttonStyle(.plain)
-
-                Spacer()
-            }
-            .padding(.horizontal, AppSpacing.hero)
-            .padding(.vertical, AppSpacing.section)
-
-            if showAdvancedFilters {
-                HStack(spacing: AppSpacing.comfortable) {
-                    Picker("Stone Type", selection: $stoneTypeFilter) {
-                        Text("All Types").tag(StoneType?.none)
-                        ForEach(StoneType.allCases, id: \.self) { type in
-                            Text(type.rawValue.capitalized).tag(StoneType?.some(type))
-                        }
-                    }
-                    .frame(width: 160)
-
-                    if stoneTypeFilter != nil {
-                        Button {
-                            stoneTypeFilter = nil
-                        } label: {
-                            Text("Clear").font(AppTypography.caption).foregroundStyle(AppColors.danger)
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    Spacer()
-                }
-                .padding(.horizontal, AppSpacing.hero)
-                .padding(.bottom, AppSpacing.comfortable)
-                .transition(.move(edge: .top).combined(with: .opacity))
-            }
+            lotFilterBar
         }
+    }
+
+    private var lotFilterBar: some View {
+        InventoryFilterBarV2(
+            config: .lots,
+            statusFilter: $statusFilter,
+            shapeFilter: $shapeFilter,
+            groupingFilter: $groupingFilter,
+            colorFilter: $colorFilter,
+            clarityFilter: $clarityFilter,
+            cutFilter: $cutFilter,
+            originFilter: $originFilter,
+            treatmentFilter: $treatmentFilter,
+            stoneTypeFilter: $stoneTypeFilter,
+            caratMinText: $caratMinText,
+            caratMaxText: $caratMaxText,
+            priceMinText: $priceMinText,
+            priceMaxText: $priceMaxText,
+            labFilter: $labFilter,
+            searchText: $viewModel.searchText,
+            searchFieldFocusRequest: $searchFieldFocusRequest,
+            onClearAll: clearAllLotFilters
+        )
+        .onChange(of: caratMinText) { _, val in caratMin = Double(val) }
+        .onChange(of: caratMaxText) { _, val in caratMax = Double(val) }
+        .onChange(of: priceMinText) { _, val in priceMin = Decimal(string: val) }
+        .onChange(of: priceMaxText) { _, val in priceMax = Decimal(string: val) }
+    }
+
+    private func clearAllLotFilters() {
+        statusFilter = nil; shapeFilter = nil; groupingFilter = nil
+        stoneTypeFilter = nil; colorFilter = nil; clarityFilter = nil
+        cutFilter = nil; originFilter = nil; treatmentFilter = nil
+        labFilter = nil; caratMin = nil; caratMax = nil
+        priceMin = nil; priceMax = nil
+        caratMinText = ""; caratMaxText = ""
+        priceMinText = ""; priceMaxText = ""
+        viewModel.searchText = ""
     }
 
     // MARK: - Table

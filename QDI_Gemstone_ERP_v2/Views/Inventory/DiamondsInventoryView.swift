@@ -42,9 +42,7 @@ struct DiamondsInventoryView: View {
     @State private var csvImportRows: [CSVImportService.ImportRow] = []
     @State private var csvImportError: String?
 
-    // MARK: - Filter Toggle
-
-    @State private var showAdvancedFilters = false
+    // MARK: - Filter Toggle (removed — filters always visible)
 
     // MARK: - Search Focus
 
@@ -63,11 +61,24 @@ struct DiamondsInventoryView: View {
 
     // MARK: - Filter State
 
+    @State private var statusFilter: GemstoneStatus?
     @State private var shapeFilter: String?
+    @State private var groupingFilter: StoneGrouping?
     @State private var colorFilter: String?
     @State private var clarityFilter: String?
+    @State private var cutFilter: String?
+    @State private var labFilter: String?
     @State private var caratMin: Double?
     @State private var caratMax: Double?
+    @State private var caratMinText: String = ""
+    @State private var caratMaxText: String = ""
+    @State private var priceMin: Decimal?
+    @State private var priceMax: Decimal?
+    @State private var priceMinText: String = ""
+    @State private var priceMaxText: String = ""
+    @State private var originFilter: String?
+    @State private var treatmentFilter: String?
+    @State private var stoneTypeFilter: StoneType?
 
     // MARK: - Filter Presets
 
@@ -92,6 +103,53 @@ struct DiamondsInventoryView: View {
 
     private var filteredStones: [Gemstone] {
         var result = diamonds
+        // Status
+        if let s = statusFilter { result = result.filter { $0.status == s } }
+        // Shape
+        if let s = shapeFilter, !s.isEmpty {
+            if s == "Other" {
+                let top = ["round","cushion","oval","pear","emerald","princess","marquise"]
+                result = result.filter { !top.contains($0.shape.lowercased()) }
+            } else {
+                result = result.filter { $0.shape.lowercased().contains(s.lowercased()) }
+            }
+        }
+        // Grouping
+        if let g = groupingFilter { result = result.filter { $0.grouping == g } }
+        // Color
+        if let c = colorFilter, !c.isEmpty {
+            if c == "K+" {
+                let early = ["D","E","F","G","H","I","J"]
+                result = result.filter { !early.contains($0.color.uppercased()) }
+            } else {
+                result = result.filter { $0.color.uppercased() == c.uppercased() }
+            }
+        }
+        // Clarity
+        if let c = clarityFilter, !c.isEmpty {
+            if c == "I1+" {
+                let better = ["IF","VVS1","VVS2","VS1","VS2","SI1","SI2"]
+                result = result.filter { !better.contains($0.clarity.uppercased()) }
+            } else {
+                result = result.filter { $0.clarity.uppercased() == c.uppercased() }
+            }
+        }
+        // Cut
+        if let c = cutFilter, !c.isEmpty {
+            result = result.filter { $0.cut.lowercased() == c.lowercased() }
+        }
+        // Lab
+        if let l = labFilter, !l.isEmpty {
+            if l == "None" { result = result.filter { $0.certLab.isEmpty } }
+            else { result = result.filter { $0.certLab.uppercased() == l.uppercased() } }
+        }
+        // Carat range
+        if let min = caratMin { result = result.filter { $0.caratWeight >= min } }
+        if let max = caratMax { result = result.filter { $0.caratWeight <= max } }
+        // Price range
+        if let min = priceMin { result = result.filter { $0.sellPrice >= min } }
+        if let max = priceMax { result = result.filter { $0.sellPrice <= max } }
+        // Search
         let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if !q.isEmpty {
             result = result.filter {
@@ -102,17 +160,6 @@ struct DiamondsInventoryView: View {
                 $0.shape.lowercased().contains(q)
             }
         }
-        if let s = shapeFilter, !s.isEmpty {
-            result = result.filter { $0.shape.lowercased().contains(s.lowercased()) }
-        }
-        if let c = colorFilter, !c.isEmpty {
-            result = result.filter { $0.color.uppercased().contains(c.uppercased()) }
-        }
-        if let c = clarityFilter, !c.isEmpty {
-            result = result.filter { $0.clarity.lowercased().contains(c.lowercased()) }
-        }
-        if let min = caratMin { result = result.filter { $0.caratWeight >= min } }
-        if let max = caratMax { result = result.filter { $0.caratWeight <= max } }
         return sortedStones(result)
     }
 
@@ -158,7 +205,7 @@ struct DiamondsInventoryView: View {
             VStack(spacing: 0) {
                 VStack(spacing: 0) {
                     topBar
-                    filterChips
+                    filterBar
                     tableContent
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -255,28 +302,6 @@ struct DiamondsInventoryView: View {
 
     private var topBar: some View {
         HStack(spacing: AppSpacing.comfortable) {
-            GlassSearchField(text: $searchText, placeholder: "Search by SKU, color, clarity...", requestFocus: $searchFieldFocusRequest)
-                .frame(minWidth: 180, maxWidth: 320)
-
-            Button {
-                withAnimation { showAdvancedFilters.toggle() }
-            } label: {
-                ZStack(alignment: .topTrailing) {
-                    Image(systemName: "line.3.horizontal.decrease.circle")
-                        .font(.title3)
-                        .foregroundStyle(showAdvancedFilters || hasActiveFilters ? AppColors.primary : AppColors.inkMuted)
-                    if activeFilterCount > 0 {
-                        Text("\(activeFilterCount)")
-                            .font(AppTypography.tinyLabel)
-                            .foregroundStyle(.white)
-                            .frame(width: 14, height: 14)
-                            .background(Circle().fill(AppColors.primary))
-                            .offset(x: 4, y: -4)
-                    }
-                }
-            }
-            .buttonStyle(.plain)
-
             Spacer(minLength: AppSpacing.comfortable)
             filterPresetMenu
             Button("Save Filter", systemImage: "square.and.arrow.down") {
@@ -357,6 +382,7 @@ struct DiamondsInventoryView: View {
             caratMin: caratMin,
             caratMax: caratMax
         )
+        // Note: cutFilter, labFilter, priceMin/Max saved separately if FilterPreset is extended
         filterPresets.append(preset)
         FilterPresetStore.saveDiamondPresets(filterPresets)
         toastIsError = false
@@ -369,6 +395,8 @@ struct DiamondsInventoryView: View {
         clarityFilter = preset.clarityFilter
         caratMin = preset.caratMin
         caratMax = preset.caratMax
+        caratMinText = preset.caratMin.map { String(format: "%.2f", $0) } ?? ""
+        caratMaxText = preset.caratMax.map { String(format: "%.2f", $0) } ?? ""
     }
 
     private func deleteDiamondPreset(_ preset: FilterPreset) {
@@ -376,53 +404,43 @@ struct DiamondsInventoryView: View {
         FilterPresetStore.saveDiamondPresets(filterPresets)
     }
 
-    // MARK: - Filter Chips
+    // MARK: - Filter Bar
 
-    @ViewBuilder
-    private var filterChips: some View {
-        let hasFilters = shapeFilter != nil || colorFilter != nil || clarityFilter != nil || caratMin != nil || caratMax != nil
-        if hasFilters || showAdvancedFilters {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppSpacing.standard) {
-                    if let s = shapeFilter {
-                        chipButton(s) { shapeFilter = nil }
-                    }
-                    if let c = colorFilter {
-                        chipButton("Color \(c)") { colorFilter = nil }
-                    }
-                    if let c = clarityFilter {
-                        chipButton("Clarity \(c)") { clarityFilter = nil }
-                    }
-                    if caratMin != nil || caratMax != nil {
-                        let label = String(format: "%.1f–%.1f ct", caratMin ?? 0, caratMax ?? 99)
-                        chipButton(label) { caratMin = nil; caratMax = nil }
-                    }
-                    Button { clearAllFilters() } label: {
-                        Text("Clear all").font(AppTypography.caption).foregroundStyle(AppColors.danger)
-                    }
-                    .buttonStyle(.plain)
-                }
-                .padding(.horizontal, AppSpacing.section)
-                .padding(.bottom, AppSpacing.standard)
-            }
-        }
-    }
-
-    private func chipButton(_ label: String, action: @escaping () -> Void) -> some View {
-        HStack(spacing: AppSpacing.tableColumnGap) {
-            Text(label).font(AppTypography.caption).foregroundStyle(AppColors.primary)
-            Button(action: action) {
-                Image(systemName: "xmark").font(AppTypography.sectionLabel.weight(.bold)).foregroundStyle(AppColors.primary.opacity(AppOpacity.strong))
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Remove \(label) filter")
-        }
-        .padding(.horizontal, AppSpacing.standard).padding(.vertical, AppSpacing.compact)
-        .background(RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous).fill(AppColors.primary.opacity(AppOpacity.muted)))
+    private var filterBar: some View {
+        InventoryFilterBarV2(
+            config: .diamonds,
+            statusFilter: $statusFilter,
+            shapeFilter: $shapeFilter,
+            groupingFilter: $groupingFilter,
+            colorFilter: $colorFilter,
+            clarityFilter: $clarityFilter,
+            cutFilter: $cutFilter,
+            originFilter: $originFilter,
+            treatmentFilter: $treatmentFilter,
+            stoneTypeFilter: $stoneTypeFilter,
+            caratMinText: $caratMinText,
+            caratMaxText: $caratMaxText,
+            priceMinText: $priceMinText,
+            priceMaxText: $priceMaxText,
+            labFilter: $labFilter,
+            searchText: $searchText,
+            searchFieldFocusRequest: $searchFieldFocusRequest,
+            onClearAll: clearAllFilters
+        )
+        .onChange(of: caratMinText) { _, val in caratMin = Double(val) }
+        .onChange(of: caratMaxText) { _, val in caratMax = Double(val) }
+        .onChange(of: priceMinText) { _, val in priceMin = Decimal(string: val) }
+        .onChange(of: priceMaxText) { _, val in priceMax = Decimal(string: val) }
     }
 
     private func clearAllFilters() {
-        shapeFilter = nil; colorFilter = nil; clarityFilter = nil; caratMin = nil; caratMax = nil
+        statusFilter = nil; shapeFilter = nil; groupingFilter = nil
+        colorFilter = nil; clarityFilter = nil; cutFilter = nil
+        labFilter = nil; caratMin = nil; caratMax = nil
+        priceMin = nil; priceMax = nil
+        caratMinText = ""; caratMaxText = ""
+        priceMinText = ""; priceMaxText = ""
+        searchText = ""
     }
 
     // MARK: - Table

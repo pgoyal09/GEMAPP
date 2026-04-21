@@ -43,6 +43,7 @@ struct InventoryListView: View {
     @Environment(\.modelContext) private var modelContext
 
     @State var viewModel = InventoryViewModel()
+    @State private var searchFieldFocusRequest = false
     @State private var showEditSheet = false
     @State private var editingStone: Gemstone?
     @State private var selectedStones: Set<PersistentIdentifier> = []
@@ -70,13 +71,7 @@ struct InventoryListView: View {
             // Main list area
             VStack(spacing: 0) {
                 topBar
-                activeFilterPillsRow
-                if viewModel.showFiltersPanel {
-                    InventoryFilterBar(viewModel: viewModel)
-                        .padding(.horizontal, AppSpacing.hero)
-                        .padding(.bottom, AppSpacing.comfortable)
-                        .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
-                }
+                inventoryFilterBar
                 tableContent
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -95,7 +90,6 @@ struct InventoryListView: View {
         }
         .accessibilityIdentifier("InventoryListView")
         .onAppear { viewModel.fetchPage(context: modelContext, mode: mode) }
-        .animation(reduceMotion ? nil : AppAnimation.standard, value: viewModel.showFiltersPanel)
         .animation(reduceMotion ? nil : AppAnimation.sheetSpring, value: selectedStone?.persistentModelID)
         .overlay(alignment: .bottom) {
             if !selectedStones.isEmpty {
@@ -134,129 +128,53 @@ struct InventoryListView: View {
     // MARK: - Top Bar
 
     private var topBar: some View {
-        VStack(spacing: AppSpacing.comfortable) {
-            HStack(spacing: AppSpacing.comfortable) {
-                GlassSearchField(text: $viewModel.searchText, placeholder: "Search by SKU, type, color...")
-                    .frame(maxWidth: 320)
+        HStack(spacing: AppSpacing.comfortable) {
+            Spacer()
 
-                statusFilterPills
+            if mode == .current {
+                Button("Quick Intake", systemImage: "plus.circle.fill") {
+                    navigateTo = .quickIntake
+                }.buttonStyle(.gradient)
 
-                Spacer()
-
-                filterToggleButton
-
-                if mode == .current {
-                    Button("Quick Intake", systemImage: "plus.circle.fill") {
-                        navigateTo = .quickIntake
-                    }.buttonStyle(.gradient)
-
-                    Button {
-                        navigateTo = .reviewQueue
-                    } label: {
-                        Label("Review Queue", systemImage: "list.bullet.clipboard")
-                    }
-                    .buttonStyle(.outline)
+                Button {
+                    navigateTo = .reviewQueue
+                } label: {
+                    Label("Review Queue", systemImage: "list.bullet.clipboard")
                 }
+                .buttonStyle(.outline)
             }
         }
         .padding(.horizontal, AppSpacing.hero)
         .padding(.vertical, AppSpacing.section)
     }
 
-    private var statusFilterPills: some View {
-        HStack(spacing: AppSpacing.standard) {
-            if mode == .current {
-                ForEach([InventoryStatusFilter.all, .available, .onMemo], id: \.rawValue) { filter in
-                    FilterPill(
-                        title: filter.rawValue,
-                        isActive: viewModel.statusFilter == filter,
-                        action: {
-                            withAnimation(reduceMotion ? nil : AppAnimation.spring) {
-                                viewModel.statusFilter = filter
-                            }
-                        },
-                        animationNamespace: filterPillNamespace
-                    )
-                }
-            }
-        }
-    }
+    // MARK: - Filter Bar
 
-    private var filterToggleButton: some View {
-        Button {
-            viewModel.showFiltersPanel.toggle()
-        } label: {
-            HStack(spacing: AppSpacing.tableColumnGap) {
-                Image(systemName: "line.3.horizontal.decrease.circle")
-                    .font(AppTypography.body)
-                Text("Filters")
-                    .font(AppTypography.caption)
-                if viewModel.hasActiveFilters {
-                    Circle()
-                        .fill(AppColors.primary)
-                        .frame(width: 6, height: 6)
-                }
-            }
-            .foregroundStyle(viewModel.showFiltersPanel ? AppColors.primary : AppColors.inkMuted)
-            .padding(.horizontal, AppSpacing.comfortable)
-            .padding(.vertical, AppSpacing.standard)
-            .background(
-                RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                    .fill(viewModel.showFiltersPanel ? AppColors.primary.opacity(AppOpacity.muted) : AppColors.panelBackground)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                            .strokeBorder(viewModel.showFiltersPanel ? AppColors.primary.opacity(AppOpacity.muted) : AppColors.cardElevated, lineWidth: 1)
-                    )
-            )
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Toggle Filters")
-    }
-
-    // MARK: - Active Filter Pills
-
-    @ViewBuilder
-    private var activeFilterPillsRow: some View {
-        let pills = viewModel.activeFilterPills
-        if !pills.isEmpty {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppSpacing.standard) {
-                    ForEach(pills, id: \.label) { pill in
-                        HStack(spacing: AppSpacing.tableColumnGap) {
-                            Text(pill.label)
-                                .font(AppTypography.caption)
-                                .foregroundStyle(AppColors.primary)
-                            Button {
-                                viewModel.removePill(pill)
-                            } label: {
-                                Image(systemName: "xmark")
-                                    .font(AppTypography.sectionLabel.weight(.bold))
-                                    .foregroundStyle(AppColors.primary.opacity(AppOpacity.strong))
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel("Remove \(pill.label) filter")
-                        }
-                        .padding(.horizontal, AppSpacing.standard)
-                        .padding(.vertical, AppSpacing.compact)
-                        .background(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.small, style: .continuous)
-                                .fill(AppColors.primary.opacity(AppOpacity.muted))
-                        )
-                    }
-
-                    Button {
-                        viewModel.clearAllFilters()
-                    } label: {
-                        Text("Clear all")
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColors.danger)
-                    }
-                    .buttonStyle(.plain)
-                }
-                .padding(.horizontal, AppSpacing.hero)
-                .padding(.bottom, AppSpacing.comfortable)
-            }
-        }
+    private var inventoryFilterBar: some View {
+        InventoryFilterBarV2(
+            config: .inventory,
+            statusFilter: $viewModel.statusFilterGemstone,
+            shapeFilter: $viewModel.shapeFilter,
+            groupingFilter: $viewModel.groupingFilter,
+            colorFilter: $viewModel.colorFilter,
+            clarityFilter: $viewModel.clarityFilter,
+            cutFilter: $viewModel.cutFilter,
+            originFilter: $viewModel.originFilter,
+            treatmentFilter: $viewModel.treatmentFilter,
+            stoneTypeFilter: $viewModel.stoneTypeFilter,
+            caratMinText: $viewModel.caratMinText,
+            caratMaxText: $viewModel.caratMaxText,
+            priceMinText: $viewModel.sellMinText,
+            priceMaxText: $viewModel.sellMaxText,
+            labFilter: $viewModel.labFilter,
+            searchText: $viewModel.searchText,
+            searchFieldFocusRequest: $searchFieldFocusRequest,
+            onClearAll: { viewModel.clearAllFilters() }
+        )
+        .onChange(of: viewModel.caratMinText) { _, val in viewModel.caratMin = Double(val) }
+        .onChange(of: viewModel.caratMaxText) { _, val in viewModel.caratMax = Double(val) }
+        .onChange(of: viewModel.sellMinText) { _, val in viewModel.sellMin = Decimal(string: val) }
+        .onChange(of: viewModel.sellMaxText) { _, val in viewModel.sellMax = Decimal(string: val) }
     }
 
     // MARK: - Table
