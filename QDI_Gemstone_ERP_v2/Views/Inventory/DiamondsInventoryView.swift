@@ -427,34 +427,44 @@ struct DiamondsInventoryView: View {
 
     // MARK: - Table
 
+    @State private var headerHeight: CGFloat = 0
+
     private var tableContent: some View {
-        GeometryReader { geo in
-            let fixedWidth: CGFloat = 24 // checkbox
-            let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard - fixedWidth)
-            VStack(spacing: 0) {
-                tableHeader(widths: widths)
-                Divider().background(AppColors.cardStroke)
-                if filteredStones.isEmpty {
-                    EmptyStateView(icon: "sparkle", title: "No diamonds found", subtitle: "Try adjusting your search or filters")
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    ScrollView(.vertical) {
-                        LazyVStack(spacing: AppSpacing.tight) {
-                            ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
-                                stoneRow(stone, widths: widths)
-                                    .simultaneousGesture(TapGesture(count: 2).onEnded {
-                                        detailSheetStone = stone
-                                    })
-                                    .staggeredRow(index: index, reduceMotion: reduceMotion)
+        // Use overlay pattern to avoid GeometryReader vertical centering issues.
+        // The glassTable background fills the space; header is pinned at top,
+        // scroll content fills below it.
+        VStack(spacing: 0) {
+            GeometryReader { geo in
+                let fixedWidth: CGFloat = 24
+                let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard - fixedWidth)
+                VStack(spacing: 0) {
+                    tableHeader(widths: widths)
+                        .background(GeometryReader { hg in
+                            Color.clear.onAppear { headerHeight = hg.size.height }
+                        })
+                    Divider().background(AppColors.cardStroke)
+                    if filteredStones.isEmpty {
+                        EmptyStateView(icon: "sparkle", title: "No diamonds found", subtitle: "Try adjusting your search or filters")
+                            .frame(maxWidth: .infinity)
+                            .frame(height: max(0, geo.size.height - headerHeight - 1))
+                    } else {
+                        ScrollView(.vertical) {
+                            LazyVStack(spacing: AppSpacing.tight) {
+                                ForEach(Array(filteredStones.enumerated()), id: \.element.persistentModelID) { index, stone in
+                                    stoneRow(stone, widths: widths)
+                                        .simultaneousGesture(TapGesture(count: 2).onEnded {
+                                            detailSheetStone = stone
+                                        })
+                                        .staggeredRow(index: index, reduceMotion: reduceMotion)
+                                }
                             }
+                            .padding(.vertical, AppSpacing.compact)
                         }
-                        .padding(.vertical, AppSpacing.compact)
+                        .frame(height: max(0, geo.size.height - headerHeight - 1))
                     }
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .glassTable()
         .padding(.horizontal, AppSpacing.standard)
         .padding(.bottom, AppSpacing.compact)
