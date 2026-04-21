@@ -92,6 +92,7 @@ struct ReconcileView: View {
                     Label("Export Report", systemImage: "arrow.down.doc")
                 }
                 .buttonStyle(.outline)
+                .accessibilityLabel("Export Reconciliation Report")
                 .disabled(viewModel.foundStones.isEmpty && viewModel.missingStones.isEmpty)
 
                 Button {
@@ -100,6 +101,7 @@ struct ReconcileView: View {
                     Label("Reset", systemImage: "arrow.counterclockwise")
                 }
                 .buttonStyle(.outline)
+                .accessibilityLabel("Reset Reconciliation Scan")
             }
         }
         .padding(.horizontal, AppSpacing.hero)

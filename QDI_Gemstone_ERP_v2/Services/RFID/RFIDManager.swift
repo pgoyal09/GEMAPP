@@ -704,6 +704,9 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
     private func parseSilionFrames(bytes: [UInt8]) {
         let count = bytes.count
         var idx = 0
+        // Note: remainder is set inside the loop but leftover bytes are handled
+        // by the frameBuffer re-insert block after the while loop (line ~825).
+        // This variable is effectively unused but kept for clarity.
         var remainder = Data()
 
         while idx < count {

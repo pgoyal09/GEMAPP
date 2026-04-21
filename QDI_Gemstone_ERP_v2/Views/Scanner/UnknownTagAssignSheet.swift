@@ -73,10 +73,13 @@ struct UnknownTagAssignSheet: View {
             // Footer
             HStack {
                 Spacer()
-                Button("Cancel") { dismiss() }.buttonStyle(.outline)
+                Button("Cancel") { dismiss() }
+                    .buttonStyle(.outline)
+                    .accessibilityLabel("Cancel tag assignment")
                 Button("Assign Tag") { assignTag() }
                     .buttonStyle(.gradient)
                     .disabled(selectedStoneID == nil)
+                    .accessibilityLabel("Assign RFID tag to selected stone")
             }
             .padding(AppSpacing.section)
         }
