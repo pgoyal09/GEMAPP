@@ -65,7 +65,8 @@ struct InvoiceWindowView: View {
     }
 
     private func closeWindow() {
-        dismiss()
+        // dismiss() is unreliable on WindowGroup — use NSApp.keyWindow?.close() per BUILD-SPEC
+        NSApp.keyWindow?.close()
     }
 
     private func fetchInvoice() -> Invoice? {

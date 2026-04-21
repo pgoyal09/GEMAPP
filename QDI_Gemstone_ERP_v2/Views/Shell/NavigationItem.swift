@@ -43,11 +43,13 @@ enum NavigationItem: String, CaseIterable {
         }
     }
 
+    // Canonical sidebar groups — SidebarView.sidebarGroups is the single source of truth.
+    // This property is kept for programmatic access (e.g. keyboard shortcut documentation).
     static let groups: [(label: String, items: [NavigationItem])] = [
-        ("Get Started", [.dashboard, .scanner]),
-        ("Sales", [.memos, .invoices, .customers]),
-        // DISABLED: Accounting section (accounting, reports, AR) — to be rebuilt later
-        ("Inventory", [.diamonds, .gemstones, .lots, .sold, .quickIntake, .quickEntry, .reviewQueue, .reconcile, .memoReturn]),
-        ("System", [.settings]),
+        ("Sales", [.dashboard, .memos, .invoices]),
+        ("Customers", [.customers]),
+        ("Inventory", [.diamonds, .gemstones, .lots, .sold, .quickIntake, .quickEntry, .reviewQueue]),
+        ("Scanner", [.scanner, .memoReturn, .reconcile]),
+        ("Reports", [.reports, .accounting, .accountsReceivable]),
     ]
 }

@@ -279,6 +279,7 @@ struct QDIGemstoneERPApp: App {
                     .environment(\.openDocumentTracker, openDocTracker)
             }
         }
+        .defaultSize(width: 1200, height: 800)
         .modelContainer(sharedModelContainer)
 
         // Invoice document windows
@@ -288,15 +289,34 @@ struct QDIGemstoneERPApp: App {
                     .environment(\.openDocumentTracker, openDocTracker)
             }
         }
+        .defaultSize(width: 1200, height: 800)
         .modelContainer(sharedModelContainer)
     }
 
     // MARK: - API Server
 
+    private static let apiKeychainService = "com.qdi.gemstone-erp.api"
+    private static let apiKeychainAccount = "bearerToken"
+
     private func startAPIServer() {
         guard apiServer == nil else { return }
-        let token = UserDefaults.standard.string(forKey: "apiAuthToken") ?? "qdi-dev-token"
-        let server = APIServer(modelContainer: sharedModelContainer, bearerToken: token)
+        // Load token from Keychain; migrate from UserDefaults if needed
+        var token = KeychainHelper.load(service: Self.apiKeychainService, account: Self.apiKeychainAccount)
+        if token == nil {
+            // One-time migration from UserDefaults → Keychain
+            if let legacyToken = UserDefaults.standard.string(forKey: "apiAuthToken"), legacyToken != "qdi-dev-token" {
+                KeychainHelper.save(legacyToken, service: Self.apiKeychainService, account: Self.apiKeychainAccount)
+                UserDefaults.standard.removeObject(forKey: "apiAuthToken")
+                token = legacyToken
+            } else {
+                // Generate a random token for first launch
+                let newToken = UUID().uuidString
+                KeychainHelper.save(newToken, service: Self.apiKeychainService, account: Self.apiKeychainAccount)
+                UserDefaults.standard.removeObject(forKey: "apiAuthToken")
+                token = newToken
+            }
+        }
+        let server = APIServer(modelContainer: sharedModelContainer, bearerToken: token!)
         do {
             try server.start()
             apiServer = server

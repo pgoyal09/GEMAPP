@@ -122,6 +122,7 @@ struct AppShellView: View {
                 Button("") { routeBinding.wrappedValue = .gemstones }.keyboardShortcut("6", modifiers: .command)
                 Button("") { routeBinding.wrappedValue = .lots }.keyboardShortcut("7", modifiers: .command)
                 Button("") { routeBinding.wrappedValue = .sold }.keyboardShortcut("8", modifiers: .command)
+                Button("") { routeBinding.wrappedValue = .quickIntake }.keyboardShortcut("9", modifiers: .command)
                 Button("") { routeBinding.wrappedValue = .scanner }.keyboardShortcut("0", modifiers: .command)
                 // Removed: global Escape capture was breaking sheet/alert/popover dismissal
                 // Individual views handle Escape via onKeyPress(.escape) where appropriate
@@ -195,15 +196,12 @@ struct AppShellView: View {
                 .font(AppTypography.caption.bold())
                 .foregroundStyle(AppColors.ink)
             Divider()
-            Text("Invoice INV-2009 is overdue")
+            // TODO: Wire real notification data from overdue memos/invoices
+            Text("No new notifications")
                 .font(AppTypography.caption)
-                .foregroundStyle(AppColors.inkMuted)
-            Text("Memo #1001 - 45 days on memo")
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.inkMuted)
-            Text("3 stones added via Quick Intake")
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColors.inkMuted)
+                .foregroundStyle(AppColors.inkSubtle)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, AppSpacing.standard)
         }
         .padding()
         .frame(width: 280)
