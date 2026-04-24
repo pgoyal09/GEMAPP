@@ -42,6 +42,7 @@ struct AccountingView: View {
             }
             .padding(AppSpacing.hero)
         }
+        .accessibilityIdentifier("AccountingView")
         .onAppear { viewModel.load(modelContext: modelContext) }
         .onChange(of: viewModel.dateRange) { _, _ in viewModel.load(modelContext: modelContext) }
         .overlay {

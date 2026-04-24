@@ -104,6 +104,7 @@ struct SoldInventoryView: View {
 
             summaryFooter(for: stones)
         }
+        .accessibilityIdentifier("SoldInventoryView")
         .animation(reduceMotion ? nil : AppAnimation.sheetSpring, value: selectedStone?.persistentModelID)
         .sheet(isPresented: $showEditSheet) {
             if let stone = editingStone {

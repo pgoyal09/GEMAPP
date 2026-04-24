@@ -57,6 +57,7 @@ struct ReviewQueueView: View {
             topBar
             tableContent
         }
+        .accessibilityIdentifier("ReviewQueueView")
         .sheet(isPresented: $showEditSheet) {
             if let stone = editingStone {
                 editSheet(stone)

@@ -43,6 +43,7 @@ struct QuickEntryView: View {
             Divider().background(AppColors.cardStroke)
             entryTable
         }
+        .accessibilityIdentifier("QuickEntryView")
         .overlay {
             if let msg = toastMessage {
                 ToastOverlay(message: msg, isError: toastIsError)

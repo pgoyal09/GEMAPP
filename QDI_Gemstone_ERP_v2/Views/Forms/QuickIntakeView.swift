@@ -69,6 +69,7 @@ struct QuickIntakeView: View {
                     .animation(reduceMotion ? nil : AppAnimation.standard, value: toastMessage)
             }
         }
+        .accessibilityIdentifier("QuickIntakeView")
         .onAppear { focusedField = .carat }
         .onChange(of: caratText) { _, _ in isDirty = true }
         .onChange(of: shapeText) { _, _ in isDirty = true }

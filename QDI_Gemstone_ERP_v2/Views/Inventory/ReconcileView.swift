@@ -26,6 +26,7 @@ struct ReconcileView: View {
                 .padding(AppSpacing.hero)
             }
         }
+        .accessibilityIdentifier("ReconcileView")
         .onAppear {
             viewModel.load(modelContext: modelContext)
             viewModel.attachScanHandler()

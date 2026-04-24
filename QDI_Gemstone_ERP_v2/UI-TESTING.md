@@ -1,6 +1,6 @@
 # GEMAPP UI Testing Protocol
 
-Status: Phase 2 complete (screen-level smoke tests)
+Status: Phase 3 complete (workflow smoke tests)
 
 ## Overview
 
@@ -109,6 +109,15 @@ Pattern: `sidebar_\(NavigationItem.rawValue.lowercased().replacingOccurrences(of
 | `CustomerListView` | Customers list | `CustomerListView.swift` |
 | `ReportsView` | Reports | `ReportsView.swift` |
 | `ScannerView` | Scanner | `ScannerView.swift` |
+| `QuickIntakeView` | Quick Intake form | `QuickIntakeView.swift` |
+| `QuickEntryView` | Quick Entry spreadsheet | `QuickEntryView.swift` |
+| `LotInventoryView` | Lots inventory | `LotInventoryView.swift` |
+| `SoldInventoryView` | Sold inventory | `SoldInventoryView.swift` |
+| `ReviewQueueView` | Review Queue | `ReviewQueueView.swift` |
+| `AccountingView` | Accounting | `AccountingView.swift` |
+| `ARDashboardView` | Accounts Receivable | `ARDashboardView.swift` |
+| `MemoReturnScanView` | Memo Return | `MemoReturnScanView.swift` |
+| `ReconcileView` | Reconcile | `ReconcileView.swift` |
 
 ## Phase 1 Coverage: Shell Smoke Suite
 
@@ -173,13 +182,59 @@ File: `Tests/QDI_Gemstone_ERP_v2UITests/ScreenSmokeTests.swift`
 - **Compiles:** Yes (`build-for-testing` succeeds)
 - **Runs:** Blocked by macOS Accessibility permission for terminal process (same as Phase 1)
 
-## Future Phases
+## Phase 3 Coverage: Workflow Smoke Tests
 
-### Phase 3: Workflow Tests
-- Create memo flow
-- Create invoice flow
-- Quick intake form submission
-- Inventory filtering
+File: `Tests/QDI_Gemstone_ERP_v2UITests/WorkflowSmokeTests.swift`
+
+### Tests (27 total)
+
+| Test | Category | Description |
+|---|---|---|
+| `testMemoListSurfaceOpensViaSidebar` | Memo | Open memo list via sidebar click |
+| `testMemoListSurfaceOpensViaKeyboard` | Memo | Open memo list via ⌘2 |
+| `testMemoListHasNewMemoButton` | Memo | Verify "New Memo" button exists |
+| `testMemoListHasSearchField` | Memo | Verify search field in memo list |
+| `testInvoiceListSurfaceOpensViaSidebar` | Invoice | Open invoice list via sidebar click |
+| `testInvoiceListSurfaceOpensViaKeyboard` | Invoice | Open invoice list via ⌘3 |
+| `testInvoiceListHasNewInvoiceButton` | Invoice | Verify "New Invoice" button exists |
+| `testInvoiceListHasSearchField` | Invoice | Verify search field in invoice list |
+| `testQuickIntakeOpensViaSidebar` | Quick Intake | Open Quick Intake via sidebar |
+| `testQuickIntakeOpensViaKeyboard` | Quick Intake | Open Quick Intake via ⌘9 |
+| `testQuickEntryOpensViaSidebar` | Quick Entry | Open Quick Entry via sidebar |
+| `testQuickEntryHasCategoryPicker` | Quick Entry | Verify stone type category picker exists |
+| `testLotsScreenRendersViaSidebar` | Lots | Navigate to Lots via sidebar |
+| `testLotsScreenRendersViaKeyboard` | Lots | Navigate to Lots via ⌘7 |
+| `testSoldScreenRendersViaSidebar` | Sold | Navigate to Sold via sidebar |
+| `testSoldScreenRendersViaKeyboard` | Sold | Navigate to Sold via ⌘8 |
+| `testSoldScreenHasSearchField` | Sold | Verify search field in sold inventory |
+| `testReviewQueueRendersViaSidebar` | Review Queue | Navigate to Review Queue via sidebar |
+| `testReviewQueueHasSearchField` | Review Queue | Verify search field in review queue |
+| `testAccountingScreenRendersViaSidebar` | Accounting | Navigate to Accounting via sidebar |
+| `testARScreenRendersViaSidebar` | AR | Navigate to AR via sidebar |
+| `testMemoReturnRendersViaSidebar` | Memo Return | Navigate to Memo Return via sidebar |
+| `testReconcileRendersViaSidebar` | Reconcile | Navigate to Reconcile via sidebar |
+| `testDiamondsSearchFieldAcceptsInput` | Search | Type in diamonds search field, verify input |
+| `testGemstonesSearchFieldAcceptsInput` | Search | Type in gemstones search field, verify input |
+| `testWorkflowRoundTripMemoToInvoiceAndBack` | Round-Trip | Memo → Invoice → Memo → Dashboard |
+| `testWorkflowRoundTripInventoryScreens` | Round-Trip | Diamonds → Gemstones → Lots → Sold → Dashboard |
+| `testWorkflowRoundTripSidebarOnlyScreens` | Round-Trip | All sidebar-only screens sequentially |
+| `testFullNavigationRoundTripPreservesShellStability` | Round-Trip | All routes via keyboard + sidebar, verify shell chrome |
+
+### Accessibility Identifiers Added in Phase 3
+- `QuickIntakeView` — added to `QuickIntakeView.swift`
+- `QuickEntryView` — added to `QuickEntryView.swift`
+- `LotInventoryView` — added to `LotInventoryView.swift`
+- `SoldInventoryView` — added to `SoldInventoryView.swift`
+- `ReviewQueueView` — added to `ReviewQueueView.swift`
+- `AccountingView` — added to `AccountingView.swift`
+- `MemoReturnScanView` — added to `MemoReturnScanView.swift`
+- `ReconcileView` — added to `ReconcileView.swift`
+
+### Build Status
+- **Compiles:** Yes (`build-for-testing` succeeds)
+- **Runs:** Requires macOS Accessibility permission for terminal process (same as Phase 1/2)
+
+## Future Phases
 
 ### Phase 4: Document Window Tests
 - Memo document opens via sidebar
@@ -194,7 +249,7 @@ File: `Tests/QDI_Gemstone_ERP_v2UITests/ScreenSmokeTests.swift`
 ## Adding New Tests
 
 1. Add accessibility identifiers to the target view (only where needed)
-2. Add test methods to `ShellSmokeTests.swift`, `ScreenSmokeTests.swift`, or create a new test class
+2. Add test methods to `ShellSmokeTests.swift`, `ScreenSmokeTests.swift`, `WorkflowSmokeTests.swift`, or create a new test class
 3. Use `app.launchArguments` to set any required defaults
 4. Use `waitForExistence(timeout:)` and `XCTNSPredicateExpectation` for async UI
 5. Run `xcodegen generate` if you added new test files

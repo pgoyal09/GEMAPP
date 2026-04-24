@@ -95,6 +95,7 @@
 		5D4252BCD24FFD3E613925DB /* LotSelectSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C830FBAB085D765E82A476A2 /* LotSelectSheet.swift */; };
 		5E2FA844341684F15C597BC9 /* QuickIntakeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E956703954B0D50B569DC4B /* QuickIntakeView.swift */; };
 		5F3BE4F310544777811FC6D1 /* ReviewQueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F515C70472941C4AA201004D /* ReviewQueueView.swift */; };
+		608170FCEE58193053340D20 /* WorkflowSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46A944FFE2F783E42DC597D0 /* WorkflowSmokeTests.swift */; };
 		60C579DAE5AF53817B68B7CE /* CustomerRoutes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47C7B47FF4216140BA21E5A /* CustomerRoutes.swift */; };
 		6116FC288943681414267CB7 /* InventoryTurnoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CF324231D372B593459E1DE /* InventoryTurnoverView.swift */; };
 		6190D114C77309087D80EF3C /* AppAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED693A192ADD983C01E381E /* AppAnimation.swift */; };
@@ -286,6 +287,7 @@
 		41A7DF4D5F4140E3DE94DFD5 /* DetailRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailRow.swift; sourceTree = "<group>"; };
 		44570E8A87472A93C5DE42F6 /* CustomerFullDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerFullDetailView.swift; sourceTree = "<group>"; };
 		466323E3B94C7493CE3C223B /* RFIDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDTests.swift; sourceTree = "<group>"; };
+		46A944FFE2F783E42DC597D0 /* WorkflowSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkflowSmokeTests.swift; sourceTree = "<group>"; };
 		4A40AC13F11AC3673A4A1587 /* NavigationItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationItem.swift; sourceTree = "<group>"; };
 		4B24164DD82168FAB7F24FB4 /* InvoiceServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceServiceProtocol.swift; sourceTree = "<group>"; };
 		4C520DBB8403C8EC32DDD058 /* AppShellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppShellView.swift; sourceTree = "<group>"; };
@@ -629,6 +631,7 @@
 			children = (
 				62A46D714B745FE822025DDA /* ScreenSmokeTests.swift */,
 				9CB523179F033C8B868EF3D8 /* ShellSmokeTests.swift */,
+				46A944FFE2F783E42DC597D0 /* WorkflowSmokeTests.swift */,
 			);
 			path = QDI_Gemstone_ERP_v2UITests;
 			sourceTree = "<group>";
@@ -1284,6 +1287,7 @@
 			files = (
 				DF9B7E3804557944A565C20F /* ScreenSmokeTests.swift in Sources */,
 				9485004D2B09AC21108D58FD /* ShellSmokeTests.swift in Sources */,
+				608170FCEE58193053340D20 /* WorkflowSmokeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

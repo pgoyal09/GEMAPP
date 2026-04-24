@@ -81,6 +81,7 @@ struct LotInventoryView: View {
                     .transition(reduceMotion ? .opacity : .move(edge: .trailing).combined(with: .opacity))
             }
         }
+        .accessibilityIdentifier("LotInventoryView")
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.2), value: selectedLot?.persistentModelID)
         .sheet(isPresented: $viewModel.showAddQuantitySheet) {
             if let lot = selectedLot {

@@ -50,6 +50,7 @@ struct MemoReturnScanView: View {
                 .padding(AppSpacing.hero)
             }
         }
+        .accessibilityIdentifier("MemoReturnScanView")
         .overlay {
             if let msg = toastMessage {
                 ToastOverlay(message: msg, isError: toastIsError)
