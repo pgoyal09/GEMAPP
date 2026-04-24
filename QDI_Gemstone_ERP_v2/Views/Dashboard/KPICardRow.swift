@@ -71,5 +71,6 @@ struct KPICardRow: View {
             KPICard(title: "Revenue MTD", value: viewModel.monthlySales.asCurrencyShort, icon: "chart.line.uptrend.xyaxis")
             KPICard(title: "Items Available", value: "\(viewModel.inventorySnapshot.availableCount)", icon: "tray.full")
         }
+        .accessibilityIdentifier("KPICardRow")
     }
 }

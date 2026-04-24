@@ -1,6 +1,6 @@
 # GEMAPP UI Testing Protocol
 
-Status: Phase 1 complete (shell/keyboard smoke suite)
+Status: Phase 2 complete (screen-level smoke tests)
 
 ## Overview
 
@@ -96,11 +96,25 @@ Key identifiers used by tests (and available for future tests):
 
 Pattern: `sidebar_\(NavigationItem.rawValue.lowercased().replacingOccurrences(of: " ", with: "_"))`
 
+### Screen-Level Views
+| Identifier | Screen | Location |
+|---|---|---|
+| `DashboardView` | Dashboard | `DashboardView.swift` |
+| `KPICardRow` | Dashboard KPI cards grid | `KPICardRow.swift` |
+| `GettingStartedChecklist` | Dashboard onboarding checklist | `GettingStartedChecklist.swift` |
+| `DiamondsInventoryView` | Diamonds inventory | `DiamondsInventoryView.swift` |
+| `GemstonesInventoryView` | Gemstones inventory | `GemstonesInventoryView.swift` |
+| `MemoListView` | Memos list | `MemoListView.swift` |
+| `InvoiceListView` | Invoices list | `InvoiceListView.swift` |
+| `CustomerListView` | Customers list | `CustomerListView.swift` |
+| `ReportsView` | Reports | `ReportsView.swift` |
+| `ScannerView` | Scanner | `ScannerView.swift` |
+
 ## Phase 1 Coverage: Shell Smoke Suite
 
 File: `Tests/QDI_Gemstone_ERP_v2UITests/ShellSmokeTests.swift`
 
-### Tests (13 total)
+### Tests (15 total)
 
 | Test | Category | Description |
 |---|---|---|
@@ -124,13 +138,42 @@ File: `Tests/QDI_Gemstone_ERP_v2UITests/ShellSmokeTests.swift`
 - **Compiles:** Yes
 - **Runs:** Requires macOS Accessibility permission for terminal process
 
-## Future Phases
+## Phase 2 Coverage: Screen-Level Smoke Tests
 
-### Phase 2: Screen-Level Smoke
-- Dashboard renders KPI cards
-- Inventory table loads with correct columns
-- Memo/Invoice list views render
-- Customer list renders
+File: `Tests/QDI_Gemstone_ERP_v2UITests/ScreenSmokeTests.swift`
+
+### Tests (17 total)
+
+| Test | Screen | Description |
+|---|---|---|
+| `testDashboardScreenRendersOnLaunch` | Dashboard | Verifies DashboardView exists on default route |
+| `testDashboardKPICardsExist` | Dashboard | Verifies KPICardRow grid renders |
+| `testDashboardGettingStartedChecklistExists` | Dashboard | Verifies GettingStartedChecklist renders |
+| `testDiamondsScreenRendersAfterNavigation` | Diamonds | Navigate via ⌘5, verify DiamondsInventoryView |
+| `testDiamondsScreenHasSearchField` | Diamonds | Verify search field in filter bar |
+| `testGemstonesScreenRendersAfterNavigation` | Gemstones | Navigate via ⌘6, verify GemstonesInventoryView |
+| `testGemstonesScreenHasSearchField` | Gemstones | Verify search field in filter bar |
+| `testMemosScreenRendersAfterNavigation` | Memos | Navigate via ⌘2, verify MemoListView |
+| `testMemosScreenHasNewMemoButton` | Memos | Verify "New Memo" button exists |
+| `testInvoicesScreenRendersAfterNavigation` | Invoices | Navigate via ⌘3, verify InvoiceListView |
+| `testInvoicesScreenHasNewInvoiceButton` | Invoices | Verify "New Invoice" button exists |
+| `testCustomersScreenRendersAfterNavigation` | Customers | Navigate via ⌘4, verify CustomerListView |
+| `testCustomersScreenHasAddButton` | Customers | Verify "Add Customer" button exists |
+| `testReportsScreenRendersAfterNavigation` | Reports | Navigate via sidebar, verify ReportsView |
+| `testReportsScreenHasReportTypePills` | Reports | Verify report type filter pills exist |
+| `testScannerScreenRendersAfterNavigation` | Scanner | Navigate via ⌘0, verify ScannerView (safe, read-only) |
+| `testScannerScreenHasStartButton` | Scanner | Verify Start Scanning button exists (not clicked) |
+| `testNavigateAllScreensSequentially` | All | Round-trip through all screens verifying root views |
+
+### Accessibility Identifiers Added in Phase 2
+- `ScannerView` — added to `ScannerView.swift`
+- `KPICardRow` — added to `KPICardRow.swift`
+
+### Build Status
+- **Compiles:** Yes (`build-for-testing` succeeds)
+- **Runs:** Blocked by macOS Accessibility permission for terminal process (same as Phase 1)
+
+## Future Phases
 
 ### Phase 3: Workflow Tests
 - Create memo flow
@@ -151,7 +194,7 @@ File: `Tests/QDI_Gemstone_ERP_v2UITests/ShellSmokeTests.swift`
 ## Adding New Tests
 
 1. Add accessibility identifiers to the target view (only where needed)
-2. Add test methods to `ShellSmokeTests.swift` or create a new test class
+2. Add test methods to `ShellSmokeTests.swift`, `ScreenSmokeTests.swift`, or create a new test class
 3. Use `app.launchArguments` to set any required defaults
 4. Use `waitForExistence(timeout:)` and `XCTNSPredicateExpectation` for async UI
 5. Run `xcodegen generate` if you added new test files

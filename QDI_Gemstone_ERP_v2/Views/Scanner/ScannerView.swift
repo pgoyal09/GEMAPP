@@ -15,6 +15,7 @@ struct ScannerView: View {
             }
             .padding(AppSpacing.hero)
         }
+        .accessibilityIdentifier("ScannerView")
         .onAppear {
             viewModel.modelContext = modelContext
             viewModel.attachScanHandler()
