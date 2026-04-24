@@ -4,6 +4,7 @@ import SwiftData
 // MARK: - Current User ID
 
 /// Returns the current Supabase auth user ID, or nil if not logged in.
+/// Used to tag remote rows with the owning user. Currently single-user assumed — no RLS enforcement.
 private func currentUserId() -> UUID? {
     guard let client = SupabaseManager.shared.client,
           let session = try? client.auth.currentSession else { return nil }
@@ -14,6 +15,10 @@ private func currentUserId() -> UUID? {
 
 /// Generates a deterministic UUID from entity type + persistentModelID.
 /// This ensures the same record always maps to the same Supabase row ID.
+///
+/// SYNC GUARDRAIL NOTE: This relies on `persistentModelID.hashValue` being stable across app launches.
+/// If SwiftData changes hash behavior (OS update, schema migration, store re-creation), the same entity
+/// could produce a different UUID, creating remote duplicates. See SYNC-MODEL.md §8 R4.
 private func stableSyncID(entity: String, hashValue: Int) -> UUID {
     // Create a deterministic UUID v5-style from entity name + hash
     var data = Data(entity.utf8)
@@ -31,6 +36,12 @@ private func stableSyncID(entity: String, hashValue: Int) -> UUID {
 
 // MARK: - Customer DTO
 
+/// Sync identity rules:
+/// - Push: upserts to remote on `id` (deterministic UUID from stableSyncID).
+/// - Pull: matched by `email` (unique business key). If multiple local customers share an email,
+///   only the first match is updated — duplicates are silently ignored.
+/// - Conflict: last-write-wins. All local fields overwritten on pull; all remote fields overwritten on push.
+/// - Relationships: none synced directly on this DTO.
 struct CustomerDTO: Codable, Sendable {
     let id: UUID?
     let firstName: String
@@ -77,6 +88,13 @@ struct CustomerDTO: Codable, Sendable {
 
 // MARK: - Gemstone DTO
 
+/// Sync identity rules:
+/// - Push: upserts to remote on `id` (deterministic UUID from stableSyncID). Batched in groups of 100.
+/// - Pull: matched by `sku` (unique business key, format TYPE-SHAPE-GROUP-NNN). If multiple local
+///   gemstones share a SKU, only the first match is updated — duplicates are silently ignored.
+/// - Conflict: last-write-wins. All mutable fields overwritten on pull.
+/// - Relationships: push populates gemstoneId on related DTOs via stableSyncID; pull does NOT re-link.
+/// - Precision: Decimal→Double conversion on cost/price fields may introduce rounding.
 struct GemstoneDTO: Codable, Sendable {
     let id: UUID?
     let sku: String
@@ -203,6 +221,12 @@ struct GemstoneDTO: Codable, Sendable {
 
 // MARK: - Memo DTO
 
+/// Sync identity rules:
+/// - Push: upserts to remote on `id` (deterministic UUID from stableSyncID).
+/// - Pull: matched by `referenceNumber` (unique business key). If multiple local memos share a
+///   referenceNumber, only the first match is updated.
+/// - Conflict: last-write-wins. Status, notes, salesperson, dateAssigned overwritten on pull.
+/// - Relationships: customerId set to nil on push (TODO: resolve via sync mapping). Pull does not re-link customer.
 struct MemoDTO: Codable, Sendable {
     let id: UUID?
     let referenceNumber: String
@@ -241,6 +265,12 @@ struct MemoDTO: Codable, Sendable {
 
 // MARK: - Invoice DTO
 
+/// Sync identity rules:
+/// - Push: upserts to remote on `id` (deterministic UUID from stableSyncID).
+/// - Pull: matched by `referenceNumber` (unique business key). If multiple local invoices share a
+///   referenceNumber, only the first match is updated.
+/// - Conflict: last-write-wins. Status, notes, dueDate overwritten on pull.
+/// - Relationships: customerId set to nil on push. Pull does not re-link customer.
 struct InvoiceDTO: Codable, Sendable {
     let id: UUID?
     let referenceNumber: String
@@ -280,6 +310,10 @@ struct InvoiceDTO: Codable, Sendable {
 
 // MARK: - LineItem DTO
 
+/// Sync identity rules:
+/// - Push-only: upserts to remote on `id`. No pull implementation exists.
+/// - Relationships: memoId, invoiceId, gemstoneId set to nil on push (not resolved).
+/// - Cannot be restored from remote if local store is lost.
 struct LineItemDTO: Codable, Sendable {
     let id: UUID?
     let sku: String
@@ -329,6 +363,10 @@ struct LineItemDTO: Codable, Sendable {
 
 // MARK: - LotTransaction DTO
 
+/// Sync identity rules:
+/// - Push-only: upserts to remote on `id`. No pull implementation exists.
+/// - Relationships: gemstoneId set to nil on push (not resolved).
+/// - Cannot be restored from remote if local store is lost.
 struct LotTransactionDTO: Codable, Sendable {
     let id: UUID?
     let type: String
@@ -369,6 +407,10 @@ struct LotTransactionDTO: Codable, Sendable {
 
 // MARK: - Payment DTO
 
+/// Sync identity rules:
+/// - Push-only: upserts to remote on `id`. No pull implementation exists.
+/// - Business key: `referenceNumber` (not used for matching since no pull).
+/// - Relationships: invoiceId set to nil on push (not resolved).
 struct PaymentDTO: Codable, Sendable {
     let id: UUID?
     let date: Date
@@ -404,6 +446,10 @@ struct PaymentDTO: Codable, Sendable {
 
 // MARK: - HistoryEvent DTO
 
+/// Sync identity rules:
+/// - Push-only: upserts to remote on `id`. No pull implementation exists.
+/// - No natural business key — identity is solely from stableSyncID.
+/// - Relationships: gemstoneId set to nil on push (not resolved).
 struct HistoryEventDTO: Codable, Sendable {
     let id: UUID?
     let date: Date
@@ -438,6 +484,10 @@ struct HistoryEventDTO: Codable, Sendable {
 
 // MARK: - RFIDTag DTO
 
+/// Sync identity rules:
+/// - Push-only: upserts to remote on `id`. No pull implementation exists.
+/// - Business key: `epcCurrent` / `tidLastVerified` (not used for matching since no pull).
+/// - Relationships: gemstoneId set to nil on push (not resolved).
 struct RFIDTagDTO: Codable, Sendable {
     let id: UUID?
     let tidLastVerified: String?

@@ -137,7 +137,12 @@ final class SupabaseSyncService {
     // MARK: - Pull All (download remote → SwiftData)
 
     /// Downloads rows from Supabase where updated_at > last sync timestamp,
-    /// then upserts into SwiftData (match on sku/referenceNumber/id, create if missing, update if exists).
+    /// then upserts into SwiftData (match on business key: email/sku/referenceNumber).
+    /// If a local match is found, all fields are overwritten (last-write-wins). If not, a new entity is created.
+    ///
+    /// SYNC GUARDRAIL: Only 4 of 9 entities are pulled (Customers, Gemstones, Memos, Invoices).
+    /// LineItems, LotTransactions, Payments, HistoryEvents, and RFIDTags are push-only.
+    /// A fresh local install cannot reconstruct full state from remote alone.
     func pullAll(modelContext: ModelContext) async throws {
         syncProgress = "Downloading customers..."
         try await pullCustomers(context: modelContext)
@@ -157,6 +162,9 @@ final class SupabaseSyncService {
 
     // MARK: - Pull Customers
 
+    /// Pull identity rule: match by `email` (unique business key).
+    /// Conflict: last-write-wins — all local fields overwritten by remote values.
+    /// See SYNC-MODEL.md §4 for identity rules, §5 for conflict model.
     private func pullCustomers(context: ModelContext) async throws {
         var query = client.from("customers").select()
         if let lastSync = tracker.lastSync(for: "customers") {
@@ -164,15 +172,32 @@ final class SupabaseSyncService {
         }
         let dtos: [CustomerDTO] = try await query.execute().value
 
+        var updatedCount = 0
+        var insertedCount = 0
+        var duplicateWarnings = 0
+
         for dto in dtos {
+            // SYNC GUARDRAIL: Validate business key is non-empty before matching
+            guard !dto.email.trimmingCharacters(in: .whitespaces).isEmpty else {
+                logger.warning("Pull customers: skipping DTO with empty email (remote id: \(dto.id?.uuidString ?? "nil"))")
+                continue
+            }
+
             // Match by email (unique business key) or insert new
             let email = dto.email
             let descriptor = FetchDescriptor<Customer>(
                 predicate: #Predicate { $0.email == email }
             )
-            let existing = try context.fetch(descriptor).first
+            let matches = try context.fetch(descriptor)
 
-            if let customer = existing {
+            // SYNC GUARDRAIL: Warn if business key matched multiple local records
+            if matches.count > 1 {
+                duplicateWarnings += 1
+                logger.warning("Pull customers: duplicate business key detected — \(matches.count) local customers match email '\(email)'. Only first match will be updated.")
+            }
+
+            if let customer = matches.first {
+                logger.debug("Pull customers: updating existing customer with email '\(email)'")
                 customer.firstName = dto.firstName
                 customer.lastName = dto.lastName
                 customer.company = dto.company
@@ -182,7 +207,9 @@ final class SupabaseSyncService {
                 customer.country = dto.country
                 customer.zip = dto.zip
                 customer.notes = dto.notes
+                updatedCount += 1
             } else {
+                logger.debug("Pull customers: inserting new customer with email '\(email)'")
                 let customer = Customer(
                     firstName: dto.firstName,
                     lastName: dto.lastName,
@@ -196,14 +223,18 @@ final class SupabaseSyncService {
                     notes: dto.notes
                 )
                 context.insert(customer)
+                insertedCount += 1
             }
         }
         tracker.setLastSync(Date(), for: "customers")
-        logger.info("Pulled \(dtos.count) customers")
+        logger.info("Pulled \(dtos.count) customers (updated: \(updatedCount), inserted: \(insertedCount), duplicate warnings: \(duplicateWarnings))")
     }
 
     // MARK: - Pull Gemstones
 
+    /// Pull identity rule: match by `sku` (unique business key, format TYPE-SHAPE-GROUP-NNN).
+    /// Conflict: last-write-wins — all mutable fields overwritten by remote values.
+    /// Note: Decimal→Double precision loss possible on cost/price fields. See SYNC-MODEL.md §7.
     private func pullGemstones(context: ModelContext) async throws {
         var query = client.from("gemstones").select()
         if let lastSync = tracker.lastSync(for: "gemstones") {
@@ -211,14 +242,31 @@ final class SupabaseSyncService {
         }
         let dtos: [GemstoneDTO] = try await query.execute().value
 
+        var updatedCount = 0
+        var insertedCount = 0
+        var duplicateWarnings = 0
+
         for dto in dtos {
+            // SYNC GUARDRAIL: Validate business key is non-empty before matching
+            guard !dto.sku.trimmingCharacters(in: .whitespaces).isEmpty else {
+                logger.warning("Pull gemstones: skipping DTO with empty SKU (remote id: \(dto.id?.uuidString ?? "nil"))")
+                continue
+            }
+
             let sku = dto.sku
             let descriptor = FetchDescriptor<Gemstone>(
                 predicate: #Predicate { $0.sku == sku }
             )
-            let existing = try context.fetch(descriptor).first
+            let matches = try context.fetch(descriptor)
 
-            if let stone = existing {
+            // SYNC GUARDRAIL: Warn if business key matched multiple local records
+            if matches.count > 1 {
+                duplicateWarnings += 1
+                logger.warning("Pull gemstones: duplicate business key detected — \(matches.count) local gemstones match SKU '\(sku)'. Only first match will be updated.")
+            }
+
+            if let stone = matches.first {
+                logger.debug("Pull gemstones: updating existing gemstone with SKU '\(sku)'")
                 stone.caratWeight = dto.caratWeight
                 stone.shape = dto.shape
                 stone.origin = dto.origin
@@ -240,7 +288,9 @@ final class SupabaseSyncService {
                 stone.sellPrice = Decimal(dto.sellPrice)
                 stone.remainingCarats = dto.remainingCarats
                 if let avg = dto.averageCostPerCarat { stone.averageCostPerCarat = Decimal(avg) }
+                updatedCount += 1
             } else {
+                logger.debug("Pull gemstones: inserting new gemstone with SKU '\(sku)'")
                 let stone = Gemstone(
                     sku: dto.sku,
                     stoneType: StoneType(rawValue: dto.stoneType) ?? .diamond,
@@ -270,14 +320,18 @@ final class SupabaseSyncService {
                 stone.remainingCarats = dto.remainingCarats
                 if let avg = dto.averageCostPerCarat { stone.averageCostPerCarat = Decimal(avg) }
                 context.insert(stone)
+                insertedCount += 1
             }
         }
         tracker.setLastSync(Date(), for: "gemstones")
-        logger.info("Pulled \(dtos.count) gemstones")
+        logger.info("Pulled \(dtos.count) gemstones (updated: \(updatedCount), inserted: \(insertedCount), duplicate warnings: \(duplicateWarnings))")
     }
 
     // MARK: - Pull Memos
 
+    /// Pull identity rule: match by `referenceNumber` (unique business key).
+    /// Conflict: last-write-wins — status, notes, salesperson, dateAssigned overwritten.
+    /// Relationships: customer link is NOT re-established on pull. See SYNC-MODEL.md §5.
     private func pullMemos(context: ModelContext) async throws {
         var query = client.from("memos").select()
         if let lastSync = tracker.lastSync(for: "memos") {
@@ -285,33 +339,56 @@ final class SupabaseSyncService {
         }
         let dtos: [MemoDTO] = try await query.execute().value
 
+        var updatedCount = 0
+        var insertedCount = 0
+        var duplicateWarnings = 0
+
         for dto in dtos {
+            // SYNC GUARDRAIL: Validate business key is non-empty before matching
+            guard !dto.referenceNumber.trimmingCharacters(in: .whitespaces).isEmpty else {
+                logger.warning("Pull memos: skipping DTO with empty referenceNumber (remote id: \(dto.id?.uuidString ?? "nil"))")
+                continue
+            }
+
             let refNum = dto.referenceNumber
             let descriptor = FetchDescriptor<Memo>(
                 predicate: #Predicate { $0.referenceNumber == refNum }
             )
-            let existing = try context.fetch(descriptor).first
+            let matches = try context.fetch(descriptor)
 
-            if let memo = existing {
+            // SYNC GUARDRAIL: Warn if business key matched multiple local records
+            if matches.count > 1 {
+                duplicateWarnings += 1
+                logger.warning("Pull memos: duplicate business key detected — \(matches.count) local memos match referenceNumber '\(refNum)'. Only first match will be updated.")
+            }
+
+            if let memo = matches.first {
+                logger.debug("Pull memos: updating existing memo '\(refNum)'")
                 memo.status = MemoStatus(rawValue: dto.status) ?? memo.status
                 memo.notes = dto.notes
                 memo.salesperson = dto.salesperson
                 memo.dateAssigned = dto.dateAssigned
+                updatedCount += 1
             } else {
+                logger.debug("Pull memos: inserting new memo '\(refNum)'")
                 let memo = Memo(referenceNumber: dto.referenceNumber)
                 memo.status = MemoStatus(rawValue: dto.status) ?? .onMemo
                 memo.notes = dto.notes
                 memo.salesperson = dto.salesperson
                 memo.dateAssigned = dto.dateAssigned
                 context.insert(memo)
+                insertedCount += 1
             }
         }
         tracker.setLastSync(Date(), for: "memos")
-        logger.info("Pulled \(dtos.count) memos")
+        logger.info("Pulled \(dtos.count) memos (updated: \(updatedCount), inserted: \(insertedCount), duplicate warnings: \(duplicateWarnings))")
     }
 
     // MARK: - Pull Invoices
 
+    /// Pull identity rule: match by `referenceNumber` (unique business key).
+    /// Conflict: last-write-wins — status, notes, dueDate overwritten.
+    /// Relationships: customer link is NOT re-established on pull. See SYNC-MODEL.md §5.
     private func pullInvoices(context: ModelContext) async throws {
         var query = client.from("invoices").select()
         if let lastSync = tracker.lastSync(for: "invoices") {
@@ -319,31 +396,54 @@ final class SupabaseSyncService {
         }
         let dtos: [InvoiceDTO] = try await query.execute().value
 
+        var updatedCount = 0
+        var insertedCount = 0
+        var duplicateWarnings = 0
+
         for dto in dtos {
+            // SYNC GUARDRAIL: Validate business key is non-empty before matching
+            guard !dto.referenceNumber.trimmingCharacters(in: .whitespaces).isEmpty else {
+                logger.warning("Pull invoices: skipping DTO with empty referenceNumber (remote id: \(dto.id?.uuidString ?? "nil"))")
+                continue
+            }
+
             let refNum = dto.referenceNumber
             let descriptor = FetchDescriptor<Invoice>(
                 predicate: #Predicate { $0.referenceNumber == refNum }
             )
-            let existing = try context.fetch(descriptor).first
+            let matches = try context.fetch(descriptor)
 
-            if let invoice = existing {
+            // SYNC GUARDRAIL: Warn if business key matched multiple local records
+            if matches.count > 1 {
+                duplicateWarnings += 1
+                logger.warning("Pull invoices: duplicate business key detected — \(matches.count) local invoices match referenceNumber '\(refNum)'. Only first match will be updated.")
+            }
+
+            if let invoice = matches.first {
+                logger.debug("Pull invoices: updating existing invoice '\(refNum)'")
                 invoice.status = InvoiceStatus(rawValue: dto.status) ?? invoice.status
                 invoice.notes = dto.notes
                 invoice.dueDate = dto.dueDate
+                updatedCount += 1
             } else {
+                logger.debug("Pull invoices: inserting new invoice '\(refNum)'")
                 let invoice = Invoice(referenceNumber: dto.referenceNumber)
                 invoice.status = InvoiceStatus(rawValue: dto.status) ?? .sent
                 invoice.notes = dto.notes
                 invoice.invoiceDate = dto.dateIssued ?? Date()
                 invoice.dueDate = dto.dueDate
                 context.insert(invoice)
+                insertedCount += 1
             }
         }
         tracker.setLastSync(Date(), for: "invoices")
-        logger.info("Pulled \(dtos.count) invoices")
+        logger.info("Pulled \(dtos.count) invoices (updated: \(updatedCount), inserted: \(insertedCount), duplicate warnings: \(duplicateWarnings))")
     }
 
     // MARK: - Upload Methods
+    // Push strategy: upload ALL local records via upsert on `id` (stableSyncID).
+    // No delta tracking — every sync re-uploads the full table.
+    // updatedAt is always set to Date() at DTO conversion, so pushed rows always appear "just changed" remotely.
 
     private func uploadCustomers(context: ModelContext) async throws {
         let descriptor = FetchDescriptor<Customer>()
