@@ -224,7 +224,7 @@ Available → On Memo → Sold
 - **Restore:** Safety backup → replace store → rollback on failure
 - **Scheduled backup:** BackupScheduler triggers periodic backups
 - **Cloud backup:** CloudBackupService pushes to remote storage
-- **Supabase sync:** Offline-first, push-then-pull, last-write-wins by `updated_at`. Syncs: customers, gemstones, memos, invoices, line items, lot transactions, payments, history events, RFID tags
+- **Supabase sync:** Offline-first, push-then-pull, last-write-wins by `updated_at`. Syncs: customers, gemstones, memos, invoices, line items, lot transactions, payments, history events, RFID tags. See [`SYNC-MODEL.md`](SYNC-MODEL.md) for the full sync model specification including identity rules, conflict model, and known risks.
 
 ---
 
@@ -271,7 +271,7 @@ The app's actual scope (cloud sync, auth, RapNet, API server, scheduled backups)
 Some report metrics use proxies (e.g., current inventory as turnover denominator) rather than historical ledger snapshots. These business assumptions are embedded in `ReportEngine` logic without explicit documentation.
 
 ### Sync conflict model
-Supabase sync uses last-write-wins with business-key upserts (SKU, email, reference numbers). Identity and conflict rules are implemented but not formally documented, which creates trust risk as the synced entity set is broad.
+Supabase sync uses last-write-wins with business-key upserts (SKU, email, reference numbers). Identity and conflict rules are now documented in [`SYNC-MODEL.md`](SYNC-MODEL.md). Key risks include push-only entities (5 of 9 have no pull), relationship orphaning after pull, and no conflict detection or audit logging.
 
 ---
 
