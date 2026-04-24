@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import os
 
 // MARK: - Reporting Assumptions
 //
@@ -134,6 +135,8 @@ struct MarginAnalysisReport {
 
 enum ReportEngine {
 
+    private static let logger = Logger(subsystem: "com.qualitydiajewels.QDI-Gemstone-ERP", category: "reports")
+
     // MARK: - COGS Computation (shared)
 
     /// Compute COGS for a single sold line item using the two-branch rule:
@@ -162,6 +165,7 @@ enum ReportEngine {
         endDate: Date,
         modelContext: ModelContext
     ) -> PLReport {
+        logger.info("Generating P&L report for \(startDate.formatted(.dateTime.year().month().day()), privacy: .public) – \(endDate.formatted(.dateTime.year().month().day()), privacy: .public)")
         // SwiftData #Predicate does not support custom enum types as captured constants.
         let descriptor = FetchDescriptor<Invoice>()
         // Assumption: only realized (paid) transactions count as revenue.
@@ -196,6 +200,7 @@ enum ReportEngine {
         let totalRevenue = rows.reduce(Decimal.zero) { $0 + $1.revenue }
         let totalCOGS = rows.reduce(Decimal.zero) { $0 + $1.cogs }
 
+        logger.info("P&L report complete: \(rows.count) stone types, revenue=\(totalRevenue), cogs=\(totalCOGS)")
         return PLReport(revenue: totalRevenue, cogs: totalCOGS, breakdownByType: rows)
     }
 
@@ -215,6 +220,7 @@ enum ReportEngine {
         endDate: Date,
         modelContext: ModelContext
     ) -> InventoryTurnoverReport {
+        logger.info("Generating inventory turnover report")
         // SwiftData #Predicate does not support custom enum types as captured constants.
         let allDescriptor = FetchDescriptor<Gemstone>()
         let allGemstones = (try? modelContext.fetch(allDescriptor)) ?? []
@@ -289,6 +295,7 @@ enum ReportEngine {
             }
             .sorted { $0.daysInInventory > $1.daysInInventory }
 
+        logger.info("Inventory turnover complete: \(currentCount) available, \(soldCount) sold, rate=\(String(format: "%.2f", turnoverRate)), \(slowMovers.count) slow movers")
         return InventoryTurnoverReport(
             currentCount: currentCount,
             currentValue: currentValue,
@@ -318,6 +325,7 @@ enum ReportEngine {
         endDate: Date,
         modelContext: ModelContext
     ) -> CustomerProfitabilityReport {
+        logger.info("Generating customer profitability report")
         // SwiftData #Predicate does not support custom enum types as captured constants.
         let descriptor = FetchDescriptor<Invoice>()
         let invoices = ((try? modelContext.fetch(descriptor)) ?? [])
@@ -352,6 +360,7 @@ enum ReportEngine {
             )
         }.sorted { $0.profit > $1.profit }
 
+        logger.info("Customer profitability complete: \(rows.count) customers")
         return CustomerProfitabilityReport(rows: rows)
     }
 
@@ -380,6 +389,7 @@ enum ReportEngine {
         endDate: Date? = nil,
         modelContext: ModelContext
     ) -> MarginAnalysisReport {
+        logger.info("Generating margin analysis report")
         // SwiftData #Predicate does not support custom enum types as captured constants.
         let descriptor = FetchDescriptor<Invoice>()
         let allInvoices = ((try? modelContext.fetch(descriptor)) ?? [])
@@ -476,6 +486,7 @@ enum ReportEngine {
             }
         }
 
+        logger.info("Margin analysis complete: \(monthlyTrend.count) months, \(byStoneType.count) stone types")
         return MarginAnalysisReport(monthlyTrend: monthlyTrend, byStoneType: byStoneType, distribution: distribution)
     }
 }

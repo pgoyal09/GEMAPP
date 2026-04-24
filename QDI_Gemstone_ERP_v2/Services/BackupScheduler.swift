@@ -61,9 +61,16 @@ final class BackupScheduler {
     }
 
     func performBackupNow() {
-        guard let container = modelContainer, let dir = backupDirectory else { return }
-        guard !isPerformingBackup else { return }
+        guard let container = modelContainer, let dir = backupDirectory else {
+            AppLogger.backup.warning("Auto-backup skipped: container or directory not configured")
+            return
+        }
+        guard !isPerformingBackup else {
+            AppLogger.backup.info("Auto-backup skipped: already in progress")
+            return
+        }
         isPerformingBackup = true
+        AppLogger.backup.info("Auto-backup started to: \(dir.lastPathComponent, privacy: .public)")
         Task { [weak self] in
             do {
                 // SwiftData operations must be on MainActor
@@ -84,12 +91,13 @@ final class BackupScheduler {
                     self?.lastBackupError = nil
                     self?.isPerformingBackup = false
                 }
+                AppLogger.backup.info("Auto-backup completed: \(destDir.lastPathComponent, privacy: .public)")
             } catch {
                 await MainActor.run {
                     self?.lastBackupError = "Auto-backup failed: \(error.localizedDescription)"
                     self?.isPerformingBackup = false
                 }
-                AppLogger.data.error("Auto-backup failed: \(error.localizedDescription)")
+                AppLogger.backup.error("Auto-backup failed: \(error.localizedDescription)")
             }
         }
     }

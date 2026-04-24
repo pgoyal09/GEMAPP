@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 import os
 
-private let rfidLog = Logger(subsystem: "com.qdi.gemapp", category: "rfid.scan")
+private let rfidLog = Logger(subsystem: "com.qualitydiajewels.QDI-Gemstone-ERP", category: "rfid.scan")
 
 // MARK: - Scan Result
 

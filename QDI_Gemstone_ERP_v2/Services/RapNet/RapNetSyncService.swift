@@ -6,7 +6,7 @@ import os
 @MainActor @Observable
 final class RapNetSyncService {
 
-    private static let logger = Logger(subsystem: "com.qdi.gemapp", category: "RapNetSync")
+    private static let logger = Logger(subsystem: "com.qualitydiajewels.QDI-Gemstone-ERP", category: "RapNetSync")
 
     // MARK: - Published state
 

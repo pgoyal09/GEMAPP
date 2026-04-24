@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import os
 
 // MARK: - Report Export Assumptions
 //
@@ -11,6 +12,8 @@ import AppKit
 // See ReportEngine.swift and REPORTING-MODEL.md for full details.
 
 enum ReportExportService {
+
+    private static let logger = Logger(subsystem: "com.qualitydiajewels.QDI-Gemstone-ERP", category: "reports.export")
 
     // MARK: - CSV Export
 
@@ -86,12 +89,20 @@ enum ReportExportService {
 
     @MainActor
     static func saveCSV(_ content: String, suggestedName: String) {
+        logger.info("CSV export initiated: \(suggestedName, privacy: .public)")
         let panel = NSSavePanel()
         panel.nameFieldStringValue = suggestedName
         panel.allowedContentTypes = [.commaSeparatedText]
         panel.begin { response in
             if response == .OK, let url = panel.url {
-                try? content.write(to: url, atomically: true, encoding: .utf8)
+                do {
+                    try content.write(to: url, atomically: true, encoding: .utf8)
+                    logger.info("CSV export saved: \(url.lastPathComponent, privacy: .public)")
+                } catch {
+                    logger.error("CSV export write failed: \(error.localizedDescription)")
+                }
+            } else {
+                logger.info("CSV export cancelled by user")
             }
         }
     }
@@ -100,7 +111,16 @@ enum ReportExportService {
 
     @MainActor
     static func exportReportToPDF(title: String, html: String, completion: @escaping @Sendable (Result<URL, Error>) -> Void) {
-        PDFService.shared.renderHTMLToPDF(html: html, completion: completion)
+        logger.info("PDF report export started: \(title, privacy: .public)")
+        PDFService.shared.renderHTMLToPDF(html: html) { result in
+            switch result {
+            case .success(let url):
+                logger.info("PDF report export completed: \(url.lastPathComponent, privacy: .public)")
+            case .failure(let error):
+                logger.error("PDF report export failed for '\(title, privacy: .public)': \(error.localizedDescription)")
+            }
+            completion(result)
+        }
     }
 
     static func buildPLHTML(_ report: PLReport, dateRange: String) -> String {

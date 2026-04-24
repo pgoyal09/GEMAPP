@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 import os
 
-private let logger = Logger(subsystem: "com.qdi.gemapp", category: "memo")
+private let logger = Logger(subsystem: "com.qualitydiajewels.QDI-Gemstone-ERP", category: "memo")
 
 /// Memo-specific business operations.
 enum MemoService: MemoServiceProtocol {

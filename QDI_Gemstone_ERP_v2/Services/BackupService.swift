@@ -1,8 +1,11 @@
 import Foundation
 import SwiftData
+import os
 
 /// Provides backup and export functionality for the gemstone database.
 enum BackupService {
+
+    private static let logger = Logger(subsystem: "com.qualitydiajewels.QDI-Gemstone-ERP", category: "backup")
 
     enum BackupError: LocalizedError, Sendable {
         case noStoreFile
@@ -52,9 +55,12 @@ enum BackupService {
     /// The modelContext.save() call flushes pending changes; WAL files are copied alongside the store.
     @MainActor
     static func exportDatabaseCopy(modelContext: ModelContext) throws -> URL {
+        logger.info("Database export started")
         cleanupStaleTempDirs()
         try modelContext.save()
-        return try copyStoreFiles()
+        let url = try copyStoreFiles()
+        logger.info("Database export completed: \(url.lastPathComponent, privacy: .public)")
+        return url
     }
 
     private static func copyStoreFiles() throws -> URL {
@@ -93,6 +99,7 @@ enum BackupService {
     }
 
     private static func exportCSVBundleImpl(modelContext: ModelContext) throws -> URL {
+        logger.info("CSV export started")
         cleanupStaleTempDirs()
         let fm = FileManager.default
         let exportDir = fm.temporaryDirectory.appendingPathComponent("QDI_CSV_\(timestamp())")
@@ -144,6 +151,7 @@ enum BackupService {
         }
         try csv.write(to: exportDir.appendingPathComponent("line_items.csv"), atomically: true, encoding: .utf8)
 
+        logger.info("CSV export completed: \(exportDir.lastPathComponent, privacy: .public)")
         return exportDir
     }
 
@@ -157,6 +165,7 @@ enum BackupService {
     /// fails mid-way, the original store is recovered from the safety backup.
     @MainActor
     static func restoreDatabase(from backupDir: URL, modelContext: ModelContext) throws {
+        logger.info("Database restore started from: \(backupDir.lastPathComponent, privacy: .public)")
         let fm = FileManager.default
         let baseName = storeURL.lastPathComponent
         let parentDir = storeURL.deletingLastPathComponent()
@@ -164,6 +173,7 @@ enum BackupService {
         // Verify backup contains the store file
         let backupStore = backupDir.appendingPathComponent(baseName)
         guard fm.fileExists(atPath: backupStore.path) else {
+            logger.error("Restore failed: backup does not contain \(baseName, privacy: .public)")
             throw BackupError.exportFailed("Backup does not contain \(baseName)")
         }
 
@@ -213,6 +223,7 @@ enum BackupService {
 
         // Clean up safety backup on success
         try? fm.removeItem(at: safetyDir)
+        logger.info("Database restore completed successfully")
     }
 
     // MARK: - Helpers

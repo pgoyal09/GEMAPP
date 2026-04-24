@@ -207,7 +207,7 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
         setStatus(.connecting)
         setConnected(false)
         setError(nil)
-        debugLog("[RFID] Connect requested, opening port...")
+        rfidLog("[RFID] Connect requested, opening port...")
         queue.async { [weak self] in
             self?.runStartupSequence()
         }
@@ -219,7 +219,7 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
     }
 
     func reconnect() {
-        debugLog("[RFID] Reconnect requested")
+        rfidLog("[RFID] Reconnect requested")
         setError(nil)
         reconnectDelay = reconnectMinDelay
         startScanning()
@@ -288,13 +288,13 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
     // MARK: - ORSSerialPortDelegate
 
     func serialPort(_ serialPort: ORSSerialPort, didEncounterError error: Error) {
-        debugLog("[RFID] Serial port error: \(error.localizedDescription)")
+        rfidManagerLog.error("[RFID] Serial port error: \(error.localizedDescription, privacy: .public)")
         handleDisconnect(reason: "Serial error: \(error.localizedDescription)")
         scheduleReconnectAsync()
     }
 
     func serialPortWasRemovedFromSystem(_ serialPort: ORSSerialPort) {
-        debugLog("[RFID] Serial port removed from system")
+        rfidManagerLog.warning("[RFID] Serial port removed from system")
         if selectedPort === serialPort {
             selectedPort = nil
         }
@@ -354,7 +354,7 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
     // MARK: - Disconnect Detection & Handling
 
     private func handleDisconnect(reason: String) {
-        debugLog("[RFID] Disconnect detected: \(reason)")
+        rfidManagerLog.warning("[RFID] Disconnect detected: \(reason, privacy: .public)")
         isStartingUp = false
         performFullStop()
         let message = reason
@@ -404,7 +404,7 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
         startupAborted = false
 
         guard let path = selectedPort?.path ?? findUsbSerialPort() else {
-            debugLog("[RFID] No port selected or found")
+            rfidManagerLog.warning("[RFID] No port selected or found")
             setStatus(.error)
             setError("No /dev/cu.usbserial* port. Connect reader and tap Reconnect.")
             DispatchQueue.main.async { [weak self] in
@@ -414,11 +414,11 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
             return
         }
 
-        debugLog("[RFID] Opening port: \(path)")
+        rfidLog("[RFID] Opening port: \(path)")
         let fd = open(path, O_RDWR | O_NOCTTY)
         guard fd >= 0 else {
             let msg = errnoMessage()
-            debugLog("[RFID] Open failed: \(msg)")
+            rfidManagerLog.error("[RFID] Open failed: \(msg, privacy: .public)")
             setStatus(.error)
             setError(msg)
             DispatchQueue.main.async { [weak self] in
@@ -427,7 +427,7 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
             scheduleReconnectAsync()
             return
         }
-        debugLog("[RFID] Serial port opened successfully")
+        rfidLog("[RFID] Serial port opened successfully")
 
         os_unfair_lock_lock(&iolock)
         fileDescriptor = fd
@@ -534,7 +534,7 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
     }
 
     private func handleStartupFailure(_ message: String) {
-        debugLog("[RFID] Startup FAILED: \(message)")
+        rfidManagerLog.error("[RFID] Startup FAILED: \(message, privacy: .public)")
         isStartingUp = false
         setError(message)
         setStatus(.error)
@@ -547,7 +547,7 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
     }
 
     private func completeStartup() {
-        debugLog("[RFID] Startup complete, entering scanning state")
+        rfidLog("[RFID] Startup complete, entering scanning state")
         isStartingUp = false
         cancelStartupTimeout()
         startupState = nil
@@ -631,9 +631,9 @@ final class RFIDManager: NSObject, ObservableObject, RFIDService, ORSSerialPortD
         let delay = reconnectDelay
         // Cap verification: clamp to max before incrementing.
         reconnectDelay = min(reconnectMaxDelay, reconnectDelay + 2.0)
-        debugLog("[RFID] Reconnect scheduled in \(String(format: "%.1f", delay))s...")
+        rfidLog("[RFID] Reconnect scheduled in \(String(format: "%.1f", delay))s...")
         let item = DispatchWorkItem { [weak self] in
-            debugLog("[RFID] Reconnect started")
+            rfidLog("[RFID] Reconnect started")
             self?.startScanning()
         }
         reconnectWorkItem = item
@@ -957,8 +957,14 @@ private let time_base_info: mach_timebase_info_data_t = {
     return t
 }()
 
-private let rfidManagerLog = Logger(subsystem: "com.qdi.gemapp", category: "rfid.manager")
+private let rfidManagerLog = Logger(subsystem: "com.qualitydiajewels.QDI-Gemstone-ERP", category: "rfid.manager")
 
+/// Production-visible log for important RFID state transitions.
+private func rfidLog(_ msg: String) {
+    rfidManagerLog.info("\(msg, privacy: .public)")
+}
+
+/// Verbose debug log for frame-level diagnostics (DEBUG builds only).
 private func debugLog(_ msg: String) {
     #if DEBUG
     rfidManagerLog.debug("\(msg, privacy: .public)")

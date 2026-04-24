@@ -15,7 +15,7 @@ final class SupabaseSyncService {
     var syncError: String?
     var syncProgress: String?
 
-    private let logger = Logger(subsystem: "com.qdi.erp", category: "Sync")
+    private let logger = Logger(subsystem: "com.qualitydiajewels.QDI-Gemstone-ERP", category: "sync")
     /// Non-optional accessor — callers guard availability at entry points.
     /// Force-unwrap is safe because syncAll/sync check `isAvailable` first.
     private var client: SupabaseClient { SupabaseManager.shared.client! }
@@ -44,23 +44,32 @@ final class SupabaseSyncService {
         isSyncing = true
         syncError = nil
         syncProgress = "Starting sync..."
+        let syncStart = ContinuousClock.now
         logger.info("Starting full sync (push + pull)")
 
         do {
             // Push
+            let pushStart = ContinuousClock.now
             try await pushAll(modelContext: modelContext)
+            let pushDuration = pushStart.duration(to: .now)
+            logger.info("Push phase completed in \(pushDuration, privacy: .public)")
 
             // Pull
+            let pullStart = ContinuousClock.now
             try await pullAll(modelContext: modelContext)
+            let pullDuration = pullStart.duration(to: .now)
+            logger.info("Pull phase completed in \(pullDuration, privacy: .public)")
 
             lastSyncDate = Date()
             tracker.resetPending()
             syncProgress = nil
-            logger.info("Full sync (push + pull) completed successfully")
+            let totalDuration = syncStart.duration(to: .now)
+            logger.info("Full sync completed successfully in \(totalDuration, privacy: .public)")
         } catch {
             syncError = error.localizedDescription
             syncProgress = nil
-            logger.error("Sync failed: \(error.localizedDescription)")
+            let totalDuration = syncStart.duration(to: .now)
+            logger.error("Sync failed after \(totalDuration, privacy: .public): \(error.localizedDescription)")
         }
 
         isSyncing = false
@@ -86,6 +95,7 @@ final class SupabaseSyncService {
         isSyncing = true
         syncError = nil
         syncProgress = "Starting push sync..."
+        let pushStart = ContinuousClock.now
         logger.info("Starting push sync")
 
         do {
@@ -93,11 +103,13 @@ final class SupabaseSyncService {
             lastSyncDate = Date()
             tracker.resetPending()
             syncProgress = nil
-            logger.info("Push sync completed successfully")
+            let duration = pushStart.duration(to: .now)
+            logger.info("Push sync completed successfully in \(duration, privacy: .public)")
         } catch {
             syncError = error.localizedDescription
             syncProgress = nil
-            logger.error("Push sync failed: \(error.localizedDescription)")
+            let duration = pushStart.duration(to: .now)
+            logger.error("Push sync failed after \(duration, privacy: .public): \(error.localizedDescription)")
         }
 
         isSyncing = false
@@ -451,9 +463,14 @@ final class SupabaseSyncService {
         let dtos = customers.map { CustomerDTO(from: $0) }
 
         if !dtos.isEmpty {
-            try await client.from("customers").upsert(dtos, onConflict: "id").execute()
-            tracker.setLastSync(Date(), for: "customers")
-            logger.info("Uploaded \(dtos.count) customers")
+            do {
+                try await client.from("customers").upsert(dtos, onConflict: "id").execute()
+                tracker.setLastSync(Date(), for: "customers")
+                logger.info("Uploaded \(dtos.count) customers")
+            } catch {
+                logger.error("Upload customers failed (\(dtos.count) records): \(error.localizedDescription)")
+                throw error
+            }
         }
     }
 
@@ -463,12 +480,18 @@ final class SupabaseSyncService {
         let dtos = stones.map { GemstoneDTO(from: $0) }
 
         if !dtos.isEmpty {
-            // Batch in groups of 100 to avoid payload limits
-            for batch in dtos.chunked(into: 100) {
-                try await client.from("gemstones").upsert(batch, onConflict: "id").execute()
+            do {
+                // Batch in groups of 100 to avoid payload limits
+                for (index, batch) in dtos.chunked(into: 100).enumerated() {
+                    try await client.from("gemstones").upsert(batch, onConflict: "id").execute()
+                    logger.debug("Uploaded gemstone batch \(index + 1) (\(batch.count) records)")
+                }
+                tracker.setLastSync(Date(), for: "gemstones")
+                logger.info("Uploaded \(dtos.count) gemstones")
+            } catch {
+                logger.error("Upload gemstones failed (\(dtos.count) records): \(error.localizedDescription)")
+                throw error
             }
-            tracker.setLastSync(Date(), for: "gemstones")
-            logger.info("Uploaded \(dtos.count) gemstones")
         }
     }
 
@@ -478,9 +501,14 @@ final class SupabaseSyncService {
         let dtos = memos.map { MemoDTO(from: $0) }
 
         if !dtos.isEmpty {
-            try await client.from("memos").upsert(dtos, onConflict: "id").execute()
-            tracker.setLastSync(Date(), for: "memos")
-            logger.info("Uploaded \(dtos.count) memos")
+            do {
+                try await client.from("memos").upsert(dtos, onConflict: "id").execute()
+                tracker.setLastSync(Date(), for: "memos")
+                logger.info("Uploaded \(dtos.count) memos")
+            } catch {
+                logger.error("Upload memos failed (\(dtos.count) records): \(error.localizedDescription)")
+                throw error
+            }
         }
     }
 
@@ -490,9 +518,14 @@ final class SupabaseSyncService {
         let dtos = invoices.map { InvoiceDTO(from: $0) }
 
         if !dtos.isEmpty {
-            try await client.from("invoices").upsert(dtos, onConflict: "id").execute()
-            tracker.setLastSync(Date(), for: "invoices")
-            logger.info("Uploaded \(dtos.count) invoices")
+            do {
+                try await client.from("invoices").upsert(dtos, onConflict: "id").execute()
+                tracker.setLastSync(Date(), for: "invoices")
+                logger.info("Uploaded \(dtos.count) invoices")
+            } catch {
+                logger.error("Upload invoices failed (\(dtos.count) records): \(error.localizedDescription)")
+                throw error
+            }
         }
     }
 
@@ -502,11 +535,17 @@ final class SupabaseSyncService {
         let dtos = items.map { LineItemDTO(from: $0) }
 
         if !dtos.isEmpty {
-            for batch in dtos.chunked(into: 100) {
-                try await client.from("line_items").upsert(batch, onConflict: "id").execute()
+            do {
+                for (index, batch) in dtos.chunked(into: 100).enumerated() {
+                    try await client.from("line_items").upsert(batch, onConflict: "id").execute()
+                    logger.debug("Uploaded line item batch \(index + 1) (\(batch.count) records)")
+                }
+                tracker.setLastSync(Date(), for: "line_items")
+                logger.info("Uploaded \(dtos.count) line items")
+            } catch {
+                logger.error("Upload line items failed (\(dtos.count) records): \(error.localizedDescription)")
+                throw error
             }
-            tracker.setLastSync(Date(), for: "line_items")
-            logger.info("Uploaded \(dtos.count) line items")
         }
     }
 
@@ -516,9 +555,14 @@ final class SupabaseSyncService {
         let dtos = txns.map { LotTransactionDTO(from: $0) }
 
         if !dtos.isEmpty {
-            try await client.from("lot_transactions").upsert(dtos, onConflict: "id").execute()
-            tracker.setLastSync(Date(), for: "lot_transactions")
-            logger.info("Uploaded \(dtos.count) lot transactions")
+            do {
+                try await client.from("lot_transactions").upsert(dtos, onConflict: "id").execute()
+                tracker.setLastSync(Date(), for: "lot_transactions")
+                logger.info("Uploaded \(dtos.count) lot transactions")
+            } catch {
+                logger.error("Upload lot transactions failed (\(dtos.count) records): \(error.localizedDescription)")
+                throw error
+            }
         }
     }
 
@@ -528,9 +572,14 @@ final class SupabaseSyncService {
         let dtos = payments.map { PaymentDTO(from: $0) }
 
         if !dtos.isEmpty {
-            try await client.from("payments").upsert(dtos, onConflict: "id").execute()
-            tracker.setLastSync(Date(), for: "payments")
-            logger.info("Uploaded \(dtos.count) payments")
+            do {
+                try await client.from("payments").upsert(dtos, onConflict: "id").execute()
+                tracker.setLastSync(Date(), for: "payments")
+                logger.info("Uploaded \(dtos.count) payments")
+            } catch {
+                logger.error("Upload payments failed (\(dtos.count) records): \(error.localizedDescription)")
+                throw error
+            }
         }
     }
 
@@ -540,11 +589,17 @@ final class SupabaseSyncService {
         let dtos = events.map { HistoryEventDTO(from: $0) }
 
         if !dtos.isEmpty {
-            for batch in dtos.chunked(into: 100) {
-                try await client.from("history_events").upsert(batch, onConflict: "id").execute()
+            do {
+                for (index, batch) in dtos.chunked(into: 100).enumerated() {
+                    try await client.from("history_events").upsert(batch, onConflict: "id").execute()
+                    logger.debug("Uploaded history event batch \(index + 1) (\(batch.count) records)")
+                }
+                tracker.setLastSync(Date(), for: "history_events")
+                logger.info("Uploaded \(dtos.count) history events")
+            } catch {
+                logger.error("Upload history events failed (\(dtos.count) records): \(error.localizedDescription)")
+                throw error
             }
-            tracker.setLastSync(Date(), for: "history_events")
-            logger.info("Uploaded \(dtos.count) history events")
         }
     }
 
@@ -554,9 +609,14 @@ final class SupabaseSyncService {
         let dtos = tags.map { RFIDTagDTO(from: $0) }
 
         if !dtos.isEmpty {
-            try await client.from("rfid_tags").upsert(dtos, onConflict: "id").execute()
-            tracker.setLastSync(Date(), for: "rfid_tags")
-            logger.info("Uploaded \(dtos.count) RFID tags")
+            do {
+                try await client.from("rfid_tags").upsert(dtos, onConflict: "id").execute()
+                tracker.setLastSync(Date(), for: "rfid_tags")
+                logger.info("Uploaded \(dtos.count) RFID tags")
+            } catch {
+                logger.error("Upload RFID tags failed (\(dtos.count) records): \(error.localizedDescription)")
+                throw error
+            }
         }
     }
 }

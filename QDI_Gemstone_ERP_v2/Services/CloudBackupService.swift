@@ -8,7 +8,7 @@ import Compression
 @MainActor @Observable
 final class CloudBackupService {
 
-    private static let logger = Logger(subsystem: "com.qdi.gemapp", category: "CloudBackup")
+    private static let logger = Logger(subsystem: "com.qualitydiajewels.QDI-Gemstone-ERP", category: "backup.cloud")
     private static let keychainTag = "com.qdi.gemapp.v2.backup-key"
     private static let backupFolderName = "QDI_Gemstone_Backups"
 
@@ -65,12 +65,15 @@ final class CloudBackupService {
     func createBackup(modelContext: ModelContext) async {
         guard !isBackingUp && !isRestoring else {
             lastError = "Another backup or restore operation is in progress."
+            Self.logger.warning("Cloud backup skipped: another operation in progress")
             return
         }
         isBackingUp = true
         defer { isBackingUp = false }
         lastError = nil
         progress = 0
+        let destination = iCloudAvailable ? "iCloud" : "local"
+        Self.logger.info("Cloud backup started (destination: \(destination, privacy: .public))")
 
         do {
             // Step 1: Export data as JSON
@@ -135,17 +138,20 @@ final class CloudBackupService {
     func restoreBackup(manifest: BackupManifest, modelContext: ModelContext) async -> Bool {
         guard !isBackingUp && !isRestoring else {
             lastError = "Another backup or restore operation is in progress."
+            Self.logger.warning("Cloud restore skipped: another operation in progress")
             return false
         }
         isRestoring = true
         defer { isRestoring = false }
         lastError = nil
         progress = 0
+        Self.logger.info("Cloud restore started from: \(manifest.iCloudPath, privacy: .public)")
 
         do {
             let fileURL = effectiveBackupDir.appendingPathComponent(manifest.iCloudPath)
             guard FileManager.default.fileExists(atPath: fileURL.path) else {
                 lastError = "Backup file not found"
+                Self.logger.error("Cloud restore failed: backup file not found at \(manifest.iCloudPath, privacy: .public)")
                 return false
             }
 
@@ -535,6 +541,7 @@ final class CloudBackupService {
         if let last = lastBackupDate, Date().timeIntervalSince(last) < 24 * 3600 {
             return
         }
+        Self.logger.info("Scheduled cloud auto-backup triggered")
         Task {
             await createBackup(modelContext: modelContext)
         }

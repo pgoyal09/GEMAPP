@@ -2,7 +2,7 @@ import Foundation
 import Network
 import os
 
-private let logger = Logger(subsystem: "com.qdi.gemapp", category: "label-printer")
+private let logger = Logger(subsystem: "com.qualitydiajewels.QDI-Gemstone-ERP", category: "label-printer")
 
 /// Label template types for Zebra ZD611R thermal printer.
 enum LabelTemplate: String, CaseIterable {

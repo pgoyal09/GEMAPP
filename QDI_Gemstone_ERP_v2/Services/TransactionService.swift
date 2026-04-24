@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 import os
 
-private let logger = Logger(subsystem: "com.qdi.gemapp", category: "transaction")
+private let logger = Logger(subsystem: "com.qualitydiajewels.QDI-Gemstone-ERP", category: "transaction")
 
 /// Errors thrown by transaction operations.
 enum TransactionError: LocalizedError, Sendable {

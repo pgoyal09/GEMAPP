@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 import os
 
-private let scannerLog = Logger(subsystem: "com.qdi.gemapp", category: "rfid.scanner")
+private let scannerLog = Logger(subsystem: "com.qualitydiajewels.QDI-Gemstone-ERP", category: "rfid.scanner")
 
 @MainActor
 @Observable

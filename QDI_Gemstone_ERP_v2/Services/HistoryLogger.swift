@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 import os
 
-private let logger = Logger(subsystem: "com.qdi.gemapp", category: "history")
+private let logger = Logger(subsystem: "com.qualitydiajewels.QDI-Gemstone-ERP", category: "history")
 
 /// Records audit trail events for gemstones. All methods throw on failure.
 enum HistoryLogger {

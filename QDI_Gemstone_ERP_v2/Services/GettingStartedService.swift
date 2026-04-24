@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 import os
 
-private let logger = Logger(subsystem: "com.qdi.gemapp", category: "getting-started")
+private let logger = Logger(subsystem: "com.qualitydiajewels.QDI-Gemstone-ERP", category: "getting-started")
 
 /// Tracks first-run checklist progress using UserDefaults.
 /// Displayed on the dashboard after onboarding completes.

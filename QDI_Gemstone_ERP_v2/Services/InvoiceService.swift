@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 import os
 
-private let logger = Logger(subsystem: "com.qdi.gemapp", category: "invoice")
+private let logger = Logger(subsystem: "com.qualitydiajewels.QDI-Gemstone-ERP", category: "invoice")
 
 enum InvoiceError: LocalizedError, Sendable {
     case cannotDeleteNonDraft(status: String)
