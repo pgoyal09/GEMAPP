@@ -1,6 +1,6 @@
 # GEMAPP UI Testing Protocol
 
-Status: Phase 4 complete (evidence capture & protocol hardening)
+Status: Phase 5 complete (final consolidation)
 
 ## Overview
 
@@ -273,6 +273,20 @@ xcrun xcresulttool get --path Build/Logs/Test/*.xcresult --format json
 - **Compiles:** Yes (`build-for-testing` succeeds)
 - **Runs:** Requires macOS Accessibility permission for terminal process (same as Phase 1/2/3)
 
+## Phase 5: Final Consolidation
+
+Phase 5 verified all prior work (Phases 1–4) is clean, accurate, and buildable:
+
+- **UI-TESTING.md** reviewed and updated to reflect accurate test counts, file locations, and accessibility identifiers
+- **CLAUDE.md** updated to reference the 89-test suite (59 UI + 30 unit) instead of the outdated "No tests exist yet"
+- **Test file organization** confirmed: 4 UI test files in `Tests/QDI_Gemstone_ERP_v2UITests/`, 3 unit test files in `Tests/QDI_Gemstone_ERP_v2Tests/`
+- **Build verification** confirmed `build-for-testing` compiles both test targets with 0 errors
+- No product code changes — consolidation and documentation only
+
+### Build Status
+- **Compiles:** Yes (`build-for-testing` succeeds)
+- **Runs:** Requires macOS Accessibility permission for terminal process (same as prior phases)
+
 ---
 
 ## Overnight Verification Checklist
@@ -329,12 +343,12 @@ xcodebuild -project QDI_Gemstone_ERP_v2.xcodeproj \
 
 ## Future Phases
 
-### Phase 5: Document Window Tests
+### Phase 6: Document Window Tests
 - Memo document opens via sidebar
 - Invoice document opens and renders
 - Unsaved changes guard triggers on navigation
 
-### Phase 6: Settings & Reports
+### Phase 7: Settings & Reports
 - Company settings form
 - Report generation
 - Cloud backup settings

@@ -21,7 +21,7 @@ xcodegen generate
 xcodebuild -project QDI_Gemstone_ERP_v2.xcodeproj -scheme QDI_Gemstone_ERP_v2 -destination 'platform=macOS' build
 ```
 
-No tests exist yet. No linter configured.
+89 tests across two targets (59 XCUITest UI tests + 30 unit tests). See `UI-TESTING.md` for the full testing protocol. No linter configured.
 
 ## Architecture
 
