@@ -84,6 +84,7 @@ struct AppShellView: View {
                     .fixedSize(horizontal: true, vertical: false)
                     .layoutPriority(1)
                     .transition(sidebarTransition)
+                    .accessibilityIdentifier("SidebarView")
             }
 
             VStack(spacing: 0) {
@@ -161,6 +162,7 @@ struct AppShellView: View {
                 .font(AppTypography.subheading)
                 .foregroundStyle(AppColors.ink)
                 .tracking(0.3)
+                .accessibilityIdentifier("route_title")
             Spacer()
             HStack(spacing: AppSpacing.comfortable) {
                 Button { showNotifications.toggle() } label: {
@@ -318,6 +320,7 @@ struct AppShellView: View {
         .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.card, style: .continuous))
         .padding(.horizontal, AppSpacing.section)
         .padding(.bottom, AppSpacing.section)
+        .accessibilityIdentifier("ContentArea")
     }
 
     private func createSharedVMs() {

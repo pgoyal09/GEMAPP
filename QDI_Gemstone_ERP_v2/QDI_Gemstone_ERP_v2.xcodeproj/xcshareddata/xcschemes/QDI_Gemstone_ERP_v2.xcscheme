@@ -35,6 +35,20 @@
                ReferencedContainer = "container:QDI_Gemstone_ERP_v2.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A53244A69F4CED34273BE89A"
+               BuildableName = "QDI_Gemstone_ERP_v2UITests.xctest"
+               BlueprintName = "QDI_Gemstone_ERP_v2UITests"
+               ReferencedContainer = "container:QDI_Gemstone_ERP_v2.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -61,6 +75,17 @@
                BlueprintIdentifier = "C0CD549CDAD043817BC71B03"
                BuildableName = "QDI_Gemstone_ERP_v2Tests.xctest"
                BlueprintName = "QDI_Gemstone_ERP_v2Tests"
+               ReferencedContainer = "container:QDI_Gemstone_ERP_v2.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A53244A69F4CED34273BE89A"
+               BuildableName = "QDI_Gemstone_ERP_v2UITests.xctest"
+               BlueprintName = "QDI_Gemstone_ERP_v2UITests"
                ReferencedContainer = "container:QDI_Gemstone_ERP_v2.xcodeproj">
             </BuildableReference>
          </TestableReference>
