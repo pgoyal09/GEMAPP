@@ -206,6 +206,7 @@
 		F91A9927D6C94C662EACDE6F /* HistoryEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 149AAED5205BD92D1632662A /* HistoryEvent.swift */; };
 		F936F24EF660226730503D41 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 543D37A0F441617A309A7682 /* OnboardingView.swift */; };
 		FA8502A655774E79FC240E64 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B0F11EF531CE6C3EF6C5CC /* AppColors.swift */; };
+		FD012E1D255FE64FD4B8FD67 /* GemstoneStatus+Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32076B4C0AF38CE0DD716980 /* GemstoneStatus+Badge.swift */; };
 		FEB46406C45E4B370F25AC71 /* GemstoneFilterEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = E785C58606C8CE910B8B1212 /* GemstoneFilterEngine.swift */; };
 		FF2A553EE82E73075D6FB33A /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B86ED4CBE9430761895C822 /* CurrencyFormatter.swift */; };
 /* End PBXBuildFile section */
@@ -254,6 +255,7 @@
 		2E2B071BCC76EE4FED2E41FA /* MemoRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoRoutes.swift; sourceTree = "<group>"; };
 		2ECF159A5FC31BBD9D068E1C /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		2FD4A41C39E9543AB55428FA /* LabelTemplateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelTemplateService.swift; sourceTree = "<group>"; };
+		32076B4C0AF38CE0DD716980 /* GemstoneStatus+Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GemstoneStatus+Badge.swift"; sourceTree = "<group>"; };
 		323D9A4DFE52B83BD86A8981 /* AutocompleteTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutocompleteTextField.swift; sourceTree = "<group>"; };
 		325C18F3512961657BDAD856 /* GradientButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientButtonStyle.swift; sourceTree = "<group>"; };
 		32D04B1F807ECBF7399A1576 /* SKUGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SKUGenerator.swift; sourceTree = "<group>"; };
@@ -876,6 +878,7 @@
 			children = (
 				8489F9C807B253C5094D7363 /* Date+Formatting.swift */,
 				BA586950C6BEDF816ADF42D7 /* Date+Relative.swift */,
+				32076B4C0AF38CE0DD716980 /* GemstoneStatus+Badge.swift */,
 				35FA9BB5D29646A37FED67D4 /* String+Helpers.swift */,
 			);
 			path = Extensions;
@@ -1090,6 +1093,7 @@
 				6E9460794A680AD3E74BE51D /* Gemstone.swift in Sources */,
 				C17269AFC38428BC87160C85 /* GemstoneDetailPanel.swift in Sources */,
 				FEB46406C45E4B370F25AC71 /* GemstoneFilterEngine.swift in Sources */,
+				FD012E1D255FE64FD4B8FD67 /* GemstoneStatus+Badge.swift in Sources */,
 				1489D08237C341F76A599448 /* GemstoneStatus.swift in Sources */,
 				11D65FEC67131E2B7B7A86B9 /* GemstonesInventoryView.swift in Sources */,
 				B66EFA817FA29848B15E2BEC /* GettingStartedChecklist.swift in Sources */,

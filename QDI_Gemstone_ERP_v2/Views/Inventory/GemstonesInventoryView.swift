@@ -394,7 +394,7 @@ struct GemstonesInventoryView: View {
             Text(stone.sellPrice.asCurrency(stone.currencyType)).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: widths[10], alignment: .trailing)
             Text(stone.costPrice.asCurrency(stone.currencyType)).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: widths[11], alignment: .trailing)
             Text(marginText(cost: stone.costPrice, sell: stone.sellPrice)).font(AppTypography.mono).foregroundStyle(AppColors.inkMuted).frame(width: widths[12], alignment: .trailing)
-            statusBadge(for: stone.status).frame(width: widths[13], alignment: .center)
+            stone.status.badge.frame(width: widths[13], alignment: .center)
         }
     }
 
@@ -627,17 +627,4 @@ struct GemstonesInventoryView: View {
         return String(format: "%.1f%%", value)
     }
 
-    // MARK: - Helpers
-
-    private func statusBadge(for status: GemstoneStatus) -> StatusBadge {
-        switch status {
-        case .available:    return StatusBadge(title: "Available", tone: .success)
-        case .onMemo:       return StatusBadge(title: "On Memo", tone: .warning)
-        case .sold:         return StatusBadge(title: "Sold", tone: .accent)
-        case .atLab:        return StatusBadge(title: "At Lab", tone: .info)
-        case .reserved:     return StatusBadge(title: "Reserved", tone: .danger)
-        case .inTransit:    return StatusBadge(title: "In Transit", tone: .violet)
-        case .consignment:  return StatusBadge(title: "Consignment", tone: .neutral)
-        }
-    }
 }

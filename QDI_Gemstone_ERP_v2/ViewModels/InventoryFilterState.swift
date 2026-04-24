@@ -44,6 +44,12 @@ final class InventoryFilterState {
     var priceMinText: String = ""
     var priceMaxText: String = ""
 
+    // MARK: - Sold-Specific Filters
+
+    var customerFilter: String = ""
+    var dateFrom: Date?
+    var dateTo: Date?
+
     // MARK: - Search Focus
 
     var searchFieldFocusRequest: Bool = false
@@ -56,7 +62,8 @@ final class InventoryFilterState {
         originFilter != nil || treatmentFilter != nil || labFilter != nil ||
         cutFilter != nil ||
         caratMin != nil || caratMax != nil || priceMin != nil || priceMax != nil ||
-        !searchText.isEmpty
+        !searchText.isEmpty ||
+        !customerFilter.isEmpty || dateFrom != nil || dateTo != nil
     }
 
     var activeFilterCount: Int {
@@ -73,19 +80,23 @@ final class InventoryFilterState {
         if cutFilter != nil { count += 1 }
         if caratMin != nil || caratMax != nil { count += 1 }
         if priceMin != nil || priceMax != nil { count += 1 }
+        if !customerFilter.isEmpty { count += 1 }
+        if dateFrom != nil { count += 1 }
+        if dateTo != nil { count += 1 }
         return count
     }
 
     // MARK: - Actions
 
-    func clearAll() {
-        statusFilter = nil; shapeFilter = nil; groupingFilter = nil
+    func clearAll(defaultStatus: GemstoneStatus? = nil) {
+        statusFilter = defaultStatus; shapeFilter = nil; groupingFilter = nil
         stoneTypeFilter = nil; colorFilter = nil; clarityFilter = nil
         originFilter = nil; treatmentFilter = nil; cutFilter = nil
         labFilter = nil; caratMin = nil; caratMax = nil
         priceMin = nil; priceMax = nil
         caratMinText = ""; caratMaxText = ""
         priceMinText = ""; priceMaxText = ""
+        customerFilter = ""; dateFrom = nil; dateTo = nil
         searchText = ""
         searchFieldFocusRequest = false
     }
