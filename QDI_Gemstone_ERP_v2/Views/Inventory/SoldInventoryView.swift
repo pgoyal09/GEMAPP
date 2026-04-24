@@ -83,11 +83,12 @@ struct SoldInventoryView: View {
     // MARK: - Body
 
     var body: some View {
+        let stones = filteredStones
         VStack(spacing: 0) {
             HStack(spacing: AppSpacing.tableColumnGap) {
                 VStack(spacing: 0) {
                     topBar
-                    tableContent
+                    tableContent(stones)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
@@ -101,7 +102,7 @@ struct SoldInventoryView: View {
                 }
             }
 
-            summaryFooter
+            summaryFooter(for: stones)
         }
         .animation(reduceMotion ? nil : AppAnimation.sheetSpring, value: selectedStone?.persistentModelID)
         .sheet(isPresented: $showEditSheet) {
@@ -212,7 +213,7 @@ struct SoldInventoryView: View {
 
     // MARK: - Table
 
-    private var tableContent: some View {
+    private func tableContent(_ filteredStones: [Gemstone]) -> some View {
         GeometryReader { geo in
             let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
             VStack(spacing: 0) {
@@ -311,8 +312,7 @@ struct SoldInventoryView: View {
 
     // MARK: - Summary
 
-    private var summaryFooter: some View {
-        let stones = filteredStones
+    private func summaryFooter(for stones: [Gemstone]) -> some View {
         let totalCarats = stones.reduce(0.0) { $0 + $1.caratWeight }
         let totalSell = stones.reduce(Decimal.zero) { $0 + $1.sellPrice * Decimal($1.caratWeight) }
         let totalCost = stones.reduce(Decimal.zero) { $0 + $1.costPrice * Decimal($1.caratWeight) }

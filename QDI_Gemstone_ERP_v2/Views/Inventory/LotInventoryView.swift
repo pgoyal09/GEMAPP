@@ -47,26 +47,19 @@ struct LotInventoryView: View {
         return filteredLots.first { $0.persistentModelID == id }
     }
 
-    private var totalRemainingCarats: Double {
-        filteredLots.reduce(0) { $0 + $1.effectiveRemainingCarats }
-    }
-
-    private var totalSellValue: Decimal {
-        filteredLots.reduce(Decimal.zero) { $0 + $1.sellPrice * Decimal($1.effectiveRemainingCarats) }
-    }
-
     // MARK: - Body
 
     var body: some View {
+        let currentFilteredLots = filteredLots
         ZStack(alignment: .trailing) {
             VStack(spacing: 0) {
                 VStack(spacing: 0) {
                     topBar
-                    tableContent
+                    tableContent(currentFilteredLots)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                summaryStrip
+                summaryStrip(for: currentFilteredLots)
             }
 
             if let lot = selectedLot {
@@ -156,7 +149,7 @@ struct LotInventoryView: View {
 
     // MARK: - Table
 
-    private var tableContent: some View {
+    private func tableContent(_ filteredLots: [Gemstone]) -> some View {
         GeometryReader { geo in
             let widths = Self.tableLayout.widths(for: geo.size.width - 2 * AppSpacing.standard)
             VStack(spacing: 0) {
@@ -324,11 +317,13 @@ struct LotInventoryView: View {
 
     // MARK: - Summary Strip
 
-    private var summaryStrip: some View {
-        HStack(spacing: AppSpacing.hero) {
-            summaryItem(label: "Total Lots", value: "\(filteredLots.count)")
-            summaryItem(label: "Remaining Carats", value: String(format: "%.2f ct", totalRemainingCarats))
-            summaryItem(label: "Total Sell Value", value: formattedPrice(totalSellValue))
+    private func summaryStrip(for lots: [Gemstone]) -> some View {
+        let totalCarats = lots.reduce(0.0) { $0 + $1.effectiveRemainingCarats }
+        let totalValue = lots.reduce(Decimal.zero) { $0 + $1.sellPrice * Decimal($1.effectiveRemainingCarats) }
+        return HStack(spacing: AppSpacing.hero) {
+            summaryItem(label: "Total Lots", value: "\(lots.count)")
+            summaryItem(label: "Remaining Carats", value: String(format: "%.2f ct", totalCarats))
+            summaryItem(label: "Total Sell Value", value: formattedPrice(totalValue))
             Spacer()
         }
         .padding(.horizontal, AppSpacing.hero)

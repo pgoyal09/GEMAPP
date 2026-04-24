@@ -229,8 +229,6 @@ enum ReportEngine {
         // Current inventory valued at cost (costPrice), not sell price.
         let currentValue = available.reduce(Decimal.zero) { $0 + $1.costPrice }
 
-        _ = allGemstones.filter { $0.status == .sold } // reserved for future period-over-period comparison
-
         let invDescriptor = FetchDescriptor<Invoice>()
         let invoices = ((try? modelContext.fetch(invDescriptor)) ?? [])
             .filter { $0.status == .paid }
@@ -432,39 +430,29 @@ enum ReportEngine {
             return MonthlyMargin(month: data.month, marginPercent: margin, revenue: data.revenue, cogs: data.cogs)
         }
 
-        // By stone type — uses item.netAmount for revenue (same basis as P&L, NOT grandTotal).
+        // By stone type AND distribution histogram — single pass over all sold line items.
+        // Uses item.netAmount for revenue (same basis as P&L, NOT grandTotal).
         // Margin per item is a simple average, not weighted by revenue or carat volume.
+        // Items with zero or negative revenue are excluded from both analyses.
         var typeMap: [String: (margins: [Double], count: Int)] = [:]
+        var under10 = 0, r10_20 = 0, r20_30 = 0, over30 = 0
+        var allMarginsCount = 0
         for inv in invoices {
             for item in inv.lineItems where item.status == .sold {
                 let rev = item.netAmount
                 let cogs = computeItemCOGS(item)
                 guard rev > 0 else { continue }
                 let margin = NSDecimalNumber(decimal: (rev - cogs) / rev * 100).doubleValue
+
+                // Stone type accumulation
                 let type = item.gemstone?.stoneType.rawValue.capitalized ?? item.stoneTypeDisplay
                 var entry = typeMap[type, default: ([], 0)]
                 entry.margins.append(margin)
                 entry.count += 1
                 typeMap[type] = entry
-            }
-        }
 
-        let byStoneType = typeMap.map { key, value in
-            let avg = value.margins.isEmpty ? 0 : value.margins.reduce(0, +) / Double(value.margins.count)
-            return StoneTypeMargin(stoneType: key, avgMarginPercent: avg, count: value.count)
-        }.sorted { $0.avgMarginPercent > $1.avgMarginPercent }
-
-        // Distribution histogram — same per-item margin computation as by-stone-type.
-        // Items with zero or negative revenue are excluded.
-        var under10 = 0, r10_20 = 0, r20_30 = 0, over30 = 0
-        var allMargins: [Double] = []
-        for inv in invoices {
-            for item in inv.lineItems where item.status == .sold {
-                let rev = item.netAmount
-                let cogs = computeItemCOGS(item)
-                guard rev > 0 else { continue }
-                let margin = NSDecimalNumber(decimal: (rev - cogs) / rev * 100).doubleValue
-                allMargins.append(margin)
+                // Distribution histogram accumulation
+                allMarginsCount += 1
                 switch margin {
                 case ..<10: under10 += 1
                 case 10..<20: r10_20 += 1
@@ -473,7 +461,13 @@ enum ReportEngine {
                 }
             }
         }
-        let total = Double(allMargins.count)
+
+        let byStoneType = typeMap.map { key, value in
+            let avg = value.margins.isEmpty ? 0 : value.margins.reduce(0, +) / Double(value.margins.count)
+            return StoneTypeMargin(stoneType: key, avgMarginPercent: avg, count: value.count)
+        }.sorted { $0.avgMarginPercent > $1.avgMarginPercent }
+
+        let total = Double(allMarginsCount)
         var distribution = [
             MarginBucket(label: "< 10%", count: under10),
             MarginBucket(label: "10-20%", count: r10_20),

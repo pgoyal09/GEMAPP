@@ -98,14 +98,15 @@ struct GemstonesInventoryView: View {
     var body: some View {
         ZStack(alignment: .trailing) {
             VStack(spacing: 0) {
+                let stones = filteredStones
                 VStack(spacing: 0) {
                     topBar
                     filterBar
-                    tableContent
+                    tableContent(stones)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                summaryFooter
+                summaryFooter(for: stones)
             }
 
             if let stone = selectedStone {
@@ -302,7 +303,7 @@ struct GemstonesInventoryView: View {
 
     // MARK: - Table
 
-    private var tableContent: some View {
+    private func tableContent(_ filteredStones: [Gemstone]) -> some View {
         VStack(spacing: 0) {
             GeometryReader { geo in
                 let fixedWidth: CGFloat = 24
@@ -400,8 +401,7 @@ struct GemstonesInventoryView: View {
 
     // MARK: - Summary
 
-    private var summaryFooter: some View {
-        let stones = filteredStones
+    private func summaryFooter(for stones: [Gemstone]) -> some View {
         let totalCarats = stones.reduce(0.0) { $0 + $1.caratWeight }
         let totalValue = stones.reduce(Decimal.zero) { $0 + $1.sellPrice * Decimal($1.caratWeight) }
         return HStack(spacing: AppSpacing.hero) {
