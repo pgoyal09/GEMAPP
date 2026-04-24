@@ -20,6 +20,7 @@ final class WorkflowSmokeTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
+        captureScreenshotOnFailure(app: app)
         app = nil
     }
 

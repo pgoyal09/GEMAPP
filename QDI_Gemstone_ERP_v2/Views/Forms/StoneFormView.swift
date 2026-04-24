@@ -368,6 +368,7 @@ struct StoneFormView: View {
                 .buttonStyle(.outline)
                 .disabled(isSaving)
                 .keyboardShortcut(.escape, modifiers: [])
+                .accessibilityIdentifier("button_cancel_stone")
 
             if case .intake = viewModel.mode {
                 Button("Save & Continue") {
@@ -383,6 +384,7 @@ struct StoneFormView: View {
                 }
                 .buttonStyle(.outline(AppColors.primary))
                 .disabled(isSaving)
+                .accessibilityIdentifier("button_save_continue_stone")
             }
 
             Button("Save") {
@@ -407,6 +409,7 @@ struct StoneFormView: View {
             .buttonStyle(.gradient)
             .disabled(!viewModel.canSave || isSaving)
             .keyboardShortcut("s", modifiers: .command)
+            .accessibilityIdentifier("button_save_stone")
         }
         .padding(AppSpacing.section)
         .background(AppColors.panelBackground)

@@ -146,6 +146,7 @@
 		9574F276BFBFEB86FD242007 /* StoneDescriptionBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C64C9459C79A0894AC0F0F0 /* StoneDescriptionBuilder.swift */; };
 		983E49E5F8888D2FC01A3A1B /* QDIGemstoneERPApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4BC3BE124CB7474DC325DA /* QDIGemstoneERPApp.swift */; };
 		98D7F9952F6786EA9D83D041 /* RFIDCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6538A7C8468B6A5E43E91FE9 /* RFIDCoordinator.swift */; };
+		9939F3D03FCD7D5AF6FD60D0 /* ScreenshotCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7E2143077A915107BA234AB /* ScreenshotCapture.swift */; };
 		A237AB362CAD8E17845BCC34 /* QuickEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D8C27FE3D81DB349A0639CD /* QuickEntryView.swift */; };
 		A2514E098351502ACF15BA47 /* GlassSearchField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F52F24F5AFF74620899B4F36 /* GlassSearchField.swift */; };
 		A383795AC369B77EC9CBE678 /* InvoiceRoutes.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAB45A470C117BD693FBF56B /* InvoiceRoutes.swift */; };
@@ -414,6 +415,7 @@
 		E6A9B8686EE1663B720013FC /* InventoryFilterBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryFilterBar.swift; sourceTree = "<group>"; };
 		E77251A0991E8AD031C0ED28 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
 		E785C58606C8CE910B8B1212 /* GemstoneFilterEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GemstoneFilterEngine.swift; sourceTree = "<group>"; };
+		E7E2143077A915107BA234AB /* ScreenshotCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotCapture.swift; sourceTree = "<group>"; };
 		EA6B133B323D833E799468EA /* StoneType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneType.swift; sourceTree = "<group>"; };
 		EDF43F66FC7402DC31864900 /* QuickActionsGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActionsGrid.swift; sourceTree = "<group>"; };
 		EE4D5B81A86BF30BB29D8C19 /* SyncTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTracker.swift; sourceTree = "<group>"; };
@@ -629,6 +631,7 @@
 		4C53B43811DF3DE013E5DEAB /* QDI_Gemstone_ERP_v2UITests */ = {
 			isa = PBXGroup;
 			children = (
+				E7E2143077A915107BA234AB /* ScreenshotCapture.swift */,
 				62A46D714B745FE822025DDA /* ScreenSmokeTests.swift */,
 				9CB523179F033C8B868EF3D8 /* ShellSmokeTests.swift */,
 				46A944FFE2F783E42DC597D0 /* WorkflowSmokeTests.swift */,
@@ -1286,6 +1289,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DF9B7E3804557944A565C20F /* ScreenSmokeTests.swift in Sources */,
+				9939F3D03FCD7D5AF6FD60D0 /* ScreenshotCapture.swift in Sources */,
 				9485004D2B09AC21108D58FD /* ShellSmokeTests.swift in Sources */,
 				608170FCEE58193053340D20 /* WorkflowSmokeTests.swift in Sources */,
 			);

@@ -1,6 +1,6 @@
 # GEMAPP UI Testing Protocol
 
-Status: Phase 3 complete (workflow smoke tests)
+Status: Phase 4 complete (evidence capture & protocol hardening)
 
 ## Overview
 
@@ -234,14 +234,107 @@ File: `Tests/QDI_Gemstone_ERP_v2UITests/WorkflowSmokeTests.swift`
 - **Compiles:** Yes (`build-for-testing` succeeds)
 - **Runs:** Requires macOS Accessibility permission for terminal process (same as Phase 1/2)
 
+## Phase 4: Evidence Capture & Protocol Hardening
+
+### Screenshot Capture on Failure
+
+File: `Tests/QDI_Gemstone_ERP_v2UITests/ScreenshotCapture.swift`
+
+All UI test classes now auto-capture a screenshot when a test fails. The screenshot is attached to the `.xcresult` bundle and visible in Xcode's Test Report navigator.
+
+**How it works:**
+- `ScreenshotCapture.swift` adds an `XCTestCase` extension with two methods:
+  - `captureScreenshotOnFailure(app:)` — called in `tearDownWithError()`, attaches a screenshot only when the test has failed
+  - `captureScreenshot(name:lifetime:app:)` — explicit evidence capture at any point during a test
+- All three test classes (`ShellSmokeTests`, `ScreenSmokeTests`, `WorkflowSmokeTests`) call `captureScreenshotOnFailure(app: app)` in their `tearDownWithError()`
+
+**Viewing screenshots:**
+```bash
+# After running tests, open the xcresult bundle:
+open Build/Logs/Test/*.xcresult
+
+# Or export via CLI:
+xcrun xcresulttool get --path Build/Logs/Test/*.xcresult --format json
+```
+
+### Accessibility Identifiers Added in Phase 4
+
+| Identifier | Element | Location |
+|---|---|---|
+| `sidebar_settings` | Settings sidebar button | `SidebarView.swift` |
+| `button_cancel_stone` | Cancel button in stone form | `StoneFormView.swift` |
+| `button_save_stone` | Save button in stone form | `StoneFormView.swift` |
+| `button_save_continue_stone` | Save & Continue button in stone form | `StoneFormView.swift` |
+| `button_cancel_intake` | Cancel button in quick intake | `QuickIntakeView.swift` |
+| `button_save_intake` | Save button in quick intake | `QuickIntakeView.swift` |
+| `button_save_new_intake` | Save & New button in quick intake | `QuickIntakeView.swift` |
+
+### Build Status
+- **Compiles:** Yes (`build-for-testing` succeeds)
+- **Runs:** Requires macOS Accessibility permission for terminal process (same as Phase 1/2/3)
+
+---
+
+## Overnight Verification Checklist
+
+Manual checklist for verifying UI test health after significant changes. Run before merging or after overnight CI.
+
+### Pre-Run
+
+- [ ] macOS Accessibility permission granted to terminal/CI process
+- [ ] `xcodegen generate` run after any file additions
+- [ ] DerivedData clean if switching branches: `rm -rf ~/Library/Developer/Xcode/DerivedData/QDI_Gemstone_ERP_v2-*`
+- [ ] No stale `.xcodeproj` — regenerate if `project.yml` changed
+
+### Build
+
+- [ ] `xcodebuild build-for-testing` completes with 0 errors
+- [ ] No new warnings in UI test target
+
+### Test Execution
+
+```bash
+xcodebuild -project QDI_Gemstone_ERP_v2.xcodeproj \
+  -scheme QDI_Gemstone_ERP_v2 \
+  -destination 'platform=macOS' \
+  -only-testing:QDI_Gemstone_ERP_v2UITests \
+  -resultBundlePath TestResults.xcresult \
+  test
+```
+
+- [ ] All 59 UI tests pass (15 shell + 17 screen + 27 workflow)
+- [ ] No flaky tests (re-run once if a single test fails to confirm)
+- [ ] Test duration under 5 minutes total
+
+### Evidence Review
+
+- [ ] Open `TestResults.xcresult` in Xcode — verify no failure screenshots
+- [ ] If failures exist: screenshots attached and clearly show the failure state
+- [ ] Spot-check 2-3 test logs for correct route title assertions
+
+### Smoke Validation (manual, 2 minutes)
+
+- [ ] Launch app manually — onboarding appears (fresh) or dashboard appears (configured)
+- [ ] Click through 3+ sidebar items — route title updates correctly
+- [ ] Press ⌘1 through ⌘5 — keyboard shortcuts navigate correctly
+- [ ] Open Quick Intake (⌘9) — form renders with Save/Cancel buttons
+
+### Post-Run
+
+- [ ] Archive `TestResults.xcresult` if this is a release verification
+- [ ] Note any new flaky tests in this document's Troubleshooting section
+- [ ] If tests were added: update test count in this checklist (currently 59)
+
+---
+
 ## Future Phases
 
-### Phase 4: Document Window Tests
+### Phase 5: Document Window Tests
 - Memo document opens via sidebar
 - Invoice document opens and renders
 - Unsaved changes guard triggers on navigation
 
-### Phase 5: Settings & Reports
+### Phase 6: Settings & Reports
 - Company settings form
 - Report generation
 - Cloud backup settings
@@ -252,8 +345,10 @@ File: `Tests/QDI_Gemstone_ERP_v2UITests/WorkflowSmokeTests.swift`
 2. Add test methods to `ShellSmokeTests.swift`, `ScreenSmokeTests.swift`, `WorkflowSmokeTests.swift`, or create a new test class
 3. Use `app.launchArguments` to set any required defaults
 4. Use `waitForExistence(timeout:)` and `XCTNSPredicateExpectation` for async UI
-5. Run `xcodegen generate` if you added new test files
-6. Build and test: `xcodebuild ... test`
+5. In new test classes, add `captureScreenshotOnFailure(app: app)` in `tearDownWithError()` (from `ScreenshotCapture.swift`)
+6. Use `captureScreenshot(name:)` for explicit evidence at key checkpoints
+7. Run `xcodegen generate` if you added new test files
+8. Build and test: `xcodebuild ... -resultBundlePath TestResults.xcresult test`
 
 ## Troubleshooting
 

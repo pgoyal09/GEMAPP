@@ -103,6 +103,7 @@ struct SidebarView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("sidebar_settings")
         .accessibilityLabel("Settings")
         .overlay(alignment: .top) {
             Divider().background(AppColors.cardElevated)

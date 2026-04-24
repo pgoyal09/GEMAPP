@@ -186,12 +186,14 @@ struct QuickIntakeView: View {
                 .buttonStyle(.outline)
                 .disabled(isSaving)
                 .keyboardShortcut(.escape, modifiers: [])
+                .accessibilityIdentifier("button_cancel_intake")
 
             Button("Save & New") {
                 save(continueAdding: true)
             }
             .buttonStyle(.outline(AppColors.primary))
             .disabled(!canSave || isSaving)
+            .accessibilityIdentifier("button_save_new_intake")
 
             Button("Save") {
                 save(continueAdding: false)
@@ -199,6 +201,7 @@ struct QuickIntakeView: View {
             .buttonStyle(.gradient)
             .disabled(!canSave || isSaving)
             .keyboardShortcut("s", modifiers: .command)
+            .accessibilityIdentifier("button_save_intake")
         }
         .padding(AppSpacing.section)
         .background(AppColors.panelBackground)

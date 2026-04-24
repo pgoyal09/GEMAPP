@@ -22,6 +22,7 @@ final class ScreenSmokeTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
+        captureScreenshotOnFailure(app: app)
         app = nil
     }
 
