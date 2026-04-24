@@ -296,3 +296,29 @@ Supabase sync uses last-write-wins with business-key upserts (SKU, email, refere
 ### Entitlements
 - Hardened runtime
 - App sandbox with serial port, network client/server, user-selected file read/write
+
+---
+
+## 10. Documentation Map
+
+| Document | Purpose |
+|---|---|
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | This file — canonical technical overview of the actual system |
+| [`CLAUDE.md`](CLAUDE.md) | Coding-agent guidance: build commands, key patterns, common pitfalls |
+| [`SERVICES-OVERVIEW.md`](SERVICES-OVERVIEW.md) | Full service taxonomy with per-service details, patterns, and naming conventions |
+| [`SYNC-MODEL.md`](SYNC-MODEL.md) | Supabase sync specification: identity rules, conflict model, known risks |
+| [`REPORTING-MODEL.md`](REPORTING-MODEL.md) | Report formulas, status filters, COGS assumptions, proxy vs exact classification |
+
+---
+
+## 11. Hardening Roadmap
+
+The codebase underwent a structured hardening initiative (phase 2) that produced this documentation layer. The remaining hardening targets, in priority order:
+
+1. **Inventory module rationalization** — consolidate duplicated filter/sort/search state across diamond/gem/lot/sold views into shared abstractions
+2. **View / ViewModel boundary tightening** — push heavy view-local logic into ViewModels for the most state-heavy screens
+3. **Sync guardrails** — runtime identity assertions, duplicate detection, sync audit logging (see SYNC-MODEL.md §9)
+4. **Reporting UI labels** — surface proxy vs exact classification in report exports where metrics are approximation-based
+5. **Performance cleanup** — move expensive computed filtering out of render paths in inventory tables
+
+These are consolidation tasks, not rewrites. The goal is to reduce architectural unevenness while preserving the strong foundations in bootstrap safety, backup/restore, RFID subsystem, and desktop workflow ergonomics.

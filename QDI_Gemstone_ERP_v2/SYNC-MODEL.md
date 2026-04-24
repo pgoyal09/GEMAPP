@@ -264,3 +264,12 @@ These are documented for planning purposes. No code changes are implied.
 5. **Pull coverage for all 9 entities** — extend pull to LineItems, Payments, LotTransactions, HistoryEvents, RFIDTags
 6. **Incremental push** — dirty-flag tracking to avoid re-uploading unchanged records
 7. **Soft delete propagation** — tombstone mechanism for remote cleanup
+
+---
+
+## Cross-References
+
+- **Architecture overview:** [`ARCHITECTURE.md`](ARCHITECTURE.md) § Sync / backup workflows
+- **Service taxonomy:** [`SERVICES-OVERVIEW.md`](SERVICES-OVERVIEW.md) § Cloud / Sync
+- **Reporting model:** [`REPORTING-MODEL.md`](REPORTING-MODEL.md)
+- **Coding agent guidance:** [`CLAUDE.md`](CLAUDE.md)

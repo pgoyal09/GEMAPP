@@ -401,3 +401,12 @@ CSV export uses `NSSavePanel` for file location. PDF export uses `PDFService.ren
 7. **Aging reference date fallback.** AR aging uses `dueDate ?? invoiceDate`. Invoices without a due date age from their creation, which may not reflect actual payment terms.
 
 8. **Dashboard inventory value uses sell price.** The dashboard's "Total Inventory Value" is a retail/market estimate, not a cost-basis valuation. This differs from the Inventory Turnover report's `currentValue`, which uses `costPrice`.
+
+---
+
+## Cross-References
+
+- **Architecture overview:** [`ARCHITECTURE.md`](ARCHITECTURE.md) § Reporting workflows
+- **Service taxonomy:** [`SERVICES-OVERVIEW.md`](SERVICES-OVERVIEW.md) § Reporting / Export
+- **Sync model:** [`SYNC-MODEL.md`](SYNC-MODEL.md)
+- **Coding agent guidance:** [`CLAUDE.md`](CLAUDE.md)
