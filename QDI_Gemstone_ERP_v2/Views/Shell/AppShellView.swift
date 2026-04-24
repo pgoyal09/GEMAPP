@@ -30,6 +30,7 @@ struct AppShellView: View {
     // Persistent scanner/reconcile VMs so session state survives route changes.
     @State private var scannerVM: ScannerViewModel?
     @State private var reconcileVM: ReconcileViewModel?
+    @State private var notificationVM: ShellNotificationViewModel?
 
     private var routeBinding: Binding<NavigationItem> {
         Binding(
@@ -129,7 +130,15 @@ struct AppShellView: View {
             }
             .frame(width: 0, height: 0).opacity(0)
         }
-        .onAppear { createSharedVMs() }
+        .onAppear {
+            if notificationVM == nil {
+                notificationVM = ShellNotificationViewModel(modelContext: modelContext)
+            }
+            createSharedVMs()
+        }
+        .onChange(of: showNotifications) { _, isShowing in
+            if isShowing { notificationVM?.refresh() }
+        }
         .onChange(of: rfidCoordinator != nil) { _, isNonNil in
             if isNonNil { createSharedVMs() }
         }
@@ -246,10 +255,7 @@ struct AppShellView: View {
     }
 
     private var overdueMemos: [Memo] {
-        // Fetch only what's needed — sort by createdAt ascending (oldest first) for age ordering
-        let descriptor = FetchDescriptor<Memo>(sortBy: [SortDescriptor(\Memo.createdAt, order: .forward)])
-        let all = (try? modelContext.fetch(descriptor)) ?? []
-        return all.filter { $0.status == .onMemo && $0.ageInDays > 60 }
+        notificationVM?.overdueMemos ?? []
     }
 
     // MARK: - Content Router

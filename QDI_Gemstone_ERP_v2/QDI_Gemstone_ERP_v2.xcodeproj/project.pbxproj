@@ -13,6 +13,7 @@
 		046BD734F3EFBCFEDF38AF56 /* SoldInventoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6A64976B35617FA1A3757B4 /* SoldInventoryView.swift */; };
 		0783064FE173417C1A831647 /* MemoServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5089E3F2C3AB6C220F642BB /* MemoServiceProtocol.swift */; };
 		07B845F1AA0F5EE6AF6CF6D0 /* String+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FA9BB5D29646A37FED67D4 /* String+Helpers.swift */; };
+		09299F80473E105F57307F15 /* ShellNotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BE8EFF1907A12BC797D748C /* ShellNotificationViewModel.swift */; };
 		0A9A8B7657619F2BB1632938 /* BulkEditSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93565BA01F92A9C0A0AF4954 /* BulkEditSheet.swift */; };
 		0D038DD70180CBF05E381126 /* MemoServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FE22F25EEAAF9F9C37EB33C /* MemoServiceTests.swift */; };
 		0D03B2B204E8B94FD9BE5B47 /* AccountingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B08E7202314CCAB62D6B4B /* AccountingViewModel.swift */; };
@@ -242,6 +243,7 @@
 		1742F82944BFE30CC0E8DEB4 /* SupabaseSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseSyncService.swift; sourceTree = "<group>"; };
 		1B347B683BC41A381BAA1F00 /* BatchPDFExporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchPDFExporter.swift; sourceTree = "<group>"; };
 		1BB4A70485C8693503BFC503 /* RFIDService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RFIDService.swift; sourceTree = "<group>"; };
+		1BE8EFF1907A12BC797D748C /* ShellNotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellNotificationViewModel.swift; sourceTree = "<group>"; };
 		1C64C9459C79A0894AC0F0F0 /* StoneDescriptionBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneDescriptionBuilder.swift; sourceTree = "<group>"; };
 		1DCDE31D32F68887B83C97E2 /* StoneFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneFormView.swift; sourceTree = "<group>"; };
 		1F3818E4471F1235B71AE81E /* RapNetSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RapNetSettingsView.swift; sourceTree = "<group>"; };
@@ -713,6 +715,7 @@
 				8AD0042F0425A31D03D81B15 /* ReconcileViewModel.swift */,
 				6538A7C8468B6A5E43E91FE9 /* RFIDCoordinator.swift */,
 				9B301F1FBF670487313AA823 /* ScannerViewModel.swift */,
+				1BE8EFF1907A12BC797D748C /* ShellNotificationViewModel.swift */,
 				D2AF4D46115756F206DD89A7 /* StoneFormViewModel.swift */,
 				F904E2E169D04A5E12A9BA24 /* TransactionEditorViewModel.swift */,
 			);
@@ -1198,6 +1201,7 @@
 				11FE247A849C307366FBD722 /* ScannerViewModel.swift in Sources */,
 				ADE644F1B38D59234715CA9B /* SectionHeader.swift in Sources */,
 				5314BCD3CD1F70801DB53110 /* ShareService.swift in Sources */,
+				09299F80473E105F57307F15 /* ShellNotificationViewModel.swift in Sources */,
 				3343E4D7FA6F7E7D98EDB8B3 /* ShimmerView.swift in Sources */,
 				1CD0AE33C4EAFD6907195D3F /* SidebarView.swift in Sources */,
 				CF1D1529FF3FB92A6F38550E /* SoldFilterBar.swift in Sources */,
