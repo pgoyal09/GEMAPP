@@ -218,6 +218,7 @@ Available → On Memo → Sold
 - **Profitability:** Per-customer aggregation from invoice/payment data
 - **Margin analysis:** Line-item level margin from cost vs sale price
 - **Export:** ReportExportService generates CSV/PDF from report data
+- See [`REPORTING-MODEL.md`](REPORTING-MODEL.md) for the full reporting model specification including formulas, status filters, COGS assumptions, proxy vs exact classification, and known limitations.
 
 ### Sync / backup workflows
 - **Local backup:** BackupService copies store + WAL/SHM sidecars; CSV bundle export
@@ -268,7 +269,7 @@ Transaction/document screens are more ViewModel-centric. Inventory and some shel
 The app's actual scope (cloud sync, auth, RapNet, API server, scheduled backups) has outgrown the original "local persistence, no server" framing. New contributors may underestimate operational complexity.
 
 ### Reporting assumptions
-Some report metrics use proxies (e.g., current inventory as turnover denominator) rather than historical ledger snapshots. These business assumptions are embedded in `ReportEngine` logic without explicit documentation.
+Some report metrics use proxies (e.g., current inventory as turnover denominator) rather than historical ledger snapshots. These business assumptions are now documented in [`REPORTING-MODEL.md`](REPORTING-MODEL.md), including the proxy vs exact classification for every metric.
 
 ### Sync conflict model
 Supabase sync uses last-write-wins with business-key upserts (SKU, email, reference numbers). Identity and conflict rules are now documented in [`SYNC-MODEL.md`](SYNC-MODEL.md). Key risks include push-only entities (5 of 9 have no pull), relationship orphaning after pull, and no conflict detection or audit logging.
