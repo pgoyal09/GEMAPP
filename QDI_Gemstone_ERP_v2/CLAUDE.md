@@ -1,10 +1,10 @@
 # QDI Gemstone ERP v2
 
-Native macOS gemstone inventory and transaction management app for Quality Diajewels Inc.
+Native macOS desktop ERP for Quality Diajewels Inc. — gemstone inventory, transactions, RFID, reporting, backup, and Supabase cloud sync. See `ARCHITECTURE.md` for the full technical overview.
 
 ## Tech Stack
 
-- **SwiftUI** + **SwiftData** (local persistence, no server)
+- **SwiftUI** + **SwiftData** (local-first persistence; Supabase sync/auth optional)
 - **Swift 6** with `SWIFT_STRICT_CONCURRENCY: complete`
 - **macOS 14.0+** deployment target
 - **XcodeGen** (`project.yml` → `.xcodeproj`). Run `xcodegen generate` after changing project structure.
@@ -28,7 +28,7 @@ No tests exist yet. No linter configured.
 **MVVM + Service Layer**: View → ViewModel → Service → Model
 
 - **ViewModels** (`@Observable`, `@MainActor`): Own UI state (search text, selections, form fields). Never touch `ModelContext` directly for business logic — delegate to services.
-- **Services** (stateless `enum` with `static` methods): TransactionService, MemoService, InvoiceService, LotService, SKUGenerator, HistoryLogger. Accept `ModelContext` as parameter. No retained state, no Sendable issues.
+- **Services**: Business domain services are stateless `enum` types with `static` methods (TransactionService, MemoService, InvoiceService, LotService, SKUGenerator, etc.) that accept `ModelContext`. Infrastructure/cloud services (PDFService, SupabaseSyncService, CloudBackupService, RFIDManager) are observable classes. See `ARCHITECTURE.md` § Service taxonomy for full classification.
 - **Models** (`@Model`): SwiftData entities. All enums are `String`-backed `Codable` for human-readable storage.
 - **DesignSystem**: Shared components (GlassCard, FilterPill, StatusBadge, etc.), button styles, view modifiers, and theme constants. All views use these — never inline raw colors/fonts.
 
@@ -36,15 +36,19 @@ No tests exist yet. No linter configured.
 
 ```
 App/              → @main entry point, AppConstants, WindowGroup definitions
-Models/           → SwiftData @Model classes
+API/              → Embedded local API server
+Models/           → SwiftData @Model classes (12 entity types)
 Models/Enums/     → String-backed Codable enums (StoneType, GemstoneStatus, etc.)
-Services/         → Stateless business logic (enum + static methods)
+Services/         → Business logic (enum + static), cloud/sync, backup, PDF, reporting
 Services/RFID/    → RFIDManager (hardware driver), RFIDScanService, RFIDService protocol
+Services/Supabase/→ SupabaseManager, SyncService, AuthService, SyncDTO/Tracker
+Services/RapNet/  → RapNet API and sync integration
 Utilities/        → NavigationGuard, DocumentDirtyTracker, CurrencyFormatter, extensions
 DesignSystem/     → Theme (AppColors, AppTypography, AppSpacing), Components, ButtonStyles, Modifiers, TableKit
 ViewModels/       → @Observable view models, RFIDCoordinator
-Views/            → SwiftUI views organized by feature (Shell, Dashboard, Inventory, Transactions, Customers, Scanner, Accounting, Forms)
+Views/            → SwiftUI views organized by feature (Shell, Dashboard, Inventory, Transactions, Customers, Scanner, Accounting, Forms, Reports, Settings, Auth)
 Resources/        → Assets.xcassets, entitlements
+Tests/            → Test target (minimal)
 ```
 
 ## Key Patterns
@@ -53,7 +57,7 @@ Resources/        → Assets.xcassets, entitlements
 - All enum fields use `String` raw values (e.g., `StoneGrouping: String, Codable`)
 - `#Predicate` macros cannot use enum member access — compare against raw value strings: `$0.grouping == "L"` not `$0.grouping == .lot`
 - Relationships use `@Relationship(deleteRule: .cascade)` where parent owns children (Memo→LineItems, Invoice→LineItems)
-- 8 model types registered in ModelContainer: Gemstone, Customer, Memo, Invoice, LineItem, RFIDTag, LotTransaction, HistoryEvent
+- 12 model types in the container: Gemstone, Customer, Memo, Invoice, LineItem, RFIDTag, LotTransaction, HistoryEvent, Payment, PaymentReminder, BackupManifest, ReconciliationRecord
 
 ### Concurrency (Swift 6 Strict)
 - ViewModels and services are `@MainActor`
