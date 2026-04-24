@@ -30,7 +30,12 @@ struct GemstonesInventoryView: View {
 
     @Query private var allStones: [Gemstone]
 
-    @State private var searchText = ""
+    // MARK: - Shared Filter/Sort/Search State
+
+    @State private var filterState = InventoryFilterState()
+
+    // MARK: - Selection & UI State
+
     @State private var selectedStoneID: PersistentIdentifier?
     @State private var selectedStones: Set<PersistentIdentifier> = []
     @State private var showEditSheet = false
@@ -43,43 +48,11 @@ struct GemstonesInventoryView: View {
     @State private var csvImportRows: [CSVImportService.ImportRow] = []
     @State private var csvImportError: String?
 
-    // MARK: - Filter Toggle (removed — filters always visible)
-
-    // MARK: - Search Focus
-
-    @State private var searchFieldFocusRequest = false
-
     // MARK: - Bulk Edit
 
     @State private var bulkEditMode: BulkEditSheet.Mode?
     @State private var bulkUndoValues: [(PersistentIdentifier, GemstoneStatus?, Decimal?, Decimal?)] = []
     @State private var showBulkUndo = false
-
-    // MARK: - Sort State
-
-    @State private var sortKey: String = "sku"
-    @State private var sortAscending: Bool = true
-
-    // MARK: - Filter State
-
-    @State private var statusFilter: GemstoneStatus?
-    @State private var shapeFilter: String?
-    @State private var groupingFilter: StoneGrouping?
-    @State private var stoneTypeFilter: StoneType?
-    @State private var colorFilter: String?
-    @State private var clarityFilter: String?
-    @State private var originFilter: String?
-    @State private var treatmentFilter: String?
-    @State private var cutFilter: String?
-    @State private var labFilter: String?
-    @State private var caratMin: Double?
-    @State private var caratMax: Double?
-    @State private var caratMinText: String = ""
-    @State private var caratMaxText: String = ""
-    @State private var priceMin: Decimal?
-    @State private var priceMax: Decimal?
-    @State private var priceMinText: String = ""
-    @State private var priceMaxText: String = ""
 
     // MARK: - Filter Presets
 
@@ -104,89 +77,7 @@ struct GemstonesInventoryView: View {
     }
 
     private var filteredStones: [Gemstone] {
-        var result = gemstones
-        // Status
-        if let s = statusFilter { result = result.filter { $0.status == s } }
-        // Shape
-        if let s = shapeFilter, !s.isEmpty {
-            if s == "Other" {
-                let top = ["round","cushion","oval","pear","emerald","princess","marquise"]
-                result = result.filter { !top.contains($0.shape.lowercased()) }
-            } else {
-                result = result.filter { $0.shape.lowercased().contains(s.lowercased()) }
-            }
-        }
-        // Grouping
-        if let g = groupingFilter { result = result.filter { $0.grouping == g } }
-        // Stone Type
-        if let t = stoneTypeFilter { result = result.filter { $0.stoneType == t } }
-        // Color
-        if let c = colorFilter, !c.isEmpty {
-            let cl = c.lowercased()
-            result = result.filter { $0.color.lowercased().contains(cl) || ($0.primaryColorVendor?.lowercased().contains(cl) == true) }
-        }
-        // Clarity
-        if let c = clarityFilter, !c.isEmpty {
-            result = result.filter { $0.clarity.lowercased().contains(c.lowercased()) }
-        }
-        // Origin
-        if let o = originFilter, !o.isEmpty {
-            result = result.filter { $0.origin.lowercased().contains(o.lowercased()) }
-        }
-        // Treatment
-        if let t = treatmentFilter, !t.isEmpty {
-            let tl = t.lowercased()
-            if tl == "none" {
-                result = result.filter { $0.treatment.isEmpty || $0.treatment.lowercased() == "none" }
-            } else {
-                result = result.filter { $0.treatment.lowercased().contains(tl) }
-            }
-        }
-        // Lab
-        if let l = labFilter, !l.isEmpty {
-            if l == "None" { result = result.filter { $0.certLab.isEmpty } }
-            else { result = result.filter { $0.certLab.uppercased() == l.uppercased() } }
-        }
-        // Carat range
-        if let min = caratMin { result = result.filter { $0.caratWeight >= min } }
-        if let max = caratMax { result = result.filter { $0.caratWeight <= max } }
-        // Price range
-        if let min = priceMin { result = result.filter { $0.sellPrice >= min } }
-        if let max = priceMax { result = result.filter { $0.sellPrice <= max } }
-        // Search
-        let q = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        if !q.isEmpty {
-            result = result.filter {
-                $0.sku.lowercased().contains(q) ||
-                $0.stoneType.rawValue.lowercased().contains(q) ||
-                $0.color.lowercased().contains(q) ||
-                $0.origin.lowercased().contains(q) ||
-                $0.certNo.lowercased().contains(q)
-            }
-        }
-        return sortedStones(result)
-    }
-
-    private func sortedStones(_ stones: [Gemstone]) -> [Gemstone] {
-        stones.sorted { a, b in
-            let asc: Bool
-            switch sortKey {
-            case "type": asc = a.stoneType.rawValue.localizedCompare(b.stoneType.rawValue) == .orderedAscending
-            case "carat": asc = a.caratWeight < b.caratWeight
-            case "color": asc = a.color.localizedCompare(b.color) == .orderedAscending
-            case "origin": asc = a.origin.localizedCompare(b.origin) == .orderedAscending
-            case "price": asc = a.sellPrice < b.sellPrice
-            case "cost": asc = a.costPrice < b.costPrice
-            case "status": asc = a.status.rawValue.localizedCompare(b.status.rawValue) == .orderedAscending
-            default: asc = a.sku.localizedCompare(b.sku) == .orderedAscending
-            }
-            return sortAscending ? asc : !asc
-        }
-    }
-
-    private func toggleSort(_ key: String) {
-        if sortKey == key { sortAscending.toggle() }
-        else { sortKey = key; sortAscending = true }
+        GemstoneFilterEngine.apply(filterState, to: gemstones)
     }
 
     private var selectedStone: Gemstone? {
@@ -241,7 +132,7 @@ struct GemstonesInventoryView: View {
         }
         .accessibilityIdentifier("GemstonesInventoryView")
         .background {
-            Button("") { searchFieldFocusRequest = true }
+            Button("") { filterState.searchFieldFocusRequest = true }
                 .keyboardShortcut("f", modifiers: .command)
                 .hidden()
         }
@@ -313,7 +204,7 @@ struct GemstonesInventoryView: View {
             }
             .buttonStyle(.outline)
             .controlSize(.small)
-            .disabled(!hasActiveFilters)
+            .disabled(!filterState.hasActiveFilters)
             Button("Quick Intake", systemImage: "plus.circle.fill") {
                 navigateTo = .quickIntake
             }
@@ -344,36 +235,12 @@ struct GemstonesInventoryView: View {
         }
     }
 
-    private var hasActiveFilters: Bool {
-        statusFilter != nil || shapeFilter != nil || groupingFilter != nil ||
-        stoneTypeFilter != nil || colorFilter != nil || clarityFilter != nil ||
-        originFilter != nil || treatmentFilter != nil || labFilter != nil ||
-        caratMin != nil || caratMax != nil || priceMin != nil || priceMax != nil ||
-        !searchText.isEmpty
-    }
-
-    private var activeFilterCount: Int {
-        var count = 0
-        if statusFilter != nil { count += 1 }
-        if shapeFilter != nil { count += 1 }
-        if groupingFilter != nil { count += 1 }
-        if stoneTypeFilter != nil { count += 1 }
-        if colorFilter != nil { count += 1 }
-        if clarityFilter != nil { count += 1 }
-        if originFilter != nil { count += 1 }
-        if treatmentFilter != nil { count += 1 }
-        if labFilter != nil { count += 1 }
-        if caratMin != nil || caratMax != nil { count += 1 }
-        if priceMin != nil || priceMax != nil { count += 1 }
-        return count
-    }
-
     @ViewBuilder
     private var filterPresetMenu: some View {
         if !filterPresets.isEmpty {
             Menu {
                 ForEach(filterPresets) { preset in
-                    Button(preset.name) { loadGemstonePreset(preset) }
+                    Button(preset.name) { filterState.applyPreset(preset) }
                 }
                 Divider()
                 Menu("Delete") {
@@ -392,30 +259,11 @@ struct GemstonesInventoryView: View {
     private func saveGemstonePreset() {
         let name = newPresetName.trimmingCharacters(in: .whitespaces)
         guard !name.isEmpty else { return }
-        let preset = FilterPreset(
-            name: name,
-            colorFilter: colorFilter,
-            stoneTypeFilter: stoneTypeFilter?.rawValue,
-            originFilter: originFilter,
-            treatmentFilter: treatmentFilter,
-            caratMin: caratMin,
-            caratMax: caratMax
-        )
+        let preset = filterState.toPreset(name: name)
         filterPresets.append(preset)
         FilterPresetStore.saveGemstonePresets(filterPresets)
         toastIsError = false
         withAnimation(reduceMotion ? nil : .default) { toastMessage = "Preset '\(name)' saved" }
-    }
-
-    private func loadGemstonePreset(_ preset: FilterPreset) {
-        stoneTypeFilter = preset.stoneTypeFilter.flatMap { StoneType(rawValue: $0) }
-        colorFilter = preset.colorFilter
-        originFilter = preset.originFilter
-        treatmentFilter = preset.treatmentFilter
-        caratMin = preset.caratMin
-        caratMax = preset.caratMax
-        caratMinText = preset.caratMin.map { String(format: "%.2f", $0) } ?? ""
-        caratMaxText = preset.caratMax.map { String(format: "%.2f", $0) } ?? ""
     }
 
     private func deleteGemstonePreset(_ preset: FilterPreset) {
@@ -428,39 +276,28 @@ struct GemstonesInventoryView: View {
     private var filterBar: some View {
         InventoryFilterBarV2(
             config: .gemstones,
-            statusFilter: $statusFilter,
-            shapeFilter: $shapeFilter,
-            groupingFilter: $groupingFilter,
-            colorFilter: $colorFilter,
-            clarityFilter: $clarityFilter,
-            cutFilter: $cutFilter,
-            originFilter: $originFilter,
-            treatmentFilter: $treatmentFilter,
-            stoneTypeFilter: $stoneTypeFilter,
-            caratMinText: $caratMinText,
-            caratMaxText: $caratMaxText,
-            priceMinText: $priceMinText,
-            priceMaxText: $priceMaxText,
-            labFilter: $labFilter,
-            searchText: $searchText,
-            searchFieldFocusRequest: $searchFieldFocusRequest,
-            onClearAll: clearAllFilters
+            statusFilter: Binding(get: { filterState.statusFilter }, set: { filterState.statusFilter = $0 }),
+            shapeFilter: Binding(get: { filterState.shapeFilter }, set: { filterState.shapeFilter = $0 }),
+            groupingFilter: Binding(get: { filterState.groupingFilter }, set: { filterState.groupingFilter = $0 }),
+            colorFilter: Binding(get: { filterState.colorFilter }, set: { filterState.colorFilter = $0 }),
+            clarityFilter: Binding(get: { filterState.clarityFilter }, set: { filterState.clarityFilter = $0 }),
+            cutFilter: Binding(get: { filterState.cutFilter }, set: { filterState.cutFilter = $0 }),
+            originFilter: Binding(get: { filterState.originFilter }, set: { filterState.originFilter = $0 }),
+            treatmentFilter: Binding(get: { filterState.treatmentFilter }, set: { filterState.treatmentFilter = $0 }),
+            stoneTypeFilter: Binding(get: { filterState.stoneTypeFilter }, set: { filterState.stoneTypeFilter = $0 }),
+            caratMinText: Binding(get: { filterState.caratMinText }, set: { filterState.caratMinText = $0 }),
+            caratMaxText: Binding(get: { filterState.caratMaxText }, set: { filterState.caratMaxText = $0 }),
+            priceMinText: Binding(get: { filterState.priceMinText }, set: { filterState.priceMinText = $0 }),
+            priceMaxText: Binding(get: { filterState.priceMaxText }, set: { filterState.priceMaxText = $0 }),
+            labFilter: Binding(get: { filterState.labFilter }, set: { filterState.labFilter = $0 }),
+            searchText: Binding(get: { filterState.searchText }, set: { filterState.searchText = $0 }),
+            searchFieldFocusRequest: Binding(get: { filterState.searchFieldFocusRequest }, set: { filterState.searchFieldFocusRequest = $0 }),
+            onClearAll: { filterState.clearAll() }
         )
-        .onChange(of: caratMinText) { _, val in caratMin = Double(val) }
-        .onChange(of: caratMaxText) { _, val in caratMax = Double(val) }
-        .onChange(of: priceMinText) { _, val in priceMin = Decimal(string: val) }
-        .onChange(of: priceMaxText) { _, val in priceMax = Decimal(string: val) }
-    }
-
-    private func clearAllFilters() {
-        statusFilter = nil; shapeFilter = nil; groupingFilter = nil
-        stoneTypeFilter = nil; colorFilter = nil; clarityFilter = nil
-        originFilter = nil; treatmentFilter = nil; cutFilter = nil
-        labFilter = nil; caratMin = nil; caratMax = nil
-        priceMin = nil; priceMax = nil
-        caratMinText = ""; caratMaxText = ""
-        priceMinText = ""; priceMaxText = ""
-        searchText = ""
+        .onChange(of: filterState.caratMinText) { _, _ in filterState.syncRangeValues() }
+        .onChange(of: filterState.caratMaxText) { _, _ in filterState.syncRangeValues() }
+        .onChange(of: filterState.priceMinText) { _, _ in filterState.syncRangeValues() }
+        .onChange(of: filterState.priceMaxText) { _, _ in filterState.syncRangeValues() }
     }
 
     // MARK: - Table
@@ -526,7 +363,7 @@ struct GemstonesInventoryView: View {
     }
 
     private func sortableHeader(_ title: String, key: String, width: CGFloat, alignment: Alignment) -> TableHeader {
-        TableHeader(title: title, width: width, alignment: alignment, isSorted: sortKey == key, ascending: sortAscending, onTap: { toggleSort(key) })
+        TableHeader(title: title, width: width, alignment: alignment, isSorted: filterState.sortKey == key, ascending: filterState.sortAscending, onTap: { filterState.toggleSort(key) })
     }
 
     @State private var detailSheetStone: Gemstone?
@@ -544,7 +381,7 @@ struct GemstonesInventoryView: View {
             )) { EmptyView() }
             .toggleStyle(.checkbox).frame(width: 24)
 
-            highlightedText(stone.sku, highlight: searchText).font(AppTypography.mono).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[0], alignment: .leading)
+            highlightedText(stone.sku, highlight: filterState.searchText).font(AppTypography.mono).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[0], alignment: .leading)
             StoneTypeBadge(type: stone.stoneType.rawValue).frame(width: widths[1], alignment: .leading)
             Text(stone.shape).font(AppTypography.body).foregroundStyle(AppColors.ink).lineLimit(1).frame(width: widths[2], alignment: .leading)
             Text(String(format: "%.2f", stone.caratWeight)).font(AppTypography.mono).foregroundStyle(AppColors.ink).frame(width: widths[3], alignment: .trailing)

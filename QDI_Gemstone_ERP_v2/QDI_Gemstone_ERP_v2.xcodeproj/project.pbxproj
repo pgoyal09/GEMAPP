@@ -186,15 +186,16 @@
 		D2DE6918D7C5FCE9055649C7 /* ReportEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C5221D976D0DADF9D9857C4 /* ReportEngine.swift */; };
 		D47EBBD8500619EF4147879A /* MemoStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 173E223EE059F1CF750C3941 /* MemoStatus.swift */; };
 		D69CD97799A4F34C5F3C2039 /* TableColumnLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E7F64A6C41CE291E27AB08 /* TableColumnLayout.swift */; };
+		DA271B0B03BFA3BDD195BB7A /* InventoryFilterBarV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFB3D6939AE035C692889D7F /* InventoryFilterBarV2.swift */; };
 		DB204AB5F19F7F8F7D055CE0 /* MemoListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53978275BA1221231FE9B922 /* MemoListViewModel.swift */; };
 		E0ADB3F0BDDB5B5F9A549701 /* BackupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A597AF32983A1D01C6D562 /* BackupService.swift */; };
 		E2F00AFDAA6FD58267E75D7E /* GlassTableModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22407FE0A483A38E0B420584 /* GlassTableModifier.swift */; };
 		E56A8D662F2E1D90E871A970 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4ECE3F56706FBA13A89DF47 /* AppConstants.swift */; };
 		E58E1463E55DEDB6E3BC478E /* RapNetSyncStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DEA801B9732A7292B7D6021 /* RapNetSyncStatus.swift */; };
 		E87D650B61167FA6D12F2169 /* InventoryFilterBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A9B8686EE1663B720013FC /* InventoryFilterBar.swift */; };
-		B2C3D4E5F6789012345678A1 /* InventoryFilterBarV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6789012345678 /* InventoryFilterBarV2.swift */; };
 		E9EA1A74670EFB1C0D87AF61 /* RFIDScanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FFA42D7ADC3BDCCB4B372B4 /* RFIDScanService.swift */; };
 		EB9A2DCD8E6BCCAC13026227 /* NavigationGuard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 037857AF7FF32943A3CBC483 /* NavigationGuard.swift */; };
+		EC525479E02F2CC1D76AF8FA /* InventoryFilterState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 794269E41238E79DE53E1966 /* InventoryFilterState.swift */; };
 		EE499D3205E9CC1CC527E85F /* SupabaseAuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 393E603507B63806900CD0D5 /* SupabaseAuthService.swift */; };
 		EF46D831F266FE28456B1321 /* OpenDocumentTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79217F3C1B4108F8DF7DF5DC /* OpenDocumentTracker.swift */; };
 		EFAEB611DA429B8C9688AEB4 /* PaymentListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEECFCA896C5C2177322AE1A /* PaymentListView.swift */; };
@@ -205,6 +206,7 @@
 		F91A9927D6C94C662EACDE6F /* HistoryEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 149AAED5205BD92D1632662A /* HistoryEvent.swift */; };
 		F936F24EF660226730503D41 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 543D37A0F441617A309A7682 /* OnboardingView.swift */; };
 		FA8502A655774E79FC240E64 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B0F11EF531CE6C3EF6C5CC /* AppColors.swift */; };
+		FEB46406C45E4B370F25AC71 /* GemstoneFilterEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = E785C58606C8CE910B8B1212 /* GemstoneFilterEngine.swift */; };
 		FF2A553EE82E73075D6FB33A /* CurrencyFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B86ED4CBE9430761895C822 /* CurrencyFormatter.swift */; };
 /* End PBXBuildFile section */
 
@@ -313,6 +315,7 @@
 		75E8694EA6DA5A3AF102B5B6 /* CustomerListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerListView.swift; sourceTree = "<group>"; };
 		78DFE5A014C55EA551D7D16D /* EPCanonical.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EPCanonical.swift; sourceTree = "<group>"; };
 		79217F3C1B4108F8DF7DF5DC /* OpenDocumentTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenDocumentTracker.swift; sourceTree = "<group>"; };
+		794269E41238E79DE53E1966 /* InventoryFilterState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryFilterState.swift; sourceTree = "<group>"; };
 		7A3598D6F4D1B55E26035865 /* RapNetFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RapNetFieldsView.swift; sourceTree = "<group>"; };
 		7CF324231D372B593459E1DE /* InventoryTurnoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryTurnoverView.swift; sourceTree = "<group>"; };
 		7DAC44C95038D141D0930061 /* InvoiceWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceWindowView.swift; sourceTree = "<group>"; };
@@ -362,6 +365,7 @@
 		BA586950C6BEDF816ADF42D7 /* Date+Relative.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Relative.swift"; sourceTree = "<group>"; };
 		BAB45A470C117BD693FBF56B /* InvoiceRoutes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceRoutes.swift; sourceTree = "<group>"; };
 		BDE35F981621516A77D9D920 /* LabelPrintServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelPrintServiceProtocol.swift; sourceTree = "<group>"; };
+		BFB3D6939AE035C692889D7F /* InventoryFilterBarV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryFilterBarV2.swift; sourceTree = "<group>"; };
 		C0D3AC4AEFD6246352AEA546 /* CustomerFormSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerFormSheet.swift; sourceTree = "<group>"; };
 		C3DCED9AB17D0D229DE8F7A1 /* StoneGrouping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneGrouping.swift; sourceTree = "<group>"; };
 		C3E2B54397410243BBF48929 /* LotTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LotTransaction.swift; sourceTree = "<group>"; };
@@ -390,8 +394,8 @@
 		E4B93A305750694D17BD25DC /* QDI_Gemstone_ERP_v2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QDI_Gemstone_ERP_v2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5FBD15DCE21EE1BD176D04F /* AccountingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountingView.swift; sourceTree = "<group>"; };
 		E6A9B8686EE1663B720013FC /* InventoryFilterBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryFilterBar.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6789012345678 /* InventoryFilterBarV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InventoryFilterBarV2.swift; sourceTree = "<group>"; };
 		E77251A0991E8AD031C0ED28 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
+		E785C58606C8CE910B8B1212 /* GemstoneFilterEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GemstoneFilterEngine.swift; sourceTree = "<group>"; };
 		EA6B133B323D833E799468EA /* StoneType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoneType.swift; sourceTree = "<group>"; };
 		EDF43F66FC7402DC31864900 /* QuickActionsGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActionsGrid.swift; sourceTree = "<group>"; };
 		EE4D5B81A86BF30BB29D8C19 /* SyncTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTracker.swift; sourceTree = "<group>"; };
@@ -623,6 +627,7 @@
 				03F08287E3E3DC5168BD5E7D /* CloudBackupService.swift */,
 				38BCD93D7AB62CF23C687BB7 /* CSVImportService.swift */,
 				90E295BFAC2A9465729BDF0A /* DemoDataService.swift */,
+				E785C58606C8CE910B8B1212 /* GemstoneFilterEngine.swift */,
 				C49C3A6EB31A3ED5CE67C133 /* GettingStartedService.swift */,
 				32D6DC60F80D7FC541834613 /* HistoryLogger.swift */,
 				0F92992A54A6B3F94585D300 /* InvoiceService.swift */,
@@ -698,6 +703,7 @@
 				F0B08E7202314CCAB62D6B4B /* AccountingViewModel.swift */,
 				9036CD16C22CE2FC676144FB /* CustomerListViewModel.swift */,
 				C611B9AA323E95C9B384F701 /* DashboardViewModel.swift */,
+				794269E41238E79DE53E1966 /* InventoryFilterState.swift */,
 				10E5E8CE863390404948AA94 /* InventoryViewModel.swift */,
 				EFB2959E2E58627DBE83E661 /* InvoiceListViewModel.swift */,
 				626E3D17936BF2108324AF28 /* LotInventoryViewModel.swift */,
@@ -802,7 +808,7 @@
 				814CBBF32C678A903E1B3D9C /* GemstoneDetailPanel.swift */,
 				51E9AFFB3AAD9F806B0F2A13 /* GemstonesInventoryView.swift */,
 				E6A9B8686EE1663B720013FC /* InventoryFilterBar.swift */,
-				A1B2C3D4E5F6789012345678 /* InventoryFilterBarV2.swift */,
+				BFB3D6939AE035C692889D7F /* InventoryFilterBarV2.swift */,
 				0802F6FC50765CEE19C0FB4E /* InventoryListView.swift */,
 				25CDDAACE2FF674CA40DBD20 /* LotInventoryView.swift */,
 				4D8C27FE3D81DB349A0639CD /* QuickEntryView.swift */,
@@ -1083,6 +1089,7 @@
 				3E9B046465E9FED4209E374D /* GemAppSchemaVersions.swift in Sources */,
 				6E9460794A680AD3E74BE51D /* Gemstone.swift in Sources */,
 				C17269AFC38428BC87160C85 /* GemstoneDetailPanel.swift in Sources */,
+				FEB46406C45E4B370F25AC71 /* GemstoneFilterEngine.swift in Sources */,
 				1489D08237C341F76A599448 /* GemstoneStatus.swift in Sources */,
 				11D65FEC67131E2B7B7A86B9 /* GemstonesInventoryView.swift in Sources */,
 				B66EFA817FA29848B15E2BEC /* GettingStartedChecklist.swift in Sources */,
@@ -1101,7 +1108,8 @@
 				5041255737768DE30B3309AD /* HoverRow.swift in Sources */,
 				7975E425CB137B9FE818E3DF /* InputValidator.swift in Sources */,
 				E87D650B61167FA6D12F2169 /* InventoryFilterBar.swift in Sources */,
-				B2C3D4E5F6789012345678A1 /* InventoryFilterBarV2.swift in Sources */,
+				DA271B0B03BFA3BDD195BB7A /* InventoryFilterBarV2.swift in Sources */,
+				EC525479E02F2CC1D76AF8FA /* InventoryFilterState.swift in Sources */,
 				303AE869A631CC57C6648528 /* InventoryListView.swift in Sources */,
 				5A35814DAD47C9CDE9833234 /* InventoryRoutes.swift in Sources */,
 				7EA01D623D3136817EE57733 /* InventorySelectSheet.swift in Sources */,
