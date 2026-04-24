@@ -1,6 +1,10 @@
 import Foundation
 import SwiftData
 
+// MARK: - Accounts Receivable Service
+// Category: Business Domain (see SERVICES-OVERVIEW.md)
+// "AR" = Accounts Receivable, not Augmented Reality.
+
 // MARK: - AR Reporting Assumptions
 //
 // Accounts Receivable reports are computed from stored invoice and payment data.

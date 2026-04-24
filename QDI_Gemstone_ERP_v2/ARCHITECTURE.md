@@ -135,14 +135,16 @@ All enum fields use `String` raw values for human-readable SwiftData storage.
 
 ### Service taxonomy
 
+See [`SERVICES-OVERVIEW.md`](SERVICES-OVERVIEW.md) for the full taxonomy with per-service details, implementation patterns, and naming conventions.
+
 | Category | Services | Pattern |
 |---|---|---|
-| **Business domain** | TransactionService, MemoService, InvoiceService, LotService, ARService, SKUGenerator, HistoryLogger, ReferenceNumberGenerator, StoneDescriptionBuilder | Stateless `enum` with `static` methods; accept `ModelContext` |
-| **Document / export** | PDFService, BatchPDFExporter, ReportEngine, ReportExportService, ShareService, RapNetExportService, CSVImportService | Mix of enum and class; PDFService is `@MainActor` class (WKWebView) |
-| **Hardware** | RFIDManager, RFIDScanService, RFIDReconciliationService, LabelTemplateService, EPCanonical | RFIDManager is `@unchecked Sendable` class with explicit threading model |
+| **Business domain** | TransactionService, MemoService, InvoiceService, LotService, ARService, SKUGenerator, HistoryLogger, ReferenceNumberGenerator, StoneDescriptionBuilder, GemstoneFilterEngine | Stateless `enum` with `static` methods; accept `ModelContext` |
+| **Reporting / export** | ReportEngine, ReportExportService, PDFService, BatchPDFExporter, ShareService, RapNetExportService | Mostly stateless enums; PDFService is `@MainActor` class (WKWebView) |
+| **Hardware / RFID** | RFIDManager, RFIDScanService, RFIDReconciliationService, LabelTemplateService, EPCanonical | RFIDManager is `@unchecked Sendable` class with explicit threading model |
 | **Cloud / sync** | SupabaseManager, SupabaseSyncService, SupabaseAuthService, SyncDTO, SyncTracker | Observable classes; offline-first with last-write-wins sync |
 | **Integration** | RapNetAPIService, RapNetSyncService | API enum + observable sync class |
-| **Infrastructure** | BackupService, BackupScheduler, CloudBackupService, DemoDataService, GettingStartedService | Mix of enum and class; backup includes WAL/SHM sidecar handling |
+| **Infrastructure / runtime** | BackupService, BackupScheduler, CloudBackupService, DemoDataService, GettingStartedService, CSVImportService | Mix of enum and class; backup includes WAL/SHM sidecar handling |
 | **Protocols** | RFIDService, MemoServiceProtocol, InvoiceServiceProtocol, TransactionServiceProtocol, LabelPrintServiceProtocol | Abstract interfaces for testability |
 
 ### ViewModels (`@Observable`, `@MainActor`)
