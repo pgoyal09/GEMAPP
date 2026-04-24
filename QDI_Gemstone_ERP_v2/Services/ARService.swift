@@ -1,6 +1,26 @@
 import Foundation
 import SwiftData
 
+// MARK: - AR Reporting Assumptions
+//
+// Accounts Receivable reports are computed from stored invoice and payment data.
+// All AR values are EXACT from current records — no proxies or approximations.
+//
+// Key assumptions:
+// 1. Unpaid invoices include both `.sent` and `.draft` status with `balanceDue > 0`.
+//    Draft invoices are included by design — they represent potential obligations.
+//    This may overstate actual receivables if drafts are used as internal notes.
+//
+// 2. Aging reference date: `dueDate ?? invoiceDate`. Invoices without a dueDate
+//    age from their creation date, which may overstate how overdue they are.
+//
+// 3. Customer grouping: by `displayName` string, not stable identifier (same
+//    limitation as Customer Profitability report — see ReportEngine.swift).
+//
+// 4. `balanceDue` = `grandTotal - totalPaid` where `totalPaid` excludes voided payments.
+//
+// See also: REPORTING-MODEL.md §2.5 for the canonical reference.
+
 // MARK: - AR Data Models
 
 struct ARAgingBucket: Identifiable {
@@ -32,12 +52,14 @@ struct CustomerBalance: Identifiable {
 enum ARService {
 
     /// Get all unpaid invoices (sent or draft with balance due > 0).
+    /// Note: draft invoices are included — see file-level assumptions §1.
     @MainActor
     static func unpaidInvoices(modelContext: ModelContext) -> [Invoice] {
         // SwiftData #Predicate does not support custom enum types as captured constants.
         // Fetch all invoices and filter in memory instead.
         let descriptor = FetchDescriptor<Invoice>()
         let invoices = (try? modelContext.fetch(descriptor)) ?? []
+        // Includes .draft — may overstate AR if drafts are used as internal notes.
         return invoices.filter { ($0.status == .sent || $0.status == .draft) && $0.balanceDue > 0 }
     }
 
@@ -55,6 +77,7 @@ enum ARService {
         var d90plus: [Invoice] = []
 
         for inv in invoices {
+            // Aging reference: dueDate if set, otherwise invoiceDate (see file-level assumptions §2).
             let refDate = inv.dueDate ?? inv.invoiceDate
             let days = calendar.dateComponents([.day], from: refDate, to: today).day ?? 0
             if days <= 0 {

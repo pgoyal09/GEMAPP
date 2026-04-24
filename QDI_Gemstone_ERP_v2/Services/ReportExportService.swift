@@ -1,27 +1,40 @@
 import Foundation
 import AppKit
 
+// MARK: - Report Export Assumptions
+//
+// Exported reports carry the same assumptions as ReportEngine computations.
+// Key caveats surfaced in exports:
+// - P&L COGS for single stones uses current cost (not cost-at-sale).
+// - Inventory turnover rate uses current inventory as denominator (approximation).
+// - Revenue basis differs between P&L (netAmount) and Customer Profitability (grandTotal).
+// See ReportEngine.swift and REPORTING-MODEL.md for full details.
+
 enum ReportExportService {
 
     // MARK: - CSV Export
 
+    /// P&L CSV export. COGS is mixed: exact for lots, proxy (current cost) for single stones.
     static func exportPLToCSV(_ report: PLReport) -> String {
-        var lines = ["Stone Type,Units Sold,Revenue,COGS,Gross Profit,Margin %"]
+        var lines = ["Stone Type,Units Sold,Revenue,COGS*,Gross Profit,Margin %"]
         for row in report.breakdownByType {
             lines.append("\(row.stoneType.csvEscaped),\(row.unitsSold),\(row.revenue),\(row.cogs),\(row.grossProfit),\(String(format: "%.1f", row.marginPercent))")
         }
         lines.append("")
         lines.append("Total,,\(report.revenue),\(report.cogs),\(report.grossProfit),\(String(format: "%.1f", report.marginPercent))")
+        lines.append("")
+        lines.append("* COGS for lot items uses historical locked cost. Single-stone COGS uses current cost price (not cost at time of sale).")
         return lines.joined(separator: "\n")
     }
 
+    /// Inventory turnover CSV export. Turnover rate is an approximation (see note in output).
     static func exportInventoryTurnoverToCSV(_ report: InventoryTurnoverReport) -> String {
         var lines = ["Metric,Value"]
         lines.append("Current Inventory Count,\(report.currentCount)")
         lines.append("Current Inventory Value,\(report.currentValue)")
         lines.append("Sold in Period Count,\(report.soldCount)")
-        lines.append("Sold in Period Value,\(report.soldValue)")
-        lines.append("Turnover Rate,\(String(format: "%.2f", report.turnoverRate))")
+        lines.append("Sold in Period Value (COGS*),\(report.soldValue)")
+        lines.append("Turnover Rate (approx.),\(String(format: "%.2f", report.turnoverRate))")
         lines.append("")
         lines.append("Aging Bucket,Count,Value")
         for bucket in report.agingBuckets {
@@ -33,9 +46,13 @@ enum ReportExportService {
         for s in report.slowMovers {
             lines.append("\(s.sku.csvEscaped),\(s.stoneType.csvEscaped),\(String(format: "%.2f", s.caratWeight)),\(s.costPrice),\(s.daysInInventory)")
         }
+        lines.append("")
+        lines.append("* Turnover rate uses current inventory value as denominator (no historical snapshots). This is an approximation.")
+        lines.append("* COGS for lot items uses historical locked cost. Single-stone COGS uses current cost price.")
         return lines.joined(separator: "\n")
     }
 
+    /// Customer profitability CSV. Revenue uses invoice grandTotal (post-tax/discount).
     static func exportCustomerProfitabilityToCSV(_ report: CustomerProfitabilityReport) -> String {
         var lines = ["Customer,Total Revenue,Total COGS,Profit,Margin %,Transactions,Avg Order Value"]
         for row in report.rows {
@@ -94,7 +111,8 @@ enum ReportExportService {
         rows += "<tr style='font-weight:bold;border-top:2px solid #333'><td>Total</td><td></td><td>\(report.revenue.asCurrency)</td><td>\(report.cogs.asCurrency)</td><td>\(report.grossProfit.asCurrency)</td><td>\(String(format: "%.1f%%", report.marginPercent))</td></tr>"
 
         return wrapHTML(title: "Profit & Loss Report", subtitle: dateRange, body: """
-        <table><thead><tr><th>Stone Type</th><th>Units</th><th>Revenue</th><th>COGS</th><th>Gross Profit</th><th>Margin</th></tr></thead><tbody>\(rows)</tbody></table>
+        <table><thead><tr><th>Stone Type</th><th>Units</th><th>Revenue</th><th>COGS*</th><th>Gross Profit</th><th>Margin</th></tr></thead><tbody>\(rows)</tbody></table>
+        <p class="footnote">* COGS for lot items uses historical locked cost. Single-stone COGS uses current cost price (not cost at time of sale). Revenue is line-item net amount (pre-tax, pre-invoice-discount).</p>
         """)
     }
 
@@ -106,11 +124,12 @@ enum ReportExportService {
         return wrapHTML(title: "Inventory Turnover Report", subtitle: dateRange, body: """
         <div style='margin-bottom:20px'>
         <p><strong>Current Inventory:</strong> \(report.currentCount) stones — \(report.currentValue.asCurrency)</p>
-        <p><strong>Sold in Period:</strong> \(report.soldCount) stones — \(report.soldValue.asCurrency)</p>
-        <p><strong>Turnover Rate:</strong> \(String(format: "%.2f", report.turnoverRate))</p>
+        <p><strong>Sold in Period:</strong> \(report.soldCount) stones — \(report.soldValue.asCurrency) (COGS*)</p>
+        <p><strong>Turnover Rate:</strong> \(String(format: "%.2f", report.turnoverRate)) (approx.†)</p>
         </div>
         <h3>Aging Buckets</h3>
         <table><thead><tr><th>Bucket</th><th>Count</th><th>Value</th></tr></thead><tbody>\(agingRows)</tbody></table>
+        <p class="footnote">* COGS for lot items uses historical locked cost. Single-stone COGS uses current cost price.<br>† Turnover rate uses current inventory value as denominator. No historical inventory snapshots are stored, so this is an approximation.</p>
         """)
     }
 
@@ -120,7 +139,8 @@ enum ReportExportService {
             rows += "<tr><td>\(row.customerName)</td><td>\(row.totalRevenue.asCurrency)</td><td>\(row.totalCOGS.asCurrency)</td><td>\(row.profit.asCurrency)</td><td>\(String(format: "%.1f%%", row.marginPercent))</td><td>\(row.transactionCount)</td><td>\(row.avgOrderValue.asCurrency)</td></tr>"
         }
         return wrapHTML(title: "Customer Profitability Report", subtitle: dateRange, body: """
-        <table><thead><tr><th>Customer</th><th>Revenue</th><th>COGS</th><th>Profit</th><th>Margin</th><th>Transactions</th><th>Avg Order</th></tr></thead><tbody>\(rows)</tbody></table>
+        <table><thead><tr><th>Customer</th><th>Revenue*</th><th>COGS†</th><th>Profit</th><th>Margin</th><th>Transactions</th><th>Avg Order</th></tr></thead><tbody>\(rows)</tbody></table>
+        <p class="footnote">* Revenue uses invoice grand total (post-tax, post-discount) — differs from P&amp;L revenue basis.<br>† COGS for lot items uses historical locked cost. Single-stone COGS uses current cost price.</p>
         """)
     }
 
@@ -135,9 +155,10 @@ enum ReportExportService {
         }
         return wrapHTML(title: "Margin Analysis Report", subtitle: dateRange, body: """
         <h3>Margin by Stone Type</h3>
-        <table><thead><tr><th>Stone Type</th><th>Avg Margin</th><th>Count</th></tr></thead><tbody>\(typeRows)</tbody></table>
+        <table><thead><tr><th>Stone Type</th><th>Avg Margin*</th><th>Count</th></tr></thead><tbody>\(typeRows)</tbody></table>
         <h3>Margin Distribution</h3>
         <table><thead><tr><th>Bucket</th><th>Count</th><th>% of Total</th></tr></thead><tbody>\(distRows)</tbody></table>
+        <p class="footnote">* Avg margin is a simple (unweighted) average of per-item margins. Monthly trend uses invoice grand total for revenue; by-stone-type uses line-item net amount.</p>
         """)
     }
 
@@ -155,6 +176,7 @@ enum ReportExportService {
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
         th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #f5f5f5; font-weight: 600; }
+        .footnote { margin-top: 16px; font-size: 11px; color: #888; line-height: 1.5; }
         </style></head>
         <body>
         <h1>\(title)</h1>

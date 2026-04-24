@@ -1,6 +1,33 @@
 import Foundation
 import SwiftData
 
+// MARK: - Reporting Assumptions
+//
+// This file implements in-process report generation over SwiftData entities.
+// Several computations rely on business assumptions or proxies rather than
+// historical ledger snapshots. Key assumptions are documented inline and
+// summarized here. See also: REPORTING-MODEL.md for the canonical reference.
+//
+// 1. COGS (Cost of Goods Sold):
+//    - Lot line items use `lockedCostPerCarat` (exact historical cost, frozen at transaction time).
+//    - Single-stone line items use `gemstone.costPrice` (current value — PROXY, not cost-at-sale).
+//      If costPrice is edited after sale, COGS will silently change. No historical snapshot exists.
+//
+// 2. Revenue basis varies by report:
+//    - P&L and Margin-by-type use `item.netAmount` (line-level, pre-tax, pre-invoice-discount).
+//    - Customer Profitability and Margin monthly trend use `invoice.grandTotal`
+//      (post-tax, post-invoice-discount). These are intentionally different bases.
+//
+// 3. Inventory Turnover denominator is a PROXY:
+//    - Uses current inventory value at query time, not average of period start/end.
+//    - No historical inventory snapshots are stored.
+//
+// 4. All reports filter to `status == .paid` invoices and `status == .sold` line items
+//    unless otherwise noted. Date filtering uses `invoiceDate` (document date, not payment date).
+//
+// 5. Customer grouping uses `displayName` string, not stable identifier.
+//    Name changes or duplicates will fragment or merge customer data.
+
 // MARK: - Report Data Models
 
 struct PLRow: Identifiable {
@@ -107,7 +134,27 @@ struct MarginAnalysisReport {
 
 enum ReportEngine {
 
+    // MARK: - COGS Computation (shared)
+
+    /// Compute COGS for a single sold line item using the two-branch rule:
+    /// - Lot items: exact historical cost from `lockedCostPerCarat` (frozen at transaction time).
+    /// - Single stones: PROXY using current `gemstone.costPrice` (not cost-at-sale).
+    private static func computeItemCOGS(_ item: LineItem) -> Decimal {
+        if item.isLotLineItem, let lockedCost = item.lockedCostPerCarat {
+            // Exact historical cost — frozen at transaction creation via LotService.
+            return lockedCost * Decimal(item.carats)
+        } else {
+            // PROXY: current costPrice, not cost-at-sale. See file-level assumptions §1.
+            return item.gemstone?.costPrice ?? 0
+        }
+    }
+
     // MARK: - P&L Report
+    //
+    // Revenue: line-item `netAmount` (pre-tax, pre-invoice-discount).
+    // COGS: lot items use historical `lockedCostPerCarat`; single stones use current `costPrice` (PROXY).
+    // Grouped by stone type. Sorted by revenue descending.
+    // Only paid invoices with sold line items are included.
 
     @MainActor
     static func generatePLReport(
@@ -117,8 +164,10 @@ enum ReportEngine {
     ) -> PLReport {
         // SwiftData #Predicate does not support custom enum types as captured constants.
         let descriptor = FetchDescriptor<Invoice>()
+        // Assumption: only realized (paid) transactions count as revenue.
         let invoices = ((try? modelContext.fetch(descriptor)) ?? [])
             .filter { $0.status == .paid }
+        // Assumption: date filtering uses invoiceDate (document date), not payment date.
         let filtered = invoices.filter { $0.invoiceDate >= startDate && $0.invoiceDate <= endDate }
 
         var typeMap: [String: (units: Int, revenue: Decimal, cogs: Decimal)] = [:]
@@ -126,14 +175,13 @@ enum ReportEngine {
         for invoice in filtered {
             for item in invoice.lineItems {
                 guard item.status == .sold else { continue }
+                // Stone type resolution: prefer live gemstone relationship; fall back to
+                // stored stoneTypeDisplay string (covers deleted gemstones or unlinked imports).
                 let type = item.gemstone?.stoneType.rawValue.capitalized ?? item.stoneTypeDisplay
+                // Revenue uses netAmount: line-level amount after per-line discount,
+                // excluding invoice-level discount and tax.
                 let revenue = item.netAmount
-                let cogs: Decimal
-                if item.isLotLineItem, let locked = item.lockedCostPerCarat {
-                    cogs = locked * Decimal(item.carats)
-                } else {
-                    cogs = item.gemstone?.costPrice ?? 0
-                }
+                let cogs = computeItemCOGS(item)
                 var entry = typeMap[type, default: (0, 0, 0)]
                 entry.units += 1
                 entry.revenue += revenue
@@ -152,6 +200,14 @@ enum ReportEngine {
     }
 
     // MARK: - Inventory Turnover
+    //
+    // Turnover rate: COGS in period / current inventory value (APPROXIMATION).
+    // The denominator is a PROXY — it uses inventory value at query time, not the
+    // average of period-start and period-end values. No historical inventory snapshots
+    // are stored, so a true average cannot be computed.
+    // Aging buckets and slow movers are exact from stored `createdAt` dates.
+    // Note: `createdAt` reflects when the record was created in the system (or imported),
+    // not necessarily when the physical stone was acquired.
 
     @MainActor
     static func generateInventoryTurnover(
@@ -164,9 +220,10 @@ enum ReportEngine {
         let allGemstones = (try? modelContext.fetch(allDescriptor)) ?? []
         let available = allGemstones.filter { $0.status == .available }
         let currentCount = available.count
+        // Current inventory valued at cost (costPrice), not sell price.
         let currentValue = available.reduce(Decimal.zero) { $0 + $1.costPrice }
 
-        _ = allGemstones.filter { $0.status == .sold } // available for future use
+        _ = allGemstones.filter { $0.status == .sold } // reserved for future period-over-period comparison
 
         let invDescriptor = FetchDescriptor<Invoice>()
         let invoices = ((try? modelContext.fetch(invDescriptor)) ?? [])
@@ -178,16 +235,14 @@ enum ReportEngine {
         for inv in periodInvoices {
             for item in inv.lineItems where item.status == .sold {
                 soldCount += 1
-                if item.isLotLineItem, let locked = item.lockedCostPerCarat {
-                    soldValue += locked * Decimal(item.carats)
-                } else {
-                    soldValue += item.gemstone?.costPrice ?? 0
-                }
+                soldValue += computeItemCOGS(item)
             }
         }
 
-        // Turnover rate = COGS / Average Inventory Value
-        // Using current inventory as proxy (no period-start snapshot available)
+        // APPROXIMATION: Turnover rate = COGS / Average Inventory Value.
+        // Uses current inventory value as denominator because no period-start snapshot exists.
+        // If inventory changed significantly during the period, this rate will be skewed.
+        // Not GAAP-compliant — directionally useful only.
         let avgInventory = currentValue > 0 ? currentValue : 1
         let turnoverRate = soldValue > 0 ? NSDecimalNumber(decimal: soldValue / avgInventory).doubleValue : 0
 
@@ -246,6 +301,16 @@ enum ReportEngine {
     }
 
     // MARK: - Customer Profitability
+    //
+    // Revenue: `invoice.grandTotal` (post-tax, post-invoice-discount) — what the customer paid.
+    // This is intentionally different from P&L revenue (which uses line-item netAmount).
+    // Consequence: grossProfit here is not directly comparable to P&L grossProfit for the
+    // same period when invoices have invoice-level discounts or non-zero tax.
+    //
+    // COGS: same two-branch rule as P&L (see file-level assumptions §1).
+    //
+    // Customer grouping: by `displayName` string, not stable identifier.
+    // If two customers share a name, their data merges. Name changes fragment history.
 
     @MainActor
     static func generateCustomerProfitability(
@@ -259,6 +324,7 @@ enum ReportEngine {
             .filter { $0.status == .paid }
         let filtered = invoices.filter { $0.invoiceDate >= startDate && $0.invoiceDate <= endDate }
 
+        // Grouped by displayName string — see method-level note on grouping limitations.
         var customerMap: [String: (id: PersistentIdentifier?, revenue: Decimal, cogs: Decimal, count: Int)] = [:]
 
         for invoice in filtered {
@@ -267,14 +333,11 @@ enum ReportEngine {
             var entry = customerMap[name, default: (custId, 0, 0, 0)]
             entry.id = custId
             entry.count += 1
+            // Revenue uses grandTotal (includes invoice-level discount + tax).
             entry.revenue += invoice.grandTotal
 
             for item in invoice.lineItems where item.status == .sold {
-                if item.isLotLineItem, let locked = item.lockedCostPerCarat {
-                    entry.cogs += locked * Decimal(item.carats)
-                } else {
-                    entry.cogs += item.gemstone?.costPrice ?? 0
-                }
+                entry.cogs += computeItemCOGS(item)
             }
             customerMap[name] = entry
         }
@@ -293,6 +356,23 @@ enum ReportEngine {
     }
 
     // MARK: - Margin Analysis
+    //
+    // This report contains three sub-analyses with DIFFERENT revenue bases:
+    //
+    // 1. Monthly trend: revenue from `invoice.grandTotal` (post-tax, post-discount).
+    //    Same basis as Customer Profitability. Comparable across those two reports.
+    //
+    // 2. By stone type: revenue from `item.netAmount` (line-level, pre-tax).
+    //    Same basis as P&L. Comparable to P&L margin.
+    //
+    // 3. Margin distribution histogram: same per-item basis as by-stone-type.
+    //
+    // The monthly trend and by-stone-type sub-reports within this single report
+    // use DIFFERENT revenue bases. This is by design but non-obvious to users.
+    //
+    // By-stone-type margin is a simple average of per-item margins, not weighted by
+    // revenue or volume. A stone type with one high-margin sale will rank higher than
+    // a type with many moderate-margin sales.
 
     @MainActor
     static func generateMarginAnalysis(
@@ -326,13 +406,10 @@ enum ReportEngine {
             var rev: Decimal = 0
             var cogs: Decimal = 0
             for inv in monthInvoices {
+                // Monthly revenue uses grandTotal (post-tax, post-invoice-discount).
                 rev += inv.grandTotal
                 for item in inv.lineItems where item.status == .sold {
-                    if item.isLotLineItem, let locked = item.lockedCostPerCarat {
-                        cogs += locked * Decimal(item.carats)
-                    } else {
-                        cogs += item.gemstone?.costPrice ?? 0
-                    }
+                    cogs += computeItemCOGS(item)
                 }
             }
             monthlyData.append((dateFormatter.string(from: monthStart), rev, cogs))
@@ -345,17 +422,13 @@ enum ReportEngine {
             return MonthlyMargin(month: data.month, marginPercent: margin, revenue: data.revenue, cogs: data.cogs)
         }
 
-        // By stone type
+        // By stone type — uses item.netAmount for revenue (same basis as P&L, NOT grandTotal).
+        // Margin per item is a simple average, not weighted by revenue or carat volume.
         var typeMap: [String: (margins: [Double], count: Int)] = [:]
         for inv in invoices {
             for item in inv.lineItems where item.status == .sold {
                 let rev = item.netAmount
-                let cogs: Decimal
-                if item.isLotLineItem, let locked = item.lockedCostPerCarat {
-                    cogs = locked * Decimal(item.carats)
-                } else {
-                    cogs = item.gemstone?.costPrice ?? 0
-                }
+                let cogs = computeItemCOGS(item)
                 guard rev > 0 else { continue }
                 let margin = NSDecimalNumber(decimal: (rev - cogs) / rev * 100).doubleValue
                 let type = item.gemstone?.stoneType.rawValue.capitalized ?? item.stoneTypeDisplay
@@ -371,18 +444,14 @@ enum ReportEngine {
             return StoneTypeMargin(stoneType: key, avgMarginPercent: avg, count: value.count)
         }.sorted { $0.avgMarginPercent > $1.avgMarginPercent }
 
-        // Distribution histogram
+        // Distribution histogram — same per-item margin computation as by-stone-type.
+        // Items with zero or negative revenue are excluded.
         var under10 = 0, r10_20 = 0, r20_30 = 0, over30 = 0
         var allMargins: [Double] = []
         for inv in invoices {
             for item in inv.lineItems where item.status == .sold {
                 let rev = item.netAmount
-                let cogs: Decimal
-                if item.isLotLineItem, let locked = item.lockedCostPerCarat {
-                    cogs = locked * Decimal(item.carats)
-                } else {
-                    cogs = item.gemstone?.costPrice ?? 0
-                }
+                let cogs = computeItemCOGS(item)
                 guard rev > 0 else { continue }
                 let margin = NSDecimalNumber(decimal: (rev - cogs) / rev * 100).doubleValue
                 allMargins.append(margin)
